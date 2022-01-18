@@ -1,0 +1,19 @@
+{
+    "scripts": {
+        "copiar-arquivos": "copyfiles -V ./index.html ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
+        "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
+        "gerar-css": "sass style.scss:./dist/style.css theme.scss:./dist/theme.css",
+        "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js"
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.9",
+        "browserify": "latest",
+        "codeflask": "^1.4.1",
+        "sass": "^1.48.0",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.5.4"
+    },
+    "dependencies": {
+        "@designliquido/delegua": "^0.1.8"
+    }
+}

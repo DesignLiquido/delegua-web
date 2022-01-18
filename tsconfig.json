@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "files": ["index.ts", "exemplos.ts", "editor.js"]
+}

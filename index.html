@@ -1,0 +1,38 @@
+<html lang="pt">
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta charset="UTF-8" />
+
+    <title>Linguagem Delégua por Design Líquido - Editor Web</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./theme.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div id="container">
+      <div id="left"><select id="demoSelector"></select></div>
+      <div id="middle">
+        
+      </div>
+      <div id="right"><button id="runBtn">Executar</button></div>
+    </div>
+
+    <div id="editor"></div>
+    <div id="output" aria-live="polite"></div>
+
+    <script src="./delegua.js"></script>
+
+    <!-- framework do editor do código -->
+    <script src="./codeflask.min.js"></script>
+
+    <script src="./exemplos.js"></script>
+    <script src="./editor.js"></script>
+  </body>
+</html>
