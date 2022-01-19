@@ -21,7 +21,7 @@ export class Delegua {
     const interpretador = new Interpretador(this, process.cwd());
 
     const lexer = new Lexer(this);
-    const simbolos = lexer.scan(codigo);
+    const simbolos = lexer.mapear(codigo);
 
     if (this.teveErro === true) return;
 
