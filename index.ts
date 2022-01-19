@@ -7,8 +7,8 @@ import tiposDeSimbolos from "@designliquido/delegua/src/tiposDeSimbolos";
 export class Delegua {
   nomeArquivo: any;
 
-  teveErro: any;
-  teveErroEmTempoDeExecucao: any;
+  teveErro: boolean;
+  teveErroEmTempoDeExecucao: boolean;
 
   constructor(nomeArquivo: any) {
     this.nomeArquivo = nomeArquivo;
@@ -23,17 +23,17 @@ export class Delegua {
     const lexer = new Lexer(this);
     const simbolos = lexer.mapear(codigo);
 
-    if (this.teveErro === true) return;
+    if (this.teveErro) return;
 
     const analisar = new Parser(this);
     const declaracoes = analisar.analisar(simbolos);
 
-    if (this.teveErro === true) return;
+    if (this.teveErro) return;
 
     const resolver = new Resolver(this, interpretador);
     resolver.resolver(declaracoes);
 
-    if (this.teveErro === true) return;
+    if (this.teveErro) return;
 
     interpretador.interpretar(declaracoes);
   }
