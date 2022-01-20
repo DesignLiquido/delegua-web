@@ -1,10 +1,12 @@
+@import "variaveis";
+
 html {
     font-family: "Roboto Mono";
     color: black;
 }
 
 #runBtn {
-    background-image: linear-gradient(to bottom, #ea515e, #7d11d1);
+    background-image: linear-gradient(to bottom, $dl-azul-cinza-5, $dl-azul-cinza-1);
     color: white;
     border: 2px;
     margin-bottom: 3px;
@@ -15,8 +17,8 @@ html {
 }
 
 #demoSelector {
-    background-image: linear-gradient(to bottom, #ea515e, #7d11d1);
-    background-color: #7d11d1;
+    background-image: linear-gradient(to bottom, $dl-azul-cinza-5, $dl-azul-cinza-1);
+    background-color: $dl-azul-cinza-1;
     color: white;
     border: 2px;
     margin-bottom: 3px;

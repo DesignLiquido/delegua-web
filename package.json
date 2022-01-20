@@ -2,7 +2,8 @@
     "scripts": {
         "copiar-arquivos": "copyfiles -V ./index.html ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
         "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
-        "gerar-css": "sass style.scss:./dist/style.css theme.scss:./dist/theme.css",
+        "gerar-css": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css",
+        "gerar-css:tempo-real": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css --watch",
         "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js"
     },
     "devDependencies": {
