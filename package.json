@@ -4,12 +4,14 @@
         "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css",
         "gerar-css:tempo-real": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css --watch",
-        "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js"
+        "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js",
+        "publicar": "yarn empacotar && gh-pages -d dist"
     },
     "devDependencies": {
         "@types/node": "^17.0.9",
         "browserify": "latest",
         "codeflask": "^1.4.1",
+        "gh-pages": "^3.2.3",
         "sass": "^1.48.0",
         "ts-node": "^10.4.0",
         "typescript": "^4.5.4"
