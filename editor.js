@@ -24,7 +24,7 @@ var clearOutput = function () {
     outputDiv.innerHTML = "";
 };
 var editor = new CodeFlask("#editor", {
-    language: 'js',
+    language: "js",
     lineNumbers: true,
     defaultTheme: false
 });

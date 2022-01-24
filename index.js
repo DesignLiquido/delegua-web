@@ -65,5 +65,4 @@ var Delegua = /** @class */ (function () {
     return Delegua;
 }());
 exports.Delegua = Delegua;
-;
 //# sourceMappingURL=index.js.map

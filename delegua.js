@@ -67,10 +67,9 @@ var Delegua = /** @class */ (function () {
     return Delegua;
 }());
 exports.Delegua = Delegua;
-;
 
 }).call(this)}).call(this,require('_process'))
-},{"@designliquido/delegua/src/avaliador-sintatico":5,"@designliquido/delegua/src/interpretador":58,"@designliquido/delegua/src/lexador":60,"@designliquido/delegua/src/resolvedor":64,"@designliquido/delegua/src/tiposDeSimbolos":65,"_process":68}],2:[function(require,module,exports){
+},{"@designliquido/delegua/src/avaliador-sintatico":5,"@designliquido/delegua/src/interpretador":58,"@designliquido/delegua/src/lexador":60,"@designliquido/delegua/src/resolvedor":63,"@designliquido/delegua/src/tiposDeSimbolos":65,"_process":68}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ambiente = void 0;
@@ -1457,7 +1456,7 @@ function default_1(interpretador, global) {
         }
         var provisorio = [];
         for (var indice = 0; indice < array.length; ++indice) {
-            provisorio.push(callback.call(interpretador, [array[indice]]));
+            provisorio.push(callback.chamar(interpretador, [array[indice]]));
         }
         return provisorio;
     }));
@@ -2929,7 +2928,7 @@ var Delegua = /** @class */ (function () {
 exports.Delegua = Delegua;
 
 }).call(this)}).call(this,require('_process'))
-},{"./avaliador-sintatico":5,"./avaliador-sintatico/dialetos/egua-classico":3,"./excecoes":55,"./interpretador":58,"./interpretador/dialetos/egua-classico":57,"./lexador":60,"./lexador/dialetos/egua-classico":59,"./resolvedor":64,"./resolvedor/dialetos/egua-classico":63,"./tiposDeSimbolos":65,"_process":68,"fs":66,"path":67,"readline":66}],46:[function(require,module,exports){
+},{"./avaliador-sintatico":5,"./avaliador-sintatico/dialetos/egua-classico":3,"./excecoes":55,"./interpretador":58,"./interpretador/dialetos/egua-classico":57,"./lexador":60,"./lexador/dialetos/egua-classico":59,"./resolvedor":63,"./resolvedor/dialetos/egua-classico":61,"./tiposDeSimbolos":65,"_process":68,"fs":66,"path":67,"readline":66}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Callable = void 0;
@@ -2996,7 +2995,7 @@ var DeleguaClasse = /** @class */ (function (_super) {
         var instancia = new instancia_1.DeleguaInstancia(this);
         var inicializador = this.encontrarMetodo("construtor");
         if (inicializador) {
-            inicializador.bind(instancia).call(interpretador, argumentos);
+            inicializador.definirEscopo(instancia).chamar(interpretador, argumentos);
         }
         return instancia;
     };
@@ -3116,7 +3115,7 @@ var DeleguaFuncao = /** @class */ (function (_super) {
             return this.ambienteAnterior.obterVariavelEm(0, "isto");
         return null;
     };
-    DeleguaFuncao.prototype.bind = function (instancia) {
+    DeleguaFuncao.prototype.definirEscopo = function (instancia) {
         var ambiente = new ambiente_1.Ambiente(this.ambienteAnterior);
         ambiente.definirVariavel("isto", instancia);
         return new DeleguaFuncao(this.nome, this.declaracao, ambiente, this.eInicializador);
@@ -3141,7 +3140,7 @@ var DeleguaInstancia = /** @class */ (function () {
         }
         var metodo = this.criarClasse.encontrarMetodo(nome.lexema);
         if (metodo)
-            return metodo.bind(this);
+            return metodo.definirEscopo(this);
         throw new excecoes_1.ErroEmTempoDeExecucao(nome, "Método indefinido não recuperado.");
     };
     DeleguaInstancia.prototype.set = function (nome, valor) {
@@ -3921,7 +3920,7 @@ var InterpretadorEguaClassico = /** @class */ (function () {
         if (metodo === undefined) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expr.metodo, "Método chamado indefinido.");
         }
-        return metodo.bind(objeto);
+        return metodo.definirEscopo(objeto);
     };
     InterpretadorEguaClassico.prototype.paraTexto = function (objeto) {
         if (objeto === null)
@@ -4576,7 +4575,7 @@ var Interpretador = /** @class */ (function () {
         if (metodo === undefined) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expr.metodo, "Método chamado indefinido.");
         }
-        return metodo.bind(objeto);
+        return metodo.definirEscopo(objeto);
     };
     Interpretador.prototype.paraTexto = function (objeto) {
         if (objeto === null)
@@ -5211,67 +5210,9 @@ exports.Lexer = Lexer;
 },{"../tiposDeSimbolos":65}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Pilha = void 0;
-var Pilha = /** @class */ (function () {
-    function Pilha() {
-        this.pilha = [];
-    }
-    Pilha.prototype.empilhar = function (item) {
-        this.pilha.push(item);
-    };
-    Pilha.prototype.eVazio = function () {
-        return this.pilha.length === 0;
-    };
-    Pilha.prototype.topoDaPilha = function () {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
-        return this.pilha[this.pilha.length - 1];
-    };
-    Pilha.prototype.removerUltimo = function () {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
-        return this.pilha.pop();
-    };
-    return Pilha;
-}());
-exports.Pilha = Pilha;
-
-},{}],62:[function(require,module,exports){
-"use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResolverError = void 0;
-var ResolverError = /** @class */ (function (_super) {
-    __extends(ResolverError, _super);
-    function ResolverError(mensagem) {
-        var _this = _super.call(this, mensagem) || this;
-        _this.mensagem = mensagem;
-        return _this;
-    }
-    return ResolverError;
-}(Error));
-exports.ResolverError = ResolverError;
-
-},{}],63:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResolverEguaClassico = void 0;
-var Pilha_1 = require("../Pilha");
-var ResolverError_1 = require("../ResolverError");
+var pilha_escopos_1 = require("../pilha-escopos");
+var erro_resolvedor_1 = require("../erro-resolvedor");
 var TipoFuncao = {
     NENHUM: "NENHUM",
     FUNCAO: "FUNCAO",
@@ -5300,7 +5241,7 @@ var ResolverEguaClassico = /** @class */ (function () {
     function ResolverEguaClassico(Delegua, interpretador) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
-        this.escopos = new Pilha_1.Pilha();
+        this.escopos = new pilha_escopos_1.PilhaEscopos();
         this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
@@ -5308,12 +5249,12 @@ var ResolverEguaClassico = /** @class */ (function () {
     ResolverEguaClassico.prototype.definir = function (nome) {
         if (this.escopos.eVazio())
             return;
-        this.escopos.peek()[nome.lexema] = true;
+        this.escopos.topoDaPilha()[nome.lexema] = true;
     };
     ResolverEguaClassico.prototype.declarar = function (nome) {
         if (this.escopos.eVazio())
             return;
-        var escopo = this.escopos.peek();
+        var escopo = this.escopos.topoDaPilha();
         if (escopo.hasOwnProperty(nome.lexema))
             this.Delegua.erro(nome, "Variável com esse nome já declarada neste escopo.");
         escopo[nome.lexema] = false;
@@ -5351,8 +5292,8 @@ var ResolverEguaClassico = /** @class */ (function () {
     };
     ResolverEguaClassico.prototype.visitarExpressaoDeVariavel = function (expr) {
         if (!this.escopos.eVazio() &&
-            this.escopos.peek()[expr.nome.lexema] === false) {
-            throw new ResolverError_1.ResolverError("Não é possível ler a variável local em seu próprio inicializador.");
+            this.escopos.topoDaPilha()[expr.nome.lexema] === false) {
+            throw new erro_resolvedor_1.ErroResolvedor("Não é possível ler a variável local em seu próprio inicializador.");
         }
         this.resolverLocal(expr, expr.nome);
         return null;
@@ -5419,10 +5360,10 @@ var ResolverEguaClassico = /** @class */ (function () {
         }
         if (stmt.superClasse !== null) {
             this.inicioDoEscopo();
-            this.escopos.peek()["super"] = true;
+            this.escopos.topoDaPilha()["super"] = true;
         }
         this.inicioDoEscopo();
-        this.escopos.peek()["isto"] = true;
+        this.escopos.topoDaPilha()["isto"] = true;
         var metodos = stmt.metodos;
         for (var i = 0; i < metodos.length; i++) {
             var declaracao = TipoFuncao.METODO;
@@ -5598,12 +5539,42 @@ var ResolverEguaClassico = /** @class */ (function () {
 exports.ResolverEguaClassico = ResolverEguaClassico;
 ;
 
-},{"../Pilha":61,"../ResolverError":62}],64:[function(require,module,exports){
+},{"../erro-resolvedor":62,"../pilha-escopos":64}],62:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErroResolvedor = void 0;
+var ErroResolvedor = /** @class */ (function (_super) {
+    __extends(ErroResolvedor, _super);
+    function ErroResolvedor(mensagem) {
+        var _this = _super.call(this, mensagem) || this;
+        _this.mensagem = mensagem;
+        return _this;
+    }
+    return ErroResolvedor;
+}(Error));
+exports.ErroResolvedor = ErroResolvedor;
+
+},{}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Resolver = void 0;
-var Pilha_1 = require("./Pilha");
-var ResolverError_1 = require("./ResolverError");
+var pilha_escopos_1 = require("./pilha-escopos");
+var erro_resolvedor_1 = require("./erro-resolvedor");
 var TipoFuncao = {
     NENHUM: "NENHUM",
     FUNCAO: "FUNCAO",
@@ -5632,7 +5603,7 @@ var Resolver = /** @class */ (function () {
     function Resolver(Delegua, interpretador) {
         this.interpretador = interpretador;
         this.Delegua = Delegua;
-        this.escopos = new Pilha_1.Pilha();
+        this.escopos = new pilha_escopos_1.PilhaEscopos();
         this.FuncaoAtual = TipoFuncao.NENHUM;
         this.ClasseAtual = TipoClasse.NENHUM;
         this.cicloAtual = TipoClasse.NENHUM;
@@ -5684,7 +5655,7 @@ var Resolver = /** @class */ (function () {
     Resolver.prototype.visitarExpressaoDeVariavel = function (expr) {
         if (!this.escopos.eVazio() &&
             this.escopos.topoDaPilha()[expr.nome.lexema] === false) {
-            throw new ResolverError_1.ResolverError("Não é possível ler a variável local em seu próprio inicializador.");
+            throw new erro_resolvedor_1.ErroResolvedor("Não é possível ler a variável local em seu próprio inicializador.");
         }
         this.resolverLocal(expr, expr.nome);
         return null;
@@ -5930,7 +5901,35 @@ var Resolver = /** @class */ (function () {
 exports.Resolver = Resolver;
 ;
 
-},{"./Pilha":61,"./ResolverError":62}],65:[function(require,module,exports){
+},{"./erro-resolvedor":62,"./pilha-escopos":64}],64:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PilhaEscopos = void 0;
+var PilhaEscopos = /** @class */ (function () {
+    function PilhaEscopos() {
+        this.pilha = [];
+    }
+    PilhaEscopos.prototype.empilhar = function (item) {
+        this.pilha.push(item);
+    };
+    PilhaEscopos.prototype.eVazio = function () {
+        return this.pilha.length === 0;
+    };
+    PilhaEscopos.prototype.topoDaPilha = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha[this.pilha.length - 1];
+    };
+    PilhaEscopos.prototype.removerUltimo = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha.pop();
+    };
+    return PilhaEscopos;
+}());
+exports.PilhaEscopos = PilhaEscopos;
+
+},{}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
