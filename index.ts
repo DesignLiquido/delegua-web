@@ -66,10 +66,11 @@ export class Delegua {
         console.error(
           `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
         );
-      else console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
+      else
+        console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
     } else {
       console.error(`Erro: ${erro.mensagem}`);
     }
     this.teveErroEmTempoDeExecucao = true;
   }
-};
+}

@@ -2,7 +2,7 @@ const outputDiv = document.getElementById("output");
 const runButton = document.getElementById("runBtn");
 const demoSelector = document.getElementById("demoSelector");
 
-String.prototype.capitalize = function() {
+String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
@@ -17,21 +17,21 @@ function getQueryVariable(variable) {
   }
 }
 
-console.log = console.error = function(msg) {
+console.log = console.error = function (msg) {
   const p = document.createElement("p");
   p.textContent = msg;
   p.classList = " output";
   outputDiv.appendChild(p);
 };
 
-const clearOutput = function() {
+const clearOutput = function () {
   outputDiv.innerHTML = "";
 };
 
 const editor = new CodeFlask("#editor", {
-  language: 'js',
+  language: "js",
   lineNumbers: true,
-  defaultTheme: false
+  defaultTheme: false,
 });
 
 clearOutput();
@@ -62,7 +62,7 @@ if (queryCode !== undefined) {
   loadDemo(demoKeys[0]);
 }
 
-const runCode = function() {
+const runCode = function () {
   const delegua = new Delegua.Delegua();
 
   let code = editor.getCode();
@@ -70,11 +70,11 @@ const runCode = function() {
   delegua.runBlock(code);
 };
 
-demoSelector.addEventListener("change", function() {
+demoSelector.addEventListener("change", function () {
   loadDemo(demoSelector.value);
 });
 
-runButton.addEventListener("click", function() {
+runButton.addEventListener("click", function () {
   clearOutput();
   runCode();
 });
