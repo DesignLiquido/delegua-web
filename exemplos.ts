@@ -66,7 +66,7 @@ se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {
     vetor4[1] = vetor3[0];
     vetor4[2] = vetor2[1];
     vetor4[3] = vetor3[1];
-  } senao {
+  } senão {
     vetor4[1] = vetor2[1];
     vetor4[2] = vetor3[0];
     vetor4[3] = vetor3[1];
@@ -176,7 +176,7 @@ enquanto (erro != 0) {
     se (entrada2 == 1) {
       resultadoEsperado = 1;
     }
-  } senao {
+  } senão {
     resultadoEsperado = 0;
   }
   
@@ -187,7 +187,7 @@ enquanto (erro != 0) {
   
   se (somatoria < 1) {
     resultado = 0;
-  } senao {
+  } senão {
     se (somatoria >= 1) {
       resultado = 1;
     }
