@@ -14,10 +14,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@designliquido/delegua@^0.1.11":
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.1.11.tgz#4b2735006cf75283d0030279dd7a5874fc065452"
-  integrity sha512-v2EvPxOTXejq6NV2hr9qHCG8m6QCdKlSBdxj77NimrZlC4MssGqK3XCzzt8i2cnQoOZlman/f8nk66lOL3WcyQ==
+"@designliquido/delegua@^0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.1.12.tgz#25e3d3b388a840d32223d88cd92c19549e909424"
+  integrity sha512-Cmxsz0r+Rw5z/mCkSC6wz99Gl9WpOUHdiAAGEhD0F7vkz1jj++Bro7yW40oDvBMxV5x+hQ15YrYmh1GqpZ2dzQ==
   dependencies:
     commander "^8.3.0"
 
