@@ -216,7 +216,7 @@ const FilaEstatica = `funcao enfileirar (valorEntrada) {
   }
 }
 
-funcao desenfileirar() {
+função desenfileirar() {
   se (indexInicial == indexFinal) {
     escreva("Fila Vazia");
   } senao {
@@ -233,7 +233,7 @@ funcao desenfileirar() {
   }
 }
 
-funcao mostrar_fila() {
+função mostrar_fila() {
   se (indexInicial == indexFinal) {
     escreva("Fila Vazia");
   } senao {
