@@ -145,7 +145,7 @@ var ParserEguaClassico = /** @class */ (function () {
                 return;
             switch (this.simboloAtual().tipo) {
                 case tiposDeSimbolos_1.default.CLASSE:
-                case tiposDeSimbolos_1.default.FUNCAO:
+                case tiposDeSimbolos_1.default.FUNÇÃO:
                 case tiposDeSimbolos_1.default.VARIAVEL:
                 case tiposDeSimbolos_1.default.PARA:
                 case tiposDeSimbolos_1.default.SE:
@@ -247,8 +247,8 @@ var ParserEguaClassico = /** @class */ (function () {
             }
             return new construtos_1.Dicionario(chaves, valores);
         }
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FUNCAO))
-            return this.corpoDaFuncao("funcao");
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FUNÇÃO))
+            return this.corpoDaFuncao("função");
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FALSO))
             return new construtos_1.Literal(false);
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.VERDADEIRO))
@@ -427,7 +427,7 @@ var ParserEguaClassico = /** @class */ (function () {
                 return new construtos_1.Conjunto(get.objeto, get.nome, valor);
             }
             else if (expr instanceof construtos_1.Subscript) {
-                return new construtos_1.AssignSubscript(expr.callee, expr.indice, valor);
+                return new construtos_1.AtribuicaoSobrescrita(expr.callee, expr.indice, valor);
             }
             this.erro(igual, "Tarefa de atribuição inválida");
         }
@@ -463,10 +463,10 @@ var ParserEguaClassico = /** @class */ (function () {
         this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
         var thenBranch = this.resolverDeclaracao();
         var elifBranches = [];
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAOSE)) {
-            this.consumir(tiposDeSimbolos_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose'.");
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENÃOSE)) {
+            this.consumir(tiposDeSimbolos_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'senãose'.");
             var elifCondition = this.expressao();
-            this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' apóes codição do 'senaose.");
+            this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' apóes codição do 'senãose.");
             var branch = this.resolverDeclaracao();
             elifBranches.push({
                 condition: elifCondition,
@@ -474,7 +474,7 @@ var ParserEguaClassico = /** @class */ (function () {
             });
         }
         var elseBranch = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENÃO)) {
             elseBranch = this.resolverDeclaracao();
         }
         return new declaracoes_1.Se(condicao, thenBranch, elifBranches, elseBranch);
@@ -612,7 +612,7 @@ var ParserEguaClassico = /** @class */ (function () {
             catchBlock = this.blocoEscopo();
         }
         var elseBlock = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENÃO)) {
             this.consumir(tiposDeSimbolos_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
             elseBlock = this.blocoEscopo();
         }
@@ -723,10 +723,10 @@ var ParserEguaClassico = /** @class */ (function () {
     };
     ParserEguaClassico.prototype.declaracao = function () {
         try {
-            if (this.verificar(tiposDeSimbolos_1.default.FUNCAO) &&
+            if (this.verificar(tiposDeSimbolos_1.default.FUNÇÃO) &&
                 this.verificarProximo(tiposDeSimbolos_1.default.IDENTIFICADOR)) {
-                this.consumir(tiposDeSimbolos_1.default.FUNCAO, null);
-                return this.funcao("funcao");
+                this.consumir(tiposDeSimbolos_1.default.FUNÇÃO, null);
+                return this.funcao("função");
             }
             if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.VARIAVEL))
                 return this.declaracaoDeVariavel();
@@ -810,6 +810,7 @@ var Parser = /** @class */ (function () {
             switch (this.simboloAtual().tipo) {
                 case tiposDeSimbolos_1.default.CLASSE:
                 case tiposDeSimbolos_1.default.FUNCAO:
+                case tiposDeSimbolos_1.default.FUNÇÃO:
                 case tiposDeSimbolos_1.default.VARIAVEL:
                 case tiposDeSimbolos_1.default.PARA:
                 case tiposDeSimbolos_1.default.SE:
@@ -914,6 +915,8 @@ var Parser = /** @class */ (function () {
             }
             return new construtos_1.Dicionario(chaves, valores);
         }
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FUNÇÃO))
+            return this.corpoDaFuncao("função");
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FUNCAO))
             return this.corpoDaFuncao("funcao");
         if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.FALSO))
@@ -1095,7 +1098,7 @@ var Parser = /** @class */ (function () {
                 return new construtos_1.Conjunto(get.objeto, get.nome, valor);
             }
             else if (expr instanceof construtos_1.Subscript) {
-                return new construtos_1.AssignSubscript(expr.callee, expr.indice, valor);
+                return new construtos_1.AtribuicaoSobrescrita(expr.callee, expr.indice, valor);
             }
             this.erro(igual, "Tarefa de atribuição inválida");
         }
@@ -1129,10 +1132,10 @@ var Parser = /** @class */ (function () {
         this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
         var thenBranch = this.resolverDeclaracao();
         var elifBranches = [];
-        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAOSE)) {
-            this.consumir(tiposDeSimbolos_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose'.");
+        while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAOSE, tiposDeSimbolos_1.default.SENÃOSE)) {
+            this.consumir(tiposDeSimbolos_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
             var elifCondition = this.expressao();
-            this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' apóes codição do 'senaose.");
+            this.consumir(tiposDeSimbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
             var branch = this.resolverDeclaracao();
             elifBranches.push({
                 condition: elifCondition,
@@ -1140,7 +1143,7 @@ var Parser = /** @class */ (function () {
             });
         }
         var elseBranch = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO, tiposDeSimbolos_1.default.SENÃO)) {
             elseBranch = this.resolverDeclaracao();
         }
         return new declaracoes_1.Se(condicao, thenBranch, elifBranches, elseBranch);
@@ -1274,7 +1277,7 @@ var Parser = /** @class */ (function () {
             catchBlock = this.blocoEscopo();
         }
         var elseBlock = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO)) {
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos_1.default.SENAO, tiposDeSimbolos_1.default.SENÃO)) {
             this.consumir(tiposDeSimbolos_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
             elseBlock = this.blocoEscopo();
         }
@@ -1385,6 +1388,11 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.declaracao = function () {
         try {
+            if (this.verificar(tiposDeSimbolos_1.default.FUNÇÃO) &&
+                this.verificarProximo(tiposDeSimbolos_1.default.IDENTIFICADOR)) {
+                this.consumir(tiposDeSimbolos_1.default.FUNÇÃO, null);
+                return this.funcao("função");
+            }
             if (this.verificar(tiposDeSimbolos_1.default.FUNCAO) &&
                 this.verificarProximo(tiposDeSimbolos_1.default.IDENTIFICADOR)) {
                 this.consumir(tiposDeSimbolos_1.default.FUNCAO, null);
@@ -1521,15 +1529,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var excecoes_1 = require("../excecoes");
 var funcao_padrao_1 = require("../estruturas/funcao-padrao");
 var modulo_1 = require("../estruturas/modulo");
-var carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
+var carregarBiblioteca = function (nomeDaBiblioteca, caminhoDaBiblioteca) {
     var dadosDoModulo;
     try {
-        dadosDoModulo = require(caminhoDoModulo);
+        dadosDoModulo = require(caminhoDaBiblioteca);
     }
     catch (erro) {
-        throw new excecoes_1.ErroEmTempoDeExecucao(nomeDoModulo, "Biblioteca ".concat(nomeDoModulo, " n\u00E3o encontrada para importa\u00E7\u00E3o."));
+        throw new excecoes_1.ErroEmTempoDeExecucao(nomeDaBiblioteca, "Biblioteca ".concat(nomeDaBiblioteca, " n\u00E3o encontrada para importa\u00E7\u00E3o."));
     }
-    var novoModulo = new modulo_1.DeleguaModulo(nomeDoModulo);
+    var novoModulo = new modulo_1.DeleguaModulo(nomeDaBiblioteca);
     var chaves = Object.keys(dadosDoModulo);
     for (var i = 0; i < chaves.length; i++) {
         var moduloAtual = dadosDoModulo[chaves[i]];
@@ -1543,342 +1551,163 @@ var carregarModulo = function (nomeDoModulo, caminhoDoModulo) {
     return novoModulo;
 };
 function default_1(nome) {
-    return carregarModulo(nome, nome);
+    return carregarBiblioteca(nome, nome);
 }
 exports.default = default_1;
 ;
 
 },{"../estruturas/funcao-padrao":48,"../estruturas/modulo":51,"../excecoes":55}],8:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AssignSubscript = void 0;
-var expr_1 = require("./expr");
-var AssignSubscript = /** @class */ (function (_super) {
-    __extends(AssignSubscript, _super);
-    function AssignSubscript(objeto, indice, valor) {
-        var _this = _super.call(this) || this;
-        _this.objeto = objeto;
-        _this.indice = indice;
-        _this.valor = valor;
-        return _this;
+exports.AtribuicaoSobrescrita = void 0;
+var AtribuicaoSobrescrita = /** @class */ (function () {
+    function AtribuicaoSobrescrita(objeto, indice, valor) {
+        this.objeto = objeto;
+        this.indice = indice;
+        this.valor = valor;
     }
-    AssignSubscript.prototype.aceitar = function (visitante) {
+    AtribuicaoSobrescrita.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoAtribuicaoSobrescrita(this);
     };
-    return AssignSubscript;
-}(expr_1.Expr));
-exports.AssignSubscript = AssignSubscript;
+    return AtribuicaoSobrescrita;
+}());
+exports.AtribuicaoSobrescrita = AtribuicaoSobrescrita;
 
-},{"./expr":14}],9:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
-var expr_1 = require("./expr");
-var Atribuir = /** @class */ (function (_super) {
-    __extends(Atribuir, _super);
+var Atribuir = /** @class */ (function () {
     function Atribuir(nome, valor) {
-        var _this = _super.call(this) || this;
-        _this.nome = nome;
-        _this.valor = valor;
-        return _this;
+        this.nome = nome;
+        this.valor = valor;
     }
     Atribuir.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDeAtribuicao(this);
     };
     return Atribuir;
-}(expr_1.Expr));
+}());
 exports.Atribuir = Atribuir;
 
-},{"./expr":14}],10:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
-var expr_1 = require("./expr");
-var Binario = /** @class */ (function (_super) {
-    __extends(Binario, _super);
+var Binario = /** @class */ (function () {
     function Binario(esquerda, operador, direita) {
-        var _this = _super.call(this) || this;
-        _this.esquerda = esquerda;
-        _this.operador = operador;
-        _this.direita = direita;
-        return _this;
+        this.esquerda = esquerda;
+        this.operador = operador;
+        this.direita = direita;
     }
     Binario.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoBinaria(this);
     };
     return Binario;
-}(expr_1.Expr));
+}());
 exports.Binario = Binario;
 
-},{"./expr":14}],11:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Call = void 0;
-var expr_1 = require("./expr");
-var Call = /** @class */ (function (_super) {
-    __extends(Call, _super);
+var Call = /** @class */ (function () {
     function Call(callee, parentese, argumentos) {
-        var _this = _super.call(this) || this;
-        _this.callee = callee;
-        _this.parentese = parentese;
-        _this.argumentos = argumentos;
-        return _this;
+        this.callee = callee;
+        this.parentese = parentese;
+        this.argumentos = argumentos;
     }
     Call.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDeChamada(this);
     };
     return Call;
-}(expr_1.Expr));
+}());
 exports.Call = Call;
 
-},{"./expr":14}],12:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Conjunto = void 0;
-var expr_1 = require("./expr");
-var Conjunto = /** @class */ (function (_super) {
-    __extends(Conjunto, _super);
+var Conjunto = /** @class */ (function () {
     function Conjunto(objeto, nome, valor) {
-        var _this = _super.call(this) || this;
-        _this.objeto = objeto;
-        _this.nome = nome;
-        _this.valor = valor;
-        return _this;
+        this.objeto = objeto;
+        this.nome = nome;
+        this.valor = valor;
     }
     Conjunto.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDefinir(this);
     };
     return Conjunto;
-}(expr_1.Expr));
+}());
 exports.Conjunto = Conjunto;
 
-},{"./expr":14}],13:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
-var expr_1 = require("./expr");
-var Dicionario = /** @class */ (function (_super) {
-    __extends(Dicionario, _super);
+var Dicionario = /** @class */ (function () {
     function Dicionario(chaves, valores) {
-        var _this = _super.call(this) || this;
-        _this.chaves = chaves;
-        _this.valores = valores;
-        return _this;
+        this.chaves = chaves;
+        this.valores = valores;
     }
     Dicionario.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDicionario(this);
     };
     return Dicionario;
-}(expr_1.Expr));
+}());
 exports.Dicionario = Dicionario;
 
-},{"./expr":14}],14:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Expr = void 0;
-var Expr = /** @class */ (function () {
-    function Expr() {
-    }
-    Expr.prototype.aceitar = function (visitante) { };
-    return Expr;
-}());
-exports.Expr = Expr;
 
 },{}],15:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Funcao = void 0;
-var expr_1 = require("./expr");
-var Funcao = /** @class */ (function (_super) {
-    __extends(Funcao, _super);
+var Funcao = /** @class */ (function () {
     function Funcao(parametros, corpo) {
-        var _this = _super.call(this) || this;
-        _this.parametros = parametros;
-        _this.corpo = corpo;
-        return _this;
+        this.parametros = parametros;
+        this.corpo = corpo;
     }
     Funcao.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDeleguaFuncao(this);
     };
     return Funcao;
-}(expr_1.Expr));
+}());
 exports.Funcao = Funcao;
 
-},{"./expr":14}],16:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Get = void 0;
-var expr_1 = require("./expr");
-var Get = /** @class */ (function (_super) {
-    __extends(Get, _super);
+var Get = /** @class */ (function () {
     function Get(objeto, nome) {
-        var _this = _super.call(this) || this;
-        _this.objeto = objeto;
-        _this.nome = nome;
-        return _this;
+        this.objeto = objeto;
+        this.nome = nome;
     }
     Get.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoObter(this);
     };
     return Get;
-}(expr_1.Expr));
+}());
 exports.Get = Get;
 
-},{"./expr":14}],17:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Grouping = void 0;
-var expr_1 = require("./expr");
-var Grouping = /** @class */ (function (_super) {
-    __extends(Grouping, _super);
+var Grouping = /** @class */ (function () {
     function Grouping(expressao) {
-        var _this = _super.call(this) || this;
-        _this.expressao = expressao;
-        return _this;
+        this.expressao = expressao;
     }
     Grouping.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoAgrupamento(this);
     };
     return Grouping;
-}(expr_1.Expr));
+}());
 exports.Grouping = Grouping;
 
-},{"./expr":14}],18:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1891,7 +1720,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./assign-subscript"), exports);
+__exportStar(require("./atribuicao-sobrescrita"), exports);
 __exportStar(require("./atribuir"), exports);
 __exportStar(require("./binario"), exports);
 __exportStar(require("./call"), exports);
@@ -1910,285 +1739,133 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./assign-subscript":8,"./atribuir":9,"./binario":10,"./call":11,"./conjunto":12,"./dicionario":13,"./expr":14,"./funcao":15,"./get":16,"./grouping":17,"./isto":19,"./literal":20,"./logical":21,"./subscript":22,"./super":23,"./unario":24,"./variavel":25,"./vetor":26}],19:[function(require,module,exports){
+},{"./atribuicao-sobrescrita":8,"./atribuir":9,"./binario":10,"./call":11,"./conjunto":12,"./dicionario":13,"./expr":14,"./funcao":15,"./get":16,"./grouping":17,"./isto":19,"./literal":20,"./logical":21,"./subscript":22,"./super":23,"./unario":24,"./variavel":25,"./vetor":26}],19:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
-var expr_1 = require("./expr");
-var Isto = /** @class */ (function (_super) {
-    __extends(Isto, _super);
+var Isto = /** @class */ (function () {
     function Isto(palavraChave) {
-        var _this = _super.call(this) || this;
-        _this.palavraChave = palavraChave;
-        return _this;
+        this.palavraChave = palavraChave;
     }
     Isto.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoIsto(this);
     };
     return Isto;
-}(expr_1.Expr));
+}());
 exports.Isto = Isto;
 
-},{"./expr":14}],20:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
-var expr_1 = require("./expr");
-var Literal = /** @class */ (function (_super) {
-    __extends(Literal, _super);
+var Literal = /** @class */ (function () {
     function Literal(valor) {
-        var _this = _super.call(this) || this;
-        _this.valor = valor;
-        return _this;
+        this.valor = valor;
     }
     Literal.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoLiteral(this);
     };
     return Literal;
-}(expr_1.Expr));
+}());
 exports.Literal = Literal;
 
-},{"./expr":14}],21:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logical = void 0;
-var expr_1 = require("./expr");
-var Logical = /** @class */ (function (_super) {
-    __extends(Logical, _super);
+var Logical = /** @class */ (function () {
     function Logical(esquerda, operador, direita) {
-        var _this = _super.call(this) || this;
-        _this.esquerda = esquerda;
-        _this.operador = operador;
-        _this.direita = direita;
-        return _this;
+        this.esquerda = esquerda;
+        this.operador = operador;
+        this.direita = direita;
     }
     Logical.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoLogica(this);
     };
     return Logical;
-}(expr_1.Expr));
+}());
 exports.Logical = Logical;
 
-},{"./expr":14}],22:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Subscript = void 0;
-var expr_1 = require("./expr");
-var Subscript = /** @class */ (function (_super) {
-    __extends(Subscript, _super);
+var Subscript = /** @class */ (function () {
     function Subscript(callee, indice, closeBracket) {
-        var _this = _super.call(this) || this;
-        _this.callee = callee;
-        _this.indice = indice;
-        _this.closeBracket = closeBracket;
-        return _this;
+        this.callee = callee;
+        this.indice = indice;
+        this.closeBracket = closeBracket;
     }
     Subscript.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoVetorIndice(this);
     };
     return Subscript;
-}(expr_1.Expr));
+}());
 exports.Subscript = Subscript;
 
-},{"./expr":14}],23:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
-var expr_1 = require("./expr");
-var Super = /** @class */ (function (_super) {
-    __extends(Super, _super);
+var Super = /** @class */ (function () {
     function Super(palavraChave, metodo) {
-        var _this = _super.call(this) || this;
-        _this.palavraChave = palavraChave;
-        _this.metodo = metodo;
-        return _this;
+        this.palavraChave = palavraChave;
+        this.metodo = metodo;
     }
     Super.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoSuper(this);
     };
     return Super;
-}(expr_1.Expr));
+}());
 exports.Super = Super;
 
-},{"./expr":14}],24:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
-var expr_1 = require("./expr");
-var Unario = /** @class */ (function (_super) {
-    __extends(Unario, _super);
+var Unario = /** @class */ (function () {
     function Unario(operador, direita) {
-        var _this = _super.call(this) || this;
-        _this.operador = operador;
-        _this.direita = direita;
-        return _this;
+        this.operador = operador;
+        this.direita = direita;
     }
     Unario.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoUnaria(this);
     };
     return Unario;
-}(expr_1.Expr));
+}());
 exports.Unario = Unario;
 
-},{"./expr":14}],25:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
-var expr_1 = require("./expr");
-var Variavel = /** @class */ (function (_super) {
-    __extends(Variavel, _super);
+var Variavel = /** @class */ (function () {
     function Variavel(nome) {
-        var _this = _super.call(this) || this;
-        _this.nome = nome;
-        return _this;
+        this.nome = nome;
     }
     Variavel.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoDeVariavel(this);
     };
     return Variavel;
-}(expr_1.Expr));
+}());
 exports.Variavel = Variavel;
 
-},{"./expr":14}],26:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
-var expr_1 = require("./expr");
-var Vetor = /** @class */ (function (_super) {
-    __extends(Vetor, _super);
+var Vetor = /** @class */ (function () {
     function Vetor(valores) {
-        var _this = _super.call(this) || this;
-        _this.valores = valores;
-        return _this;
+        this.valores = valores;
     }
     Vetor.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoVetor(this);
     };
     return Vetor;
-}(expr_1.Expr));
+}());
 exports.Vetor = Vetor;
 
-},{"./expr":14}],27:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2984,7 +2661,7 @@ var DeleguaClasse = /** @class */ (function (_super) {
         }
         return undefined;
     };
-    DeleguaClasse.prototype.toString = function () {
+    DeleguaClasse.prototype.paraTexto = function () {
         return "<classe ".concat(this.nome, ">");
     };
     DeleguaClasse.prototype.aridade = function () {
@@ -3035,7 +2712,7 @@ var FuncaoPadrao = /** @class */ (function (_super) {
         this.simbolo = simbolo;
         return this.funcao.apply(this, argumentos);
     };
-    FuncaoPadrao.prototype.toString = function () {
+    FuncaoPadrao.prototype.paraTexto = function () {
         return "<função>";
     };
     return FuncaoPadrao;
@@ -3079,7 +2756,7 @@ var DeleguaFuncao = /** @class */ (function (_super) {
         var _a, _b;
         return ((_b = (_a = this.declaracao) === null || _a === void 0 ? void 0 : _a.parametros) === null || _b === void 0 ? void 0 : _b.length) || 0;
     };
-    DeleguaFuncao.prototype.toString = function () {
+    DeleguaFuncao.prototype.paraTexto = function () {
         if (this.nome === null)
             return "<função>";
         return "<fun\u00E7\u00E3o ".concat(this.nome, ">");
@@ -3313,10 +2990,10 @@ exports.InterpretadorEguaClassico = void 0;
 var tiposDeSimbolos_1 = require("../../tiposDeSimbolos");
 var ambiente_1 = require("../../ambiente");
 var delegua_1 = require("../../delegua");
-var bibliotecaGlobal_1 = require("../../bibliotecas/bibliotecaGlobal");
+var biblioteca_global_1 = require("../../bibliotecas/biblioteca-global");
 var caminho = require("path");
 var fs = require("fs");
-var importarBiblioteca_1 = require("../../bibliotecas/importarBiblioteca");
+var importar_biblioteca_1 = require("../../bibliotecas/importar-biblioteca");
 var callable_1 = require("../../estruturas/callable");
 var funcao_padrao_1 = require("../../estruturas/funcao-padrao");
 var classe_1 = require("../../estruturas/classe");
@@ -3335,7 +3012,7 @@ var InterpretadorEguaClassico = /** @class */ (function () {
         this.global = new ambiente_1.Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
-        this.global = (0, bibliotecaGlobal_1.default)(this, this.global);
+        this.global = (0, biblioteca_global_1.default)(this, this.global);
     }
     InterpretadorEguaClassico.prototype.resolver = function (expr, depth) {
         this.locais.set(expr, depth);
@@ -3691,7 +3368,7 @@ var InterpretadorEguaClassico = /** @class */ (function () {
         var caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         // const pastaTotal = caminho.dirname(caminhoTotal);
         var nomeArquivo = caminho.basename(caminhoTotal);
-        var dados = (0, importarBiblioteca_1.default)(caminhoRelativo);
+        var dados = (0, importar_biblioteca_1.default)(caminhoRelativo);
         if (dados)
             return dados;
         try {
@@ -3959,17 +3636,17 @@ var InterpretadorEguaClassico = /** @class */ (function () {
 }());
 exports.InterpretadorEguaClassico = InterpretadorEguaClassico;
 
-},{"../../ambiente":2,"../../bibliotecas/bibliotecaGlobal":6,"../../bibliotecas/importarBiblioteca":7,"../../delegua":45,"../../estruturas/callable":46,"../../estruturas/classe":47,"../../estruturas/funcao":49,"../../estruturas/funcao-padrao":48,"../../estruturas/instancia":50,"../../estruturas/modulo":51,"../../excecoes":55,"../../tiposDeSimbolos":65,"fs":66,"path":67}],58:[function(require,module,exports){
+},{"../../ambiente":2,"../../bibliotecas/biblioteca-global":6,"../../bibliotecas/importar-biblioteca":7,"../../delegua":45,"../../estruturas/callable":46,"../../estruturas/classe":47,"../../estruturas/funcao":49,"../../estruturas/funcao-padrao":48,"../../estruturas/instancia":50,"../../estruturas/modulo":51,"../../excecoes":55,"../../tiposDeSimbolos":65,"fs":66,"path":67}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpretador = void 0;
 var tiposDeSimbolos_1 = require("../tiposDeSimbolos");
 var ambiente_1 = require("../ambiente");
 var delegua_1 = require("../delegua");
-var bibliotecaGlobal_1 = require("../bibliotecas/bibliotecaGlobal");
+var biblioteca_global_1 = require("../bibliotecas/biblioteca-global");
 var caminho = require("path");
 var fs = require("fs");
-var importarBiblioteca_1 = require("../bibliotecas/importarBiblioteca");
+var importar_biblioteca_1 = require("../bibliotecas/importar-biblioteca");
 var callable_1 = require("../estruturas/callable");
 var funcao_padrao_1 = require("../estruturas/funcao-padrao");
 var classe_1 = require("../estruturas/classe");
@@ -3988,7 +3665,7 @@ var Interpretador = /** @class */ (function () {
         this.global = new ambiente_1.Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
-        this.global = (0, bibliotecaGlobal_1.default)(this, this.global);
+        this.global = (0, biblioteca_global_1.default)(this, this.global);
     }
     Interpretador.prototype.resolver = function (expr, depth) {
         this.locais.set(expr, depth);
@@ -4344,7 +4021,7 @@ var Interpretador = /** @class */ (function () {
         var nomeArquivo = caminho.basename(caminhoTotal);
         var dados;
         if (!caminhoTotal.endsWith('.egua')) {
-            dados = (0, importarBiblioteca_1.default)(caminhoRelativo);
+            dados = (0, importar_biblioteca_1.default)(caminhoRelativo);
             if (dados)
                 return dados;
         }
@@ -4624,7 +4301,7 @@ var Interpretador = /** @class */ (function () {
 }());
 exports.Interpretador = Interpretador;
 
-},{"../ambiente":2,"../bibliotecas/bibliotecaGlobal":6,"../bibliotecas/importarBiblioteca":7,"../delegua":45,"../estruturas/callable":46,"../estruturas/classe":47,"../estruturas/funcao":49,"../estruturas/funcao-padrao":48,"../estruturas/instancia":50,"../estruturas/modulo":51,"../excecoes":55,"../tiposDeSimbolos":65,"fs":66,"path":67}],59:[function(require,module,exports){
+},{"../ambiente":2,"../bibliotecas/biblioteca-global":6,"../bibliotecas/importar-biblioteca":7,"../delegua":45,"../estruturas/callable":46,"../estruturas/classe":47,"../estruturas/funcao":49,"../estruturas/funcao-padrao":48,"../estruturas/instancia":50,"../estruturas/modulo":51,"../excecoes":55,"../tiposDeSimbolos":65,"fs":66,"path":67}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexerEguaClassico = void 0;
@@ -4633,12 +4310,12 @@ var palavrasReservadas = {
     e: tiposDeSimbolos_1.default.E,
     em: tiposDeSimbolos_1.default.EM,
     classe: tiposDeSimbolos_1.default.CLASSE,
-    senao: tiposDeSimbolos_1.default.SENAO,
+    senão: tiposDeSimbolos_1.default.SENÃO,
     falso: tiposDeSimbolos_1.default.FALSO,
     para: tiposDeSimbolos_1.default.PARA,
-    funcao: tiposDeSimbolos_1.default.FUNCAO,
+    função: tiposDeSimbolos_1.default.FUNÇÃO,
     se: tiposDeSimbolos_1.default.SE,
-    senaose: tiposDeSimbolos_1.default.SENAOSE,
+    senãose: tiposDeSimbolos_1.default.SENÃOSE,
     nulo: tiposDeSimbolos_1.default.NULO,
     ou: tiposDeSimbolos_1.default.OU,
     escreva: tiposDeSimbolos_1.default.ESCREVA,
@@ -4667,7 +4344,7 @@ var Simbolo = /** @class */ (function () {
         this.literal = literal;
         this.linha = linha;
     }
-    Simbolo.prototype.toString = function () {
+    Simbolo.prototype.paraTexto = function () {
         return this.tipo + " " + this.lexema + " " + this.literal;
     };
     return Simbolo;
@@ -4691,7 +4368,8 @@ var LexerEguaClassico = /** @class */ (function () {
         return caractere >= "0" && caractere <= "9";
     };
     LexerEguaClassico.prototype.eAlfabeto = function (caractere) {
-        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || caractere == "_";
+        var acentuacoes = ["á", "Á", "ã", "Ã", "â", "Â", "à", "À", "é", "É", "ê", "Ê", "í", "Í", "ó", "Ó", "õ", "Õ", "ô", "Ô", "ú", "Ú", "ç", "Ç", "_"];
+        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || acentuacoes.includes(caractere);
     };
     LexerEguaClassico.prototype.eAlfabetoOuDigito = function (caractere) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
@@ -4920,11 +4598,14 @@ var palavrasReservadas = {
     em: tiposDeSimbolos_1.default.EM,
     classe: tiposDeSimbolos_1.default.CLASSE,
     senao: tiposDeSimbolos_1.default.SENAO,
+    senão: tiposDeSimbolos_1.default.SENÃO,
     falso: tiposDeSimbolos_1.default.FALSO,
     para: tiposDeSimbolos_1.default.PARA,
     funcao: tiposDeSimbolos_1.default.FUNCAO,
+    função: tiposDeSimbolos_1.default.FUNÇÃO,
     se: tiposDeSimbolos_1.default.SE,
     senaose: tiposDeSimbolos_1.default.SENAOSE,
+    senãose: tiposDeSimbolos_1.default.SENÃOSE,
     nulo: tiposDeSimbolos_1.default.NULO,
     ou: tiposDeSimbolos_1.default.OU,
     escreva: tiposDeSimbolos_1.default.ESCREVA,
@@ -4953,7 +4634,7 @@ var Simbolo = /** @class */ (function () {
         this.literal = literal;
         this.linha = linha;
     }
-    Simbolo.prototype.toString = function () {
+    Simbolo.prototype.paraTexto = function () {
         return this.tipo + " " + this.lexema + " " + this.literal;
     };
     return Simbolo;
@@ -4977,7 +4658,8 @@ var Lexer = /** @class */ (function () {
         return caractere >= "0" && caractere <= "9";
     };
     Lexer.prototype.eAlfabeto = function (caractere) {
-        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || caractere == "_";
+        var acentuacoes = ["á", "Á", "ã", "Ã", "â", "Â", "à", "À", "é", "É", "ê", "Ê", "í", "Í", "ó", "Ó", "õ", "Õ", "ô", "Ô", "ú", "Ú", "ç", "Ç", "_"];
+        return (caractere >= "a" && caractere <= "z") || (caractere >= "A" && caractere <= "Z") || acentuacoes.includes(caractere);
     };
     Lexer.prototype.eAlfabetoOuDigito = function (caractere) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
@@ -5215,7 +4897,7 @@ var pilha_escopos_1 = require("../pilha-escopos");
 var erro_resolvedor_1 = require("../erro-resolvedor");
 var TipoFuncao = {
     NENHUM: "NENHUM",
-    FUNCAO: "FUNCAO",
+    FUNÇÃO: "FUNÇÃO",
     CONSTRUTOR: "CONSTRUTOR",
     METODO: "METODO"
 };
@@ -5329,11 +5011,11 @@ var ResolverEguaClassico = /** @class */ (function () {
     ResolverEguaClassico.prototype.visitarExpressaoFuncao = function (stmt) {
         this.declarar(stmt.nome);
         this.definir(stmt.nome);
-        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNCAO);
+        this.resolverFuncao(stmt.funcao, TipoFuncao.FUNÇÃO);
         return null;
     };
     ResolverEguaClassico.prototype.visitarExpressaoDeleguaFuncao = function (stmt) {
-        this.resolverFuncao(stmt, TipoFuncao.FUNCAO);
+        this.resolverFuncao(stmt, TipoFuncao.FUNÇÃO);
         return null;
     };
     ResolverEguaClassico.prototype.visitarExpressaoTente = function (stmt) {
@@ -5962,6 +5644,7 @@ exports.default = {
     FAZER: "FAZER",
     FINALMENTE: "FINALMENTE",
     FUNCAO: "FUNCAO",
+    FUNÇÃO: "FUNÇÃO",
     HERDA: "HERDA",
     IDENTIFICADOR: "IDENTIFICADOR",
     IMPORTAR: "IMPORTAR",
@@ -5992,7 +5675,9 @@ exports.default = {
     SUBTRACAO: "SUBTRACAO",
     SE: "SE",
     SENAO: "SENAO",
+    SENÃO: "SENÃO",
     SENAOSE: "SENAOSE",
+    SENÃOSE: "SENÃOSE",
     SUPER: "SUPER",
     TENTE: "TENTE",
     TEXTO: "TEXTO",
