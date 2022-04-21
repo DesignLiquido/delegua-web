@@ -62,12 +62,12 @@ if (queryCode !== undefined) {
   loadDemo(demoKeys[0]);
 }
 
-const runCode = function () {
+const executarCodigo = function () {
   const delegua = new Delegua.Delegua();
 
   let codigo = editor.getCode();
 
-  delegua.executar(codigo);
+  delegua.executar(codigo.split("\n"));
 };
 
 demoSelector.addEventListener("change", function () {
@@ -76,5 +76,5 @@ demoSelector.addEventListener("change", function () {
 
 runButton.addEventListener("click", function () {
   clearOutput();
-  runCode();
+  executarCodigo();
 });
