@@ -4,32 +4,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 exports.Delegua = void 0;
-var lexador_1 = require("@designliquido/delegua/src/lexador");
-var avaliador_sintatico_1 = require("@designliquido/delegua/src/avaliador-sintatico");
-var resolvedor_1 = require("@designliquido/delegua/src/resolvedor");
-var interpretador_1 = require("@designliquido/delegua/src/interpretador");
-var tiposDeSimbolos_1 = __importDefault(require("@designliquido/delegua/src/tiposDeSimbolos"));
+var lexador_1 = require("@designliquido/delegua/fontes/lexador");
+var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
+var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
+var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
+var tipos_de_simbolos_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos"));
 var Delegua = /** @class */ (function () {
     function Delegua(nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
-    Delegua.prototype.runBlock = function (codigo) {
+    Delegua.prototype.executar = function (codigo, nomeArquivo) {
         var interpretador = new interpretador_1.Interpretador(this, process.cwd());
-        var lexer = new lexador_1.Lexer(this);
-        var simbolos = lexer.mapear(codigo);
+        var lexador = new lexador_1.Lexador(false);
+        var retornoLexador = lexador.mapear(codigo);
         if (this.teveErro)
             return;
-        var analisar = new avaliador_sintatico_1.Parser(this);
-        var declaracoes = analisar.analisar(simbolos);
+        var avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico(false);
+        var retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
         if (this.teveErro)
             return;
-        var resolver = new resolvedor_1.Resolver(this, interpretador);
-        resolver.resolver(declaracoes);
+        var resolvedor = new resolvedor_1.Resolvedor();
+        var retornoResolvedor = resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
         if (this.teveErro)
             return;
-        interpretador.interpretar(declaracoes);
+        interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -39,7 +39,7 @@ var Delegua = /** @class */ (function () {
         this.teveErro = true;
     };
     Delegua.prototype.erro = function (simbolo, mensagemDeErro) {
-        if (simbolo.tipo === tiposDeSimbolos_1["default"].EOF) {
+        if (simbolo.tipo === tipos_de_simbolos_1["default"].EOF) {
             this.reportar(simbolo.line, " no final", mensagemDeErro);
         }
         else {

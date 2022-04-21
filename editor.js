@@ -52,16 +52,16 @@ if (queryCode !== undefined) {
 else {
     loadDemo(demoKeys[0]);
 }
-var runCode = function () {
+var executarCodigo = function () {
     var delegua = new Delegua.Delegua();
-    var code = editor.getCode();
-    delegua.runBlock(code);
+    var codigo = editor.getCode();
+    delegua.executar(codigo.split("\n"));
 };
 demoSelector.addEventListener("change", function () {
     loadDemo(demoSelector.value);
 });
 runButton.addEventListener("click", function () {
     clearOutput();
-    runCode();
+    executarCodigo();
 });
 //# sourceMappingURL=editor.js.map
