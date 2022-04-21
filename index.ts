@@ -1,14 +1,25 @@
-import { Lexer } from "@designliquido/delegua/src/lexador";
-import { Parser } from "@designliquido/delegua/src/avaliador-sintatico";
-import { Resolver } from "@designliquido/delegua/src/resolvedor";
-import { Interpretador } from "@designliquido/delegua/src/interpretador";
-import tiposDeSimbolos from "@designliquido/delegua/src/tiposDeSimbolos";
+import { Lexador } from "@designliquido/delegua/fontes/lexador";
+import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
+import { Resolvedor } from "@designliquido/delegua/fontes/resolvedor";
+import { Interpretador } from "@designliquido/delegua/fontes/interpretador";
+import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos";
+import { DeleguaInterface } from "@designliquido/delegua/fontes/interfaces";
 
-export class Delegua {
+export class Delegua implements DeleguaInterface {
   nomeArquivo: any;
 
   teveErro: boolean;
   teveErroEmTempoDeExecucao: boolean;
+  // TODO: Remover todos os `any` abaixo depois de mplementar DeleguaInterface.
+  dialeto: any;
+  arquivosAbertos: any;
+  interpretador: any;
+  lexador: any;
+  avaliadorSintatico: any;
+  resolvedor: any;
+  versao: any;
+  iniciarDelegua: any;
+  carregarArquivo: any;
 
   constructor(nomeArquivo: any) {
     this.nomeArquivo = nomeArquivo;
@@ -17,25 +28,25 @@ export class Delegua {
     this.teveErroEmTempoDeExecucao = false;
   }
 
-  runBlock(codigo: any) {
+  executar(codigo: string[], nomeArquivo?: string): void {
     const interpretador = new Interpretador(this, process.cwd());
 
-    const lexer = new Lexer(this);
-    const simbolos = lexer.mapear(codigo);
+    const lexador = new Lexador(false);
+    const retornoLexador = lexador.mapear(codigo);
 
     if (this.teveErro) return;
 
-    const analisar = new Parser(this);
-    const declaracoes = analisar.analisar(simbolos);
+    const avaliadorSintatico = new AvaliadorSintatico(false);
+    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
 
     if (this.teveErro) return;
 
-    const resolver = new Resolver(this, interpretador);
-    resolver.resolver(declaracoes);
+    const resolvedor = new Resolvedor();
+    const retornoResolvedor = resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
 
     if (this.teveErro) return;
 
-    interpretador.interpretar(declaracoes);
+    interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
   }
 
   reportar(linha: any, onde: any, mensagem: any) {
