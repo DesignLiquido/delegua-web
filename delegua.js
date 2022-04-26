@@ -70,9 +70,6 @@ var Delegua = /** @class */ (function () {
             this.reportar(Number(simbolo.linha), " no '".concat(simbolo.lexema, "'"), mensagemDeErro);
         }
     };
-    Delegua.prototype.lexerError = function (linha, caractere, mensagem) {
-        this.reportar(linha, " no '".concat(caractere, "'"), mensagem);
-    };
     Delegua.prototype.erroEmTempoDeExecucao = function (erro) {
         if (erro && erro.simbolo && erro.simbolo.linha) {
             if (this.nomeArquivo)
