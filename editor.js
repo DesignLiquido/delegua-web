@@ -54,8 +54,8 @@ else {
 }
 var executarCodigo = function () {
     var delegua = new Delegua.Delegua();
-    var codigo = editor.getCode();
-    delegua.executar(codigo.split("\n"));
+    var codigo = editor.getCode().split("\n");
+    delegua.executar({ codigo: codigo });
 };
 demoSelector.addEventListener("change", function () {
     loadDemo(demoSelector.value);
