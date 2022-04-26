@@ -1,87 +1,114 @@
+import { ExcecaoRetornar } from '@designliquido/delegua/fontes/excecoes';
 import { Lexador } from "@designliquido/delegua/fontes/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
 import { Resolvedor } from "@designliquido/delegua/fontes/resolvedor";
 import { Interpretador } from "@designliquido/delegua/fontes/interpretador";
 import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos";
-import { DeleguaInterface } from "@designliquido/delegua/fontes/interfaces";
+import { 
+  AvaliadorSintaticoInterface,
+  DeleguaInterface,
+  InterpretadorInterface,
+  LexadorInterface,
+  SimboloInterface, } from "@designliquido/delegua/fontes/interfaces";
+import { RetornoImportador } from '@designliquido/delegua/fontes/importador';
 
 export class Delegua implements DeleguaInterface {
   nomeArquivo: any;
 
   teveErro: boolean;
   teveErroEmTempoDeExecucao: boolean;
-  // TODO: Remover todos os `any` abaixo depois de mplementar DeleguaInterface.
-  dialeto: any;
+  // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
+  dialeto: string = 'delegua';
   arquivosAbertos: any;
-  interpretador: any;
-  lexador: any;
-  avaliadorSintatico: any;
-  resolvedor: any;
-  versao: any;
+  interpretador: InterpretadorInterface;
+  lexador: LexadorInterface;
+  avaliadorSintatico: AvaliadorSintaticoInterface;
+  resolvedor: Resolvedor;
+  versao: string;
   iniciarDelegua: any;
   carregarArquivo: any;
 
   constructor(nomeArquivo: any) {
     this.nomeArquivo = nomeArquivo;
 
+    this.resolvedor = new Resolvedor();
+    this.lexador = new Lexador();
+    this.avaliadorSintatico = new AvaliadorSintatico();
+    this.interpretador = new Interpretador(null, this.resolvedor, '');
+
     this.teveErro = false;
     this.teveErroEmTempoDeExecucao = false;
   }
 
-  executar(codigo: string[], nomeArquivo?: string): void {
-    const interpretador = new Interpretador(this, process.cwd());
+  executar(retornoImportador: RetornoImportador): void {
 
-    const lexador = new Lexador(false);
-    const retornoLexador = lexador.mapear(codigo);
+    const retornoLexador = this.lexador.mapear(retornoImportador.codigo);
+    const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
 
-    if (this.teveErro) return;
+    if (retornoLexador.erros.length > 0) {
+      for (const erroLexador of retornoLexador.erros) {
+          this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+        }
+        return;
+    }
 
-    const avaliadorSintatico = new AvaliadorSintatico(false);
-    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoLexador);
+    if (retornoAvaliadorSintatico.erros.length > 0) {
+        for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
+            this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+        }
+        return;
+    }
 
-    if (this.teveErro) return;
+    const retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
 
-    const resolvedor = new Resolvedor();
-    const retornoResolvedor = resolvedor.resolver(retornoAvaliadorSintatico.declaracoes);
-
-    if (this.teveErro) return;
-
-    interpretador.interpretar(retornoAvaliadorSintatico.declaracoes, retornoResolvedor.locais);
+    if (retornoInterpretador.erros.length > 0) {
+        for (const erroInterpretador of retornoInterpretador.erros) {
+            if (erroInterpretador.simbolo) {
+                this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+            } else {
+                const erroEmJavaScript: any = erroInterpretador as any;
+                console.error(`Erro em JavaScript: ` + `${erroEmJavaScript.message}`);
+                console.error(`Pilha de execução: ` + `${erroEmJavaScript.stack}`);
+            }
+        }
+    }
   }
 
-  reportar(linha: any, onde: any, mensagem: any) {
+  reportar(linha: number, onde: any, mensagem: string) {
     if (this.nomeArquivo)
-      console.error(
-        `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}] Erro${onde}: ${mensagem}`
-      );
-    else console.error(`[Linha: ${linha}] Erro${onde}: ${mensagem}`);
+        console.error(
+            `[Arquivo: ${this.nomeArquivo}] [Linha: ${linha}]` + ` Erro${onde}: ${mensagem}`
+        );
+    else console.error(`[Linha: ${linha}]` +  ` Erro${onde}: ${mensagem}`);
     this.teveErro = true;
   }
 
-  erro(simbolo: any, mensagemDeErro: any) {
+  erro(simbolo: SimboloInterface, mensagemDeErro: string) {
     if (simbolo.tipo === tiposDeSimbolos.EOF) {
-      this.reportar(simbolo.line, " no final", mensagemDeErro);
+        this.reportar(Number(simbolo.linha), ' no final', mensagemDeErro);
     } else {
-      this.reportar(simbolo.line, ` no '${simbolo.lexema}'`, mensagemDeErro);
-    }
-  }
-
-  lexerError(linha: any, caractere: any, mensagem: any) {
-    this.reportar(linha, ` no '${caractere}'`, mensagem);
-  }
-
-  erroEmTempoDeExecucao(erro: any) {
-    const linha = erro.simbolo.linha;
-    if (erro.simbolo && linha) {
-      if (this.nomeArquivo)
-        console.error(
-          `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`
+        this.reportar(
+            Number(simbolo.linha),
+            ` no '${simbolo.lexema}'`,
+            mensagemDeErro
         );
-      else
-        console.error(`Erro: [Linha: ${erro.simbolo.linha}] ${erro.mensagem}`);
-    } else {
-      console.error(`Erro: ${erro.mensagem}`);
     }
+  }
+
+  erroEmTempoDeExecucao(erro: any): void {
+    if (erro && erro.simbolo && erro.simbolo.linha) {
+        if (this.nomeArquivo)
+            console.error(
+                `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}]` + ` ${erro.mensagem}`
+            );
+        else
+            console.error(
+                `Erro: [Linha: ${erro.simbolo.linha}]` + ` ${erro.mensagem}`
+            );
+    } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+        console.error(`Erro: [Linha: ${erro.linha || 0}]` + ` ${erro.mensagem}`);
+    }
+
     this.teveErroEmTempoDeExecucao = true;
   }
 }

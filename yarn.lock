@@ -14,10 +14,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@designliquido/delegua@^0.2.6":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.2.6.tgz#93d985d4dd36efac9ced96ed1158ea6324bfa4db"
-  integrity sha512-oSjjmfcCmD3c+TafK5Dyg5Z+pSRxRScqeKd+BoBAsYd27tcFh8mw4uqxh26GCqBKcSXGVXb8ajMkWq4FIm8a0w==
+"@designliquido/delegua@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.2.8.tgz#c6727c12626bee62323c0ffdd37d655500efddb6"
+  integrity sha512-YNBHFPXM0mtF7VNWGNwyQUjMmaQipkeqTC7Fk7uO+l6vZ3H8RmVG8+QgyBsH3pTkvmtHIdHIlwaT6SHgDy4IDw==
   dependencies:
     browser-process-hrtime "^1.0.0"
     chalk "4.1.2"
