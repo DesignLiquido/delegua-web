@@ -65,9 +65,8 @@ if (queryCode !== undefined) {
 const executarCodigo = function () {
   const delegua = new Delegua.Delegua();
 
-  let codigo = editor.getCode();
-
-  delegua.executar(codigo.split("\n"));
+  const codigo = editor.getCode().split("\n");
+  delegua.executar({codigo});
 };
 
 demoSelector.addEventListener("change", function () {
