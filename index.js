@@ -11,14 +11,16 @@ var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
 var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
 var tipos_de_simbolos_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos"));
 var Delegua = /** @class */ (function () {
-    function Delegua(nomeArquivo) {
+    function Delegua(nomeArquivo, funcaoDeRetorno) {
+        if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = 'delegua';
         this.nomeArquivo = nomeArquivo;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.resolvedor = new resolvedor_1.Resolvedor();
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
-        this.interpretador = new interpretador_1.Interpretador(null, this.resolvedor, '');
+        this.interpretador = new interpretador_1.Interpretador(null, this.resolvedor, '', false, this.funcaoDeRetorno);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -53,6 +55,9 @@ var Delegua = /** @class */ (function () {
                 }
             }
         }
+    };
+    Delegua.prototype.versao = function () {
+        return '0.2';
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)

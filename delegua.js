@@ -12,14 +12,16 @@ var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
 var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
 var tipos_de_simbolos_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos"));
 var Delegua = /** @class */ (function () {
-    function Delegua(nomeArquivo) {
+    function Delegua(nomeArquivo, funcaoDeRetorno) {
+        if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = 'delegua';
         this.nomeArquivo = nomeArquivo;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.resolvedor = new resolvedor_1.Resolvedor();
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
-        this.interpretador = new interpretador_1.Interpretador(null, this.resolvedor, '');
+        this.interpretador = new interpretador_1.Interpretador(null, this.resolvedor, '', false, this.funcaoDeRetorno);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -54,6 +56,9 @@ var Delegua = /** @class */ (function () {
                 }
             }
         }
+    };
+    Delegua.prototype.versao = function () {
+        return '0.2';
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -2419,12 +2424,14 @@ var estruturas_1 = require("../estruturas");
  * e de fato executa a lógica de programação descrita no código.
  */
 var Interpretador = /** @class */ (function () {
-    function Interpretador(importador, resolvedor, diretorioBase, performance) {
+    function Interpretador(importador, resolvedor, diretorioBase, performance, funcaoDeRetorno) {
         if (performance === void 0) { performance = false; }
+        this.funcaoDeRetorno = null;
         this.importador = importador;
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
+        this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.global = new ambiente_1.Ambiente();
         this.ambiente = this.global;
         this.locais = new Map();
@@ -2802,7 +2809,7 @@ var Interpretador = /** @class */ (function () {
     };
     Interpretador.prototype.visitarExpressaoEscreva = function (declaracao) {
         var valor = this.avaliar(declaracao.expressao);
-        console.log(this.paraTexto(valor));
+        this.funcaoDeRetorno(this.paraTexto(valor));
         return null;
     };
     Interpretador.prototype.executarBloco = function (declaracoes, ambiente) {
@@ -3028,7 +3035,7 @@ var Interpretador = /** @class */ (function () {
         if (mostrarResultado === void 0) { mostrarResultado = false; }
         var resultado = declaracao.aceitar(this);
         if (mostrarResultado) {
-            console.log(this.paraTexto(resultado));
+            this.funcaoDeRetorno(this.paraTexto(resultado));
         }
     };
     Interpretador.prototype.interpretar = function (objeto) {
