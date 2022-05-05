@@ -7,13 +7,15 @@ import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos";
 import { 
   AvaliadorSintaticoInterface,
   DeleguaInterface,
+  ImportadorInterface,
   InterpretadorInterface,
   LexadorInterface,
-  SimboloInterface, } from "@designliquido/delegua/fontes/interfaces";
+  SimboloInterface
+} from "@designliquido/delegua/fontes/interfaces/index";
 import { RetornoImportador } from '@designliquido/delegua/fontes/importador';
 
 export class Delegua implements DeleguaInterface {
-  nomeArquivo: any;
+  nomeArquivo: string;
 
   teveErro: boolean;
   teveErroEmTempoDeExecucao: boolean;
@@ -24,17 +26,19 @@ export class Delegua implements DeleguaInterface {
   lexador: LexadorInterface;
   avaliadorSintatico: AvaliadorSintaticoInterface;
   resolvedor: Resolvedor;
-  versao: string;
+  importador: ImportadorInterface;
+  funcaoDeRetorno: Function;
   iniciarDelegua: any;
   carregarArquivo: any;
 
-  constructor(nomeArquivo: any) {
+  constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
     this.nomeArquivo = nomeArquivo;
+    this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
     this.resolvedor = new Resolvedor();
     this.lexador = new Lexador();
     this.avaliadorSintatico = new AvaliadorSintatico();
-    this.interpretador = new Interpretador(null, this.resolvedor, '');
+    this.interpretador = new Interpretador(null, this.resolvedor, '', false, this.funcaoDeRetorno);
 
     this.teveErro = false;
     this.teveErroEmTempoDeExecucao = false;
@@ -72,6 +76,10 @@ export class Delegua implements DeleguaInterface {
             }
         }
     }
+  }
+
+  versao(){
+      return '0.2'
   }
 
   reportar(linha: number, onde: any, mensagem: string) {
