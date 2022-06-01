@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 exports.Delegua = void 0;
-var excecoes_1 = require("@designliquido/delegua/fontes/excecoes");
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
 var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
@@ -55,6 +54,14 @@ var Delegua = /** @class */ (function () {
                 }
             }
         }
+        return {
+            erros: {
+                avaliadorSintatico: retornoAvaliadorSintatico.erros,
+                lexador: retornoLexador.erros,
+                interpretador: retornoInterpretador.erros
+            },
+            resultado: retornoInterpretador.resultado
+        };
     };
     Delegua.prototype.versao = function () {
         return '0.2';
@@ -81,7 +88,7 @@ var Delegua = /** @class */ (function () {
             else
                 console.error("Erro: [Linha: ".concat(erro.simbolo.linha, "]") + " ".concat(erro.mensagem));
         }
-        else if (!(erro instanceof excecoes_1.ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+        else {
             console.error("Erro: [Linha: ".concat(erro.linha || 0, "]") + " ".concat(erro.mensagem));
         }
         this.teveErroEmTempoDeExecucao = true;

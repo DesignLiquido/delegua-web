@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 exports.__esModule = true;
 exports.Delegua = void 0;
-var excecoes_1 = require("@designliquido/delegua/fontes/excecoes");
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
 var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
@@ -56,6 +55,14 @@ var Delegua = /** @class */ (function () {
                 }
             }
         }
+        return {
+            erros: {
+                avaliadorSintatico: retornoAvaliadorSintatico.erros,
+                lexador: retornoLexador.erros,
+                interpretador: retornoInterpretador.erros
+            },
+            resultado: retornoInterpretador.resultado
+        };
     };
     Delegua.prototype.versao = function () {
         return '0.2';
@@ -82,7 +89,7 @@ var Delegua = /** @class */ (function () {
             else
                 console.error("Erro: [Linha: ".concat(erro.simbolo.linha, "]") + " ".concat(erro.mensagem));
         }
-        else if (!(erro instanceof excecoes_1.ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+        else {
             console.error("Erro: [Linha: ".concat(erro.linha || 0, "]") + " ".concat(erro.mensagem));
         }
         this.teveErroEmTempoDeExecucao = true;
@@ -91,72 +98,20 @@ var Delegua = /** @class */ (function () {
 }());
 exports.Delegua = Delegua;
 
-},{"@designliquido/delegua/fontes/avaliador-sintatico":5,"@designliquido/delegua/fontes/excecoes":56,"@designliquido/delegua/fontes/interpretador":58,"@designliquido/delegua/fontes/lexador":61,"@designliquido/delegua/fontes/resolvedor":67,"@designliquido/delegua/fontes/tipos-de-simbolos":69}],2:[function(require,module,exports){
+},{"@designliquido/delegua/fontes/avaliador-sintatico":5,"@designliquido/delegua/fontes/interpretador":55,"@designliquido/delegua/fontes/lexador":59,"@designliquido/delegua/fontes/resolvedor":66,"@designliquido/delegua/fontes/tipos-de-simbolos":70}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ambiente = void 0;
-var estruturas_1 = require("./estruturas");
-var excecoes_1 = require("./excecoes");
 var Ambiente = /** @class */ (function () {
-    function Ambiente(enclosing) {
-        this.enclosing = enclosing || null;
+    function Ambiente() {
         this.valores = {};
     }
-    Ambiente.prototype.definirVariavel = function (nomeVariavel, valor) {
-        this.valores[nomeVariavel] = valor;
-    };
-    Ambiente.prototype.atribuirVariavelEm = function (distancia, simbolo, valor) {
-        this.ancestor(distancia).valores[simbolo.lexema] = valor;
-    };
-    Ambiente.prototype.atribuirVariavel = function (simbolo, valor) {
-        if (this.valores[simbolo.lexema] !== undefined) {
-            this.valores[simbolo.lexema] = valor;
-            return;
-        }
-        if (this.enclosing != null) {
-            this.enclosing.atribuirVariavel(simbolo, valor);
-            return;
-        }
-        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
-    };
-    Ambiente.prototype.ancestor = function (distancia) {
-        var ambiente = this;
-        for (var i = 0; i < distancia; i++) {
-            ambiente = ambiente.enclosing;
-        }
-        return ambiente;
-    };
-    Ambiente.prototype.obterVariavelEm = function (distancia, nome) {
-        return this.ancestor(distancia).valores[nome];
-    };
-    Ambiente.prototype.obterVariavel = function (simbolo) {
-        if (this.valores[simbolo.lexema] !== undefined) {
-            return this.valores[simbolo.lexema];
-        }
-        if (this.enclosing !== null)
-            return this.enclosing.obterVariavel(simbolo);
-        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
-    };
-    /**
-     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
-     * em console.
-     */
-    Ambiente.prototype.obterTodasDeleguaFuncao = function () {
-        var retorno = {};
-        for (var _i = 0, _a = Object.entries(this.valores); _i < _a.length; _i++) {
-            var _b = _a[_i], nome = _b[0], corpo = _b[1];
-            if (corpo instanceof estruturas_1.DeleguaFuncao) {
-                retorno[nome] = corpo;
-            }
-        }
-        return retorno;
-    };
     return Ambiente;
 }());
 exports.Ambiente = Ambiente;
 ;
 
-},{"./estruturas":49,"./excecoes":56}],3:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -608,11 +563,11 @@ var AvaliadorSintatico = /** @class */ (function () {
             while (!this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CHAVE_DIREITA) &&
                 !this.estaNoFinal()) {
                 if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CASO)) {
-                    var branchConditions = [this.expressao()];
+                    var caminhoCondicoes = [this.expressao()];
                     this.consumir(tipos_de_simbolos_1.default.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
                     while (this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.CASO)) {
                         this.consumir(tipos_de_simbolos_1.default.CASO, null);
-                        branchConditions.push(this.expressao());
+                        caminhoCondicoes.push(this.expressao());
                         this.consumir(tipos_de_simbolos_1.default.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
                     }
                     var declaracoes = [];
@@ -622,7 +577,7 @@ var AvaliadorSintatico = /** @class */ (function () {
                         !this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.PADRAO) &&
                         !this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.CHAVE_DIREITA));
                     caminhos.push({
-                        conditions: branchConditions,
+                        condicoes: caminhoCondicoes,
                         declaracoes: declaracoes,
                     });
                 }
@@ -738,20 +693,20 @@ var AvaliadorSintatico = /** @class */ (function () {
                 if (parametros.length >= 255) {
                     this.erro(this.simboloAtual(), 'Não pode haver mais de 255 parâmetros');
                 }
-                var paramObj = {};
+                var parametro = {};
                 if (this.simboloAtual().tipo === tipos_de_simbolos_1.default.MULTIPLICACAO) {
                     this.consumir(tipos_de_simbolos_1.default.MULTIPLICACAO, null);
-                    paramObj['tipo'] = 'wildcard';
+                    parametro['tipo'] = 'estrela';
                 }
                 else {
-                    paramObj['tipo'] = 'standard';
+                    parametro['tipo'] = 'padrao';
                 }
-                paramObj['nome'] = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome do parâmetro.');
+                parametro['nome'] = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome do parâmetro.');
                 if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IGUAL)) {
-                    paramObj['default'] = this.primario();
+                    parametro['default'] = this.primario();
                 }
-                parametros.push(paramObj);
-                if (paramObj['tipo'] === 'wildcard')
+                parametros.push(parametro);
+                if (parametro['tipo'] === 'estrela')
                     break;
             } while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.VIRGULA));
         }
@@ -809,8 +764,8 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
-        var deltaAnalise = (0, browser_process_hrtime_1.default)(inicioAnalise);
         if (this.performance) {
+            var deltaAnalise = (0, browser_process_hrtime_1.default)(inicioAnalise);
             console.log("[Avaliador Sint\u00E1tico] Tempo para an\u00E1lise: ".concat(deltaAnalise[0] * 1e9 + deltaAnalise[1], "ns"));
         }
         return {
@@ -822,7 +777,7 @@ var AvaliadorSintatico = /** @class */ (function () {
 }());
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":19,"../declaracoes":38,"../tipos-de-simbolos":69,"./erro-avaliador-sintatico":4,"browser-process-hrtime":70}],4:[function(require,module,exports){
+},{"../construtos":19,"../declaracoes":38,"../tipos-de-simbolos":70,"./erro-avaliador-sintatico":4,"browser-process-hrtime":71}],4:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -878,23 +833,23 @@ __exportStar(require("./erro-avaliador-sintatico"), exports);
 Object.defineProperty(exports, "__esModule", { value: true });
 var excecoes_1 = require("../excecoes");
 var funcao_1 = require("../estruturas/funcao");
-var instancia_1 = require("../estruturas/instancia");
+var objeto_delegua_classe_1 = require("../estruturas/objeto-delegua-classe");
 var funcao_padrao_1 = require("../estruturas/funcao-padrao");
-var classe_1 = require("../estruturas/classe");
-function default_1(interpretador, global) {
+var delegua_classe_1 = require("../estruturas/delegua-classe");
+function default_1(interpretador, pilhaEscoposExecucao) {
     // Retorna um número aleatório entre 0 e 1.
-    global.definirVariavel("aleatorio", new funcao_padrao_1.FuncaoPadrao(1, function () {
+    pilhaEscoposExecucao.definirVariavel("aleatorio", new funcao_padrao_1.FuncaoPadrao(1, function () {
         return Math.random();
     }));
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // Mínimo(inclusivo) - Máximo(exclusivo)
-    global.definirVariavel("aleatorioEntre", new funcao_padrao_1.FuncaoPadrao(1, function (minimo, maximo) {
+    pilhaEscoposExecucao.definirVariavel("aleatorioEntre", new funcao_padrao_1.FuncaoPadrao(1, function (minimo, maximo) {
         if (typeof minimo !== 'number' || typeof maximo !== 'number') {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Os dois parâmetros devem ser do tipo número.");
         }
         return Math.floor(Math.random() * (maximo - minimo)) + minimo;
     }));
-    global.definirVariavel("inteiro", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
+    pilhaEscoposExecucao.definirVariavel("inteiro", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
         if (!valor) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Somente números podem passar para inteiro.");
         }
@@ -903,7 +858,7 @@ function default_1(interpretador, global) {
         }
         return parseInt(valor);
     }));
-    global.definirVariavel("mapear", new funcao_padrao_1.FuncaoPadrao(1, function (array, callback) {
+    pilhaEscoposExecucao.definirVariavel("mapear", new funcao_padrao_1.FuncaoPadrao(1, function (array, callback) {
         if (!Array.isArray(array)) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função, deve ser um array.");
         }
@@ -916,7 +871,7 @@ function default_1(interpretador, global) {
         }
         return resultados;
     }));
-    global.definirVariavel("ordenar", new funcao_padrao_1.FuncaoPadrao(1, function (objeto) {
+    pilhaEscoposExecucao.definirVariavel("ordenar", new funcao_padrao_1.FuncaoPadrao(1, function (objeto) {
         var _a;
         if (!Array.isArray(objeto)) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Valor Inválido. Objeto inserido não é um vetor.");
@@ -934,16 +889,16 @@ function default_1(interpretador, global) {
         } while (trocado);
         return objeto;
     }));
-    global.definirVariavel("real", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
+    pilhaEscoposExecucao.definirVariavel("real", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
         if (!/^-{0,1}\d+$/.test(valor) && !/^\d+\.\d+$/.test(valor))
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Somente números podem passar para real.");
         return parseFloat(valor);
     }));
-    global.definirVariavel("tamanho", new funcao_padrao_1.FuncaoPadrao(1, function (objeto) {
+    pilhaEscoposExecucao.definirVariavel("tamanho", new funcao_padrao_1.FuncaoPadrao(1, function (objeto) {
         if (!isNaN(objeto)) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Não é possível encontrar o tamanho de um número.");
         }
-        if (objeto instanceof instancia_1.DeleguaInstancia) {
+        if (objeto instanceof objeto_delegua_classe_1.ObjetoDeleguaClasse) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Você não pode encontrar o tamanho de uma declaração.");
         }
         if (objeto instanceof funcao_1.DeleguaFuncao) {
@@ -952,7 +907,7 @@ function default_1(interpretador, global) {
         if (objeto instanceof funcao_padrao_1.FuncaoPadrao) {
             return objeto.valorAridade;
         }
-        if (objeto instanceof classe_1.DeleguaClasse) {
+        if (objeto instanceof delegua_classe_1.DeleguaClasse) {
             var metodos = objeto.metodos;
             var tamanho = 0;
             if (metodos.init && metodos.init.eInicializador) {
@@ -962,16 +917,16 @@ function default_1(interpretador, global) {
         }
         return objeto.length;
     }));
-    global.definirVariavel("texto", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
+    pilhaEscoposExecucao.definirVariavel("texto", new funcao_padrao_1.FuncaoPadrao(1, function (valor) {
         return "".concat(valor);
     }));
-    global.definirVariavel("exports", {});
-    return global;
+    pilhaEscoposExecucao.definirVariavel("exports", {});
+    return pilhaEscoposExecucao;
 }
 exports.default = default_1;
 ;
 
-},{"../estruturas/classe":46,"../estruturas/funcao":48,"../estruturas/funcao-padrao":47,"../estruturas/instancia":50,"../excecoes":56}],7:[function(require,module,exports){
+},{"../estruturas/delegua-classe":46,"../estruturas/funcao":48,"../estruturas/funcao-padrao":47,"../estruturas/objeto-delegua-classe":51,"../excecoes":53}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var excecoes_1 = require("../excecoes");
@@ -1004,7 +959,7 @@ function default_1(nome) {
 exports.default = default_1;
 ;
 
-},{"../estruturas/funcao-padrao":47,"../estruturas/modulo":51,"../excecoes":56}],8:[function(require,module,exports){
+},{"../estruturas/funcao-padrao":47,"../estruturas/modulo":50,"../excecoes":53}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -1986,7 +1941,7 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaClasse = void 0;
 var chamavel_1 = require("./chamavel");
-var instancia_1 = require("./instancia");
+var objeto_delegua_classe_1 = require("./objeto-delegua-classe");
 var DeleguaClasse = /** @class */ (function (_super) {
     __extends(DeleguaClasse, _super);
     function DeleguaClasse(nome, superClasse, metodos) {
@@ -2013,10 +1968,10 @@ var DeleguaClasse = /** @class */ (function (_super) {
         return inicializador ? inicializador.aridade() : 0;
     };
     DeleguaClasse.prototype.chamar = function (interpretador, argumentos) {
-        var instancia = new instancia_1.DeleguaInstancia(this);
+        var instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
         var inicializador = this.encontrarMetodo("construtor");
         if (inicializador) {
-            inicializador.definirEscopo(instancia).chamar(interpretador, argumentos);
+            inicializador.definirInstancia(instancia).chamar(interpretador, argumentos);
         }
         return instancia;
     };
@@ -2024,7 +1979,7 @@ var DeleguaClasse = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.DeleguaClasse = DeleguaClasse;
 
-},{"./chamavel":45,"./instancia":50}],47:[function(require,module,exports){
+},{"./chamavel":45,"./objeto-delegua-classe":51}],47:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2052,7 +2007,7 @@ var FuncaoPadrao = /** @class */ (function (_super) {
         _this.funcao = funcao;
         return _this;
     }
-    FuncaoPadrao.prototype.chamar = function (interpretador, argumentos, simbolo) {
+    FuncaoPadrao.prototype.chamar = function (argumentos, simbolo) {
         this.simbolo = simbolo;
         return this.funcao.apply(this, argumentos);
     };
@@ -2084,15 +2039,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
 var chamavel_1 = require("./chamavel");
 var ambiente_1 = require("../ambiente");
-var excecoes_1 = require("../excecoes");
+var quebras_1 = require("../quebras");
 var DeleguaFuncao = /** @class */ (function (_super) {
     __extends(DeleguaFuncao, _super);
-    function DeleguaFuncao(nome, declaracao, ambienteAnterior, eInicializador) {
+    function DeleguaFuncao(nome, declaracao, instancia, eInicializador) {
+        if (instancia === void 0) { instancia = undefined; }
         if (eInicializador === void 0) { eInicializador = false; }
         var _this = _super.call(this) || this;
         _this.nome = nome;
         _this.declaracao = declaracao;
-        _this.ambienteAnterior = ambienteAnterior;
+        _this.instancia = instancia;
         _this.eInicializador = eInicializador;
         return _this;
     }
@@ -2106,46 +2062,39 @@ var DeleguaFuncao = /** @class */ (function (_super) {
         return "<fun\u00E7\u00E3o ".concat(this.nome, ">");
     };
     DeleguaFuncao.prototype.chamar = function (interpretador, argumentos) {
-        var ambiente = new ambiente_1.Ambiente(this.ambienteAnterior);
+        var ambiente = new ambiente_1.Ambiente();
         var parametros = this.declaracao.parametros;
         if (parametros && parametros.length) {
             for (var i = 0; i < parametros.length; i++) {
-                var param = parametros[i];
-                var nome = param["nome"].lexema;
+                var parametro = parametros[i];
+                var nome = parametro["nome"].lexema;
                 var valor = argumentos[i];
                 if (argumentos[i] === null) {
-                    valor = param["padrao"] ? param["padrao"].valor : null;
+                    valor = parametro["padrao"] ? parametro["padrao"].valor : null;
                 }
-                ambiente.definirVariavel(nome, valor);
+                ambiente.valores[nome] = valor;
             }
         }
-        try {
-            interpretador.executarBloco(this.declaracao.corpo, ambiente);
+        if (this.instancia !== undefined) {
+            ambiente.valores['isto'] = this.instancia;
         }
-        catch (erro) {
-            if (erro instanceof excecoes_1.ExcecaoRetornar) {
-                if (this.eInicializador)
-                    return this.ambienteAnterior.obterVariavelEm(0, "isto");
-                return erro.valor;
-            }
-            else {
-                throw erro;
-            }
+        var retornoBloco = interpretador.executarBloco(this.declaracao.corpo, ambiente);
+        if (retornoBloco instanceof quebras_1.RetornoQuebra) {
+            return retornoBloco.valor;
         }
-        if (this.eInicializador)
-            return this.ambienteAnterior.obterVariavelEm(0, "isto");
-        return null;
+        if (this.eInicializador) {
+            return this.instancia;
+        }
+        return retornoBloco;
     };
-    DeleguaFuncao.prototype.definirEscopo = function (instancia) {
-        var ambiente = new ambiente_1.Ambiente(this.ambienteAnterior);
-        ambiente.definirVariavel("isto", instancia);
-        return new DeleguaFuncao(this.nome, this.declaracao, ambiente, this.eInicializador);
+    DeleguaFuncao.prototype.definirInstancia = function (instancia) {
+        return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
     };
     return DeleguaFuncao;
 }(chamavel_1.Chamavel));
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../ambiente":2,"../excecoes":56,"./chamavel":45}],49:[function(require,module,exports){
+},{"../ambiente":2,"../quebras":64,"./chamavel":45}],49:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2163,42 +2112,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./chamavel"), exports);
-__exportStar(require("./classe"), exports);
+__exportStar(require("./delegua-classe"), exports);
 __exportStar(require("./funcao-padrao"), exports);
 __exportStar(require("./funcao"), exports);
-__exportStar(require("./instancia"), exports);
+__exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./modulo"), exports);
 
-},{"./chamavel":45,"./classe":46,"./funcao":48,"./funcao-padrao":47,"./instancia":50,"./modulo":51}],50:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleguaInstancia = void 0;
-var excecoes_1 = require("../excecoes");
-var DeleguaInstancia = /** @class */ (function () {
-    function DeleguaInstancia(criarClasse) {
-        this.criarClasse = criarClasse;
-        this.campos = {};
-    }
-    DeleguaInstancia.prototype.get = function (simbolo) {
-        if (this.campos.hasOwnProperty(simbolo.lexema)) {
-            return this.campos[simbolo.lexema];
-        }
-        var metodo = this.criarClasse.encontrarMetodo(simbolo.lexema);
-        if (metodo)
-            return metodo.definirEscopo(this);
-        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Método indefinido não recuperado.");
-    };
-    DeleguaInstancia.prototype.set = function (simbolo, valor) {
-        this.campos[simbolo.lexema] = valor;
-    };
-    DeleguaInstancia.prototype.toString = function () {
-        return "<Objeto " + this.criarClasse.nome + ">";
-    };
-    return DeleguaInstancia;
-}());
-exports.DeleguaInstancia = DeleguaInstancia;
-
-},{"../excecoes":56}],51:[function(require,module,exports){
+},{"./chamavel":45,"./delegua-classe":46,"./funcao":48,"./funcao-padrao":47,"./modulo":50,"./objeto-delegua-classe":51}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -2214,7 +2134,36 @@ var DeleguaModulo = /** @class */ (function () {
 }());
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ObjetoDeleguaClasse = void 0;
+var excecoes_1 = require("../excecoes");
+var ObjetoDeleguaClasse = /** @class */ (function () {
+    function ObjetoDeleguaClasse(criarClasse) {
+        this.classe = criarClasse;
+        this.campos = {};
+    }
+    ObjetoDeleguaClasse.prototype.get = function (simbolo) {
+        if (this.campos.hasOwnProperty(simbolo.lexema)) {
+            return this.campos[simbolo.lexema];
+        }
+        var metodo = this.classe.encontrarMetodo(simbolo.lexema);
+        if (metodo)
+            return metodo.definirInstancia(this);
+        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Método indefinido não recuperado.");
+    };
+    ObjetoDeleguaClasse.prototype.set = function (simbolo, valor) {
+        this.campos[simbolo.lexema] = valor;
+    };
+    ObjetoDeleguaClasse.prototype.toString = function () {
+        return "<Objeto " + this.classe.nome + ">";
+    };
+    return ObjetoDeleguaClasse;
+}());
+exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
+
+},{"../excecoes":53}],52:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2249,93 +2198,6 @@ exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
 },{}],53:[function(require,module,exports){
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExcecaoContinuar = void 0;
-var ExcecaoContinuar = /** @class */ (function (_super) {
-    __extends(ExcecaoContinuar, _super);
-    function ExcecaoContinuar() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return ExcecaoContinuar;
-}(Error));
-exports.ExcecaoContinuar = ExcecaoContinuar;
-
-},{}],54:[function(require,module,exports){
-"use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExcecaoRetornar = void 0;
-var ExcecaoRetornar = /** @class */ (function (_super) {
-    __extends(ExcecaoRetornar, _super);
-    function ExcecaoRetornar(valor) {
-        var _this = _super.call(this, valor) || this;
-        _this.valor = valor;
-        Object.setPrototypeOf(_this, ExcecaoRetornar.prototype);
-        return _this;
-    }
-    return ExcecaoRetornar;
-}(Error));
-exports.ExcecaoRetornar = ExcecaoRetornar;
-
-},{}],55:[function(require,module,exports){
-"use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExcecaoSustar = void 0;
-var ExcecaoSustar = /** @class */ (function (_super) {
-    __extends(ExcecaoSustar, _super);
-    function ExcecaoSustar() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return ExcecaoSustar;
-}(Error));
-exports.ExcecaoSustar = ExcecaoSustar;
-
-},{}],56:[function(require,module,exports){
-"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -2351,16 +2213,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./excecao-sustar"), exports);
-__exportStar(require("./excecao-continuar"), exports);
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
-__exportStar(require("./excecao-retornar"), exports);
 
-},{"./erro-em-tempo-de-execucao":52,"./excecao-continuar":53,"./excecao-retornar":54,"./excecao-sustar":55}],57:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":52}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],58:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2381,7 +2240,7 @@ __exportStar(require("./erro-interpretador"), exports);
 __exportStar(require("./interpretador"), exports);
 __exportStar(require("./retorno-interpretador"), exports);
 
-},{"./erro-interpretador":57,"./interpretador":59,"./retorno-interpretador":60}],59:[function(require,module,exports){
+},{"./erro-interpretador":54,"./interpretador":56,"./retorno-interpretador":58}],56:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2419,6 +2278,8 @@ var biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-glo
 var importar_biblioteca_1 = __importDefault(require("../bibliotecas/importar-biblioteca"));
 var excecoes_1 = require("../excecoes");
 var estruturas_1 = require("../estruturas");
+var pilha_escopos_execucao_1 = require("./pilha-escopos-execucao");
+var quebras_1 = require("../quebras");
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
@@ -2427,16 +2288,22 @@ var Interpretador = /** @class */ (function () {
     function Interpretador(importador, resolvedor, diretorioBase, performance, funcaoDeRetorno) {
         if (performance === void 0) { performance = false; }
         this.funcaoDeRetorno = null;
+        this.resultadoInterpretador = [];
         this.importador = importador;
         this.resolvedor = resolvedor;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
-        this.global = new ambiente_1.Ambiente();
-        this.ambiente = this.global;
         this.locais = new Map();
         this.erros = [];
-        this.global = (0, biblioteca_global_1.default)(this, this.global);
+        this.pilhaEscoposExecucao = new pilha_escopos_execucao_1.PilhaEscoposExecucao();
+        var escopoExecucao = {
+            declaracoes: [],
+            declaracaoAtual: 0,
+            ambiente: new ambiente_1.Ambiente()
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        (0, biblioteca_global_1.default)(this, this.pilhaEscoposExecucao);
     }
     Interpretador.prototype.resolver = function (expressao, profundidade) {
         this.locais.set(expressao, profundidade);
@@ -2445,9 +2312,7 @@ var Interpretador = /** @class */ (function () {
         return expressao.valor;
     };
     Interpretador.prototype.avaliar = function (expressao) {
-        if (expressao.aceitar) {
-            return expressao.aceitar(this);
-        }
+        return expressao.aceitar(this);
     };
     Interpretador.prototype.visitarExpressaoAgrupamento = function (expressao) {
         return this.avaliar(expressao.expressao);
@@ -2581,36 +2446,29 @@ var Interpretador = /** @class */ (function () {
         else {
             if (parametros &&
                 parametros.length > 0 &&
-                parametros[parametros.length - 1]['tipo'] === 'wildcard') {
+                parametros[parametros.length - 1]['tipo'] === 'estrela') {
                 var novosArgumentos = argumentos.slice(0, parametros.length - 1);
                 novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
                 argumentos = novosArgumentos;
             }
         }
         if (entidadeChamada instanceof estruturas_1.FuncaoPadrao) {
-            return entidadeChamada.chamar(this, argumentos, expressao.entidadeChamada.nome);
+            try {
+                return entidadeChamada.chamar(argumentos, expressao.entidadeChamada.nome);
+            }
+            catch (erro) {
+                this.erros.push(erro);
+            }
         }
         return entidadeChamada.chamar(this, argumentos);
     };
     Interpretador.prototype.visitarExpressaoDeAtribuicao = function (expressao) {
         var valor = this.avaliar(expressao.valor);
-        var distancia = this.locais.get(expressao);
-        if (distancia !== undefined) {
-            this.ambiente.atribuirVariavelEm(distancia, expressao.simbolo, valor);
-        }
-        else {
-            this.ambiente.atribuirVariavel(expressao.simbolo, valor);
-        }
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
         return valor;
     };
     Interpretador.prototype.procurarVariavel = function (simbolo, expressao) {
-        var distancia = this.locais.get(expressao);
-        if (distancia !== undefined) {
-            return this.ambiente.obterVariavelEm(distancia, simbolo.lexema);
-        }
-        else {
-            return this.global.obterVariavel(simbolo);
-        }
+        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
     };
     Interpretador.prototype.visitarExpressaoDeVariavel = function (expressao) {
         return this.procurarVariavel(expressao.simbolo, expressao);
@@ -2646,8 +2504,7 @@ var Interpretador = /** @class */ (function () {
     };
     Interpretador.prototype.visitarExpressaoSe = function (declaracao) {
         if (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-            this.executar(declaracao.caminhoEntao);
-            return null;
+            return this.executar(declaracao.caminhoEntao);
         }
         for (var i = 0; i < declaracao.caminhosSeSenao.length; i++) {
             var atual = declaracao.caminhosSeSenao[i];
@@ -2665,24 +2522,16 @@ var Interpretador = /** @class */ (function () {
         if (declaracao.inicializador !== null) {
             this.avaliar(declaracao.inicializador);
         }
-        while (true) {
-            if (declaracao.condicao !== null) {
-                if (!this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
-                    break;
-                }
+        var retornoExecucao;
+        while (!(retornoExecucao instanceof quebras_1.Quebra)) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+                break;
             }
             try {
-                this.executar(declaracao.corpo);
+                retornoExecucao = this.executar(declaracao.corpo);
             }
             catch (erro) {
-                if (erro instanceof excecoes_1.ExcecaoSustar) {
-                    break;
-                }
-                else if (erro instanceof excecoes_1.ExcecaoContinuar) {
-                }
-                else {
-                    throw erro;
-                }
+                throw erro;
             }
             if (declaracao.incrementar !== null) {
                 this.avaliar(declaracao.incrementar);
@@ -2691,21 +2540,15 @@ var Interpretador = /** @class */ (function () {
         return null;
     };
     Interpretador.prototype.visitarExpressaoFazer = function (declaracao) {
+        var retornoExecucao;
         do {
             try {
-                this.executar(declaracao.caminhoFazer);
+                retornoExecucao = this.executar(declaracao.caminhoFazer);
             }
             catch (erro) {
-                if (erro instanceof excecoes_1.ExcecaoSustar) {
-                    break;
-                }
-                else if (erro instanceof excecoes_1.ExcecaoContinuar) {
-                }
-                else {
-                    throw erro;
-                }
+                throw erro;
             }
-        } while (this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
+        } while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicaoEnquanto)));
     };
     Interpretador.prototype.visitarExpressaoEscolha = function (declaracao) {
         var condicaoEscolha = this.avaliar(declaracao.condicao);
@@ -2715,8 +2558,8 @@ var Interpretador = /** @class */ (function () {
         try {
             for (var i = 0; i < caminhos.length; i++) {
                 var caminho_1 = caminhos[i];
-                for (var j = 0; j < caminho_1.conditions.length; j++) {
-                    if (this.avaliar(caminho_1.conditions[j]) === condicaoEscolha) {
+                for (var j = 0; j < caminho_1.condicoes.length; j++) {
+                    if (this.avaliar(caminho_1.condicoes[j]) === condicaoEscolha) {
                         encontrado = true;
                         try {
                             for (var k = 0; k < caminho_1.declaracoes.length; k++) {
@@ -2724,11 +2567,7 @@ var Interpretador = /** @class */ (function () {
                             }
                         }
                         catch (erro) {
-                            if (erro instanceof excecoes_1.ExcecaoContinuar) {
-                            }
-                            else {
-                                throw erro;
-                            }
+                            throw erro;
                         }
                     }
                 }
@@ -2740,48 +2579,41 @@ var Interpretador = /** @class */ (function () {
             }
         }
         catch (erro) {
-            if (erro instanceof excecoes_1.ExcecaoSustar) {
-            }
-            else {
-                throw erro;
-            }
+            throw erro;
         }
     };
     Interpretador.prototype.visitarExpressaoTente = function (declaracao) {
         try {
             var sucesso = true;
             try {
-                this.executarBloco(declaracao.caminhoTente, new ambiente_1.Ambiente(this.ambiente));
+                this.executarBloco(declaracao.caminhoTente);
             }
             catch (erro) {
                 sucesso = false;
                 if (declaracao.caminhoPegue !== null) {
-                    this.executarBloco(declaracao.caminhoPegue, new ambiente_1.Ambiente(this.ambiente));
+                    this.executarBloco(declaracao.caminhoPegue);
+                }
+                else {
+                    this.erros.push(erro);
                 }
             }
             if (sucesso && declaracao.caminhoSenao !== null) {
-                this.executarBloco(declaracao.caminhoSenao, new ambiente_1.Ambiente(this.ambiente));
+                this.executarBloco(declaracao.caminhoSenao);
             }
         }
         finally {
             if (declaracao.caminhoFinalmente !== null)
-                this.executarBloco(declaracao.caminhoFinalmente, new ambiente_1.Ambiente(this.ambiente));
+                this.executarBloco(declaracao.caminhoFinalmente);
         }
     };
     Interpretador.prototype.visitarExpressaoEnquanto = function (declaracao) {
-        while (this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
+        var retornoExecucao;
+        while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(this.avaliar(declaracao.condicao))) {
             try {
-                this.executar(declaracao.corpo);
+                retornoExecucao = this.executar(declaracao.corpo);
             }
             catch (erro) {
-                if (erro instanceof excecoes_1.ExcecaoSustar) {
-                    break;
-                }
-                else if (erro instanceof excecoes_1.ExcecaoContinuar) {
-                }
-                else {
-                    throw erro;
-                }
+                throw erro;
             }
         }
         return null;
@@ -2790,72 +2622,77 @@ var Interpretador = /** @class */ (function () {
         var caminhoRelativo = this.avaliar(declaracao.caminho);
         var caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         var nomeArquivo = caminho.basename(caminhoTotal);
-        if (!caminhoTotal.endsWith('.egua') && !caminhoTotal.endsWith('.delegua')) {
+        if (!caminhoTotal.endsWith('.egua') &&
+            !caminhoTotal.endsWith('.delegua')) {
             return (0, importar_biblioteca_1.default)(caminhoRelativo);
         }
         var conteudoImportacao = this.importador.importar(caminhoRelativo);
-        var retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico);
-        var funcoesDeclaradas = this.global.obterTodasDeleguaFuncao();
+        var retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes);
+        var funcoesDeclaradas = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
         var eDicionario = function (objeto) { return objeto.constructor === Object; };
         if (eDicionario(funcoesDeclaradas)) {
             var novoModulo = new estruturas_1.DeleguaModulo();
             var chaves = Object.keys(funcoesDeclaradas);
             for (var i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesDeclaradas[chaves[i]];
+                novoModulo.componentes[chaves[i]] =
+                    funcoesDeclaradas[chaves[i]];
             }
             return novoModulo;
         }
         return funcoesDeclaradas;
     };
     Interpretador.prototype.visitarExpressaoEscreva = function (declaracao) {
-        var valor = this.avaliar(declaracao.expressao);
-        this.funcaoDeRetorno(this.paraTexto(valor));
-        return null;
-    };
-    Interpretador.prototype.executarBloco = function (declaracoes, ambiente) {
-        var anterior = this.ambiente;
         try {
-            this.ambiente = ambiente;
-            if (declaracoes && declaracoes.length) {
-                for (var i = 0; i < declaracoes.length; i++) {
-                    this.executar(declaracoes[i]);
-                }
-            }
+            var valor = this.avaliar(declaracao.expressao);
+            var formatoTexto = this.paraTexto(valor);
+            this.resultadoInterpretador.push(formatoTexto);
+            this.funcaoDeRetorno(formatoTexto);
+            return null;
         }
         catch (erro) {
-            // TODO: try sem catch é uma roubada total. Implementar uma forma de quebra de fluxo sem exceção.
-            throw erro;
-        }
-        finally {
-            this.ambiente = anterior;
+            this.erros.push(erro);
         }
     };
+    /**
+     * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
+     * executa as declarações empilhadas.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     */
+    Interpretador.prototype.executarBloco = function (declaracoes, ambiente) {
+        var escopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: ambiente || new ambiente_1.Ambiente()
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        return this.executarUltimoEscopo();
+    };
     Interpretador.prototype.visitarExpressaoBloco = function (declaracao) {
-        this.executarBloco(declaracao.declaracoes, new ambiente_1.Ambiente(this.ambiente));
-        return null;
+        return this.executarBloco(declaracao.declaracoes);
     };
     Interpretador.prototype.visitarExpressaoVar = function (declaracao) {
         var valor = null;
         if (declaracao.inicializador !== null) {
             valor = this.avaliar(declaracao.inicializador);
         }
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, valor);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valor);
         return null;
     };
     Interpretador.prototype.visitarExpressaoContinua = function (declaracao) {
-        throw new excecoes_1.ExcecaoContinuar();
+        return new quebras_1.ContinuarQuebra();
     };
     Interpretador.prototype.visitarExpressaoSustar = function (declaracao) {
-        throw new excecoes_1.ExcecaoSustar();
+        return new quebras_1.SustarQuebra();
     };
     Interpretador.prototype.visitarExpressaoRetornar = function (declaracao) {
         var valor = null;
         if (declaracao.valor != null)
             valor = this.avaliar(declaracao.valor);
-        throw new excecoes_1.ExcecaoRetornar(valor);
+        return new quebras_1.RetornoQuebra(valor);
     };
     Interpretador.prototype.visitarExpressaoDeleguaFuncao = function (expressao) {
-        return new estruturas_1.DeleguaFuncao(null, expressao, this.ambiente, false);
+        return new estruturas_1.DeleguaFuncao(null, expressao);
     };
     Interpretador.prototype.visitarExpressaoAtribuicaoSobrescrita = function (expressao) {
         var objeto = this.avaliar(expressao.objeto);
@@ -2873,7 +2710,7 @@ var Interpretador = /** @class */ (function () {
             objeto[indice] = valor;
         }
         else if (objeto.constructor === Object ||
-            objeto instanceof estruturas_1.DeleguaInstancia ||
+            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
             objeto instanceof estruturas_1.DeleguaFuncao ||
             objeto instanceof estruturas_1.DeleguaClasse ||
             objeto instanceof estruturas_1.DeleguaModulo) {
@@ -2901,7 +2738,7 @@ var Interpretador = /** @class */ (function () {
             return objeto[indice];
         }
         else if (objeto.constructor === Object ||
-            objeto instanceof estruturas_1.DeleguaInstancia ||
+            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
             objeto instanceof estruturas_1.DeleguaFuncao ||
             objeto instanceof estruturas_1.DeleguaClasse ||
             objeto instanceof estruturas_1.DeleguaModulo) {
@@ -2927,12 +2764,12 @@ var Interpretador = /** @class */ (function () {
     };
     Interpretador.prototype.visitarExpressaoDefinir = function (expressao) {
         var objeto = this.avaliar(expressao.objeto);
-        if (!(objeto instanceof estruturas_1.DeleguaInstancia) &&
+        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) &&
             objeto.constructor !== Object) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha);
         }
         var valor = this.avaliar(expressao.valor);
-        if (objeto instanceof estruturas_1.DeleguaInstancia) {
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
             objeto.set(expressao.nome, valor);
             return valor;
         }
@@ -2941,8 +2778,8 @@ var Interpretador = /** @class */ (function () {
         }
     };
     Interpretador.prototype.visitarExpressaoFuncao = function (declaracao) {
-        var funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao, this.ambiente, false);
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, funcao);
+        var funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     };
     Interpretador.prototype.visitarExpressaoClasse = function (declaracao) {
         var superClasse = null;
@@ -2952,29 +2789,29 @@ var Interpretador = /** @class */ (function () {
                 throw new excecoes_1.ErroEmTempoDeExecucao(declaracao.superClasse.nome, 'SuperClasse precisa ser uma classe.', declaracao.linha);
             }
         }
-        this.ambiente.definirVariavel(declaracao.simbolo.lexema, null);
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
         if (declaracao.superClasse !== null) {
-            this.ambiente = new ambiente_1.Ambiente(this.ambiente);
-            this.ambiente.definirVariavel('super', superClasse);
+            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
         }
         var metodos = {};
         var definirMetodos = declaracao.metodos;
         for (var i = 0; i < declaracao.metodos.length; i++) {
             var metodoAtual = definirMetodos[i];
-            var eInicializado = metodoAtual.simbolo.lexema === 'construtor';
-            var funcao = new estruturas_1.DeleguaFuncao(metodoAtual.simbolo.lexema, metodoAtual.funcao, this.ambiente, eInicializado);
+            var eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+            var funcao = new estruturas_1.DeleguaFuncao(metodoAtual.simbolo.lexema, metodoAtual.funcao, undefined, eInicializador);
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
         var criado = new estruturas_1.DeleguaClasse(declaracao.simbolo.lexema, superClasse, metodos);
-        if (superClasse !== null) {
+        // TODO: Recolocar isso se for necessário.
+        /* if (superClasse !== null) {
             this.ambiente = this.ambiente.enclosing;
-        }
-        this.ambiente.atribuirVariavel(declaracao.simbolo, criado);
+        } */
+        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, criado);
         return null;
     };
     Interpretador.prototype.visitarExpressaoAcessoMetodo = function (expressao) {
         var objeto = this.avaliar(expressao.objeto);
-        if (objeto instanceof estruturas_1.DeleguaInstancia) {
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
             return objeto.get(expressao.simbolo) || null;
         }
         else if (objeto.constructor === Object) {
@@ -3004,13 +2841,13 @@ var Interpretador = /** @class */ (function () {
     };
     Interpretador.prototype.visitarExpressaoSuper = function (expressao) {
         var distancia = this.locais.get(expressao);
-        var superClasse = this.ambiente.obterVariavelEm(distancia, 'super');
-        var objeto = this.ambiente.obterVariavelEm(distancia - 1, 'isto');
+        var superClasse = this.pilhaEscoposExecucao.obterVariavelEm(distancia, 'super');
+        var objeto = this.pilhaEscoposExecucao.obterVariavelEm(distancia - 1, 'isto');
         var metodo = superClasse.encontrarMetodo(expressao.metodo.lexema);
         if (metodo === undefined) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
         }
-        return metodo.definirEscopo(objeto);
+        return metodo.definirInstancia(objeto);
     };
     Interpretador.prototype.paraTexto = function (objeto) {
         if (objeto === null)
@@ -3029,6 +2866,9 @@ var Interpretador = /** @class */ (function () {
             return objeto;
         if (typeof objeto === 'object')
             return JSON.stringify(objeto);
+        if (objeto === undefined) {
+            return 'nulo';
+        }
         return objeto.toString();
     };
     Interpretador.prototype.executar = function (declaracao, mostrarResultado) {
@@ -3037,47 +2877,153 @@ var Interpretador = /** @class */ (function () {
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
-    };
-    Interpretador.prototype.interpretar = function (objeto) {
-        this.erros = [];
-        var retornoResolvedor = this.resolvedor.resolver(objeto);
-        this.locais = retornoResolvedor.locais;
-        var inicioInterpretacao = (0, browser_process_hrtime_1.default)();
-        try {
-            var declaracoes = objeto.declaracoes || objeto;
-            if (declaracoes.length === 1) {
-                var eObjetoExpressao = declaracoes[0].constructor.name === 'Expressao';
-                if (eObjetoExpressao) {
-                    this.executar(declaracoes[0], true);
-                    return;
-                }
-            }
-            for (var i = 0; i < declaracoes.length; i++) {
-                this.executar(declaracoes[i]);
-            }
+        if (resultado || typeof resultado === 'boolean') {
+            this.resultadoInterpretador.push(this.paraTexto(resultado));
         }
-        catch (erro) {
-            this.erros.push(erro);
+        return resultado;
+    };
+    /**
+     * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
+     * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
+     * @returns O resultado da execução do escopo, se houver.
+     */
+    Interpretador.prototype.executarUltimoEscopo = function (manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        var ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        try {
+            var retornoExecucao = void 0;
+            for (; !(retornoExecucao instanceof quebras_1.Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                retornoExecucao = this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            }
+            return retornoExecucao;
         }
         finally {
-            var deltaInterpretacao = (0, browser_process_hrtime_1.default)(inicioInterpretacao);
+            this.pilhaEscoposExecucao.removerUltimo();
+            if (manterAmbiente) {
+                var escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
+            }
+        }
+    };
+    /**
+     * Método que efetivamente inicia o processo de interpretação.
+     * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
+     * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado
+     *                       pelo modo REPL (LEIA).
+     * @returns Um objeto com o resultado da interpretação.
+     */
+    Interpretador.prototype.interpretar = function (declaracoes, manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        this.erros = [];
+        var retornoResolvedor = this.resolvedor.resolver(declaracoes);
+        this.locais = retornoResolvedor.locais;
+        var escopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: new ambiente_1.Ambiente()
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        var inicioInterpretacao = (0, browser_process_hrtime_1.default)();
+        try {
+            this.executarUltimoEscopo(manterAmbiente);
+        }
+        finally {
             if (this.performance) {
+                var deltaInterpretacao = (0, browser_process_hrtime_1.default)(inicioInterpretacao);
                 console.log("[Interpretador] Tempo para interpreta\u00E7ao: ".concat(deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1], "ns"));
             }
-            return {
-                erros: this.erros
+            var retorno = {
+                erros: this.erros,
+                resultado: this.resultadoInterpretador,
             };
+            this.resultadoInterpretador = [];
+            return retorno;
         }
     };
     return Interpretador;
 }());
 exports.Interpretador = Interpretador;
 
-},{"../ambiente":2,"../bibliotecas/biblioteca-global":6,"../bibliotecas/importar-biblioteca":7,"../estruturas":49,"../excecoes":56,"../lexador/tipos-de-simbolos":65,"browser-process-hrtime":70,"path":71}],60:[function(require,module,exports){
+},{"../ambiente":2,"../bibliotecas/biblioteca-global":6,"../bibliotecas/importar-biblioteca":7,"../estruturas":49,"../excecoes":53,"../lexador/tipos-de-simbolos":63,"../quebras":64,"./pilha-escopos-execucao":57,"browser-process-hrtime":71,"path":72}],57:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PilhaEscoposExecucao = void 0;
+var estruturas_1 = require("../estruturas");
+var excecoes_1 = require("../excecoes");
+var PilhaEscoposExecucao = /** @class */ (function () {
+    function PilhaEscoposExecucao() {
+        this.pilha = [];
+    }
+    PilhaEscoposExecucao.prototype.empilhar = function (item) {
+        this.pilha.push(item);
+    };
+    PilhaEscoposExecucao.prototype.eVazio = function () {
+        return this.pilha.length === 0;
+    };
+    PilhaEscoposExecucao.prototype.topoDaPilha = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha.at(-1);
+    };
+    PilhaEscoposExecucao.prototype.removerUltimo = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha.pop();
+    };
+    PilhaEscoposExecucao.prototype.definirVariavel = function (nomeVariavel, valor) {
+        this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = valor;
+    };
+    PilhaEscoposExecucao.prototype.atribuirVariavelEm = function (distancia, simbolo, valor) {
+        var ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        ambienteAncestral.valores[simbolo.lexema] = valor;
+    };
+    PilhaEscoposExecucao.prototype.atribuirVariavel = function (simbolo, valor) {
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha.at(-i).ambiente;
+            if (ambiente.valores[simbolo.lexema] !== undefined) {
+                ambiente.valores[simbolo.lexema] = valor;
+                return;
+            }
+        }
+        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+    };
+    PilhaEscoposExecucao.prototype.obterVariavelEm = function (distancia, nome) {
+        var ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        return ambienteAncestral.valores[nome];
+    };
+    PilhaEscoposExecucao.prototype.obterVariavel = function (simbolo) {
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha.at(-i).ambiente;
+            if (ambiente.valores[simbolo.lexema] !== undefined) {
+                return ambiente.valores[simbolo.lexema];
+            }
+        }
+        throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
+    };
+    /**
+     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
+     * em console.
+     */
+    PilhaEscoposExecucao.prototype.obterTodasDeleguaFuncao = function () {
+        var retorno = {};
+        var ambiente = this.pilha.at(-1).ambiente;
+        for (var _i = 0, _a = Object.entries(ambiente.valores); _i < _a.length; _i++) {
+            var _b = _a[_i], nome = _b[0], corpo = _b[1];
+            if (corpo instanceof estruturas_1.DeleguaFuncao) {
+                retorno[nome] = corpo;
+            }
+        }
+        return retorno;
+    };
+    return PilhaEscoposExecucao;
+}());
+exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
+
+},{"../estruturas":49,"../excecoes":53}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],61:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3097,7 +3043,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":62,"./simbolo":64}],62:[function(require,module,exports){
+},{"./lexador":60,"./simbolo":62}],60:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3460,8 +3406,8 @@ var Lexador = /** @class */ (function () {
             this.inicioSimbolo = this.atual;
             this.analisarToken();
         }
-        var deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
         if (this.performance) {
+            var deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
             console.log("[Lexador] Tempo para mapeamento: ".concat(deltaMapeamento[0] * 1e9 + deltaMapeamento[1], "ns"));
         }
         return {
@@ -3473,7 +3419,7 @@ var Lexador = /** @class */ (function () {
 }());
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos":69,"./palavras-reservadas":63,"./simbolo":64,"browser-process-hrtime":70}],63:[function(require,module,exports){
+},{"../tipos-de-simbolos":70,"./palavras-reservadas":61,"./simbolo":62,"browser-process-hrtime":71}],61:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3515,7 +3461,7 @@ exports.default = {
     herda: tipos_de_simbolos_1.default.HERDA,
 };
 
-},{"./tipos-de-simbolos":65}],64:[function(require,module,exports){
+},{"./tipos-de-simbolos":63}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -3533,7 +3479,7 @@ var Simbolo = /** @class */ (function () {
 }());
 exports.Simbolo = Simbolo;
 
-},{}],65:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -3608,7 +3554,59 @@ exports.default = {
     VERDADEIRO: "VERDADEIRO"
 };
 
-},{}],66:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
+var Quebra = /** @class */ (function () {
+    function Quebra() {
+    }
+    return Quebra;
+}());
+exports.Quebra = Quebra;
+var RetornoQuebra = /** @class */ (function (_super) {
+    __extends(RetornoQuebra, _super);
+    function RetornoQuebra(valor) {
+        var _this = _super.call(this) || this;
+        _this.valor = valor;
+        return _this;
+    }
+    return RetornoQuebra;
+}(Quebra));
+exports.RetornoQuebra = RetornoQuebra;
+var SustarQuebra = /** @class */ (function (_super) {
+    __extends(SustarQuebra, _super);
+    function SustarQuebra() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return SustarQuebra;
+}(Quebra));
+exports.SustarQuebra = SustarQuebra;
+var ContinuarQuebra = /** @class */ (function (_super) {
+    __extends(ContinuarQuebra, _super);
+    function ContinuarQuebra() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return ContinuarQuebra;
+}(Quebra));
+exports.ContinuarQuebra = ContinuarQuebra;
+
+},{}],65:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3639,7 +3637,57 @@ var ErroResolvedor = /** @class */ (function (_super) {
 }(Error));
 exports.ErroResolvedor = ErroResolvedor;
 
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./erro-resolvedor"), exports);
+__exportStar(require("./pilha-escopos"), exports);
+__exportStar(require("./resolvedor"), exports);
+__exportStar(require("./retorno-resolvedor"), exports);
+
+},{"./erro-resolvedor":65,"./pilha-escopos":67,"./resolvedor":68,"./retorno-resolvedor":69}],67:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PilhaEscopos = void 0;
+var PilhaEscopos = /** @class */ (function () {
+    function PilhaEscopos() {
+        this.pilha = [];
+    }
+    PilhaEscopos.prototype.empilhar = function (item) {
+        this.pilha.push(item);
+    };
+    PilhaEscopos.prototype.eVazio = function () {
+        return this.pilha.length === 0;
+    };
+    PilhaEscopos.prototype.topoDaPilha = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha[this.pilha.length - 1];
+    };
+    PilhaEscopos.prototype.removerUltimo = function () {
+        if (this.eVazio())
+            throw new Error("Pilha vazia.");
+        return this.pilha.pop();
+    };
+    return PilhaEscopos;
+}());
+exports.PilhaEscopos = PilhaEscopos;
+
+},{}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Resolvedor = void 0;
@@ -3656,7 +3704,7 @@ var TipoClasse = {
     CLASSE: 'CLASSE',
     SUBCLASSE: 'SUBCLASSE',
 };
-var LoopType = {
+var TipoLacoRepeticao = {
     NENHUM: 'NENHUM',
     ENQUANTO: 'ENQUANTO',
     ESCOLHA: 'ESCOLHA',
@@ -3668,6 +3716,8 @@ var LoopType = {
  * e delimitar os escopos onde esses identificadores existem.
  * Exemplo: uma classe A declara dois métodos chamados M e N. Todas as variáveis declaradas dentro de M não podem ser vistas por N, e vice-versa.
  * No entanto, todas as variáveis declaradas dentro da classe A podem ser vistas tanto por M quanto por N.
+ * @deprecated Marcado para remoção. Como a implementação de blocos de escopo não precisa mais ter etapa de resolução, o
+ *              resolvedor deve ser removido em versões futuras.
  */
 var Resolvedor = /** @class */ (function () {
     function Resolvedor() {
@@ -3856,7 +3906,7 @@ var Resolvedor = /** @class */ (function () {
     };
     Resolvedor.prototype.visitarExpressaoEscolha = function (declaracao) {
         var enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ESCOLHA;
+        this.cicloAtual = TipoLacoRepeticao.ESCOLHA;
         var caminhos = declaracao.caminhos;
         var caminhoPadrao = declaracao.caminhoPadrao;
         for (var i = 0; i < caminhos.length; i++) {
@@ -3882,7 +3932,7 @@ var Resolvedor = /** @class */ (function () {
             this.resolver(declaracao.incrementar);
         }
         var enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.ENQUANTO;
+        this.cicloAtual = TipoLacoRepeticao.ENQUANTO;
         this.resolver(declaracao.corpo);
         this.cicloAtual = enclosingType;
         return null;
@@ -3890,7 +3940,7 @@ var Resolvedor = /** @class */ (function () {
     Resolvedor.prototype.visitarExpressaoFazer = function (declaracao) {
         this.resolver(declaracao.condicaoEnquanto);
         var enclosingType = this.cicloAtual;
-        this.cicloAtual = LoopType.FAZER;
+        this.cicloAtual = TipoLacoRepeticao.FAZER;
         this.resolver(declaracao.caminhoFazer);
         this.cicloAtual = enclosingType;
         return null;
@@ -3983,37 +4033,13 @@ var Resolvedor = /** @class */ (function () {
 }());
 exports.Resolvedor = Resolvedor;
 
-},{"./erro-resolvedor":66,"./pilha-escopos":68}],68:[function(require,module,exports){
+},{"./erro-resolvedor":65,"./pilha-escopos":67}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PilhaEscopos = void 0;
-var PilhaEscopos = /** @class */ (function () {
-    function PilhaEscopos() {
-        this.pilha = [];
-    }
-    PilhaEscopos.prototype.empilhar = function (item) {
-        this.pilha.push(item);
-    };
-    PilhaEscopos.prototype.eVazio = function () {
-        return this.pilha.length === 0;
-    };
-    PilhaEscopos.prototype.topoDaPilha = function () {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
-        return this.pilha[this.pilha.length - 1];
-    };
-    PilhaEscopos.prototype.removerUltimo = function () {
-        if (this.eVazio())
-            throw new Error("Pilha vazia.");
-        return this.pilha.pop();
-    };
-    return PilhaEscopos;
-}());
-exports.PilhaEscopos = PilhaEscopos;
 
-},{}],69:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"dup":65}],70:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
+arguments[4][63][0].apply(exports,arguments)
+},{"dup":63}],71:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -4044,7 +4070,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":72}],71:[function(require,module,exports){
+},{"_process":73}],72:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -4577,7 +4603,7 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":72}],72:[function(require,module,exports){
+},{"_process":73}],73:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

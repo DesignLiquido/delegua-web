@@ -14,7 +14,13 @@ function getQueryVariable(variable) {
         }
     }
 }
-console.log = console.error = function (msg) {
+// console.log = console.error = function (msg) {
+//   const p = document.createElement("p");
+//   p.textContent = msg;
+//   p.classList = " output";
+//   outputDiv.appendChild(p);
+// };
+var mostrarResultado = function (msg) {
     var p = document.createElement("p");
     p.textContent = msg;
     p.classList = " output";
@@ -53,7 +59,7 @@ else {
     loadDemo(demoKeys[0]);
 }
 var executarCodigo = function () {
-    var delegua = new Delegua.Delegua();
+    var delegua = new Delegua.Delegua('', mostrarResultado);
     var codigo = editor.getCode().split("\n");
     delegua.executar({ codigo: codigo });
 };
