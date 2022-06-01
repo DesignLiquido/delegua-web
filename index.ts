@@ -1,4 +1,3 @@
-import { ExcecaoRetornar } from '@designliquido/delegua/fontes/excecoes';
 import { Lexador } from "@designliquido/delegua/fontes/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
 import { Resolvedor } from "@designliquido/delegua/fontes/resolvedor";
@@ -10,6 +9,7 @@ import {
   ImportadorInterface,
   InterpretadorInterface,
   LexadorInterface,
+  RetornoExecucaoInterface,
   SimboloInterface
 } from "@designliquido/delegua/fontes/interfaces/index";
 import { RetornoImportador } from '@designliquido/delegua/fontes/importador';
@@ -44,7 +44,7 @@ export class Delegua implements DeleguaInterface {
     this.teveErroEmTempoDeExecucao = false;
   }
 
-  executar(retornoImportador: RetornoImportador): void {
+  executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {
 
     const retornoLexador = this.lexador.mapear(retornoImportador.codigo);
     const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
@@ -76,6 +76,15 @@ export class Delegua implements DeleguaInterface {
             }
         }
     }
+
+    return {
+        erros: {
+            avaliadorSintatico: retornoAvaliadorSintatico.erros,
+            lexador: retornoLexador.erros,
+            interpretador: retornoInterpretador.erros,
+        },
+        resultado: retornoInterpretador.resultado,
+    };
   }
 
   versao(){
@@ -113,7 +122,7 @@ export class Delegua implements DeleguaInterface {
             console.error(
                 `Erro: [Linha: ${erro.simbolo.linha}]` + ` ${erro.mensagem}`
             );
-    } else if (!(erro instanceof ExcecaoRetornar)) { // TODO: Se livrar de ExcecaoRetornar.
+    } else {
         console.error(`Erro: [Linha: ${erro.linha || 0}]` + ` ${erro.mensagem}`);
     }
 

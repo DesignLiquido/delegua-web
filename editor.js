@@ -17,12 +17,19 @@ function getQueryVariable(variable) {
   }
 }
 
-console.log = console.error = function (msg) {
+// console.log = console.error = function (msg) {
+//   const p = document.createElement("p");
+//   p.textContent = msg;
+//   p.classList = " output";
+//   outputDiv.appendChild(p);
+// };
+
+const mostrarResultado = function (msg){
   const p = document.createElement("p");
   p.textContent = msg;
   p.classList = " output";
   outputDiv.appendChild(p);
-};
+}
 
 const clearOutput = function () {
   outputDiv.innerHTML = "";
@@ -63,10 +70,10 @@ if (queryCode !== undefined) {
 }
 
 const executarCodigo = function () {
-  const delegua = new Delegua.Delegua();
+  const delegua = new Delegua.Delegua('', mostrarResultado);
 
   const codigo = editor.getCode().split("\n");
-  delegua.executar({codigo});
+  delegua.executar({ codigo });
 };
 
 demoSelector.addEventListener("change", function () {
