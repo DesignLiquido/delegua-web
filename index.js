@@ -23,24 +23,23 @@ var Delegua = /** @class */ (function () {
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
-    Delegua.prototype.executar = function (retornoImportador) {
-        var retornoLexador = this.lexador.mapear(retornoImportador.codigo);
-        var retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-        if (retornoLexador.erros.length > 0) {
-            for (var _i = 0, _a = retornoLexador.erros; _i < _a.length; _i++) {
+    Delegua.prototype.executar = function (retornoImportador, manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (var _i = 0, _a = retornoImportador.retornoLexador.erros; _i < _a.length; _i++) {
                 var erroLexador = _a[_i];
                 this.reportar(erroLexador.linha, " no '".concat(erroLexador.caractere, "'"), erroLexador.mensagem);
             }
             return;
         }
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (var _b = 0, _c = retornoAvaliadorSintatico.erros; _b < _c.length; _b++) {
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (var _b = 0, _c = retornoImportador.retornoAvaliadorSintatico.erros; _b < _c.length; _b++) {
                 var erroAvaliadorSintatico = _c[_b];
                 this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
             }
             return;
         }
-        var retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        var retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
         if (retornoInterpretador.erros.length > 0) {
             for (var _d = 0, _e = retornoInterpretador.erros; _d < _e.length; _d++) {
                 var erroInterpretador = _e[_d];
@@ -56,15 +55,15 @@ var Delegua = /** @class */ (function () {
         }
         return {
             erros: {
-                avaliadorSintatico: retornoAvaliadorSintatico.erros,
-                lexador: retornoLexador.erros,
+                lexador: retornoImportador.retornoLexador.erros,
+                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
                 interpretador: retornoInterpretador.erros
             },
             resultado: retornoInterpretador.resultado
         };
     };
     Delegua.prototype.versao = function () {
-        return '0.2';
+        return '0.4';
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)

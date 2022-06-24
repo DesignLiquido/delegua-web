@@ -61,7 +61,9 @@ else {
 var executarCodigo = function () {
     var delegua = new Delegua.Delegua('', mostrarResultado);
     var codigo = editor.getCode().split("\n");
-    delegua.executar({ codigo: codigo });
+    var retornoLexador = delegua.lexador.mapear(codigo, -1);
+    var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });
 };
 demoSelector.addEventListener("change", function () {
     loadDemo(demoSelector.value);

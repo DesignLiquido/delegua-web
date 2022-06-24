@@ -24,24 +24,23 @@ var Delegua = /** @class */ (function () {
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
-    Delegua.prototype.executar = function (retornoImportador) {
-        var retornoLexador = this.lexador.mapear(retornoImportador.codigo);
-        var retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-        if (retornoLexador.erros.length > 0) {
-            for (var _i = 0, _a = retornoLexador.erros; _i < _a.length; _i++) {
+    Delegua.prototype.executar = function (retornoImportador, manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (var _i = 0, _a = retornoImportador.retornoLexador.erros; _i < _a.length; _i++) {
                 var erroLexador = _a[_i];
                 this.reportar(erroLexador.linha, " no '".concat(erroLexador.caractere, "'"), erroLexador.mensagem);
             }
             return;
         }
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (var _b = 0, _c = retornoAvaliadorSintatico.erros; _b < _c.length; _b++) {
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (var _b = 0, _c = retornoImportador.retornoAvaliadorSintatico.erros; _b < _c.length; _b++) {
                 var erroAvaliadorSintatico = _c[_b];
                 this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
             }
             return;
         }
-        var retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        var retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
         if (retornoInterpretador.erros.length > 0) {
             for (var _d = 0, _e = retornoInterpretador.erros; _d < _e.length; _d++) {
                 var erroInterpretador = _e[_d];
@@ -57,15 +56,15 @@ var Delegua = /** @class */ (function () {
         }
         return {
             erros: {
-                avaliadorSintatico: retornoAvaliadorSintatico.erros,
-                lexador: retornoLexador.erros,
+                lexador: retornoImportador.retornoLexador.erros,
+                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
                 interpretador: retornoInterpretador.erros
             },
             resultado: retornoInterpretador.resultado
         };
     };
     Delegua.prototype.versao = function () {
-        return '0.2';
+        return '0.4';
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -98,7 +97,7 @@ var Delegua = /** @class */ (function () {
 }());
 exports.Delegua = Delegua;
 
-},{"@designliquido/delegua/fontes/avaliador-sintatico":5,"@designliquido/delegua/fontes/interpretador":55,"@designliquido/delegua/fontes/lexador":59,"@designliquido/delegua/fontes/resolvedor":66,"@designliquido/delegua/fontes/tipos-de-simbolos":70}],2:[function(require,module,exports){
+},{"@designliquido/delegua/fontes/avaliador-sintatico":5,"@designliquido/delegua/fontes/interpretador":56,"@designliquido/delegua/fontes/lexador":59,"@designliquido/delegua/fontes/resolvedor":65,"@designliquido/delegua/fontes/tipos-de-simbolos":69}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ambiente = void 0;
@@ -131,6 +130,7 @@ var declaracoes_1 = require("../declaracoes");
 var AvaliadorSintatico = /** @class */ (function () {
     function AvaliadorSintatico(performance) {
         if (performance === void 0) { performance = false; }
+        this.hashArquivo = 0;
         this.atual = 0;
         this.ciclos = 0;
         this.erros = [];
@@ -139,9 +139,10 @@ var AvaliadorSintatico = /** @class */ (function () {
     AvaliadorSintatico.prototype.sincronizar = function () {
         this.avancarEDevolverAnterior();
         while (!this.estaNoFinal()) {
-            if (this.simboloAnterior().tipo === tipos_de_simbolos_1.default.PONTO_E_VIRGULA)
+            var tipoSimboloAtual = this.simboloAnterior().tipo;
+            if (tipoSimboloAtual === tipos_de_simbolos_1.default.PONTO_E_VIRGULA)
                 return;
-            switch (this.simboloAtual().tipo) {
+            switch (tipoSimboloAtual) {
                 case tipos_de_simbolos_1.default.CLASSE:
                 case tipos_de_simbolos_1.default.FUNCAO:
                 case tipos_de_simbolos_1.default.FUNÇÃO:
@@ -213,16 +214,17 @@ var AvaliadorSintatico = /** @class */ (function () {
         return false;
     };
     AvaliadorSintatico.prototype.primario = function () {
+        var simboloAtual = this.simboloAtual();
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.SUPER)) {
-            var palavraChave = this.simboloAnterior();
+            var simboloChave = this.simboloAnterior();
             this.consumir(tipos_de_simbolos_1.default.PONTO, "Esperado '.' após 'super'.");
             var metodo = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome do método da SuperClasse.');
-            return new construtos_1.Super(0, palavraChave, metodo);
+            return new construtos_1.Super(this.hashArquivo, simboloChave, metodo);
         }
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.COLCHETE_ESQUERDO)) {
             var valores = [];
             if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.COLCHETE_DIREITO)) {
-                return new construtos_1.Vetor(0, []);
+                return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
             }
             while (!this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.COLCHETE_DIREITO)) {
                 var valor = this.atribuir();
@@ -232,13 +234,13 @@ var AvaliadorSintatico = /** @class */ (function () {
                     this.consumir(tipos_de_simbolos_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                 }
             }
-            return new construtos_1.Vetor(0, valores);
+            return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
         }
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CHAVE_ESQUERDA)) {
             var chaves = [];
             var valores = [];
             if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CHAVE_DIREITA)) {
-                return new construtos_1.Dicionario(0, [], []);
+                return new construtos_1.Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
             }
             while (!this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CHAVE_DIREITA)) {
                 var chave = this.atribuir();
@@ -250,31 +252,29 @@ var AvaliadorSintatico = /** @class */ (function () {
                     this.consumir(tipos_de_simbolos_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                 }
             }
-            return new construtos_1.Dicionario(0, chaves, valores);
+            return new construtos_1.Dicionario(this.hashArquivo, Number(simboloAtual.linha), chaves, valores);
         }
-        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.FUNÇÃO))
-            return this.corpoDaFuncao('função');
-        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.FUNCAO))
-            return this.corpoDaFuncao('funcao');
+        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.FUNÇÃO, tipos_de_simbolos_1.default.FUNCAO))
+            return this.corpoDaFuncao(this.simboloAnterior().lexema);
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.FALSO))
-            return new construtos_1.Literal(0, false);
+            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.VERDADEIRO))
-            return new construtos_1.Literal(0, true);
+            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), true);
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.NULO))
-            return new construtos_1.Literal(0, null);
+            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), null);
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.ISTO))
-            return new construtos_1.Isto(0, this.simboloAnterior());
+            return new construtos_1.Isto(this.hashArquivo, Number(simboloAtual.linha), this.simboloAnterior());
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.NUMERO, tipos_de_simbolos_1.default.TEXTO)) {
             var simboloAnterior = this.simboloAnterior();
-            return new construtos_1.Literal(Number(simboloAnterior.linha), simboloAnterior.literal);
+            return new construtos_1.Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IDENTIFICADOR)) {
-            return new construtos_1.Variavel(this.simboloAnterior());
+            return new construtos_1.Variavel(this.hashArquivo, this.simboloAnterior());
         }
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.PARENTESE_ESQUERDO)) {
-            var expr = this.expressao();
+            var expressao = this.expressao();
             this.consumir(tipos_de_simbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-            return new construtos_1.Agrupamento(0, expr);
+            return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IMPORTAR))
             return this.declaracaoImportar();
@@ -291,7 +291,7 @@ var AvaliadorSintatico = /** @class */ (function () {
             } while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.VIRGULA));
         }
         var parenteseDireito = this.consumir(tipos_de_simbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
-        return new construtos_1.Chamada(entidadeChamada, parenteseDireito, argumentos);
+        return new construtos_1.Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
     };
     AvaliadorSintatico.prototype.chamar = function () {
         var expressao = this.primario();
@@ -301,12 +301,12 @@ var AvaliadorSintatico = /** @class */ (function () {
             }
             else if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.PONTO)) {
                 var nome = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                expressao = new construtos_1.AcessoMetodo(expressao, nome);
+                expressao = new construtos_1.AcessoMetodo(this.hashArquivo, expressao, nome);
             }
             else if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.COLCHETE_ESQUERDO)) {
                 var indice = this.expressao();
                 var simboloFechamento = this.consumir(tipos_de_simbolos_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                expressao = new construtos_1.AcessoIndiceVariavel(expressao, indice, simboloFechamento);
+                expressao = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
             }
             else {
                 break;
@@ -318,7 +318,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.NEGACAO, tipos_de_simbolos_1.default.SUBTRACAO, tipos_de_simbolos_1.default.BIT_NOT)) {
             var operador = this.simboloAnterior();
             var direito = this.unario();
-            return new construtos_1.Unario(operador, direito);
+            return new construtos_1.Unario(this.hashArquivo, operador, direito);
         }
         return this.chamar();
     };
@@ -327,34 +327,39 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.EXPONENCIACAO)) {
             var operador = this.simboloAnterior();
             var direito = this.unario();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
     AvaliadorSintatico.prototype.multiplicar = function () {
         var expressao = this.exponenciacao();
-        while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.DIVISAO, tipos_de_simbolos_1.default.MULTIPLICACAO, tipos_de_simbolos_1.default.MODULO)) {
+        while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.DIVISAO, tipos_de_simbolos_1.default.MULTIPLICACAO, tipos_de_simbolos_1.default.MODULO, tipos_de_simbolos_1.default.DIVISAO_IGUAL, tipos_de_simbolos_1.default.MULTIPLICACAO_IGUAL, tipos_de_simbolos_1.default.MODULO_IGUAL)) {
             var operador = this.simboloAnterior();
             var direito = this.exponenciacao();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
-    AvaliadorSintatico.prototype.adicionar = function () {
+    /**
+     * Se símbolo de operação é `+`, `-`, `+=` ou `-=`, monta objeto `Binario` para
+     * ser avaliado pelo Interpretador.
+     * @returns Um Construto, normalmente um `Binario`, ou `Unario` se houver alguma operação unária para ser avaliada.
+     */
+    AvaliadorSintatico.prototype.adicaoOuSubtracao = function () {
         var expressao = this.multiplicar();
-        while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.SUBTRACAO, tipos_de_simbolos_1.default.ADICAO)) {
+        while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.SUBTRACAO, tipos_de_simbolos_1.default.ADICAO, tipos_de_simbolos_1.default.MAIS_IGUAL, tipos_de_simbolos_1.default.MENOS_IGUAL)) {
             var operador = this.simboloAnterior();
             var direito = this.multiplicar();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
     AvaliadorSintatico.prototype.bitFill = function () {
-        var expressao = this.adicionar();
+        var expressao = this.adicaoOuSubtracao();
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.MENOR_MENOR, tipos_de_simbolos_1.default.MAIOR_MAIOR)) {
             var operador = this.simboloAnterior();
-            var direito = this.adicionar();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            var direito = this.adicaoOuSubtracao();
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -363,7 +368,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.BIT_AND)) {
             var operador = this.simboloAnterior();
             var direito = this.bitFill();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -372,7 +377,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.BIT_OR, tipos_de_simbolos_1.default.BIT_XOR)) {
             var operador = this.simboloAnterior();
             var direito = this.bitE();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -381,7 +386,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.MAIOR, tipos_de_simbolos_1.default.MAIOR_IGUAL, tipos_de_simbolos_1.default.MENOR, tipos_de_simbolos_1.default.MENOR_IGUAL)) {
             var operador = this.simboloAnterior();
             var direito = this.bitOu();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -390,7 +395,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.DIFERENTE, tipos_de_simbolos_1.default.IGUAL_IGUAL)) {
             var operador = this.simboloAnterior();
             var direito = this.comparar();
-            expressao = new construtos_1.Binario(expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -399,7 +404,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.EM)) {
             var operador = this.simboloAnterior();
             var direito = this.comparacaoIgualdade();
-            expressao = new construtos_1.Logico(expressao, operador, direito);
+            expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -408,7 +413,7 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.E)) {
             var operador = this.simboloAnterior();
             var direito = this.em();
-            expressao = new construtos_1.Logico(expressao, operador, direito);
+            expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
@@ -417,26 +422,38 @@ var AvaliadorSintatico = /** @class */ (function () {
         while (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.OU)) {
             var operador = this.simboloAnterior();
             var direito = this.e();
-            expressao = new construtos_1.Logico(expressao, operador, direito);
+            expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
     };
+    /**
+     * Método que resolve atribuições.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     */
     AvaliadorSintatico.prototype.atribuir = function () {
         var expressao = this.ou();
-        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.MAIS_IGUAL)) {
+        if (expressao instanceof construtos_1.Binario &&
+            [tipos_de_simbolos_1.default.MAIS_IGUAL,
+                tipos_de_simbolos_1.default.MENOS_IGUAL,
+                tipos_de_simbolos_1.default.MULTIPLICACAO_IGUAL,
+                tipos_de_simbolos_1.default.DIVISAO_IGUAL,
+                tipos_de_simbolos_1.default.MODULO_IGUAL
+            ].includes(expressao.operador.tipo)) {
+            return new construtos_1.Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);
+        }
+        else if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IGUAL)) {
             var igual = this.simboloAnterior();
             var valor = this.atribuir();
             if (expressao instanceof construtos_1.Variavel) {
                 var simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(simbolo, valor);
+                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoMetodo) {
                 var get = expressao;
-                return new construtos_1.Conjunto(0, get.objeto, get.simbolo, valor);
+                return new construtos_1.Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(0, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -525,7 +542,7 @@ var AvaliadorSintatico = /** @class */ (function () {
             }
             this.consumir(tipos_de_simbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
             var corpo = this.resolverDeclaracao();
-            return new declaracoes_1.Para(Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
+            return new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
         }
         finally {
             this.ciclos -= 1;
@@ -533,23 +550,23 @@ var AvaliadorSintatico = /** @class */ (function () {
     };
     AvaliadorSintatico.prototype.declaracaoSustar = function () {
         if (this.ciclos < 1) {
-            this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um loop.");
+            this.erro(this.simboloAnterior(), "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
-        return new declaracoes_1.Sustar();
+        return new declaracoes_1.Sustar(this.simboloAtual());
     };
     AvaliadorSintatico.prototype.declaracaoContinua = function () {
         if (this.ciclos < 1) {
             this.erro(this.simboloAnterior(), "'continua' precisa estar em um laço de repetição.");
         }
-        return new declaracoes_1.Continua();
+        return new declaracoes_1.Continua(this.simboloAtual());
     };
     AvaliadorSintatico.prototype.declaracaoRetorna = function () {
-        var palavraChave = this.simboloAnterior();
+        var simboloChave = this.simboloAnterior();
         var valor = null;
         if (!this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.PONTO_E_VIRGULA)) {
             valor = this.expressao();
         }
-        return new declaracoes_1.Retorna(palavraChave, valor);
+        return new declaracoes_1.Retorna(simboloChave, valor);
     };
     AvaliadorSintatico.prototype.declaracaoEscolha = function () {
         try {
@@ -668,13 +685,28 @@ var AvaliadorSintatico = /** @class */ (function () {
             return this.declaracaoEscreva();
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.CHAVE_ESQUERDA))
             return new declaracoes_1.Bloco(this.blocoEscopo());
+        var simboloAtual = this.simboloAtual();
+        if (simboloAtual.tipo === tipos_de_simbolos_1.default.IDENTIFICADOR) {
+            // Pela gramática, a seguinte situação não pode ocorrer:
+            // 1. O símbolo anterior ser um identificador; e
+            // 2. O símbolo anterior estar na mesma linha do identificador atual.
+            var simboloAnterior = this.simboloAnterior();
+            if (!!simboloAnterior &&
+                simboloAnterior.tipo === tipos_de_simbolos_1.default.IDENTIFICADOR &&
+                simboloAnterior.linha === simboloAtual.linha) {
+                this.erro(this.simboloAtual(), 'Não é permitido ter dois identificadores seguidos na mesma linha.');
+            }
+        }
         return this.declaracaoExpressao();
     };
+    /**
+     * Caso símbolo atual seja `var`, devolve uma declaração de variável.
+     * @returns Um Construto do tipo Var.
+     */
     AvaliadorSintatico.prototype.declaracaoDeVariavel = function () {
         var simbolo = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome de variável.');
         var inicializador = null;
-        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IGUAL) ||
-            this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.MAIS_IGUAL)) {
+        if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.IGUAL)) {
             inicializador = this.expressao();
         }
         return new declaracoes_1.Var(simbolo, inicializador);
@@ -713,14 +745,14 @@ var AvaliadorSintatico = /** @class */ (function () {
         this.consumir(tipos_de_simbolos_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.consumir(tipos_de_simbolos_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do ".concat(tipo, "."));
         var corpo = this.blocoEscopo();
-        return new construtos_1.Funcao(Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new construtos_1.Funcao(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
     };
     AvaliadorSintatico.prototype.declaracaoDeClasse = function () {
         var simbolo = this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome da classe.');
         var superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.HERDA)) {
             this.consumir(tipos_de_simbolos_1.default.IDENTIFICADOR, 'Esperado nome da SuperClasse.');
-            superClasse = new construtos_1.Variavel(this.simboloAnterior());
+            superClasse = new construtos_1.Variavel(this.hashArquivo, this.simboloAnterior());
         }
         this.consumir(tipos_de_simbolos_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
         var metodos = [];
@@ -733,14 +765,10 @@ var AvaliadorSintatico = /** @class */ (function () {
     };
     AvaliadorSintatico.prototype.declaracao = function () {
         try {
-            if (this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.FUNÇÃO) &&
-                this.verificarTipoProximoSimbolo(tipos_de_simbolos_1.default.IDENTIFICADOR)) {
-                this.consumir(tipos_de_simbolos_1.default.FUNÇÃO, null);
-                return this.funcao('função');
-            }
-            if (this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.FUNCAO) &&
-                this.verificarTipoProximoSimbolo(tipos_de_simbolos_1.default.IDENTIFICADOR)) {
-                this.consumir(tipos_de_simbolos_1.default.FUNCAO, null);
+            if ((this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.FUNCAO)
+                || this.verificarTipoSimboloAtual(tipos_de_simbolos_1.default.FUNÇÃO))
+                && this.verificarTipoProximoSimbolo(tipos_de_simbolos_1.default.IDENTIFICADOR)) {
+                this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
             if (this.verificarSeSimboloAtualEIgualA(tipos_de_simbolos_1.default.VARIAVEL))
@@ -750,15 +778,17 @@ var AvaliadorSintatico = /** @class */ (function () {
             return this.resolverDeclaracao();
         }
         catch (erro) {
+            // TODO: Altíssima chance de ser uma roubada. Considerar retirar mais futuramente.
             this.sincronizar();
             return null;
         }
     };
-    AvaliadorSintatico.prototype.analisar = function (retornoLexador) {
+    AvaliadorSintatico.prototype.analisar = function (retornoLexador, hashArquivo) {
         var inicioAnalise = (0, browser_process_hrtime_1.default)();
         this.erros = [];
         this.atual = 0;
         this.ciclos = 0;
+        this.hashArquivo = hashArquivo || 0;
         this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
         var declaracoes = [];
         while (!this.estaNoFinal()) {
@@ -777,7 +807,7 @@ var AvaliadorSintatico = /** @class */ (function () {
 }());
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":19,"../declaracoes":38,"../tipos-de-simbolos":70,"./erro-avaliador-sintatico":4,"browser-process-hrtime":71}],4:[function(require,module,exports){
+},{"../construtos":19,"../declaracoes":38,"../tipos-de-simbolos":69,"./erro-avaliador-sintatico":4,"browser-process-hrtime":70}],4:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -968,8 +998,9 @@ exports.AcessoIndiceVariavel = void 0;
  * vetores e dicionários.
  */
 var AcessoIndiceVariavel = /** @class */ (function () {
-    function AcessoIndiceVariavel(entidadeChamada, indice, simboloFechamento) {
+    function AcessoIndiceVariavel(hashArquivo, entidadeChamada, indice, simboloFechamento) {
         this.linha = entidadeChamada.linha;
+        this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;
@@ -990,8 +1021,9 @@ exports.AcessoMetodo = void 0;
  * classe.
  */
 var AcessoMetodo = /** @class */ (function () {
-    function AcessoMetodo(objeto, simbolo) {
+    function AcessoMetodo(hashArquivo, objeto, simbolo) {
         this.linha = objeto.linha;
+        this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.simbolo = simbolo;
     }
@@ -1006,9 +1038,15 @@ exports.AcessoMetodo = AcessoMetodo;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
+/**
+ * Um agrupamento é essencialmente uma expressão qualquer dentro de parênteses.
+ * Usado para resolver precedência de operadores. Por exemplo:
+ * `(2 + 2) * 5`, `(2 + 2)` é um agrupamento cuja expressão é `2 + 2`.
+ */
 var Agrupamento = /** @class */ (function () {
-    function Agrupamento(linha, expressao) {
+    function Agrupamento(hashArquivo, linha, expressao) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.expressao = expressao;
     }
     Agrupamento.prototype.aceitar = function (visitante) {
@@ -1023,8 +1061,9 @@ exports.Agrupamento = Agrupamento;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoSobrescrita = void 0;
 var AtribuicaoSobrescrita = /** @class */ (function () {
-    function AtribuicaoSobrescrita(linha, objeto, indice, valor) {
+    function AtribuicaoSobrescrita(hashArquivo, linha, objeto, indice, valor) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.indice = indice;
         this.valor = valor;
@@ -1041,8 +1080,9 @@ exports.AtribuicaoSobrescrita = AtribuicaoSobrescrita;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
 var Atribuir = /** @class */ (function () {
-    function Atribuir(simbolo, valor) {
+    function Atribuir(hashArquivo, simbolo, valor) {
         this.linha = Number(simbolo.linha);
+        this.hashArquivo = hashArquivo;
         this.simbolo = simbolo;
         this.valor = valor;
     }
@@ -1057,9 +1097,21 @@ exports.Atribuir = Atribuir;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
+/**
+ * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
+ * Implementa as seguintes operações:
+ *
+ * - `+` (Adição) e `+=` (Adição com Atribuição)
+ * - `-` (Subtração) e `-=` (Subtração com Atribuição)
+ * - `*` (Multiplicação) e `*=` (Multiplicação com Atribuição)
+ * - `/` (Divisão) e `/=` (Divisão com Atribuição)
+ * - `%` (Módulo) e `%=` (Módulo com Atribuição)
+ * - `**` (Exponenciação)
+ */
 var Binario = /** @class */ (function () {
-    function Binario(esquerda, operador, direita) {
+    function Binario(hashArquivo, esquerda, operador, direita) {
         this.linha = esquerda.linha;
+        this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
@@ -1076,8 +1128,9 @@ exports.Binario = Binario;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
 var Chamada = /** @class */ (function () {
-    function Chamada(entidadeChamada, parentese, argumentos) {
+    function Chamada(hashArquivo, entidadeChamada, parentese, argumentos) {
         this.linha = entidadeChamada.linha;
+        this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.parentese = parentese;
         this.argumentos = argumentos;
@@ -1094,8 +1147,9 @@ exports.Chamada = Chamada;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Conjunto = void 0;
 var Conjunto = /** @class */ (function () {
-    function Conjunto(linha, objeto, nome, valor) {
+    function Conjunto(hashArquivo, linha, objeto, nome, valor) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.nome = nome;
         this.valor = valor;
@@ -1116,8 +1170,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
 var Dicionario = /** @class */ (function () {
-    function Dicionario(linha, chaves, valores) {
+    function Dicionario(hashArquivo, linha, chaves, valores) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.chaves = chaves;
         this.valores = valores;
     }
@@ -1133,8 +1188,9 @@ exports.Dicionario = Dicionario;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Funcao = void 0;
 var Funcao = /** @class */ (function () {
-    function Funcao(linha, parametros, corpo) {
+    function Funcao(hashArquivo, linha, parametros, corpo) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.parametros = parametros;
         this.corpo = corpo;
     }
@@ -1186,8 +1242,9 @@ __exportStar(require("./vetor"), exports);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
 var Isto = /** @class */ (function () {
-    function Isto(linha, palavraChave) {
+    function Isto(hashArquivo, linha, palavraChave) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.palavraChave = palavraChave;
     }
     Isto.prototype.aceitar = function (visitante) {
@@ -1202,8 +1259,9 @@ exports.Isto = Isto;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
 var Literal = /** @class */ (function () {
-    function Literal(linha, valor) {
+    function Literal(hashArquivo, linha, valor) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.valor = valor;
     }
     Literal.prototype.aceitar = function (visitante) {
@@ -1218,8 +1276,9 @@ exports.Literal = Literal;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
 var Logico = /** @class */ (function () {
-    function Logico(esquerda, operador, direita) {
+    function Logico(hashArquivo, esquerda, operador, direita) {
         this.linha = esquerda.linha;
+        this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
@@ -1236,9 +1295,10 @@ exports.Logico = Logico;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
 var Super = /** @class */ (function () {
-    function Super(linha, palavraChave, metodo) {
-        this.linha = linha;
-        this.palavraChave = palavraChave;
+    function Super(hashArquivo, simboloChave, metodo) {
+        this.linha = Number(simboloChave.linha);
+        this.hashArquivo = hashArquivo;
+        this.simboloChave = simboloChave;
         this.metodo = metodo;
     }
     Super.prototype.aceitar = function (visitante) {
@@ -1253,8 +1313,9 @@ exports.Super = Super;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
 var Unario = /** @class */ (function () {
-    function Unario(operador, direita) {
+    function Unario(hashArquivo, operador, direita) {
         this.linha = operador.linha;
+        this.hashArquivo = hashArquivo;
         this.operador = operador;
         this.direita = direita;
     }
@@ -1270,8 +1331,9 @@ exports.Unario = Unario;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
 var Variavel = /** @class */ (function () {
-    function Variavel(simbolo) {
+    function Variavel(hashArquivo, simbolo) {
         this.linha = Number(simbolo.linha);
+        this.hashArquivo = hashArquivo;
         this.simbolo = simbolo;
     }
     Variavel.prototype.aceitar = function (visitante) {
@@ -1286,8 +1348,9 @@ exports.Variavel = Variavel;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
 var Vetor = /** @class */ (function () {
-    function Vetor(linha, valores) {
+    function Vetor(hashArquivo, linha, valores) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
         this.valores = valores;
     }
     Vetor.prototype.aceitar = function (visitante) {
@@ -1320,7 +1383,7 @@ var declaracao_1 = require("./declaracao");
 var Bloco = /** @class */ (function (_super) {
     __extends(Bloco, _super);
     function Bloco(declaracoes) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, 0, 0) || this;
         _this.declaracoes = declaracoes;
         return _this;
     }
@@ -1354,7 +1417,7 @@ var declaracao_1 = require("./declaracao");
 var Classe = /** @class */ (function (_super) {
     __extends(Classe, _super);
     function Classe(simbolo, superClasse, metodos) {
-        var _this = _super.call(this, Number(simbolo.linha)) || this;
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
         _this.simbolo = simbolo;
         _this.superClasse = superClasse;
         _this.metodos = metodos;
@@ -1389,8 +1452,8 @@ exports.Continua = void 0;
 var declaracao_1 = require("./declaracao");
 var Continua = /** @class */ (function (_super) {
     __extends(Continua, _super);
-    function Continua() {
-        return _super.call(this, 0) || this;
+    function Continua(simbolo) {
+        return _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
     }
     Continua.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoContinua(this);
@@ -1404,8 +1467,9 @@ exports.Continua = Continua;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
 var Declaracao = /** @class */ (function () {
-    function Declaracao(linha) {
+    function Declaracao(linha, hashArquivo) {
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
     }
     Declaracao.prototype.aceitar = function (visitante) { };
     return Declaracao;
@@ -1435,7 +1499,7 @@ var declaracao_1 = require("./declaracao");
 var Enquanto = /** @class */ (function (_super) {
     __extends(Enquanto, _super);
     function Enquanto(condicao, corpo) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, condicao.linha, 0) || this;
         _this.condicao = condicao;
         _this.corpo = corpo;
         return _this;
@@ -1470,7 +1534,7 @@ var declaracao_1 = require("./declaracao");
 var Escolha = /** @class */ (function (_super) {
     __extends(Escolha, _super);
     function Escolha(condicao, caminhos, caminhoPadrao) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, condicao.linha, 0) || this;
         _this.condicao = condicao;
         _this.caminhos = caminhos;
         _this.caminhoPadrao = caminhoPadrao;
@@ -1506,7 +1570,7 @@ var declaracao_1 = require("./declaracao");
 var Escreva = /** @class */ (function (_super) {
     __extends(Escreva, _super);
     function Escreva(expressao) {
-        var _this = _super.call(this, expressao.linha) || this;
+        var _this = _super.call(this, expressao.linha, expressao.hashArquivo) || this;
         _this.expressao = expressao;
         return _this;
     }
@@ -1540,7 +1604,7 @@ var declaracao_1 = require("./declaracao");
 var Expressao = /** @class */ (function (_super) {
     __extends(Expressao, _super);
     function Expressao(expressao) {
-        var _this = _super.call(this, expressao.linha) || this;
+        var _this = _super.call(this, expressao.linha, expressao.hashArquivo) || this;
         _this.expressao = expressao;
         return _this;
     }
@@ -1574,7 +1638,7 @@ var declaracao_1 = require("./declaracao");
 var Fazer = /** @class */ (function (_super) {
     __extends(Fazer, _super);
     function Fazer(caminhoFazer, condicaoEnquanto) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, 0, 0) || this;
         _this.caminhoFazer = caminhoFazer;
         _this.condicaoEnquanto = condicaoEnquanto;
         return _this;
@@ -1609,7 +1673,7 @@ var declaracao_1 = require("./declaracao");
 var Funcao = /** @class */ (function (_super) {
     __extends(Funcao, _super);
     function Funcao(simbolo, funcao) {
-        var _this = _super.call(this, Number(simbolo.linha)) || this;
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
         _this.simbolo = simbolo;
         _this.funcao = funcao;
         return _this;
@@ -1644,7 +1708,7 @@ var declaracao_1 = require("./declaracao");
 var Importar = /** @class */ (function (_super) {
     __extends(Importar, _super);
     function Importar(caminho, simboloFechamento) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, caminho.linha, caminho.hashArquivo) || this;
         _this.caminho = caminho;
         _this.simboloFechamento = simboloFechamento;
         return _this;
@@ -1713,8 +1777,8 @@ exports.Para = void 0;
 var declaracao_1 = require("./declaracao");
 var Para = /** @class */ (function (_super) {
     __extends(Para, _super);
-    function Para(linha, inicializador, condicao, incrementar, corpo) {
-        var _this = _super.call(this, linha) || this;
+    function Para(hashArquivo, linha, inicializador, condicao, incrementar, corpo) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
         _this.inicializador = inicializador;
         _this.condicao = condicao;
         _this.incrementar = incrementar;
@@ -1750,9 +1814,9 @@ exports.Retorna = void 0;
 var declaracao_1 = require("./declaracao");
 var Retorna = /** @class */ (function (_super) {
     __extends(Retorna, _super);
-    function Retorna(palavraChave, valor) {
-        var _this = _super.call(this, 0) || this;
-        _this.palavraChave = palavraChave;
+    function Retorna(simboloChave, valor) {
+        var _this = _super.call(this, Number(simboloChave.linha), simboloChave.hashArquivo) || this;
+        _this.simboloChave = simboloChave;
         _this.valor = valor;
         return _this;
     }
@@ -1786,7 +1850,7 @@ var declaracao_1 = require("./declaracao");
 var Se = /** @class */ (function (_super) {
     __extends(Se, _super);
     function Se(linha, condicao, caminhoEntao, caminhosSeSenao, caminhoSenao) {
-        var _this = _super.call(this, linha) || this;
+        var _this = _super.call(this, linha, 0) || this;
         _this.condicao = condicao;
         _this.caminhoEntao = caminhoEntao;
         _this.caminhosSeSenao = caminhosSeSenao;
@@ -1822,8 +1886,8 @@ exports.Sustar = void 0;
 var declaracao_1 = require("./declaracao");
 var Sustar = /** @class */ (function (_super) {
     __extends(Sustar, _super);
-    function Sustar() {
-        return _super.call(this, 0) || this;
+    function Sustar(simbolo) {
+        return _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
     }
     Sustar.prototype.aceitar = function (visitante) {
         return visitante.visitarExpressaoSustar(this);
@@ -1855,7 +1919,7 @@ var declaracao_1 = require("./declaracao");
 var Tente = /** @class */ (function (_super) {
     __extends(Tente, _super);
     function Tente(caminhoTente, caminhoPegue, caminhoSenao, caminhoFinalmente) {
-        var _this = _super.call(this, 0) || this;
+        var _this = _super.call(this, 0, 0) || this;
         _this.caminhoTente = caminhoTente;
         _this.caminhoPegue = caminhoPegue;
         _this.caminhoSenao = caminhoSenao;
@@ -1892,7 +1956,7 @@ var declaracao_1 = require("./declaracao");
 var Var = /** @class */ (function (_super) {
     __extends(Var, _super);
     function Var(simbolo, inicializador) {
-        var _this = _super.call(this, Number(simbolo.linha)) || this;
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
         _this.simbolo = simbolo;
         _this.inicializador = inicializador;
         return _this;
@@ -2094,7 +2158,7 @@ var DeleguaFuncao = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../ambiente":2,"../quebras":64,"./chamavel":45}],49:[function(require,module,exports){
+},{"../ambiente":2,"../quebras":63,"./chamavel":45}],49:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2221,6 +2285,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],55:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],56:[function(require,module,exports){
+"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -2238,9 +2306,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-interpretador"), exports);
 __exportStar(require("./interpretador"), exports);
-__exportStar(require("./retorno-interpretador"), exports);
+__exportStar(require("../interfaces/retornos/retorno-interpretador"), exports);
 
-},{"./erro-interpretador":54,"./interpretador":56,"./retorno-interpretador":58}],56:[function(require,module,exports){
+},{"../interfaces/retornos/retorno-interpretador":54,"./erro-interpretador":55,"./interpretador":57}],57:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2272,7 +2340,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpretador = void 0;
 var caminho = __importStar(require("path"));
 var browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
-var tipos_de_simbolos_1 = __importDefault(require("../lexador/tipos-de-simbolos"));
+var tipos_de_simbolos_1 = __importDefault(require("../tipos-de-simbolos"));
 var ambiente_1 = require("../ambiente");
 var biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-global"));
 var importar_biblioteca_1 = __importDefault(require("../bibliotecas/importar-biblioteca"));
@@ -2281,7 +2349,7 @@ var estruturas_1 = require("../estruturas");
 var pilha_escopos_execucao_1 = require("./pilha-escopos-execucao");
 var quebras_1 = require("../quebras");
 /**
- * O Interpretador visita todos os elementos complexos gerados pelo analisador sintático (Parser),
+ * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (Parser),
  * e de fato executa a lógica de programação descrita no código.
  */
 var Interpretador = /** @class */ (function () {
@@ -2296,6 +2364,7 @@ var Interpretador = /** @class */ (function () {
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.locais = new Map();
         this.erros = [];
+        this.declaracoes = [];
         this.pilhaEscoposExecucao = new pilha_escopos_execucao_1.PilhaEscoposExecucao();
         var escopoExecucao = {
             declaracoes: [],
@@ -2374,9 +2443,11 @@ var Interpretador = /** @class */ (function () {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(esquerda) <= Number(direita);
             case tipos_de_simbolos_1.default.SUBTRACAO:
+            case tipos_de_simbolos_1.default.MENOS_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(esquerda) - Number(direita);
             case tipos_de_simbolos_1.default.ADICAO:
+            case tipos_de_simbolos_1.default.MAIS_IGUAL:
                 if (typeof esquerda === 'number' &&
                     typeof direita === 'number') {
                     return Number(esquerda) + Number(direita);
@@ -2385,12 +2456,15 @@ var Interpretador = /** @class */ (function () {
                     return String(esquerda) + String(direita);
                 }
             case tipos_de_simbolos_1.default.DIVISAO:
+            case tipos_de_simbolos_1.default.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(esquerda) / Number(direita);
             case tipos_de_simbolos_1.default.MULTIPLICACAO:
+            case tipos_de_simbolos_1.default.MULTIPLICACAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(esquerda) * Number(direita);
             case tipos_de_simbolos_1.default.MODULO:
+            case tipos_de_simbolos_1.default.MODULO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(esquerda) % Number(direita);
             case tipos_de_simbolos_1.default.BIT_AND:
@@ -2436,7 +2510,7 @@ var Interpretador = /** @class */ (function () {
         else {
             parametros = [];
         }
-        // Isso aqui completa os parâmetros não preenchidos com nulos.
+        // Completar os parâmetros não preenchidos com nulos.
         if (argumentos.length < entidadeChamada.aridade()) {
             var diferenca = entidadeChamada.aridade() - argumentos.length;
             for (var i = 0; i < diferenca; i++) {
@@ -2624,22 +2698,28 @@ var Interpretador = /** @class */ (function () {
         var nomeArquivo = caminho.basename(caminhoTotal);
         if (!caminhoTotal.endsWith('.egua') &&
             !caminhoTotal.endsWith('.delegua')) {
-            return (0, importar_biblioteca_1.default)(caminhoRelativo);
+            try {
+                return (0, importar_biblioteca_1.default)(caminhoRelativo);
+            }
+            catch (erro) {
+                this.erros.push(erro);
+                return null;
+            }
         }
         var conteudoImportacao = this.importador.importar(caminhoRelativo);
-        var retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes);
-        var funcoesDeclaradas = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+        var retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true);
+        var funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
         var eDicionario = function (objeto) { return objeto.constructor === Object; };
-        if (eDicionario(funcoesDeclaradas)) {
+        if (eDicionario(funcoesChamaveis)) {
             var novoModulo = new estruturas_1.DeleguaModulo();
-            var chaves = Object.keys(funcoesDeclaradas);
+            var chaves = Object.keys(funcoesChamaveis);
             for (var i = 0; i < chaves.length; i++) {
                 novoModulo.componentes[chaves[i]] =
-                    funcoesDeclaradas[chaves[i]];
+                    funcoesChamaveis[chaves[i]];
             }
             return novoModulo;
         }
-        return funcoesDeclaradas;
+        return funcoesChamaveis;
     };
     Interpretador.prototype.visitarExpressaoEscreva = function (declaracao) {
         try {
@@ -2871,6 +2951,12 @@ var Interpretador = /** @class */ (function () {
         }
         return objeto.toString();
     };
+    /**
+     * Efetivamente executa uma declaração.
+     * @param declaracao A declaração a ser executada.
+     * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
+     *                         pelo modo LAIR.
+     */
     Interpretador.prototype.executar = function (declaracao, mostrarResultado) {
         if (mostrarResultado === void 0) { mostrarResultado = false; }
         var resultado = declaracao.aceitar(this);
@@ -2901,11 +2987,12 @@ var Interpretador = /** @class */ (function () {
             this.pilhaEscoposExecucao.removerUltimo();
             if (manterAmbiente) {
                 var escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente = Object.assign(escopoAnterior.ambiente, ultimoEscopo.ambiente);
+                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, ultimoEscopo.ambiente.valores);
             }
         }
     };
     /**
+     * Interpretação sem depurador, com medição de performance.
      * Método que efetivamente inicia o processo de interpretação.
      * @param declaracoes Um vetor de declarações gerado pelo Avaliador Sintático.
      * @param manterAmbiente Se ambiente de execução (variáveis, classes, etc.) deve ser mantido. Normalmente usado
@@ -2944,7 +3031,7 @@ var Interpretador = /** @class */ (function () {
 }());
 exports.Interpretador = Interpretador;
 
-},{"../ambiente":2,"../bibliotecas/biblioteca-global":6,"../bibliotecas/importar-biblioteca":7,"../estruturas":49,"../excecoes":53,"../lexador/tipos-de-simbolos":63,"../quebras":64,"./pilha-escopos-execucao":57,"browser-process-hrtime":71,"path":72}],57:[function(require,module,exports){
+},{"../ambiente":2,"../bibliotecas/biblioteca-global":6,"../bibliotecas/importar-biblioteca":7,"../estruturas":49,"../excecoes":53,"../quebras":63,"../tipos-de-simbolos":69,"./pilha-escopos-execucao":58,"browser-process-hrtime":70,"path":71}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -2960,26 +3047,32 @@ var PilhaEscoposExecucao = /** @class */ (function () {
     PilhaEscoposExecucao.prototype.eVazio = function () {
         return this.pilha.length === 0;
     };
+    PilhaEscoposExecucao.prototype.elementos = function () {
+        return this.pilha.length;
+    };
+    PilhaEscoposExecucao.prototype.naPosicao = function (posicao) {
+        return this.pilha[posicao];
+    };
     PilhaEscoposExecucao.prototype.topoDaPilha = function () {
         if (this.eVazio())
             throw new Error("Pilha vazia.");
-        return this.pilha.at(-1);
+        return this.pilha[this.pilha.length - 1];
     };
     PilhaEscoposExecucao.prototype.removerUltimo = function () {
         if (this.eVazio())
-            throw new Error("Pilha vazia.");
+            throw new Error('Pilha vazia.');
         return this.pilha.pop();
     };
     PilhaEscoposExecucao.prototype.definirVariavel = function (nomeVariavel, valor) {
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = valor;
     };
     PilhaEscoposExecucao.prototype.atribuirVariavelEm = function (distancia, simbolo, valor) {
-        var ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        var ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         ambienteAncestral.valores[simbolo.lexema] = valor;
     };
     PilhaEscoposExecucao.prototype.atribuirVariavel = function (simbolo, valor) {
         for (var i = 1; i <= this.pilha.length; i++) {
-            var ambiente = this.pilha.at(-i).ambiente;
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 ambiente.valores[simbolo.lexema] = valor;
                 return;
@@ -2988,12 +3081,12 @@ var PilhaEscoposExecucao = /** @class */ (function () {
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     };
     PilhaEscoposExecucao.prototype.obterVariavelEm = function (distancia, nome) {
-        var ambienteAncestral = this.pilha.at(-distancia).ambiente;
+        var ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
     };
     PilhaEscoposExecucao.prototype.obterVariavel = function (simbolo) {
         for (var i = 1; i <= this.pilha.length; i++) {
-            var ambiente = this.pilha.at(-i).ambiente;
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 return ambiente.valores[simbolo.lexema];
             }
@@ -3001,12 +3094,23 @@ var PilhaEscoposExecucao = /** @class */ (function () {
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     };
     /**
-     * Obtém todas as definições de funções feitas ou por código-fonte, ou pelo desenvolvedor
+     * Método usado pelo depurador para obter todas as variáveis definidas.
+     */
+    PilhaEscoposExecucao.prototype.obterTodasVariaveis = function (todasVariaveis) {
+        if (todasVariaveis === void 0) { todasVariaveis = []; }
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
+            todasVariaveis.push(ambiente.valores);
+        }
+        return todasVariaveis;
+    };
+    /**
+     * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
      * em console.
      */
     PilhaEscoposExecucao.prototype.obterTodasDeleguaFuncao = function () {
         var retorno = {};
-        var ambiente = this.pilha.at(-1).ambiente;
+        var ambiente = this.pilha[this.pilha.length - 1].ambiente;
         for (var _i = 0, _a = Object.entries(ambiente.valores); _i < _a.length; _i++) {
             var _b = _a[_i], nome = _b[0], corpo = _b[1];
             if (corpo instanceof estruturas_1.DeleguaFuncao) {
@@ -3019,11 +3123,7 @@ var PilhaEscoposExecucao = /** @class */ (function () {
 }());
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":49,"../excecoes":53}],58:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],59:[function(require,module,exports){
+},{"../estruturas":49,"../excecoes":53}],59:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3066,6 +3166,7 @@ var Lexador = /** @class */ (function () {
         this.performance = performance;
         this.simbolos = [];
         this.erros = [];
+        this.hashArquivo = -1;
         this.inicioSimbolo = 0;
         this.atual = 0;
         this.linha = 0;
@@ -3133,7 +3234,7 @@ var Lexador = /** @class */ (function () {
     Lexador.prototype.adicionarSimbolo = function (tipo, literal) {
         if (literal === void 0) { literal = null; }
         var texto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new simbolo_1.Simbolo(tipo, texto, literal, this.linha + 1));
+        this.simbolos.push(new simbolo_1.Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
     };
     Lexador.prototype.proximoIgualA = function (esperado) {
         if (this.eFinalDaLinha()) {
@@ -3246,6 +3347,7 @@ var Lexador = /** @class */ (function () {
                 this.avancar();
                 break;
             case '-':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tipos_de_simbolos_1.default.MENOS_IGUAL);
@@ -3256,6 +3358,7 @@ var Lexador = /** @class */ (function () {
                 }
                 break;
             case '+':
+                this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
                     this.adicionarSimbolo(tipos_de_simbolos_1.default.MAIS_IGUAL);
@@ -3270,18 +3373,33 @@ var Lexador = /** @class */ (function () {
                 this.avancar();
                 break;
             case '%':
-                this.adicionarSimbolo(tipos_de_simbolos_1.default.MODULO);
+                this.inicioSimbolo = this.atual;
                 this.avancar();
+                switch (this.simboloAtual()) {
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.MODULO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.MODULO);
+                        break;
+                }
                 break;
             case '*':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
-                if (this.simboloAtual() === '*') {
-                    this.avancar();
-                    this.adicionarSimbolo(tipos_de_simbolos_1.default.EXPONENCIACAO);
-                }
-                else {
-                    this.adicionarSimbolo(tipos_de_simbolos_1.default.MULTIPLICACAO);
+                switch (this.simboloAtual()) {
+                    case '*':
+                        this.avancar();
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.EXPONENCIACAO);
+                        break;
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.MULTIPLICACAO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.MULTIPLICACAO);
+                        break;
                 }
                 break;
             case '!':
@@ -3350,14 +3468,20 @@ var Lexador = /** @class */ (function () {
                 break;
             case '/':
                 this.avancar();
-                if (this.simboloAtual() == '/') {
-                    this.avancarParaProximaLinha();
-                }
-                else if (this.simboloAtual() === '*') {
-                    this.encontrarFimComentarioAsterisco();
-                }
-                else {
-                    this.adicionarSimbolo(tipos_de_simbolos_1.default.DIVISAO);
+                switch (this.simboloAtual()) {
+                    case '/':
+                        this.avancarParaProximaLinha();
+                        break;
+                    case '*':
+                        this.encontrarFimComentarioAsterisco();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.DIVISAO_IGUAL);
+                        this.avancar();
+                        break;
+                    default:
+                        this.adicionarSimbolo(tipos_de_simbolos_1.default.DIVISAO);
+                        break;
                 }
                 break;
             // Esta sessão ignora espaços em branco na tokenização.
@@ -3394,7 +3518,7 @@ var Lexador = /** @class */ (function () {
                 }
         }
     };
-    Lexador.prototype.mapear = function (codigo) {
+    Lexador.prototype.mapear = function (codigo, hashArquivo) {
         var inicioMapeamento = (0, browser_process_hrtime_1.default)();
         this.erros = [];
         this.simbolos = [];
@@ -3402,6 +3526,7 @@ var Lexador = /** @class */ (function () {
         this.atual = 0;
         this.linha = 0;
         this.codigo = codigo || [''];
+        this.hashArquivo = hashArquivo;
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
             this.analisarToken();
@@ -3419,13 +3544,13 @@ var Lexador = /** @class */ (function () {
 }());
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos":70,"./palavras-reservadas":61,"./simbolo":62,"browser-process-hrtime":71}],61:[function(require,module,exports){
+},{"../tipos-de-simbolos":69,"./palavras-reservadas":61,"./simbolo":62,"browser-process-hrtime":70}],61:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var tipos_de_simbolos_1 = __importDefault(require("./tipos-de-simbolos"));
+var tipos_de_simbolos_1 = __importDefault(require("../tipos-de-simbolos"));
 exports.default = {
     e: tipos_de_simbolos_1.default.E,
     em: tipos_de_simbolos_1.default.EM,
@@ -3461,16 +3586,17 @@ exports.default = {
     herda: tipos_de_simbolos_1.default.HERDA,
 };
 
-},{"./tipos-de-simbolos":63}],62:[function(require,module,exports){
+},{"../tipos-de-simbolos":69}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
 var Simbolo = /** @class */ (function () {
-    function Simbolo(tipo, lexema, literal, linha) {
+    function Simbolo(tipo, lexema, literal, linha, hashArquivo) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
         this.linha = linha;
+        this.hashArquivo = hashArquivo;
     }
     Simbolo.prototype.paraTexto = function () {
         return this.tipo + " " + this.lexema + " " + this.literal;
@@ -3480,81 +3606,6 @@ var Simbolo = /** @class */ (function () {
 exports.Simbolo = Simbolo;
 
 },{}],63:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
-    ADICAO: "ADICAO",
-    BIT_AND: "BIT_AND",
-    BIT_OR: "BIT_OR",
-    BIT_XOR: "BIT_XOR",
-    BIT_NOT: "BIT_NOT",
-    CASO: "CASO",
-    CHAVE_DIREITA: "CHAVE_DIREITA",
-    CHAVE_ESQUERDA: "CHAVE_ESQUERDA",
-    CLASSE: "CLASSE",
-    COLCHETE_DIREITO: "COLCHETE_DIREITO",
-    COLCHETE_ESQUERDO: "COLCHETE_ESQUERDO",
-    VIRGULA: "VIRGULA",
-    CONTINUA: "CONTINUA",
-    DIFERENTE: "DIFERENTE",
-    DIVISAO: "DIVISAO",
-    DOIS_PONTOS: "DOIS_PONTOS",
-    E: "E",
-    EM: "EM",
-    ENQUANTO: "ENQUANTO",
-    EOF: "EOF",
-    ESCOLHA: "ESCOLHA",
-    ESCREVA: "ESCREVA",
-    EXPONENCIACAO: "EXPONENCIACAO",
-    IGUAL: "IGUAL",
-    IGUAL_IGUAL: "IGUAL_IGUAL",
-    FALSO: "FALSO",
-    FAZER: "FAZER",
-    FINALMENTE: "FINALMENTE",
-    FUNCAO: "FUNCAO",
-    FUNÇÃO: "FUNÇÃO",
-    HERDA: "HERDA",
-    IDENTIFICADOR: "IDENTIFICADOR",
-    IMPORTAR: "IMPORTAR",
-    ISTO: "ISTO",
-    MAIOR: "MAIOR",
-    MAIOR_IGUAL: "MAIOR_IGUAL",
-    MAIOR_MAIOR: "MAIOR_MAIOR",
-    MAIS_IGUAL: "MAIS_IGUAL",
-    MENOR: "MENOR",
-    MENOS_IGUAL: "MENOS_IGUAL",
-    MENOR_IGUAL: "MENOR_IGUAL",
-    MENOR_MENOR: "MENOR_MENOR",
-    MODULO: "MODULO",
-    MULTIPLICACAO: "MULTIPLICACAO",
-    NEGACAO: "NEGACAO",
-    NULO: "NULO",
-    NUMERO: "NUMERO",
-    OU: "OU",
-    PADRAO: "PADRAO",
-    PARA: "PARA",
-    PARENTESE_DIREITO: "PARENTESE_DIREITO",
-    PARENTESE_ESQUERDO: "PARENTESE_ESQUERDO",
-    PAUSA: "PAUSA",
-    PEGUE: "PEGUE",
-    PONTO: "PONTO",
-    PONTO_E_VIRGULA: "PONTO_E_VIRGULA",
-    RETORNA: "RETORNA",
-    SUBTRACAO: "SUBTRACAO",
-    SE: "SE",
-    SENAO: "SENAO",
-    SENÃO: "SENÃO",
-    SENAOSE: "SENAOSE",
-    SENÃOSE: "SENÃOSE",
-    SUPER: "SUPER",
-    SUSTAR: "SUSTAR",
-    TENTE: "TENTE",
-    TEXTO: "TEXTO",
-    VARIAVEL: "VARIAVEL",
-    VERDADEIRO: "VERDADEIRO"
-};
-
-},{}],64:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3606,7 +3657,7 @@ var ContinuarQuebra = /** @class */ (function (_super) {
 }(Quebra));
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],65:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3637,7 +3688,7 @@ var ErroResolvedor = /** @class */ (function (_super) {
 }(Error));
 exports.ErroResolvedor = ErroResolvedor;
 
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3659,7 +3710,7 @@ __exportStar(require("./pilha-escopos"), exports);
 __exportStar(require("./resolvedor"), exports);
 __exportStar(require("./retorno-resolvedor"), exports);
 
-},{"./erro-resolvedor":65,"./pilha-escopos":67,"./resolvedor":68,"./retorno-resolvedor":69}],67:[function(require,module,exports){
+},{"./erro-resolvedor":64,"./pilha-escopos":66,"./resolvedor":67,"./retorno-resolvedor":68}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscopos = void 0;
@@ -3687,7 +3738,7 @@ var PilhaEscopos = /** @class */ (function () {
 }());
 exports.PilhaEscopos = PilhaEscopos;
 
-},{}],68:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Resolvedor = void 0;
@@ -3855,14 +3906,14 @@ var Resolvedor = /** @class */ (function () {
     };
     Resolvedor.prototype.visitarExpressaoSuper = function (expressao) {
         if (this.classeAtual === TipoClasse.NENHUM) {
-            var erro = new erro_resolvedor_1.ErroResolvedor(expressao.palavraChave, "Não pode usar 'super' fora de uma classe.");
+            var erro = new erro_resolvedor_1.ErroResolvedor(expressao.simboloChave, "Não pode usar 'super' fora de uma classe.");
             this.erros.push(erro);
         }
         else if (this.classeAtual !== TipoClasse.SUBCLASSE) {
-            var erro = new erro_resolvedor_1.ErroResolvedor(expressao.palavraChave, "Não se usa 'super' numa classe sem SuperClasse.");
+            var erro = new erro_resolvedor_1.ErroResolvedor(expressao.simboloChave, "Não se usa 'super' numa classe sem SuperClasse.");
             this.erros.push(erro);
         }
-        this.resolverLocal(expressao, expressao.palavraChave);
+        this.resolverLocal(expressao, expressao.simboloChave);
         return null;
     };
     Resolvedor.prototype.visitarExpressaoAcessoMetodo = function (expressao) {
@@ -4033,13 +4084,89 @@ var Resolvedor = /** @class */ (function () {
 }());
 exports.Resolvedor = Resolvedor;
 
-},{"./erro-resolvedor":65,"./pilha-escopos":67}],69:[function(require,module,exports){
+},{"./erro-resolvedor":64,"./pilha-escopos":66}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
+},{}],69:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    ADICAO: "ADICAO",
+    BIT_AND: "BIT_AND",
+    BIT_OR: "BIT_OR",
+    BIT_XOR: "BIT_XOR",
+    BIT_NOT: "BIT_NOT",
+    CASO: "CASO",
+    CHAVE_DIREITA: "CHAVE_DIREITA",
+    CHAVE_ESQUERDA: "CHAVE_ESQUERDA",
+    CLASSE: "CLASSE",
+    COLCHETE_DIREITO: "COLCHETE_DIREITO",
+    COLCHETE_ESQUERDO: "COLCHETE_ESQUERDO",
+    VIRGULA: "VIRGULA",
+    CONTINUA: "CONTINUA",
+    DIFERENTE: "DIFERENTE",
+    DIVISAO: "DIVISAO",
+    DIVISAO_IGUAL: "DIVISAO_IGUAL",
+    DOIS_PONTOS: "DOIS_PONTOS",
+    E: "E",
+    EM: "EM",
+    ENQUANTO: "ENQUANTO",
+    EOF: "EOF",
+    ESCOLHA: "ESCOLHA",
+    ESCREVA: "ESCREVA",
+    EXPONENCIACAO: "EXPONENCIACAO",
+    IGUAL: "IGUAL",
+    IGUAL_IGUAL: "IGUAL_IGUAL",
+    FALSO: "FALSO",
+    FAZER: "FAZER",
+    FINALMENTE: "FINALMENTE",
+    FUNCAO: "FUNCAO",
+    FUNÇÃO: "FUNÇÃO",
+    HERDA: "HERDA",
+    IDENTIFICADOR: "IDENTIFICADOR",
+    IMPORTAR: "IMPORTAR",
+    ISTO: "ISTO",
+    MAIOR: "MAIOR",
+    MAIOR_IGUAL: "MAIOR_IGUAL",
+    MAIOR_MAIOR: "MAIOR_MAIOR",
+    MAIS_IGUAL: "MAIS_IGUAL",
+    MENOR: "MENOR",
+    MENOS_IGUAL: "MENOS_IGUAL",
+    MENOR_IGUAL: "MENOR_IGUAL",
+    MENOR_MENOR: "MENOR_MENOR",
+    MODULO: "MODULO",
+    MODULO_IGUAL: "MODULO_IGUAL",
+    MULTIPLICACAO: "MULTIPLICACAO",
+    MULTIPLICACAO_IGUAL: "MULTIPLICACAO_IGUAL",
+    NEGACAO: "NEGACAO",
+    NULO: "NULO",
+    NUMERO: "NUMERO",
+    OU: "OU",
+    PADRAO: "PADRAO",
+    PARA: "PARA",
+    PARENTESE_DIREITO: "PARENTESE_DIREITO",
+    PARENTESE_ESQUERDO: "PARENTESE_ESQUERDO",
+    PAUSA: "PAUSA",
+    PEGUE: "PEGUE",
+    PONTO: "PONTO",
+    PONTO_E_VIRGULA: "PONTO_E_VIRGULA",
+    RETORNA: "RETORNA",
+    SUBTRACAO: "SUBTRACAO",
+    SE: "SE",
+    SENAO: "SENAO",
+    SENÃO: "SENÃO",
+    SENAOSE: "SENAOSE",
+    SENÃOSE: "SENÃOSE",
+    SUPER: "SUPER",
+    SUSTAR: "SUSTAR",
+    TENTE: "TENTE",
+    TEXTO: "TEXTO",
+    VARIAVEL: "VARIAVEL",
+    VERDADEIRO: "VERDADEIRO"
+};
+
 },{}],70:[function(require,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"dup":63}],71:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -4070,7 +4197,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":73}],72:[function(require,module,exports){
+},{"_process":72}],71:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -4603,7 +4730,7 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":73}],73:[function(require,module,exports){
+},{"_process":72}],72:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
