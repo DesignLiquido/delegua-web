@@ -44,52 +44,48 @@ export class Delegua implements DeleguaInterface {
     this.teveErroEmTempoDeExecucao = false;
   }
 
-  executar(retornoImportador: RetornoImportador): RetornoExecucaoInterface {
-
-    const retornoLexador = this.lexador.mapear(retornoImportador.codigo);
-    const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(retornoLexador);
-
-    if (retornoLexador.erros.length > 0) {
-      for (const erroLexador of retornoLexador.erros) {
-          this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+    executar(retornoImportador: RetornoImportador, manterAmbiente: boolean = false): RetornoExecucaoInterface {
+        if (retornoImportador.retornoLexador.erros.length > 0) {
+            for (const erroLexador of retornoImportador.retornoLexador.erros) {
+                this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
+            }
+            return;
         }
-        return;
-    }
 
-    if (retornoAvaliadorSintatico.erros.length > 0) {
-        for (const erroAvaliadorSintatico of retornoAvaliadorSintatico.erros) {
-            this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erroAvaliadorSintatico of retornoImportador.retornoAvaliadorSintatico.erros) {
+                this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
+            }
+            return;
         }
-        return;
-    }
 
-    const retornoInterpretador = this.interpretador.interpretar(retornoAvaliadorSintatico.declaracoes);
+        const retornoInterpretador = this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
 
-    if (retornoInterpretador.erros.length > 0) {
-        for (const erroInterpretador of retornoInterpretador.erros) {
-            if (erroInterpretador.simbolo) {
-                this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
-            } else {
-                const erroEmJavaScript: any = erroInterpretador as any;
-                console.error(`Erro em JavaScript: ` + `${erroEmJavaScript.message}`);
-                console.error(`Pilha de execução: ` + `${erroEmJavaScript.stack}`);
+        if (retornoInterpretador.erros.length > 0) {
+            for (const erroInterpretador of retornoInterpretador.erros) {
+                if (erroInterpretador.simbolo) {
+                    this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
+                } else {
+                    const erroEmJavaScript: any = erroInterpretador as any;
+                    console.error(`Erro em JavaScript: ` + `${erroEmJavaScript.message}`);
+                    console.error(`Pilha de execução: ` + `${erroEmJavaScript.stack}`);
+                }
             }
         }
+
+        return {
+            erros: {
+                lexador: retornoImportador.retornoLexador.erros,
+                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
+                interpretador: retornoInterpretador.erros
+            },
+            resultado: retornoInterpretador.resultado,
+        };
     }
 
-    return {
-        erros: {
-            avaliadorSintatico: retornoAvaliadorSintatico.erros,
-            lexador: retornoLexador.erros,
-            interpretador: retornoInterpretador.erros,
-        },
-        resultado: retornoInterpretador.resultado,
-    };
-  }
-
-  versao(){
-      return '0.2'
-  }
+    versao(){
+        return '0.4'
+    }
 
   reportar(linha: number, onde: any, mensagem: string) {
     if (this.nomeArquivo)

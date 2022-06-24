@@ -73,7 +73,11 @@ const executarCodigo = function () {
   const delegua = new Delegua.Delegua('', mostrarResultado);
 
   const codigo = editor.getCode().split("\n");
-  delegua.executar({ codigo });
+
+  const retornoLexador = delegua.lexador.mapear(codigo, -1);
+  const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+
+  delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
 };
 
 demoSelector.addEventListener("change", function () {
