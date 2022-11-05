@@ -6,9 +6,8 @@ exports.__esModule = true;
 exports.Delegua = void 0;
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
-var resolvedor_1 = require("@designliquido/delegua/fontes/resolvedor");
 var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
-var tipos_de_simbolos_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos"));
+var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
 var Delegua = /** @class */ (function () {
     function Delegua(nomeArquivo, funcaoDeRetorno) {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
@@ -16,10 +15,9 @@ var Delegua = /** @class */ (function () {
         this.dialeto = 'delegua';
         this.nomeArquivo = nomeArquivo;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
-        this.resolvedor = new resolvedor_1.Resolvedor();
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
-        this.interpretador = new interpretador_1.Interpretador(null, this.resolvedor, '', false, this.funcaoDeRetorno);
+        this.interpretador = new interpretador_1.Interpretador(null, '', false, this.funcaoDeRetorno);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -54,16 +52,12 @@ var Delegua = /** @class */ (function () {
             }
         }
         return {
-            erros: {
-                lexador: retornoImportador.retornoLexador.erros,
-                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
-                interpretador: retornoInterpretador.erros
-            },
+            erros: retornoInterpretador.erros,
             resultado: retornoInterpretador.resultado
         };
     };
     Delegua.prototype.versao = function () {
-        return '0.4';
+        return '0.8';
     };
     Delegua.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -73,7 +67,7 @@ var Delegua = /** @class */ (function () {
         this.teveErro = true;
     };
     Delegua.prototype.erro = function (simbolo, mensagemDeErro) {
-        if (simbolo.tipo === tipos_de_simbolos_1["default"].EOF) {
+        if (simbolo.tipo === delegua_1["default"].EOF) {
             this.reportar(Number(simbolo.linha), ' no final', mensagemDeErro);
         }
         else {
