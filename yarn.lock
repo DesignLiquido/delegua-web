@@ -14,10 +14,30 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@designliquido/delegua@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.4.3.tgz#c64762b814823305ae8681a9e6c102158db02469"
-  integrity sha512-oJiZPp0QnwNCQrRDA7HW3CPY9VDPmopT5zl5jmpyRkfXdxlIbNKcGRbUsOgylwKaJmeN20MvhZ1EzGc6VzSJMA==
+"@designliquido/delegua-estatistica@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-estatistica/-/delegua-estatistica-0.0.5.tgz#d1b0a6353e2f194849bff7797b4dec23efc96d5e"
+  integrity sha512-d5z7CQUuc0a2o0NaAGh9H2whs7TG4EVh8B31EbuPtKr6XVJNk0YiXNyPB8MEIUCkD7FpfslWiU2ytMK0u/3cqw==
+
+"@designliquido/delegua-fisica@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-fisica/-/delegua-fisica-0.0.2.tgz#182423e733b376b2d2853cbede66af33917f9466"
+  integrity sha512-7Sp+Vg7SBy/5M9vH7pXOw4udHIdGWThGxAtAWdBZBO9GzUjJGczfZi6+vJLj/pFfn/345l9ffN3rtSqYgbQM8w==
+
+"@designliquido/delegua-matematica@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.0.2.tgz#2a73c0d3f83bf6e6824b89199645f95b6677ce0c"
+  integrity sha512-k3LHTe/uTwl0TPePoL6FLbQoGofy9YnJGR08lhsj9dRloyByl6F1gWgSw4FDRpMe3UkEdoozhwS3D3b6Vf6XNg==
+
+"@designliquido/delegua-tempo@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
+  integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
+
+"@designliquido/delegua@0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.8.1.tgz#6825e1c818b59f0f38e4919051f02f4946738424"
+  integrity sha512-YTQTWI5DGiIb+sRDxhAen8buNGQ2jhj+vJn30utnUsNu7zaLr4CFukl+PqSJitpT82VQNhNHwK66G9cec1KDgA==
   dependencies:
     browser-process-hrtime "^1.0.0"
     chalk "4.1.2"
@@ -552,6 +572,17 @@ defined@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/defined/-/defined-1.0.0.tgz#c98d9bcef75674188e110969151199e39b1fa693"
   integrity sha1-yY2bzvdWdBiOEQlpFRGZ45sfppM=
+
+delegua@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/delegua/-/delegua-0.8.1.tgz#458c487e47a59f6af64388f5eadcb89105ed5fe7"
+  integrity sha512-/+OEBT5oJnBwktXZOJ6Uqm7UMaqOk+1gHdzDsRVHwrnpvDZexY2LNp/xoisTUHiuLwl8efYvMyf2vC+6GSxu3A==
+  dependencies:
+    "@designliquido/delegua" "0.8.1"
+    "@designliquido/delegua-estatistica" "0.0.5"
+    "@designliquido/delegua-fisica" "0.0.2"
+    "@designliquido/delegua-matematica" "0.0.2"
+    "@designliquido/delegua-tempo" "0.0.1"
 
 deps-sort@^2.0.1:
   version "2.0.1"

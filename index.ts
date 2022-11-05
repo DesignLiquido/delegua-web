@@ -1,8 +1,7 @@
 import { Lexador } from "@designliquido/delegua/fontes/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
-import { Resolvedor } from "@designliquido/delegua/fontes/resolvedor";
 import { Interpretador } from "@designliquido/delegua/fontes/interpretador";
-import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos";
+import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
 import { 
   AvaliadorSintaticoInterface,
   DeleguaInterface,
@@ -25,20 +24,20 @@ export class Delegua implements DeleguaInterface {
   interpretador: InterpretadorInterface;
   lexador: LexadorInterface;
   avaliadorSintatico: AvaliadorSintaticoInterface;
-  resolvedor: Resolvedor;
   importador: ImportadorInterface;
   funcaoDeRetorno: Function;
   iniciarDelegua: any;
   carregarArquivo: any;
+  conteudoArquivosAbertos: any;
+  executarUmaLinha: any;
 
   constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
     this.nomeArquivo = nomeArquivo;
     this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
-    this.resolvedor = new Resolvedor();
     this.lexador = new Lexador();
     this.avaliadorSintatico = new AvaliadorSintatico();
-    this.interpretador = new Interpretador(null, this.resolvedor, '', false, this.funcaoDeRetorno);
+    this.interpretador = new Interpretador(null, '', false, this.funcaoDeRetorno);
 
     this.teveErro = false;
     this.teveErroEmTempoDeExecucao = false;
@@ -74,17 +73,13 @@ export class Delegua implements DeleguaInterface {
         }
 
         return {
-            erros: {
-                lexador: retornoImportador.retornoLexador.erros,
-                avaliadorSintatico: retornoImportador.retornoAvaliadorSintatico.erros,
-                interpretador: retornoInterpretador.erros
-            },
+            erros: retornoInterpretador.erros,
             resultado: retornoInterpretador.resultado,
         };
     }
 
     versao(){
-        return '0.4'
+        return '0.8'
     }
 
   reportar(linha: number, onde: any, mensagem: string) {
