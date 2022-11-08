@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "copiar-arquivos": "copyfiles -V ./index.html ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
+        "copiar-arquivos": "copyfiles -V ./index.html ./dist && copyfiles -V ./editor.js ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
         "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css",
         "gerar-css:tempo-real": "sass scss/style.scss:./dist/style.css scss/theme.scss:./dist/theme.css --watch",
@@ -8,6 +8,7 @@
         "publicar": "yarn empacotar && gh-pages -d dist"
     },
     "devDependencies": {
+        "@types/codeflask": "^1.4.3",
         "@types/node": "^17.0.25",
         "browserify": "latest",
         "codeflask": "^1.4.1",

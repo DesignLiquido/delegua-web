@@ -6,5 +6,5 @@
     "esModuleInterop": true,
     "allowJs": true
   },
-  "files": ["index.ts", "exemplos.ts", "editor.js"]
+  "files": ["index.ts", "exemplos.ts"]
 }
