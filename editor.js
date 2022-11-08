@@ -1,9 +1,11 @@
-var outputDiv = document.getElementById("output");
-var runButton = document.getElementById("runBtn");
-var demoSelector = document.getElementById("demoSelector");
+const outputDiv = document.getElementById("output");
+const runButton = document.getElementById("runBtn");
+const demoSelector = document.getElementById("demoSelector");
+
 String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
+
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -14,62 +16,80 @@ function getQueryVariable(variable) {
         }
     }
 }
+
 // console.log = console.error = function (msg) {
 //   const p = document.createElement("p");
 //   p.textContent = msg;
 //   p.classList = " output";
 //   outputDiv.appendChild(p);
 // };
-var mostrarResultado = function (msg) {
-    var p = document.createElement("p");
+
+const mostrarResultado = function (msg) {
+    const p = document.createElement("p");
     p.textContent = msg;
     p.classList = " output";
     outputDiv.appendChild(p);
 };
-var clearOutput = function () {
+
+const clearOutput = function () {
     outputDiv.innerHTML = "";
 };
-var editor = new CodeFlask("#editor", {
+
+const editor = new CodeFlask("#editor", {
     language: "js",
     lineNumbers: true,
-    defaultTheme: false
+    defaultTheme: false,
 });
+
 clearOutput();
-var demoKeys = Object.keys(demos);
+
+const demoKeys = Object.keys(demos);
 function loadDemo(name) {
     editor.updateCode(demos[name]);
 }
-demoKeys.forEach(function (demo, index) {
-    var option = document.createElement("option");
+
+demoKeys.forEach((demo, index) => {
+    const option = document.createElement("option");
     if (index === 0) {
         option.disabled = true;
         option.selected = true;
         option.hidden = true;
     }
+
     option.textContent = demo.capitalize();
     option.value = demo;
     demoSelector.appendChild(option);
 });
-var queryCode = getQueryVariable("code");
+
+let queryCode = getQueryVariable("code");
 if (queryCode !== undefined) {
     editor.updateCode(decodeURI(queryCode));
     demoSelector.value = "custom";
-}
-else {
+} else {
     loadDemo(demoKeys[0]);
 }
-var executarCodigo = function () {
-    var delegua = new Delegua.Delegua('', mostrarResultado);
-    var codigo = editor.getCode().split("\n");
-    var retornoLexador = delegua.lexador.mapear(codigo, -1);
-    var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-    delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });
+
+const executarCodigo = function () {
+    const delegua = new Delegua.DeleguaWeb("", mostrarResultado);
+
+    const codigo = editor.getCode().split("\n");
+
+    for (let linha = 0; linha < codigo.length; linha++) {
+        codigo[linha] += "\0";
+    }
+
+    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico =
+        delegua.avaliadorSintatico.analisar(retornoLexador);
+
+    delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
 };
+
 demoSelector.addEventListener("change", function () {
     loadDemo(demoSelector.value);
 });
+
 runButton.addEventListener("click", function () {
     clearOutput();
     executarCodigo();
 });
-//# sourceMappingURL=editor.js.map
