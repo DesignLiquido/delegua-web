@@ -44,14 +44,21 @@ export class DeleguaWeb implements DeleguaInterface {
             this.funcaoDeRetorno
         );
 
+        (this.interpretador as any).interfaceEntradaSaida = {
+            question: (mensagem: string, callback: (resposta: any) => any) => {
+                const resposta = window.prompt(mensagem);
+                callback(resposta);
+            }
+        }
+
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
 
-    executar(
+    async executar(
         retornoImportador: RetornoImportador,
         manterAmbiente: boolean = false
-    ): RetornoExecucaoInterface {
+    ): Promise<RetornoExecucaoInterface> {
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(
@@ -74,7 +81,7 @@ export class DeleguaWeb implements DeleguaInterface {
             return;
         }
 
-        const retornoInterpretador = this.interpretador.interpretar(
+        const retornoInterpretador = await this.interpretador.interpretar(
             retornoImportador.retornoAvaliadorSintatico.declaracoes,
             manterAmbiente
         );
@@ -102,7 +109,7 @@ export class DeleguaWeb implements DeleguaInterface {
     }
 
     versao() {
-        return "0.8";
+        return "0.9";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
