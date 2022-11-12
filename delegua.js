@@ -39,7 +39,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaWeb = void 0;
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
@@ -104,7 +104,7 @@ var DeleguaWeb = /** @class */ (function () {
                         }
                         return [2 /*return*/, {
                                 erros: retornoInterpretador.erros,
-                                resultado: retornoInterpretador.resultado
+                                resultado: retornoInterpretador.resultado,
                             }];
                 }
             });
@@ -122,7 +122,7 @@ var DeleguaWeb = /** @class */ (function () {
         this.teveErro = true;
     };
     DeleguaWeb.prototype.erro = function (simbolo, mensagemDeErro) {
-        if (simbolo.tipo === delegua_1["default"].EOF) {
+        if (simbolo.tipo === delegua_1.default.EOF) {
             this.reportar(Number(simbolo.linha), " no final", mensagemDeErro);
         }
         else {

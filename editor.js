@@ -1,11 +1,12 @@
-const outputDiv = document.getElementById("output");
-const runButton = document.getElementById("runBtn");
-const demoSelector = document.getElementById("demoSelector");
-
-String.prototype.capitalize = function () {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-};
-
+var outputDiv = document.getElementById("output");
+var runButton = document.getElementById("botaoExecutar");
+var seletorDemos = document.getElementById("seletorDemos");
+var CodeFlask = window.CodeFlask;
+var Delegua = window.Delegua;
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+;
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -16,80 +17,69 @@ function getQueryVariable(variable) {
         }
     }
 }
-
-// console.log = console.error = function (msg) {
-//   const p = document.createElement("p");
-//   p.textContent = msg;
-//   p.classList = " output";
-//   outputDiv.appendChild(p);
-// };
-
-const mostrarResultado = function (msg) {
-    const p = document.createElement("p");
+var mostrarResultado = function (msg) {
+    var p = document.createElement("p");
     p.textContent = msg;
     p.classList = " output";
-    outputDiv.appendChild(p);
+    outputDiv === null || outputDiv === void 0 ? void 0 : outputDiv.appendChild(p);
 };
-
-const clearOutput = function () {
+var clearOutput = function () {
     outputDiv.innerHTML = "";
 };
-
-const editor = new CodeFlask("#editor", {
+var editor = new CodeFlask("#editor", {
     language: "js",
     lineNumbers: true,
     defaultTheme: false,
 });
-
 clearOutput();
-
-const demoKeys = Object.keys(demos);
-function loadDemo(name) {
-    editor.updateCode(demos[name]);
+var objetoDemonstracoes = Object.entries(demos);
+function carregarDemonstracao(grupo, nome) {
+    editor.updateCode(demos[grupo][nome]);
 }
-
-demoKeys.forEach((demo, index) => {
-    const option = document.createElement("option");
-    if (index === 0) {
-        option.disabled = true;
-        option.selected = true;
-        option.hidden = true;
-    }
-
-    option.textContent = demo.capitalize();
-    option.value = demo;
-    demoSelector.appendChild(option);
+var opcaoPadrao = document.createElement("option");
+opcaoPadrao.disabled = true;
+opcaoPadrao.selected = true;
+opcaoPadrao.hidden = true;
+opcaoPadrao.textContent = capitalize('Exemplos...');
+opcaoPadrao.value = 'Exemplos...';
+seletorDemos.appendChild(opcaoPadrao);
+objetoDemonstracoes.forEach(function (_a) {
+    var chave = _a[0], valor = _a[1];
+    var optgroup = document.createElement("optgroup");
+    optgroup.textContent = capitalize(chave);
+    optgroup.label = chave;
+    Object.entries(valor).forEach(function (_a) {
+        var exemplo = _a[0], codigo = _a[1];
+        var opcao = document.createElement("option");
+        opcao.textContent = exemplo;
+        optgroup.appendChild(opcao);
+    });
+    seletorDemos.appendChild(optgroup);
 });
-
-let queryCode = getQueryVariable("code");
+var queryCode = getQueryVariable("code");
 if (queryCode !== undefined) {
     editor.updateCode(decodeURI(queryCode));
-    demoSelector.value = "custom";
-} else {
-    loadDemo(demoKeys[0]);
+    seletorDemos.value = "custom";
 }
-
-const executarCodigo = function () {
-    const delegua = new Delegua.DeleguaWeb("", mostrarResultado);
-
-    const codigo = editor.getCode().split("\n");
-
-    for (let linha = 0; linha < codigo.length; linha++) {
+else {
+    carregarDemonstracao('Fundamentos', 'Olá Mundo');
+}
+var executarCodigo = function () {
+    var delegua = new Delegua.DeleguaWeb("", mostrarResultado);
+    var codigo = editor.getCode().split("\n");
+    for (var linha = 0; linha < codigo.length; linha++) {
         codigo[linha] += "\0";
     }
-
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico =
-        delegua.avaliadorSintatico.analisar(retornoLexador);
-
-    delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+    var retornoLexador = delegua.lexador.mapear(codigo, -1);
+    var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });
 };
-
-demoSelector.addEventListener("change", function () {
-    loadDemo(demoSelector.value);
+seletorDemos.addEventListener("change", function (e) {
+    var grupoSelecionado = document.querySelector('#seletorDemos option:checked').parentElement.label;
+    carregarDemonstracao(grupoSelecionado, e.target.value);
 });
-
 runButton.addEventListener("click", function () {
     clearOutput();
     executarCodigo();
 });
+//# sourceMappingURL=editor.js.map
