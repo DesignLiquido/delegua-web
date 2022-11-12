@@ -2,6 +2,39 @@ const Exemplos = '';
 
 const OlaMundo = 'escreva("Olá, mundo!");';
 
+const OperacoesBasicas = `var a = 10;
+var b = 4;
+
+escreva("Valor de A: " + texto(a));
+
+escreva("Valor de B: " + texto(b));
+
+var soma = a + b; // Soma os dois valores
+var sub  = a - b; // Subtrai os dois valores
+var mult = a * b; // Multiplica os dois valores
+var div  = a / b; // Divide os dois valores
+
+escreva("A soma dos números é igual a: " + texto(soma));	    // Exibe o resultado da soma
+escreva("A subtração dos números é igual a: " + texto(sub));	    // Exibe o resultado da subtração
+escreva("A multiplicação dos números é igual a: " + texto(mult));   // Exibe o resultado da multiplicação
+escreva("A divisão dos números é igual a: " + texto(div));          // Exibe o resultado da divisão`;
+
+const Condicional = `var letra = leia('Digite uma letra:');
+
+// É necessário verificar letras minúsculas e maiúsculas
+se
+(
+  letra == 'A' ou letra == 'E' ou letra == 'I' ou letra == 'O' ou letra == 'U' ou
+  letra == 'a' ou letra == 'e' ou letra == 'i' ou letra == 'o' ou letra == 'u'
+)
+{
+  escreva("A letra " + letra + " é uma vogal!");
+}
+senão
+{
+  escreva("A letra " + letra + " não é uma vogal!");
+}`;
+
 const Classe = `classe Animal {
   correr() {
     escreva("Correndo Loucamente");
@@ -15,7 +48,7 @@ classe Cachorro herda Animal {
 
 var nomeDoCachorro = Cachorro();
 nomeDoCachorro.correr();
-nomeDoCachorro.latir();`
+nomeDoCachorro.latir();`;
 
 const MergeSort = `var vetor1 = [8, 2, 9, 5];
 var a = 0;
@@ -27,10 +60,10 @@ escreva ("Vetor: Posição[1]:" + texto(vetor1[1]));
 escreva ("Vetor: Posição[2]:" + texto(vetor1[2]));
 escreva ("Vetor: Posição[3]:" + texto(vetor1[3]));
 
-para (i = 0; i < 3; i = i + 1) 
+para (i = 0; i < 3; i = i + 1)
 {
-  se (vetor1[i] > vetor1[i+1]) 
-  {  
+  se (vetor1[i] > vetor1[i+1])
+  {
     escreva ("Vetor " + texto(i));
     aux = vetor1[i];
     vetor1[i] = vetor1[i+1];
@@ -72,30 +105,30 @@ se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {
     vetor4[3] = vetor3[1];
   }
 }
-    
+
 para (a = 0; a < 4; a = a + 1) {
   escreva ("vetor4(" + texto(vetor4[a]) + ")");
-}`
+}`;
 
 const Bhaskara = `funcao bhaskara(a,b,c) {
   // A variável "d" vai simbolizar o Delta.
   // "a", "b", e "c" irão representar os coeficientes da equação.
 
   var d = b ** 2;
-  var f = 4 * a * c; 
-  
+  var f = 4 * a * c;
+
   d = d - f;
-  
+
   escreva("O valor de Delta é: " + texto(d));
-  
+
   d = d ** 0.5;
-  
+
   // Encontrando os valores de X1 e X2.
   var x1 = -b + d;
   x1 = x1 / 2 * a;
 
   escreva("O valor de X1 é: "+ texto(x1));
-  
+
   var x2 = -b-d;
   x2 = x2 / 2 * a;
   escreva("O valor de X2 é: "+ texto(x2));
@@ -123,7 +156,7 @@ var b = -1;
 // Insira o valor do coeficiente B:
 var c = -30;
 
-bhaskara(a,b,c);`
+bhaskara(a,b,c);`;
 
 const Fibonacci = `// Recursão para o cálculo da sequência de Fibonacci
 
@@ -135,7 +168,7 @@ funcao fibonacci(n) {
   se(n == 1) {
     retorna(1);
   }
-  
+
   var n1 = n-1;
   var n2 = n-2;
   var f1 = fibonacci(n1);
@@ -159,7 +192,7 @@ a = fibonacci(4);
 escreva(a);
 
 a = fibonacci(5);
-escreva(a);`
+escreva(a);`;
 
 const Perceptron = `var pesoInicial1 = 0.3;
 var pesoInicial2 = 0.4;
@@ -179,12 +212,12 @@ enquanto (erro != 0) {
   } senão {
     resultadoEsperado = 0;
   }
-  
+
   var somatoria = pesoInicial1 * entrada1;
   somatoria = pesoInicial2 * entrada2 + somatoria;
-  
+
   var resultado;
-  
+
   se (somatoria < 1) {
     resultado = 0;
   } senão {
@@ -192,9 +225,9 @@ enquanto (erro != 0) {
       resultado = 1;
     }
   }
-  
+
   escreva("resultado: " + texto(resultado));
-  
+
   erro = resultadoEsperado - resultado;
 
   escreva("p1: " + texto(pesoInicial1));
@@ -204,7 +237,7 @@ enquanto (erro != 0) {
   pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2;
 
   escreva("erro: " + texto(erro));
-}`
+}`;
 
 const FilaEstatica = `funcao enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos) {
@@ -221,15 +254,15 @@ função desenfileirar() {
     escreva("Fila Vazia");
   } senao {
     para (i = 0; i <= indexFinal; i = i + 1)
-    {  
-      se (i + 1 == indexFinal) 
+    {
+      se (i + 1 == indexFinal)
       {
         indexFinal = indexFinal - 1;
-        escreva("Valor retirado com sucesso.");  
+        escreva("Valor retirado com sucesso.");
       } senao {
         filaEstatica[i] = filaEstatica[i+1];
       }
-    }    
+    }
   }
 }
 
@@ -238,7 +271,7 @@ função mostrar_fila() {
     escreva("Fila Vazia");
   } senao {
     para (var i = 0; i < indexFinal; i = i + 1) {
-      escreva("index " + texto(i)); 
+      escreva("index " + texto(i));
       escreva(texto(filaEstatica[i]));
     }
   }
@@ -277,15 +310,20 @@ mostrar_fila();
 var valorEntrada = 24;
 enfileirar(valorEntrada);
 
-mostrar_fila();`
+mostrar_fila();`;
 
 const demos = {
-  Exemplos,
-  OlaMundo,
-  Classe,
-  MergeSort,
-  Bhaskara,
-  Fibonacci,
-  Perceptron,
-  FilaEstatica
+  Fundamentos: {
+    'Olá Mundo' : OlaMundo,
+    'Operações Básicas': OperacoesBasicas,
+    Condicional,
+    Classe,
+  },
+  'Aplicações': {
+    'Merge Sort': MergeSort,
+    'Bháskara': Bhaskara,
+    Fibonacci,
+    Perceptron,
+    'Fila Estática': FilaEstatica
+  }
 }

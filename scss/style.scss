@@ -5,7 +5,7 @@ html {
     color: black;
 }
 
-#runBtn {
+#botaoExecutar {
     background-image: linear-gradient(to bottom, $dl-azul-cinza-5, $dl-azul-cinza-1);
     color: white;
     border: 2px;
@@ -16,7 +16,7 @@ html {
     margin-right: 10px;
 }
 
-#demoSelector {
+#seletorDemos {
     background-image: linear-gradient(to bottom, $dl-azul-cinza-5, $dl-azul-cinza-1);
     background-color: $dl-azul-cinza-1;
     color: white;
@@ -50,12 +50,12 @@ html {
         position: relative !important;
     }
 
-    #runBtn {
+    #botaoExecutar {
         width: 100px;
         font-size: 11px;
     }
 
-    #demoSelector {
+    #seletorDemos {
         width: 108px;
         font-size: 11px;
     }
