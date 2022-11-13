@@ -4688,7 +4688,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpretador = void 0;
 var caminho = __importStar(require("path"));
 var browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
-var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 var espaco_variaveis_1 = require("../espaco-variaveis");
 var biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-global"));
 var importar_biblioteca_1 = __importDefault(require("../bibliotecas/importar-biblioteca"));
@@ -4697,9 +4696,10 @@ var estruturas_1 = require("../estruturas");
 var pilha_escopos_execucao_1 = require("./pilha-escopos-execucao");
 var quebras_1 = require("../quebras");
 var inferenciador_1 = require("./inferenciador");
-var primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
 var metodo_primitiva_1 = require("../estruturas/metodo-primitiva");
+var primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
 var primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
+var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
  * e de fato executa a lógica de programação descrita no código.
@@ -4797,7 +4797,14 @@ var Interpretador = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, expressao.aceitar(this)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1: 
+                    // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
+                    // Por algum motivo o depurador do VSCode não funciona direito aqui
+                    // com breakpoint condicional.
+                    /* if (expressao === null || expressao === undefined) {
+                        console.log('Aqui');
+                    } */
+                    return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -5539,7 +5546,7 @@ var Interpretador = /** @class */ (function () {
      */
     Interpretador.prototype.visitarExpressaoVar = function (declaracao) {
         return __awaiter(this, void 0, void 0, function () {
-            var valorOuOutraVariavel;
+            var valorOuOutraVariavel, valorFinal;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -5550,9 +5557,13 @@ var Interpretador = /** @class */ (function () {
                         valorOuOutraVariavel = _a.sent();
                         _a.label = 2;
                     case 2:
-                        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorOuOutraVariavel.hasOwnProperty('valor')
-                            ? valorOuOutraVariavel.valor
-                            : valorOuOutraVariavel);
+                        valorFinal = null;
+                        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+                            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
+                                ? valorOuOutraVariavel.valor
+                                : valorOuOutraVariavel;
+                        }
+                        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
                         return [2 /*return*/, null];
                 }
             });
@@ -5599,6 +5610,8 @@ var Interpretador = /** @class */ (function () {
                         objeto = promises[0];
                         indice = promises[1];
                         valor = promises[2];
+                        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
+                        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
                         if (Array.isArray(objeto)) {
                             if (indice < 0 && objeto.length !== 0) {
                                 while (indice < 0) {
@@ -5650,7 +5663,7 @@ var Interpretador = /** @class */ (function () {
                                 }
                             }
                             if (valorIndice >= objeto.length) {
-                                throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice do vetor fora do intervalo.', expressao.linha);
+                                return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice do vetor fora do intervalo.', expressao.linha))];
                             }
                             return [2 /*return*/, objeto[valorIndice]];
                         }
