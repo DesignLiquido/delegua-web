@@ -1,0 +1,69 @@
+<html lang="pt">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8" />
+
+    <title>Linguagem Delégua por Design Líquido - Exemplos</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./code.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/dist/menu.js"></script>
+    <script src="/dist/exemplos.js"></script>
+</head>
+
+<body>
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="/dist/index.html">Editor</a>
+        <a href="/dist/exemplos.html">Exemplos</a>
+    </div>
+
+    <navbar>
+        <div class="navbar-left">
+            <div onclick="openNav()">
+                <div class="burguer-icon"></div>
+                <div class="burguer-icon"></div>
+                <div class="burguer-icon"></div>
+            </div>
+        </div>
+        <div class="navbar-center">
+            <p>Exemplos</p>
+        </div>
+    </navbar>
+
+    <div class="exemplos-container">
+        <div class="exemplos" onclick="enviarExemplo(1)">
+            <p class="exemplos-titulo">Olá, mundo!</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(2)">
+            <p class="exemplos-titulo">Operações básicas</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(3)">
+            <p class="exemplos-titulo">Condicional</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(4)">
+            <p class="exemplos-titulo">Classe</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(5)">
+            <p class="exemplos-titulo">MergeSort</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(6)">
+            <p class="exemplos-titulo">Bhaskara</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(7)">
+            <p class="exemplos-titulo">Fibonacci</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(8)">
+            <p class="exemplos-titulo">Perceptron</p>
+        </div>
+        <div class="exemplos" onclick="enviarExemplo(9)">
+            <p class="exemplos-titulo">Fila Estática</p>
+        </div>
+    </div>
+
+    <script> function enviarExemplo(valor, titulo) { window.location = '/dist/index.html?exemploId=' + valor; } </script>
+</body>
+
+</html>
