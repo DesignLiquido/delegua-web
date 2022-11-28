@@ -5,22 +5,23 @@ html {
     color: #000000;
 }
 
-navbar {
+nav {
     display: flex;
     align-items: center;
     padding-bottom: 5px;
     border-bottom: 1px solid $claro;
     width: 100% !important;
+    justify-content: space-between;
 
-    .navbar-center {
+    .navbar-central {
         margin-left: 10px;
      }
 
-    .navbar-right {
-        margin-left: 30px;
+    .navbar-direita {
+        width: 50px;
     }
 
-    .burguer-icon {
+    .icone-burger {
         width: 30px;
         height: 3px;
         background-color: $preto;
@@ -34,10 +35,10 @@ navbar {
     border-radius: 3px;
     margin: 10px;
     padding: 5px;
-    user-select: none; 
+    user-select: none;
     transition: 7ms;
 }
-  
+
 .exemplos:hover {
     cursor: pointer;
     transform: scale(100.5%);
@@ -114,7 +115,7 @@ navbar {
     }
 
     #botaoExecutar {
-        width: 100px;
+        width: 50px;
         font-size: 11px;
     }
 
