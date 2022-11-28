@@ -2,12 +2,21 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es5", "es6", "dom"],
+    "lib": [
+      "es5",
+      "es6",
+      "dom"
+    ],
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
     "esModuleInterop": true,
     "allowJs": true
   },
-  "files": ["index.ts", "exemplos.ts", "editor.ts"]
+  "files": [
+    "index.ts",
+    "exemplos.ts",
+    "editor.ts",
+    "menu.ts"
+  ]
 }

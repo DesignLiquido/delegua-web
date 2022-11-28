@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "copiar-arquivos": "copyfiles -V ./index.html ./exemplos.html ./menu.js ./dist && copyfiles -V ./editor.js ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
+        "copiar-arquivos": "copyfiles -V ./index.html ./exemplos.html ./dist && copyfiles -V ./editor.js ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
         "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "sass scss/style.scss:./dist/style.css scss/code.scss:./dist/code.css",
         "gerar-css:tempo-real": "sass scss/style.scss:./dist/style.css scss/code.scss:./dist/code.css --watch",
