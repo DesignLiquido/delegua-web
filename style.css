@@ -1,29 +1,86 @@
 html {
   font-family: "Roboto Mono";
-  color: black;
+  color: #000000;
+}
+
+navbar {
+  display: flex;
+  align-items: center;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #f0f0f0;
+  width: 100% !important;
+}
+navbar .navbar-center {
+  margin-left: 10px;
+}
+navbar .navbar-right {
+  margin-left: 30px;
+}
+navbar .burguer-icon {
+  width: 30px;
+  height: 3px;
+  background-color: #171717;
+  border-radius: 5px;
+  margin: 6px 5px;
+}
+
+.exemplos {
+  border: 1px solid #171717;
+  border-radius: 3px;
+  margin: 10px;
+  padding: 5px;
+  user-select: none;
+  transition: 7ms;
+}
+
+.exemplos:hover {
+  cursor: pointer;
+  transform: scale(100.5%);
+  box-shadow: 10px 10px 15px -9px rgba(0, 0, 0, 0.45);
+}
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  overflow-x: hidden;
+  padding-top: 60px;
+  transition: 0.5s;
+  padding-top: 15px;
+}
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #484848;
+  display: block;
+  transition: 0.2s;
+}
+.sidenav a:hover {
+  color: #111;
+}
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+#main {
+  transition: margin-left 0.5s;
+  padding: 20px;
 }
 
 #botaoExecutar {
-  background-image: linear-gradient(to bottom, #6B7494, #072C53);
-  color: white;
-  border: 2px;
-  margin-bottom: 3px;
-  border-radius: 5px;
-  padding: 15px 20px;
-  float: right;
-  margin-right: 10px;
-}
-
-#seletorDemos {
-  background-image: linear-gradient(to bottom, #6B7494, #072C53);
-  background-color: #072C53;
-  color: white;
-  border: 2px;
-  margin-bottom: 3px;
-  display: inline-block;
-  border-radius: 5px;
-  padding: 15px 20px;
-  margin-left: 10px;
+  background-color: transparent;
+  width: 0px !important;
+  border: transparent;
+  color: #171717;
 }
 
 #editor {
@@ -31,8 +88,8 @@ html {
   height: calc(100% - 65px);
   left: 0;
   position: fixed;
-  border-right: 2px solid grey;
-  border-top: 2px solid grey;
+  border-right: 1px solid #d9d9d9;
+  border-top: 1px solid #d9d9d9;
 }
 
 @media only screen and (max-width: 768px) {
@@ -63,8 +120,8 @@ html {
   height: calc(100% - 65px);
   right: 0;
   position: fixed;
-  border-right: 2px solid grey;
-  border-top: 2px solid grey;
+  border-right: 1px solid #d9d9d9;
+  border-top: 1px solid #d9d9d9;
   overflow-y: scroll;
 }
 
