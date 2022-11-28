@@ -3,20 +3,21 @@ html {
   color: #000000;
 }
 
-navbar {
+nav {
   display: flex;
   align-items: center;
   padding-bottom: 5px;
   border-bottom: 1px solid #f0f0f0;
   width: 100% !important;
+  justify-content: space-between;
 }
-navbar .navbar-center {
+nav .navbar-central {
   margin-left: 10px;
 }
-navbar .navbar-right {
-  margin-left: 30px;
+nav .navbar-direita {
+  width: 50px;
 }
-navbar .burguer-icon {
+nav .icone-burger {
   width: 30px;
   height: 3px;
   background-color: #171717;
@@ -106,7 +107,7 @@ navbar .burguer-icon {
   }
 
   #botaoExecutar {
-    width: 100px;
+    width: 50px;
     font-size: 11px;
   }
 
