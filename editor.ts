@@ -39,43 +39,6 @@ const editor = new CodeFlask("#editor", {
 
 clearOutput();
 
-const objetoDemonstracoes = Object.entries(demos);
-function carregarDemonstracao(grupo: string, nome: string) {
-    editor.updateCode(demos[grupo][nome]);
-}
-
-const opcaoPadrao = document.createElement("option");
-opcaoPadrao.disabled = true;
-opcaoPadrao.selected = true;
-opcaoPadrao.hidden = true;
-
-opcaoPadrao.textContent = capitalize('Exemplos...');
-opcaoPadrao.value = 'Exemplos...';
-seletorDemos.appendChild(opcaoPadrao);
-
-objetoDemonstracoes.forEach(([chave, valor]) => {
-    const optgroup = document.createElement("optgroup");
-
-    optgroup.textContent = capitalize(chave);
-    optgroup.label = chave;
-
-    Object.entries(valor).forEach(([exemplo, codigo]) => {
-        const opcao = document.createElement("option");
-        opcao.textContent = exemplo;
-        optgroup.appendChild(opcao);
-    });
-
-    seletorDemos.appendChild(optgroup);
-});
-
-let queryCode = getQueryVariable("code");
-if (queryCode !== undefined) {
-    editor.updateCode(decodeURI(queryCode));
-    (seletorDemos as any).value = "custom";
-} else {
-    carregarDemonstracao('Fundamentos', 'Olá Mundo');
-}
-
 const executarCodigo = function () {
     const delegua = new Delegua.DeleguaWeb("", mostrarResultado);
 
@@ -91,11 +54,6 @@ const executarCodigo = function () {
 
     delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
 };
-
-seletorDemos.addEventListener("change", function (e: any) {
-    const grupoSelecionado = (document.querySelector('#seletorDemos option:checked').parentElement as any).label;
-    carregarDemonstracao(grupoSelecionado, e.target.value);
-});
 
 runButton.addEventListener("click", function () {
     clearOutput();

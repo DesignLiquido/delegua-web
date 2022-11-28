@@ -1,0 +1,56 @@
+.codeflask {
+    background: #1E1E1E;
+    color: #9CDCFE;
+
+    .token.punctuation {
+        color: #4a4a4a;
+    }
+
+    .token.keyword {
+        color: #8500ff;
+    }
+
+    .token.operator {
+        color: #ff5598;
+    }
+
+    .token.string {
+        color: #41ad8f;
+    }
+
+    .token.comment {
+        color: #6A9955;
+    }
+    
+    .token.function {
+        color: #D7BA7D;
+    }
+
+    .token.boolean {
+        color: #8500ff;
+    }
+
+    .token.number {
+        color: #8500ff;
+    }
+
+    .token.selector {
+        color: #8500ff;
+    }
+
+    .token.property {
+        color: #8500ff;
+    }
+
+    .token.tag {
+        color: #8500ff;
+    }
+
+    .token.attr-value {
+        color: #8500ff;
+    }
+}
+
+.codeflask__textarea {
+    color: #1e1e1e !important;
+}
