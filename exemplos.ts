@@ -311,54 +311,54 @@ enfileirar(valorEntrada);
 
 mostrar_fila();`;
 
-  if (exemploId == 1) {
-    editor.updateCode(OlaMundo);
-    document.querySelector('#titulo-arquivo').innerHTML = 'OlaMundo.delegua';
-    return;
-  }
-  if (exemploId == 2) {
-    editor.updateCode(OperacoesBasicas);
-    document.querySelector('#titulo-arquivo').innerHTML = 'OperacoesBasicas.delegua';
-    return;
-  }
-  if (exemploId == 2) {
-    editor.updateCode(OperacoesBasicas);
-    document.querySelector('#titulo-arquisdvo').innerHTML = 'OperacoesBasicas.delegua';
-    return;
-  }
-  if (exemploId == 3) {
-    editor.updateCode(Condicional);
-    document.querySelector('#titulo-arquivo').innerHTML = 'Condicional.delegua';
-    return;
-  }
-  if (exemploId == 4) {
-    editor.updateCode(Classe);
-    document.querySelector('#titulo-arquivo').innerHTML = 'Classe.delegua';
-    return;
-  }
-  if (exemploId == 5) {
-    editor.updateCode(MergeSort);
-    document.querySelector('#titulo-arquivo').innerHTML = 'MergeSort.delegua';
-    return;
-  }
-  if (exemploId == 6) {
-    editor.updateCode(Bhaskara);
-    document.querySelector('#titulo-arquivo').innerHTML = 'Bhaskara.delegua';
-    return;
-  }
-  if (exemploId == 7) {
-    editor.updateCode(Fibonacci);
-    document.querySelector('#titulo-arquivo').innerHTML = 'Fibonacci.delegua';
-    return;
-  }
-  if (exemploId == 8) {
-    editor.updateCode(Perceptron);
-    document.querySelector('#titulo-arquivo').innerHTML = 'Perceptron.delegua';
-    return;
-  }
-  if (exemploId == 9) {
-    editor.updateCode(FilaEstatica);
-    document.querySelector('#titulo-arquivo').innerHTML = 'FilaEstatica.delegua';
-    return;
-  }
+if (exemploId == 1) {
+  editor.updateCode(OlaMundo);
+  document.querySelector('#titulo-arquivo').innerHTML = 'OlaMundo.delegua';
+  return;
+}
+if (exemploId == 2) {
+  editor.updateCode(OperacoesBasicas);
+  document.querySelector('#titulo-arquivo').innerHTML = 'OperacoesBasicas.delegua';
+  return;
+}
+if (exemploId == 2) {
+  editor.updateCode(OperacoesBasicas);
+  document.querySelector('#titulo-arquisdvo').innerHTML = 'OperacoesBasicas.delegua';
+  return;
+}
+if (exemploId == 3) {
+  editor.updateCode(Condicional);
+  document.querySelector('#titulo-arquivo').innerHTML = 'Condicional.delegua';
+  return;
+}
+if (exemploId == 4) {
+  editor.updateCode(Classe);
+  document.querySelector('#titulo-arquivo').innerHTML = 'Classe.delegua';
+  return;
+}
+if (exemploId == 5) {
+  editor.updateCode(MergeSort);
+  document.querySelector('#titulo-arquivo').innerHTML = 'MergeSort.delegua';
+  return;
+}
+if (exemploId == 6) {
+  editor.updateCode(Bhaskara);
+  document.querySelector('#titulo-arquivo').innerHTML = 'Bhaskara.delegua';
+  return;
+}
+if (exemploId == 7) {
+  editor.updateCode(Fibonacci);
+  document.querySelector('#titulo-arquivo').innerHTML = 'Fibonacci.delegua';
+  return;
+}
+if (exemploId == 8) {
+  editor.updateCode(Perceptron);
+  document.querySelector('#titulo-arquivo').innerHTML = 'Perceptron.delegua';
+  return;
+}
+if (exemploId == 9) {
+  editor.updateCode(FilaEstatica);
+  document.querySelector('#titulo-arquivo').innerHTML = 'FilaEstatica.delegua';
+  return;
+}
 }
