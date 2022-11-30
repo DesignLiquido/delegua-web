@@ -17,6 +17,10 @@ nav {
         margin-left: 10px;
      }
 
+    .navbar-esquerda {
+        cursor: pointer;
+    }
+
     .navbar-direita {
         width: 50px;
     }
@@ -86,6 +90,7 @@ nav {
 }
 
 #botaoExecutar {
+    cursor: pointer;
     background-color: transparent;
     width: 0px !important;
     border: transparent;

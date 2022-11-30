@@ -3,8 +3,8 @@
         "copiar-arquivos": "copyfiles -V ./index.html ./exemplos.html ./dist && copyfiles -V ./editor.js ./menu.js ./dist && copyfiles -V -f ./node_modules/codeflask/build/codeflask.min.js ./dist",
         "copiar-icones": "copyfiles -V ./favicon.ico ./dist && copyfiles -V ./icones/* ./dist",
         "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos && yarn copiar-icones",
-        "gerar-css": "sass scss/style.scss:./dist/style.css scss/code.scss:./dist/code.css",
-        "gerar-css:tempo-real": "sass scss/style.scss:./dist/style.css scss/code.scss:./dist/code.css --watch",
+        "gerar-css": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
+        "gerar-css:tempo-real": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
         "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js",
         "publicar": "yarn empacotar && gh-pages -d dist"
     },
