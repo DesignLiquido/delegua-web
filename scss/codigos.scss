@@ -1,6 +1,6 @@
 .codeflask {
-    background: #1E1E1E;
-    color: #9CDCFE;
+    background: #1e1e1e;
+    color: #9cdcfe;
 
     .token.punctuation {
         color: #4a4a4a;
@@ -19,11 +19,11 @@
     }
 
     .token.comment {
-        color: #6A9955;
+        color: #6a9955;
     }
-    
+
     .token.function {
-        color: #D7BA7D;
+        color: #d7ba7d;
     }
 
     .token.boolean {
@@ -52,5 +52,6 @@
 }
 
 .codeflask__textarea {
+    caret-color: #fff;
     color: #1e1e1e !important;
 }
