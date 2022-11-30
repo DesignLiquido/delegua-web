@@ -14,6 +14,9 @@ nav {
 nav .navbar-central {
   margin-left: 10px;
 }
+nav .navbar-esquerda {
+  cursor: pointer;
+}
 nav .navbar-direita {
   width: 50px;
 }
@@ -78,6 +81,7 @@ nav .icone-burger {
 }
 
 #botaoExecutar {
+  cursor: pointer;
   background-color: transparent;
   width: 0px !important;
   border: transparent;
@@ -178,4 +182,4 @@ nav .icone-burger {
   height: 55%;
 }
 
-/*# sourceMappingURL=style.css.map */
+/*# sourceMappingURL=estilos.css.map */
