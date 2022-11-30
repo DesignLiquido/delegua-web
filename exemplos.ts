@@ -89,7 +89,7 @@ se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {
 para (a = 0; a < 4; a = a + 1) {
   escreva ("vetor4(" + texto(vetor4[a]) + ")");
 }`,
-bhaskara: `funcao bhaskara(a,b,c) {
+Bhaskara: `funcao bhaskara(a,b,c) {
   // A variável "d" vai simbolizar o Delta.
   // "a", "b", e "c" irão representar os coeficientes da equação.
   var d = b ** 2;
@@ -128,7 +128,7 @@ var b = -1;
 // Insira o valor do coeficiente B:
 var c = -30;
 bhaskara(a,b,c);`,
-fibonacci: `// Recursão para o cálculo da sequência de Fibonacci
+Fibonacci: `// Recursão para o cálculo da sequência de Fibonacci
 funcao fibonacci(n) {
   se (n == 0) {
     retorna(0);
@@ -155,7 +155,7 @@ a = fibonacci(4);
 escreva(a);
 a = fibonacci(5);
 escreva(a);`,
-perceptron: `var pesoInicial1 = 0.3;
+Perceptron: `var pesoInicial1 = 0.3;
 var pesoInicial2 = 0.4;
 var entrada1 = 1;
 var entrada2 = 1;
@@ -193,7 +193,7 @@ enquanto (erro != 0) {
   escreva("erro: " + texto(erro));
 }`,
 
-filaEstatica: `funcao enfileirar (valorEntrada) {
+FilaEstatica: `funcao enfileirar (valorEntrada) {
 se (indexFinal == maximoDeElementos) {
   escreva("Fila Cheia");
 } senao {
