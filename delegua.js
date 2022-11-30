@@ -153,101 +153,108 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AvaliadorSintatico = void 0;
-const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
-const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
-const construtos_1 = require("../construtos");
-const erro_avaliador_sintatico_1 = require("./erro-avaliador-sintatico");
-const declaracoes_1 = require("../declaracoes");
+var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
+var browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
+var construtos_1 = require("../construtos");
+var erro_avaliador_sintatico_1 = require("./erro-avaliador-sintatico");
+var declaracoes_1 = require("../declaracoes");
 /**
  * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
-class AvaliadorSintatico {
-    constructor(performance = false) {
+var AvaliadorSintatico = /** @class */ (function () {
+    function AvaliadorSintatico(performance) {
+        if (performance === void 0) { performance = false; }
         this.hashArquivo = 0;
         this.atual = 0;
-        this.blocos = 0;
+        this.ciclos = 0;
         this.erros = [];
         this.performance = performance;
     }
-    erro(simbolo, mensagemDeErro) {
-        const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+    AvaliadorSintatico.prototype.erro = function (simbolo, mensagemDeErro) {
+        var excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simbolo, mensagemDeErro);
         this.erros.push(excecao);
         return excecao;
-    }
-    consumir(tipo, mensagemDeErro) {
+    };
+    AvaliadorSintatico.prototype.consumir = function (tipo, mensagemDeErro) {
         if (this.verificarTipoSimboloAtual(tipo))
             return this.avancarEDevolverAnterior();
         throw this.erro(this.simbolos[this.atual], mensagemDeErro);
-    }
-    verificarTipoSimboloAtual(tipo) {
+    };
+    AvaliadorSintatico.prototype.verificarTipoSimboloAtual = function (tipo) {
         if (this.estaNoFinal())
             return false;
         return this.simbolos[this.atual].tipo === tipo;
-    }
-    verificarTipoProximoSimbolo(tipo) {
+    };
+    AvaliadorSintatico.prototype.verificarTipoProximoSimbolo = function (tipo) {
         return this.simbolos[this.atual + 1].tipo === tipo;
-    }
-    simboloAtual() {
+    };
+    AvaliadorSintatico.prototype.simboloAtual = function () {
         return this.simbolos[this.atual];
-    }
-    simboloAnterior() {
+    };
+    AvaliadorSintatico.prototype.simboloAnterior = function () {
         return this.simbolos[this.atual - 1];
-    }
-    estaNoFinal() {
+    };
+    AvaliadorSintatico.prototype.estaNoFinal = function () {
         return this.atual === this.simbolos.length;
-    }
-    avancarEDevolverAnterior() {
+    };
+    AvaliadorSintatico.prototype.avancarEDevolverAnterior = function () {
         if (!this.estaNoFinal())
             this.atual += 1;
         return this.simbolos[this.atual - 1];
-    }
-    verificarSeSimboloAtualEIgualA(...argumentos) {
-        for (let i = 0; i < argumentos.length; i++) {
-            const tipoAtual = argumentos[i];
+    };
+    AvaliadorSintatico.prototype.verificarSeSimboloAtualEIgualA = function () {
+        var argumentos = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            argumentos[_i] = arguments[_i];
+        }
+        for (var i = 0; i < argumentos.length; i++) {
+            var tipoAtual = argumentos[i];
             if (this.verificarTipoSimboloAtual(tipoAtual)) {
                 this.avancarEDevolverAnterior();
                 return true;
             }
         }
         return false;
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
+    };
+    AvaliadorSintatico.prototype.primario = function () {
+        var simboloAtual = this.simbolos[this.atual];
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SUPER)) {
-            const simboloChave = this.simbolos[this.atual - 1];
+            var simboloChave = this.simbolos[this.atual - 1];
             this.consumir(delegua_1.default.PONTO, "Esperado '.' após 'super'.");
-            const metodo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome do método da SuperClasse.');
+            var metodo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome do método da SuperClasse.');
             return new construtos_1.Super(this.hashArquivo, simboloChave, metodo);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_ESQUERDO)) {
-            const valores = [];
+            var valores = [];
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_DIREITO)) {
                 return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
             }
             while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_DIREITO)) {
-                const valor = this.atribuir();
+                var valor = this.atribuir();
                 valores.push(valor);
-                if (this.simbolos[this.atual].tipo !== delegua_1.default.COLCHETE_DIREITO) {
+                if (this.simbolos[this.atual].tipo !==
+                    delegua_1.default.COLCHETE_DIREITO) {
                     this.consumir(delegua_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                 }
             }
             return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_ESQUERDA)) {
-            const chaves = [];
-            const valores = [];
+            var chaves = [];
+            var valores = [];
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_DIREITA)) {
                 return new construtos_1.Dicionario(this.hashArquivo, Number(simboloAtual.linha), [], []);
             }
             while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_DIREITA)) {
-                const chave = this.atribuir();
+                var chave = this.atribuir();
                 this.consumir(delegua_1.default.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
-                const valor = this.atribuir();
+                var valor = this.atribuir();
                 chaves.push(chave);
                 valores.push(valor);
-                if (this.simbolos[this.atual].tipo !== delegua_1.default.CHAVE_DIREITA) {
+                if (this.simbolos[this.atual].tipo !==
+                    delegua_1.default.CHAVE_DIREITA) {
                     this.consumir(delegua_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                 }
             }
@@ -264,23 +271,23 @@ class AvaliadorSintatico {
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.ISTO))
             return new construtos_1.Isto(this.hashArquivo, Number(simboloAtual.linha), this.simbolos[this.atual - 1]);
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.NUMERO, delegua_1.default.TEXTO)) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
+            var simboloAnterior = this.simbolos[this.atual - 1];
             return new construtos_1.Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IDENTIFICADOR)) {
             return new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PARENTESE_ESQUERDO)) {
-            const expressao = this.expressao();
+            var expressao = this.expressao();
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
             return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IMPORTAR))
             return this.declaracaoImportar();
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
-    }
-    finalizarChamada(entidadeChamada) {
-        const argumentos = [];
+    };
+    AvaliadorSintatico.prototype.finalizarChamada = function (entidadeChamada) {
+        var argumentos = [];
         if (!this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_DIREITO)) {
             do {
                 if (argumentos.length >= 255) {
@@ -289,22 +296,22 @@ class AvaliadorSintatico {
                 argumentos.push(this.expressao());
             } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         }
-        const parenteseDireito = this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        var parenteseDireito = this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
         return new construtos_1.Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos);
-    }
-    chamar() {
-        let expressao = this.primario();
+    };
+    AvaliadorSintatico.prototype.chamar = function () {
+        var expressao = this.primario();
         while (true) {
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PARENTESE_ESQUERDO)) {
                 expressao = this.finalizarChamada(expressao);
             }
             else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO)) {
-                const nome = this.consumir(delegua_1.default.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                var nome = this.consumir(delegua_1.default.IDENTIFICADOR, "Esperado nome do método após '.'.");
                 expressao = new construtos_1.AcessoMetodo(this.hashArquivo, expressao, nome);
             }
             else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
-                const simboloFechamento = this.consumir(delegua_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
+                var indice = this.expressao();
+                var simboloFechamento = this.consumir(delegua_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
                 expressao = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
             }
             else {
@@ -312,125 +319,125 @@ class AvaliadorSintatico {
             }
         }
         return expressao;
-    }
-    unario() {
+    };
+    AvaliadorSintatico.prototype.unario = function () {
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.NEGACAO, delegua_1.default.SUBTRACAO, delegua_1.default.BIT_NOT)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.unario();
             return new construtos_1.Unario(this.hashArquivo, operador, direito);
         }
         return this.chamar();
-    }
-    exponenciacao() {
-        let expressao = this.unario();
+    };
+    AvaliadorSintatico.prototype.exponenciacao = function () {
+        var expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.EXPONENCIACAO)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.unario();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    multiplicar() {
-        let expressao = this.exponenciacao();
+    };
+    AvaliadorSintatico.prototype.multiplicar = function () {
+        var expressao = this.exponenciacao();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DIVISAO, delegua_1.default.MULTIPLICACAO, delegua_1.default.MODULO, delegua_1.default.DIVISAO_IGUAL, delegua_1.default.MULTIPLICACAO_IGUAL, delegua_1.default.MODULO_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.exponenciacao();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.exponenciacao();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
+    };
     /**
      * Se símbolo de operação é `+`, `-`, `+=` ou `-=`, monta objeto `Binario` para
      * ser avaliado pelo Interpretador.
      * @returns Um Construto, normalmente um `Binario`, ou `Unario` se houver alguma operação unária para ser avaliada.
      */
-    adicaoOuSubtracao() {
-        let expressao = this.multiplicar();
+    AvaliadorSintatico.prototype.adicaoOuSubtracao = function () {
+        var expressao = this.multiplicar();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SUBTRACAO, delegua_1.default.ADICAO, delegua_1.default.MAIS_IGUAL, delegua_1.default.MENOS_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.multiplicar();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.multiplicar();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    bitFill() {
-        let expressao = this.adicaoOuSubtracao();
+    };
+    AvaliadorSintatico.prototype.bitFill = function () {
+        var expressao = this.adicaoOuSubtracao();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.MENOR_MENOR, delegua_1.default.MAIOR_MAIOR)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.adicaoOuSubtracao();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.adicaoOuSubtracao();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    bitE() {
-        let expressao = this.bitFill();
+    };
+    AvaliadorSintatico.prototype.bitE = function () {
+        var expressao = this.bitFill();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.BIT_AND)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.bitFill();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.bitFill();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    bitOu() {
-        let expressao = this.bitE();
+    };
+    AvaliadorSintatico.prototype.bitOu = function () {
+        var expressao = this.bitE();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.BIT_OR, delegua_1.default.BIT_XOR)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.bitE();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.bitE();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    comparar() {
-        let expressao = this.bitOu();
+    };
+    AvaliadorSintatico.prototype.comparar = function () {
+        var expressao = this.bitOu();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.MAIOR, delegua_1.default.MAIOR_IGUAL, delegua_1.default.MENOR, delegua_1.default.MENOR_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.bitOu();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.bitOu();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    comparacaoIgualdade() {
-        let expressao = this.comparar();
+    };
+    AvaliadorSintatico.prototype.comparacaoIgualdade = function () {
+        var expressao = this.comparar();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DIFERENTE, delegua_1.default.IGUAL_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.comparar();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    em() {
-        let expressao = this.comparacaoIgualdade();
+    };
+    AvaliadorSintatico.prototype.em = function () {
+        var expressao = this.comparacaoIgualdade();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.EM)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparacaoIgualdade();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.comparacaoIgualdade();
             expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    e() {
-        let expressao = this.em();
+    };
+    AvaliadorSintatico.prototype.e = function () {
+        var expressao = this.em();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.E)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.em();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.em();
             expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
-    ou() {
-        let expressao = this.e();
+    };
+    AvaliadorSintatico.prototype.ou = function () {
+        var expressao = this.e();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.OU)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.e();
+            var operador = this.simbolos[this.atual - 1];
+            var direito = this.e();
             expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
-    }
+    };
     /**
      * Método que resolve atribuições.
      * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
      */
-    atribuir() {
-        const expressao = this.ou();
+    AvaliadorSintatico.prototype.atribuir = function () {
+        var expressao = this.ou();
         if (expressao instanceof construtos_1.Binario &&
             [
                 delegua_1.default.MAIS_IGUAL,
@@ -442,15 +449,14 @@ class AvaliadorSintatico {
             return new construtos_1.Atribuir(this.hashArquivo, expressao.esquerda.simbolo, expressao);
         }
         else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
-            const igual = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
+            var igual = this.simbolos[this.atual - 1];
+            var valor = this.atribuir();
             if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
+                var simbolo = expressao.simbolo;
                 return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoMetodo) {
-                const get = expressao;
-                // return new Conjunto(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
+                var get = expressao;
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
@@ -459,85 +465,86 @@ class AvaliadorSintatico {
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
         return expressao;
-    }
-    expressao() {
+    };
+    AvaliadorSintatico.prototype.expressao = function () {
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.LEIA))
             return this.declaracaoLeia();
         return this.atribuir();
-    }
-    declaracaoEscreva() {
-        const simboloAtual = this.simbolos[this.atual];
+    };
+    AvaliadorSintatico.prototype.declaracaoEscreva = function () {
+        var simboloAtual = this.simbolos[this.atual];
         this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
-        const argumentos = [];
+        var argumentos = [];
         do {
             argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
         return new declaracoes_1.Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-    declaracaoExpressao() {
-        const expressao = this.expressao();
+    };
+    AvaliadorSintatico.prototype.declaracaoExpressao = function () {
+        var expressao = this.expressao();
         return new declaracoes_1.Expressao(expressao);
-    }
-    declaracaoLeia() {
-        const simboloAtual = this.simbolos[this.atual];
+    };
+    AvaliadorSintatico.prototype.declaracaoLeia = function () {
+        var simboloAtual = this.simbolos[this.atual];
         this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
-        const argumentos = [];
+        var argumentos = [];
         do {
             argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
         return new declaracoes_1.Leia(simboloAtual.hashArquivo, Number(simboloAtual.linha), argumentos);
-    }
-    blocoEscopo() {
-        const declaracoes = [];
-        while (!this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+    };
+    AvaliadorSintatico.prototype.blocoEscopo = function () {
+        var declaracoes = [];
+        while (!this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA) &&
+            !this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
         this.consumir(delegua_1.default.CHAVE_DIREITA, "Esperado '}' após o bloco.");
         return declaracoes;
-    }
-    declaracaoSe() {
+    };
+    AvaliadorSintatico.prototype.declaracaoSe = function () {
         this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
-        const condicao = this.expressao();
+        var condicao = this.expressao();
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
-        const caminhoEntao = this.resolverDeclaracao();
-        const caminhosSeSenao = [];
+        var caminhoEntao = this.resolverDeclaracao();
+        var caminhosSeSenao = [];
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SENAOSE, delegua_1.default.SENÃOSE)) {
             this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
-            const condicaoSeSenao = this.expressao();
+            var condicaoSeSenao = this.expressao();
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
-            const caminho = this.resolverDeclaracao();
+            var caminho = this.resolverDeclaracao();
             caminhosSeSenao.push({
                 condicao: condicaoSeSenao,
                 caminho: caminho,
             });
         }
-        let caminhoSenao = null;
+        var caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SENAO, delegua_1.default.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
         }
         return new declaracoes_1.Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao);
-    }
-    declaracaoEnquanto() {
+    };
+    AvaliadorSintatico.prototype.declaracaoEnquanto = function () {
         try {
-            this.blocos += 1;
+            this.ciclos += 1;
             this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
-            const condicao = this.expressao();
+            var condicao = this.expressao();
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após condicional.");
-            const corpo = this.resolverDeclaracao();
+            var corpo = this.resolverDeclaracao();
             return new declaracoes_1.Enquanto(condicao, corpo);
         }
         finally {
-            this.blocos -= 1;
+            this.ciclos -= 1;
         }
-    }
-    declaracaoPara() {
+    };
+    AvaliadorSintatico.prototype.declaracaoPara = function () {
         try {
-            const simboloPara = this.simbolos[this.atual - 1];
-            this.blocos += 1;
+            var simboloPara = this.simbolos[this.atual - 1];
+            this.ciclos += 1;
             this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
-            let inicializador;
+            var inicializador = void 0;
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA)) {
                 inicializador = null;
             }
@@ -547,61 +554,62 @@ class AvaliadorSintatico {
             else {
                 inicializador = this.declaracaoExpressao();
             }
-            let condicao = null;
+            var condicao = null;
             if (!this.verificarTipoSimboloAtual(delegua_1.default.PONTO_E_VIRGULA)) {
                 condicao = this.expressao();
             }
-            let incrementar = null;
+            var incrementar = null;
             if (!this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_DIREITO)) {
                 incrementar = this.expressao();
             }
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
-            const corpo = this.resolverDeclaracao();
+            var corpo = this.resolverDeclaracao();
             return new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
         }
         finally {
-            this.blocos -= 1;
+            this.ciclos -= 1;
         }
-    }
-    declaracaoSustar() {
-        if (this.blocos < 1) {
+    };
+    AvaliadorSintatico.prototype.declaracaoSustar = function () {
+        if (this.ciclos < 1) {
             this.erro(this.simbolos[this.atual - 1], "'sustar' ou 'pausa' deve estar dentro de um laço de repetição.");
         }
         return new declaracoes_1.Sustar(this.simbolos[this.atual]);
-    }
-    declaracaoContinua() {
-        if (this.blocos < 1) {
+    };
+    AvaliadorSintatico.prototype.declaracaoContinua = function () {
+        if (this.ciclos < 1) {
             this.erro(this.simbolos[this.atual - 1], "'continua' precisa estar em um laço de repetição.");
         }
         return new declaracoes_1.Continua(this.simbolos[this.atual]);
-    }
-    declaracaoRetorna() {
-        const simboloChave = this.simbolos[this.atual - 1];
-        let valor = null;
+    };
+    AvaliadorSintatico.prototype.declaracaoRetorna = function () {
+        var simboloChave = this.simbolos[this.atual - 1];
+        var valor = null;
         if (!this.verificarTipoSimboloAtual(delegua_1.default.PONTO_E_VIRGULA)) {
             valor = this.expressao();
         }
         return new declaracoes_1.Retorna(simboloChave, valor);
-    }
-    declaracaoEscolha() {
+    };
+    AvaliadorSintatico.prototype.declaracaoEscolha = function () {
         try {
-            this.blocos += 1;
+            this.ciclos += 1;
             this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '{' após 'escolha'.");
-            const condicao = this.expressao();
+            var condicao = this.expressao();
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado '}' após a condição de 'escolha'.");
             this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do 'escolha'.");
-            const caminhos = [];
-            let caminhoPadrao = null;
-            while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            var caminhos = [];
+            var caminhoPadrao = null;
+            while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_DIREITA) &&
+                !this.estaNoFinal()) {
                 if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CASO)) {
-                    const caminhoCondicoes = [this.expressao()];
+                    var caminhoCondicoes = [this.expressao()];
                     this.consumir(delegua_1.default.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
                     while (this.verificarTipoSimboloAtual(delegua_1.default.CASO)) {
                         this.consumir(delegua_1.default.CASO, null);
                         caminhoCondicoes.push(this.expressao());
                         this.consumir(delegua_1.default.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
                     }
-                    const declaracoes = [];
+                    var declaracoes = [];
                     do {
                         declaracoes.push(this.resolverDeclaracao());
                     } while (!this.verificarTipoSimboloAtual(delegua_1.default.CASO) &&
@@ -609,76 +617,76 @@ class AvaliadorSintatico {
                         !this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA));
                     caminhos.push({
                         condicoes: caminhoCondicoes,
-                        declaracoes,
+                        declaracoes: declaracoes,
                     });
                 }
                 else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PADRAO)) {
                     if (caminhoPadrao !== null) {
-                        const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(this.simbolos[this.atual], "Você só pode ter um 'padrao' em cada declaração de 'escolha'.");
+                        var excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(this.simbolos[this.atual], "Você só pode ter um 'padrao' em cada declaração de 'escolha'.");
                         this.erros.push(excecao);
                         throw excecao;
                     }
                     this.consumir(delegua_1.default.DOIS_PONTOS, "Esperado ':' após declaração do 'padrao'.");
-                    const declaracoes = [];
+                    var declaracoes = [];
                     do {
                         declaracoes.push(this.resolverDeclaracao());
                     } while (!this.verificarTipoSimboloAtual(delegua_1.default.CASO) &&
                         !this.verificarTipoSimboloAtual(delegua_1.default.PADRAO) &&
                         !this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA));
                     caminhoPadrao = {
-                        declaracoes,
+                        declaracoes: declaracoes,
                     };
                 }
             }
             return new declaracoes_1.Escolha(condicao, caminhos, caminhoPadrao);
         }
         finally {
-            this.blocos -= 1;
+            this.ciclos -= 1;
         }
-    }
-    declaracaoImportar() {
+    };
+    AvaliadorSintatico.prototype.declaracaoImportar = function () {
         this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após declaração.");
-        const caminho = this.expressao();
-        const simboloFechamento = this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após declaração.");
+        var caminho = this.expressao();
+        var simboloFechamento = this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após declaração.");
         return new declaracoes_1.Importar(caminho, simboloFechamento);
-    }
-    declaracaoTente() {
-        const simboloTente = this.simbolos[this.atual - 1];
+    };
+    AvaliadorSintatico.prototype.declaracaoTente = function () {
+        var simboloTente = this.simbolos[this.atual - 1];
         this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'tente'.");
-        const blocoTente = this.blocoEscopo();
-        let blocoPegue = null;
+        var blocoTente = this.blocoEscopo();
+        var blocoPegue = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PEGUE)) {
             this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
             blocoPegue = this.blocoEscopo();
         }
-        let blocoSenao = null;
+        var blocoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SENAO, delegua_1.default.SENÃO)) {
             this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
             blocoSenao = this.blocoEscopo();
         }
-        let blocoFinalmente = null;
+        var blocoFinalmente = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.FINALMENTE)) {
             this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' após a declaração 'pegue'.");
             blocoFinalmente = this.blocoEscopo();
         }
         return new declaracoes_1.Tente(simboloTente.hashArquivo, Number(simboloTente.linha), blocoTente, blocoPegue, blocoSenao, blocoFinalmente);
-    }
-    declaracaoFazer() {
-        const simboloFazer = this.simbolos[this.atual - 1];
+    };
+    AvaliadorSintatico.prototype.declaracaoFazer = function () {
+        var simboloFazer = this.simbolos[this.atual - 1];
         try {
-            this.blocos += 1;
-            const caminhoFazer = this.resolverDeclaracao();
+            this.ciclos += 1;
+            var caminhoFazer = this.resolverDeclaracao();
             this.consumir(delegua_1.default.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
             this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
-            const condicaoEnquanto = this.expressao();
+            var condicaoEnquanto = this.expressao();
             this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
             return new declaracoes_1.Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), caminhoFazer, condicaoEnquanto);
         }
         finally {
-            this.blocos -= 1;
+            this.ciclos -= 1;
         }
-    }
-    resolverDeclaracao() {
+    };
+    AvaliadorSintatico.prototype.resolverDeclaracao = function () {
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.FAZER))
             return this.declaracaoFazer();
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.TENTE))
@@ -699,16 +707,18 @@ class AvaliadorSintatico {
             return this.declaracaoSe();
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.ESCREVA))
             return this.declaracaoEscreva();
+        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.LEIA))
+            return this.declaracaoLeia();
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CHAVE_ESQUERDA)) {
-            const simboloInicioBloco = this.simbolos[this.atual - 1];
+            var simboloInicioBloco = this.simbolos[this.atual - 1];
             return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
         }
-        const simboloAtual = this.simbolos[this.atual];
+        var simboloAtual = this.simbolos[this.atual];
         if (simboloAtual.tipo === delegua_1.default.IDENTIFICADOR) {
             // Pela gramática, a seguinte situação não pode ocorrer:
             // 1. O símbolo anterior ser um identificador; e
             // 2. O símbolo anterior estar na mesma linha do identificador atual.
-            const simboloAnterior = this.simbolos[this.atual - 1];
+            var simboloAnterior = this.simbolos[this.atual - 1];
             if (!!simboloAnterior &&
                 simboloAnterior.tipo === delegua_1.default.IDENTIFICADOR &&
                 simboloAnterior.linha === simboloAtual.linha) {
@@ -716,30 +726,30 @@ class AvaliadorSintatico {
             }
         }
         return this.declaracaoExpressao();
-    }
+    };
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
      */
-    declaracaoDeVariavel() {
-        const simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome de variável.');
-        let inicializador = null;
+    AvaliadorSintatico.prototype.declaracaoDeVariavel = function () {
+        var simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome de variável.');
+        var inicializador = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
             inicializador = this.expressao();
         }
         return new declaracoes_1.Var(simbolo, inicializador);
-    }
-    funcao(tipo) {
-        const simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, `Esperado nome ${tipo}.`);
+    };
+    AvaliadorSintatico.prototype.funcao = function (tipo) {
+        var simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, "Esperado nome ".concat(tipo, "."));
         return new declaracoes_1.FuncaoDeclaracao(simbolo, this.corpoDaFuncao(tipo));
-    }
-    logicaComumParametros() {
-        const parametros = [];
+    };
+    AvaliadorSintatico.prototype.logicaComumParametros = function () {
+        var parametros = [];
         do {
             if (parametros.length >= 255) {
                 this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
             }
-            const parametro = {};
+            var parametro = {};
             if (this.simbolos[this.atual].tipo === delegua_1.default.MULTIPLICACAO) {
                 this.consumir(delegua_1.default.MULTIPLICACAO, null);
                 parametro.tipo = 'estrela';
@@ -756,36 +766,37 @@ class AvaliadorSintatico {
                 break;
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         return parametros;
-    }
-    corpoDaFuncao(tipo) {
+    };
+    AvaliadorSintatico.prototype.corpoDaFuncao = function (tipo) {
         // O parêntese esquerdo é considerado o símbolo inicial para
         // fins de pragma.
-        const parenteseEsquerdo = this.consumir(delegua_1.default.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}.`);
-        let parametros = [];
+        var parenteseEsquerdo = this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' ap\u00F3s o nome ".concat(tipo, "."));
+        var parametros = [];
         if (!this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_DIREITO)) {
             parametros = this.logicaComumParametros();
         }
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        this.consumir(delegua_1.default.CHAVE_ESQUERDA, `Esperado '{' antes do escopo do ${tipo}.`);
-        const corpo = this.blocoEscopo();
+        this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do ".concat(tipo, "."));
+        var corpo = this.blocoEscopo();
         return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
-    }
-    declaracaoDeClasse() {
-        const simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da classe.');
-        let superClasse = null;
+    };
+    AvaliadorSintatico.prototype.declaracaoDeClasse = function () {
+        var simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da classe.');
+        var superClasse = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.HERDA)) {
             this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da SuperClasse.');
             superClasse = new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
         this.consumir(delegua_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo da classe.");
-        const metodos = [];
-        while (!this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        var metodos = [];
+        while (!this.verificarTipoSimboloAtual(delegua_1.default.CHAVE_DIREITA) &&
+            !this.estaNoFinal()) {
             metodos.push(this.funcao('método'));
         }
         this.consumir(delegua_1.default.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         return new declaracoes_1.Classe(simbolo, superClasse, metodos);
-    }
-    declaracao() {
+    };
+    AvaliadorSintatico.prototype.declaracao = function () {
         try {
             if ((this.verificarTipoSimboloAtual(delegua_1.default.FUNCAO) ||
                 this.verificarTipoSimboloAtual(delegua_1.default.FUNÇÃO)) &&
@@ -803,16 +814,16 @@ class AvaliadorSintatico {
             this.sincronizar();
             return null;
         }
-    }
+    };
     /**
      * Usado quando há erros na avaliação sintática.
      * Garante que o código não entre em loop infinito.
      * @returns Sempre retorna `void`.
      */
-    sincronizar() {
+    AvaliadorSintatico.prototype.sincronizar = function () {
         this.avancarEDevolverAnterior();
         while (!this.estaNoFinal()) {
-            const tipoSimboloAtual = this.simbolos[this.atual - 1].tipo;
+            var tipoSimboloAtual = this.simbolos[this.atual - 1].tipo;
             if (tipoSimboloAtual === delegua_1.default.PONTO_E_VIRGULA)
                 return;
             switch (tipoSimboloAtual) {
@@ -829,41 +840,60 @@ class AvaliadorSintatico {
             }
             this.avancarEDevolverAnterior();
         }
-    }
-    analisar(retornoLexador, hashArquivo) {
-        const inicioAnalise = (0, browser_process_hrtime_1.default)();
+    };
+    AvaliadorSintatico.prototype.analisar = function (retornoLexador, hashArquivo) {
+        var inicioAnalise = (0, browser_process_hrtime_1.default)();
         this.erros = [];
         this.atual = 0;
-        this.blocos = 0;
+        this.ciclos = 0;
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        const declaracoes = [];
+        var declaracoes = [];
         while (!this.estaNoFinal()) {
             declaracoes.push(this.declaracao());
         }
         if (this.performance) {
-            const deltaAnalise = (0, browser_process_hrtime_1.default)(inicioAnalise);
-            console.log(`[Avaliador Sintático] Tempo para análise: ${deltaAnalise[0] * 1e9 + deltaAnalise[1]}ns`);
+            var deltaAnalise = (0, browser_process_hrtime_1.default)(inicioAnalise);
+            console.log("[Avaliador Sint\u00E1tico] Tempo para an\u00E1lise: ".concat(deltaAnalise[0] * 1e9 + deltaAnalise[1], "ns"));
         }
         return {
             declaracoes: declaracoes,
             erros: this.erros,
         };
-    }
-}
+    };
+    return AvaliadorSintatico;
+}());
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
 },{"../construtos":20,"../declaracoes":39,"../tipos-de-simbolos/delegua":71,"./erro-avaliador-sintatico":3,"browser-process-hrtime":72}],3:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
-class ErroAvaliadorSintatico extends Error {
-    constructor(simbolo, mensagem) {
-        super(mensagem);
-        this.simbolo = simbolo;
-        Object.setPrototypeOf(this, ErroAvaliadorSintatico.prototype);
+var ErroAvaliadorSintatico = /** @class */ (function (_super) {
+    __extends(ErroAvaliadorSintatico, _super);
+    function ErroAvaliadorSintatico(simbolo, mensagem) {
+        var _this = _super.call(this, mensagem) || this;
+        _this.simbolo = simbolo;
+        Object.setPrototypeOf(_this, ErroAvaliadorSintatico.prototype);
+        return _this;
     }
-}
+    return ErroAvaliadorSintatico;
+}(Error));
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
 },{}],4:[function(require,module,exports){
@@ -888,12 +918,48 @@ __exportStar(require("./erro-avaliador-sintatico"), exports);
 
 },{"./avaliador-sintatico":2,"./erro-avaliador-sintatico":3}],5:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const excecoes_1 = require("../excecoes");
-const objeto_delegua_classe_1 = require("../estruturas/objeto-delegua-classe");
-const funcao_padrao_1 = require("../estruturas/funcao-padrao");
-const delegua_classe_1 = require("../estruturas/delegua-classe");
-const estruturas_1 = require("../estruturas");
+var excecoes_1 = require("../excecoes");
+var objeto_delegua_classe_1 = require("../estruturas/objeto-delegua-classe");
+var funcao_padrao_1 = require("../estruturas/funcao-padrao");
+var delegua_classe_1 = require("../estruturas/delegua-classe");
+var estruturas_1 = require("../estruturas");
 function default_1(interpretador, pilhaEscoposExecucao) {
     // Retorna um número aleatório entre 0 e 1.
     pilhaEscoposExecucao.definirVariavel('aleatorio', new funcao_padrao_1.FuncaoPadrao(1, function () {
@@ -901,218 +967,343 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     }));
     // Retorna um número aleatório de acordo com o parâmetro passado.
     // Mínimo(inclusivo) - Máximo(exclusivo)
-    pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(1, async function (minimo, maximo) {
-        const valorMinimo = minimo.hasOwnProperty('valor')
-            ? minimo.valor
-            : minimo;
-        const valorMaximo = maximo.hasOwnProperty('valor')
-            ? maximo.valor
-            : maximo;
-        if (typeof valorMinimo !== 'number' ||
-            typeof valorMaximo !== 'number') {
-            throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.');
-        }
-        return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) +
-            valorMinimo);
-    }));
-    pilhaEscoposExecucao.definirVariavel('inteiro', new funcao_padrao_1.FuncaoPadrao(1, async function (numero) {
-        if (numero === null || numero === undefined)
-            return Promise.resolve(0);
-        const valor = numero.hasOwnProperty('valor')
-            ? numero.valor
-            : numero;
-        if (isNaN(valor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'));
-        }
-        if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'));
-        }
-        return Promise.resolve(parseInt(valor));
-    }));
-    pilhaEscoposExecucao.definirVariavel('mapear', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoMapeamento) {
-        if (vetor === null || vetor === undefined)
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
-            ? funcaoMapeamento.valor
-            : funcaoMapeamento;
-        if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'));
-        }
-        if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'));
-        }
-        const resultados = [];
-        for (let indice = 0; indice < valorVetor.length; ++indice) {
-            resultados.push(await valorFuncaoMapeamento.chamar(interpretador, [
-                valorVetor[indice],
-            ]));
-        }
-        return resultados;
-    }));
-    pilhaEscoposExecucao.definirVariavel('todosEmCondicao', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoCondicional) {
-        if (vetor === null || vetor === undefined)
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoCondicional = funcaoCondicional.hasOwnProperty('valor')
-            ? funcaoCondicional.valor
-            : funcaoCondicional;
-        if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'));
-        }
-        if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'));
-        }
-        for (let indice = 0; indice < valorVetor.length; ++indice) {
-            if (!await valorFuncaoCondicional.chamar(interpretador, [
-                valorVetor[indice],
-            ]))
-                return false;
-        }
-        return true;
-    }));
-    pilhaEscoposExecucao.definirVariavel('filtrarPor', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoFiltragem) {
-        if (vetor === null || vetor === undefined)
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-            ? funcaoFiltragem.valor
-            : funcaoFiltragem;
-        if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'));
-        }
-        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'));
-        }
-        const resultados = [];
-        for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]) &&
-                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [
-                    valorVetor[indice],
-                ]));
-        }
-        return resultados;
-    }));
-    pilhaEscoposExecucao.definirVariavel('primeiroEmCondicao', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoFiltragem) {
-        if (vetor === null || vetor === undefined)
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-            ? funcaoFiltragem.valor
-            : funcaoFiltragem;
-        if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'));
-        }
-        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.'));
-        }
-        const resultados = [];
-        for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]) &&
-                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [
-                    valorVetor[indice],
-                ]));
-        }
-        return resultados[0];
-    }));
-    pilhaEscoposExecucao.definirVariavel('paraCada', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoFiltragem) {
-        if (vetor === null || vetor === undefined)
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
-            ? funcaoFiltragem.valor
-            : funcaoFiltragem;
-        if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'));
-        }
-        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'));
-        }
-        for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]);
-        }
-    }));
-    pilhaEscoposExecucao.definirVariavel('ordenar', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor) {
-        if (vetor === null || vetor === undefined)
-            throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.');
-        const objeto = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        if (!Array.isArray(objeto)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor inválido. Objeto inserido não é um vetor.'));
-        }
-        let trocado;
-        const tamanho = objeto.length;
-        do {
-            trocado = false;
-            for (let i = 0; i < tamanho - 1; i++) {
-                if (objeto[i] > objeto[i + 1]) {
-                    [objeto[i], objeto[i + 1]] = [objeto[i + 1], objeto[i]];
-                    trocado = true;
+    pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(1, function (minimo, maximo) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorMinimo, valorMaximo;
+            return __generator(this, function (_a) {
+                valorMinimo = minimo.hasOwnProperty('valor')
+                    ? minimo.valor
+                    : minimo;
+                valorMaximo = maximo.hasOwnProperty('valor')
+                    ? maximo.valor
+                    : maximo;
+                if (typeof valorMinimo !== 'number' ||
+                    typeof valorMaximo !== 'number') {
+                    throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.');
                 }
-            }
-        } while (trocado);
-        return Promise.resolve(objeto);
+                return [2 /*return*/, Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) +
+                        valorMinimo)];
+            });
+        });
     }));
-    pilhaEscoposExecucao.definirVariavel('real', new funcao_padrao_1.FuncaoPadrao(1, async function (numero) {
-        if (numero === null || numero === undefined)
-            return Promise.resolve(parseFloat('0'));
-        const valor = numero.hasOwnProperty('valor')
-            ? numero.valor
-            : numero;
-        if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'));
-        }
-        return Promise.resolve(parseFloat(valor));
+    pilhaEscoposExecucao.definirVariavel('inteiro', new funcao_padrao_1.FuncaoPadrao(1, function (numero) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valor;
+            return __generator(this, function (_a) {
+                if (numero === null || numero === undefined)
+                    return [2 /*return*/, Promise.resolve(0)];
+                valor = numero.hasOwnProperty('valor')
+                    ? numero.valor
+                    : numero;
+                if (isNaN(valor)) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'))];
+                }
+                if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece estar estruturado como um número (texto vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para inteiro.'))];
+                }
+                return [2 /*return*/, Promise.resolve(parseInt(valor))];
+            });
+        });
     }));
-    pilhaEscoposExecucao.definirVariavel('tamanho', new funcao_padrao_1.FuncaoPadrao(1, async function (objeto) {
-        const valorObjeto = objeto.hasOwnProperty('valor')
-            ? objeto.valor
-            : objeto;
-        if (!isNaN(valorObjeto)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Não é possível encontrar o tamanho de um número.'));
-        }
-        if (valorObjeto instanceof objeto_delegua_classe_1.ObjetoDeleguaClasse) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Você não pode encontrar o tamanho de uma declaração.'));
-        }
-        if (valorObjeto instanceof estruturas_1.DeleguaFuncao) {
-            return Promise.resolve(valorObjeto.declaracao.parametros.length);
-        }
-        if (valorObjeto instanceof funcao_padrao_1.FuncaoPadrao) {
-            return Promise.resolve(valorObjeto.valorAridade);
-        }
-        if (valorObjeto instanceof delegua_classe_1.DeleguaClasse) {
-            const metodos = valorObjeto.metodos;
-            let tamanho = 0;
-            if (metodos.inicializacao &&
-                metodos.inicializacao.eInicializador) {
-                tamanho =
-                    metodos.inicializacao.declaracao.parametros.length;
-            }
-            return Promise.resolve(tamanho);
-        }
-        return Promise.resolve(valorObjeto.length);
+    pilhaEscoposExecucao.definirVariavel('mapear', new funcao_padrao_1.FuncaoPadrao(1, function (vetor, funcaoMapeamento) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorVetor, valorFuncaoMapeamento, resultados, indice, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (vetor === null || vetor === undefined)
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'))];
+                        valorVetor = vetor.hasOwnProperty('valor')
+                            ? vetor.valor
+                            : vetor;
+                        valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
+                            ? funcaoMapeamento.valor
+                            : funcaoMapeamento;
+                        if (!Array.isArray(valorVetor)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'))];
+                        }
+                        if (valorFuncaoMapeamento.constructor.name !== 'DeleguaFuncao') {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função mapear() deve ser uma função.'))];
+                        }
+                        resultados = [];
+                        indice = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(indice < valorVetor.length)) return [3 /*break*/, 4];
+                        _b = (_a = resultados).push;
+                        return [4 /*yield*/, valorFuncaoMapeamento.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 2:
+                        _b.apply(_a, [_c.sent()]);
+                        _c.label = 3;
+                    case 3:
+                        ++indice;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, resultados];
+                }
+            });
+        });
     }));
-    pilhaEscoposExecucao.definirVariavel('texto', new funcao_padrao_1.FuncaoPadrao(1, async function (valorOuVariavel) {
-        return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor')
-            ? valorOuVariavel.valor
-            : valorOuVariavel}`);
+    pilhaEscoposExecucao.definirVariavel('todosEmCondicao', new funcao_padrao_1.FuncaoPadrao(1, function (vetor, funcaoCondicional) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorVetor, valorFuncaoCondicional, indice;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (vetor === null || vetor === undefined)
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'))];
+                        valorVetor = vetor.hasOwnProperty('valor')
+                            ? vetor.valor
+                            : vetor;
+                        valorFuncaoCondicional = funcaoCondicional.hasOwnProperty('valor')
+                            ? funcaoCondicional.valor
+                            : funcaoCondicional;
+                        if (!Array.isArray(valorVetor)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'))];
+                        }
+                        if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'))];
+                        }
+                        indice = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(indice < valorVetor.length)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, valorFuncaoCondicional.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 2:
+                        if (!(_a.sent()))
+                            return [2 /*return*/, false];
+                        _a.label = 3;
+                    case 3:
+                        ++indice;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, true];
+                }
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('filtrarPor', new funcao_padrao_1.FuncaoPadrao(1, function (vetor, funcaoFiltragem) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorVetor, valorFuncaoFiltragem, resultados, indice, _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        if (vetor === null || vetor === undefined)
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'))];
+                        valorVetor = vetor.hasOwnProperty('valor')
+                            ? vetor.valor
+                            : vetor;
+                        valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+                            ? funcaoFiltragem.valor
+                            : funcaoFiltragem;
+                        if (!Array.isArray(valorVetor)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'))];
+                        }
+                        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'))];
+                        }
+                        resultados = [];
+                        indice = 0;
+                        _d.label = 1;
+                    case 1:
+                        if (!(indice < valorVetor.length)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, valorFuncaoFiltragem.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 2:
+                        _a = (_d.sent());
+                        if (!_a) return [3 /*break*/, 4];
+                        _c = (_b = resultados).push;
+                        return [4 /*yield*/, valorFuncaoFiltragem.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 3:
+                        _a = _c.apply(_b, [_d.sent()]);
+                        _d.label = 4;
+                    case 4:
+                        _a;
+                        _d.label = 5;
+                    case 5:
+                        ++indice;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, resultados];
+                }
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('primeiroEmCondicao', new funcao_padrao_1.FuncaoPadrao(1, function (vetor, funcaoFiltragem) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorVetor, valorFuncaoFiltragem, resultados, indice, _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        if (vetor === null || vetor === undefined)
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'))];
+                        valorVetor = vetor.hasOwnProperty('valor')
+                            ? vetor.valor
+                            : vetor;
+                        valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+                            ? funcaoFiltragem.valor
+                            : funcaoFiltragem;
+                        if (!Array.isArray(valorVetor)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'))];
+                        }
+                        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função primeiroEmCondicao() deve ser uma função.'))];
+                        }
+                        resultados = [];
+                        indice = 0;
+                        _d.label = 1;
+                    case 1:
+                        if (!(indice < valorVetor.length)) return [3 /*break*/, 6];
+                        return [4 /*yield*/, valorFuncaoFiltragem.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 2:
+                        _a = (_d.sent());
+                        if (!_a) return [3 /*break*/, 4];
+                        _c = (_b = resultados).push;
+                        return [4 /*yield*/, valorFuncaoFiltragem.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 3:
+                        _a = _c.apply(_b, [_d.sent()]);
+                        _d.label = 4;
+                    case 4:
+                        _a;
+                        _d.label = 5;
+                    case 5:
+                        ++indice;
+                        return [3 /*break*/, 1];
+                    case 6: return [2 /*return*/, resultados[0]];
+                }
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('paraCada', new funcao_padrao_1.FuncaoPadrao(1, function (vetor, funcaoFiltragem) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorVetor, valorFuncaoFiltragem, indice;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (vetor === null || vetor === undefined)
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'))];
+                        valorVetor = vetor.hasOwnProperty('valor')
+                            ? vetor.valor
+                            : vetor;
+                        valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
+                            ? funcaoFiltragem.valor
+                            : funcaoFiltragem;
+                        if (!Array.isArray(valorVetor)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'))];
+                        }
+                        if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'))];
+                        }
+                        indice = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(indice < valorVetor.length)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, valorFuncaoFiltragem.chamar(interpretador, [
+                                valorVetor[indice],
+                            ])];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        ++indice;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('ordenar', new funcao_padrao_1.FuncaoPadrao(1, function (vetor) {
+        return __awaiter(this, void 0, void 0, function () {
+            var objeto, trocado, tamanho, i;
+            var _a;
+            return __generator(this, function (_b) {
+                if (vetor === null || vetor === undefined)
+                    throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.');
+                objeto = vetor.hasOwnProperty('valor')
+                    ? vetor.valor
+                    : vetor;
+                if (!Array.isArray(objeto)) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor inválido. Objeto inserido não é um vetor.'))];
+                }
+                tamanho = objeto.length;
+                do {
+                    trocado = false;
+                    for (i = 0; i < tamanho - 1; i++) {
+                        if (objeto[i] > objeto[i + 1]) {
+                            _a = [objeto[i + 1], objeto[i]], objeto[i] = _a[0], objeto[i + 1] = _a[1];
+                            trocado = true;
+                        }
+                    }
+                } while (trocado);
+                return [2 /*return*/, Promise.resolve(objeto)];
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('real', new funcao_padrao_1.FuncaoPadrao(1, function (numero) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valor;
+            return __generator(this, function (_a) {
+                if (numero === null || numero === undefined)
+                    return [2 /*return*/, Promise.resolve(parseFloat('0'))];
+                valor = numero.hasOwnProperty('valor')
+                    ? numero.valor
+                    : numero;
+                if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'))];
+                }
+                return [2 /*return*/, Promise.resolve(parseFloat(valor))];
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('tamanho', new funcao_padrao_1.FuncaoPadrao(1, function (objeto) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorObjeto, metodos, tamanho;
+            return __generator(this, function (_a) {
+                valorObjeto = objeto.hasOwnProperty('valor')
+                    ? objeto.valor
+                    : objeto;
+                if (!isNaN(valorObjeto)) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Não é possível encontrar o tamanho de um número.'))];
+                }
+                if (valorObjeto instanceof objeto_delegua_classe_1.ObjetoDeleguaClasse) {
+                    return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Você não pode encontrar o tamanho de uma declaração.'))];
+                }
+                if (valorObjeto instanceof estruturas_1.DeleguaFuncao) {
+                    return [2 /*return*/, Promise.resolve(valorObjeto.declaracao.parametros.length)];
+                }
+                if (valorObjeto instanceof funcao_padrao_1.FuncaoPadrao) {
+                    return [2 /*return*/, Promise.resolve(valorObjeto.valorAridade)];
+                }
+                if (valorObjeto instanceof delegua_classe_1.DeleguaClasse) {
+                    metodos = valorObjeto.metodos;
+                    tamanho = 0;
+                    if (metodos.inicializacao &&
+                        metodos.inicializacao.eInicializador) {
+                        tamanho =
+                            metodos.inicializacao.declaracao.parametros.length;
+                    }
+                    return [2 /*return*/, Promise.resolve(tamanho)];
+                }
+                return [2 /*return*/, Promise.resolve(valorObjeto.length)];
+            });
+        });
+    }));
+    pilhaEscoposExecucao.definirVariavel('texto', new funcao_padrao_1.FuncaoPadrao(1, function (valorOuVariavel) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve("".concat(valorOuVariavel.hasOwnProperty('valor')
+                        ? valorOuVariavel.valor
+                        : valorOuVariavel))];
+            });
+        });
     }));
     return pilhaEscoposExecucao;
 }
@@ -1145,14 +1336,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const processoFilho = __importStar(require("child_process"));
-const caminho = __importStar(require("path"));
-const excecoes_1 = require("../excecoes");
-const funcao_padrao_1 = require("../estruturas/funcao-padrao");
-const modulo_1 = require("../estruturas/modulo");
-const classe_padrao_1 = require("../estruturas/classe-padrao");
-const carregarBibliotecaDelegua = (nome) => {
-    let dadosDoModulo;
+var processoFilho = __importStar(require("child_process"));
+var caminho = __importStar(require("path"));
+var excecoes_1 = require("../excecoes");
+var funcao_padrao_1 = require("../estruturas/funcao-padrao");
+var modulo_1 = require("../estruturas/modulo");
+var classe_padrao_1 = require("../estruturas/classe-padrao");
+var carregarBibliotecaDelegua = function (nome) {
+    var dadosDoModulo;
     try {
         dadosDoModulo = require(nome);
     }
@@ -1162,36 +1353,37 @@ const carregarBibliotecaDelegua = (nome) => {
             dadosDoModulo = importarPacoteDeleguaCompleto(nome);
         }
         catch (erro2) {
-            throw new excecoes_1.ErroEmTempoDeExecucao(null, `Biblioteca ${nome} não encontrada para importação.`);
+            throw new excecoes_1.ErroEmTempoDeExecucao(null, "Biblioteca ".concat(nome, " n\u00E3o encontrada para importa\u00E7\u00E3o."));
         }
     }
     return modularizarBiblioteca(dadosDoModulo, nome);
 };
-const carregarBiblioteca = (nomeDaBiblioteca, caminhoDaBiblioteca) => {
-    let dadosDoModulo;
+var carregarBiblioteca = function (nomeDaBiblioteca, caminhoDaBiblioteca) {
+    var dadosDoModulo;
     try {
         dadosDoModulo = require(caminhoDaBiblioteca);
     }
     catch (erro) {
-        throw new excecoes_1.ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação.`);
+        throw new excecoes_1.ErroEmTempoDeExecucao(null, "Biblioteca ".concat(nomeDaBiblioteca, " n\u00E3o encontrada para importa\u00E7\u00E3o."));
     }
     return modularizarBiblioteca(dadosDoModulo, nomeDaBiblioteca);
 };
-const modularizarBiblioteca = (dadosDoModulo, nome) => {
-    const novoModulo = new modulo_1.DeleguaModulo(nome);
-    const chaves = Object.keys(dadosDoModulo);
-    for (let i = 0; i < chaves.length; i++) {
-        const moduloAtual = dadosDoModulo[chaves[i]];
+var modularizarBiblioteca = function (dadosDoModulo, nome) {
+    var novoModulo = new modulo_1.DeleguaModulo(nome);
+    var chaves = Object.keys(dadosDoModulo);
+    for (var i = 0; i < chaves.length; i++) {
+        var moduloAtual = dadosDoModulo[chaves[i]];
         if (typeof moduloAtual === 'function') {
             // Por definição, funções tradicionais e classes são identificadas em JavaScript como "functions".
             // A forma de diferenciar é verificando a propriedade `prototype`.
             // Se dentro dessa propriedade temos outras propriedades cujo tipo também seja `function`,
             // podemos dizer que a "function" é uma classe.
             // Caso contrário, é uma função (`FuncaoPadrao`).
-            if (Object.entries(moduloAtual.prototype).some((f) => typeof f[1] === 'function')) {
-                const classePadrao = new classe_padrao_1.ClassePadrao(chaves[i], moduloAtual);
-                for (const [nome, corpoMetodo] of Object.entries(moduloAtual.prototype)) {
-                    classePadrao.metodos[nome] = corpoMetodo;
+            if (Object.entries(moduloAtual.prototype).some(function (f) { return typeof f[1] === 'function'; })) {
+                var classePadrao = new classe_padrao_1.ClassePadrao(chaves[i], moduloAtual);
+                for (var _i = 0, _a = Object.entries(moduloAtual.prototype); _i < _a.length; _i++) {
+                    var _b = _a[_i], nome_1 = _b[0], corpoMetodo = _b[1];
+                    classePadrao.metodos[nome_1] = corpoMetodo;
                 }
                 novoModulo.componentes[chaves[i]] = classePadrao;
             }
@@ -1205,13 +1397,13 @@ const modularizarBiblioteca = (dadosDoModulo, nome) => {
     }
     return novoModulo;
 };
-const importarPacoteDeleguaCompleto = (nome) => {
-    const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
-    return require(caminho.join(global.output[1].toString().trim(), `/delegua/node_modules/${nome}`));
+var importarPacoteDeleguaCompleto = function (nome) {
+    var npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    var global = processoFilho.spawnSync(npm, ['root', '--location=global']);
+    return require(caminho.join(global.output[1].toString().trim(), "/delegua/node_modules/".concat(nome)));
 };
-const verificaModulosDelegua = (nome) => {
-    const modulos = {
+var verificaModulosDelegua = function (nome) {
+    var modulos = {
         estatistica: '@designliquido/delegua-estatistica',
         estatística: '@designliquido/delegua-estatistica',
         fisica: '@designliquido/delegua-fisica',
@@ -1226,7 +1418,7 @@ const verificaModulosDelegua = (nome) => {
     return false;
 };
 function default_1(nome) {
-    const nomeBibliotecaResolvido = verificaModulosDelegua(nome);
+    var nomeBibliotecaResolvido = verificaModulosDelegua(nome);
     return nomeBibliotecaResolvido
         ? carregarBibliotecaDelegua(String(nomeBibliotecaResolvido))
         : carregarBiblioteca(nome, nome);
@@ -1236,47 +1428,62 @@ exports.default = default_1;
 }).call(this)}).call(this,require('_process'))
 },{"../estruturas/classe-padrao":49,"../estruturas/funcao-padrao":52,"../estruturas/modulo":55,"../excecoes":59,"_process":75,"child_process":73,"path":74}],7:[function(require,module,exports){
 "use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    inclui: (texto, elemento) => texto.includes(elemento),
-    minusculo: (texto) => texto.toLowerCase(),
-    maiusculo: (texto) => texto.toUpperCase(),
-    substituir: (texto, elemento, substituto) => texto.replace(elemento, substituto),
-    subtexto: (texto, inicio, fim) => texto.slice(inicio, fim),
-    fatiar: (texto, inicio, fim) => texto.slice(inicio, fim),
-    dividir: (texto, divisor, limite) => [
-        ...texto.split(divisor, limite),
-    ],
+    inclui: function (texto, elemento) { return texto.includes(elemento); },
+    minusculo: function (texto) { return texto.toLowerCase(); },
+    maiusculo: function (texto) { return texto.toUpperCase(); },
+    substituir: function (texto, elemento, substituto) {
+        return texto.replace(elemento, substituto);
+    },
+    subtexto: function (texto, inicio, fim) {
+        return texto.slice(inicio, fim);
+    },
+    fatiar: function (texto, inicio, fim) {
+        return texto.slice(inicio, fim);
+    },
+    dividir: function (texto, divisor, limite) { return __spreadArray([], texto.split(divisor, limite), true); },
 };
 
 },{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    inclui: (vetor, elemento) => vetor.includes(elemento),
-    juntar: (vetor, separador) => vetor.join(separador),
-    removerUltimo: (vetor) => {
+    inclui: function (vetor, elemento) { return vetor.includes(elemento); },
+    juntar: function (vetor, separador) { return vetor.join(separador); },
+    removerUltimo: function (vetor) {
         vetor.pop();
         return vetor;
     },
-    removerPrimeiro: (vetor) => {
+    removerPrimeiro: function (vetor) {
         vetor.shift();
         return vetor;
     },
-    empilhar: (vetor, elemento) => {
+    empilhar: function (vetor, elemento) {
         vetor.push(elemento);
         return vetor;
     },
-    adicionar: (vetor, elemento) => {
+    adicionar: function (vetor, elemento) {
         vetor.push(elemento);
         return vetor;
     },
-    inverter: (vetor) => vetor.reverse(),
-    fatiar: (vetor, inicio, fim) => vetor.slice(inicio, fim),
-    ordenar: (vetor) => vetor.sort(),
-    somar: (vetor) => vetor.reduce((a, b) => a + b),
-    remover: (vetor, elemento) => {
-        const index = vetor.indexOf(elemento);
+    inverter: function (vetor) { return vetor.reverse(); },
+    fatiar: function (vetor, inicio, fim) {
+        return vetor.slice(inicio, fim);
+    },
+    ordenar: function (vetor) { return vetor.sort(); },
+    somar: function (vetor) { return vetor.reduce(function (a, b) { return a + b; }); },
+    remover: function (vetor, elemento) {
+        var index = vetor.indexOf(elemento);
         if (index !== -1)
             vetor.splice(index, 1);
         return vetor;
@@ -1285,49 +1492,173 @@ exports.default = {
 
 },{}],9:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
 /**
  * Definido como `Subscript` em Égua Clássico, esse construto serve para acessar índices de
  * vetores e dicionários.
  */
-class AcessoIndiceVariavel {
-    constructor(hashArquivo, entidadeChamada, indice, simboloFechamento) {
+var AcessoIndiceVariavel = /** @class */ (function () {
+    function AcessoIndiceVariavel(hashArquivo, entidadeChamada, indice, simboloFechamento) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoAcessoIndiceVariavel(this);
-    }
-}
+    AcessoIndiceVariavel.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoAcessoIndiceVariavel(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return AcessoIndiceVariavel;
+}());
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
 },{}],10:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodo = void 0;
 /**
  * Chamado de `Get` em Égua Clássico, é o construto de acesso a métodos ou membros de
  * classe.
  */
-class AcessoMetodo {
-    constructor(hashArquivo, objeto, simbolo) {
+var AcessoMetodo = /** @class */ (function () {
+    function AcessoMetodo(hashArquivo, objeto, simbolo) {
         this.linha = objeto.linha;
         this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.simbolo = simbolo;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoAcessoMetodo(this);
-    }
-}
+    AcessoMetodo.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoAcessoMetodo(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return AcessoMetodo;
+}());
 exports.AcessoMetodo = AcessoMetodo;
 
 },{}],11:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
 /**
@@ -1335,55 +1666,187 @@ exports.Agrupamento = void 0;
  * Usado para resolver precedência de operadores. Por exemplo:
  * `(2 + 2) * 5`, `(2 + 2)` é um agrupamento cuja expressão é `2 + 2`.
  */
-class Agrupamento {
-    constructor(hashArquivo, linha, expressao) {
+var Agrupamento = /** @class */ (function () {
+    function Agrupamento(hashArquivo, linha, expressao) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.expressao = expressao;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoAgrupamento(this);
-    }
-}
+    Agrupamento.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoAgrupamento(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Agrupamento;
+}());
 exports.Agrupamento = Agrupamento;
 
 },{}],12:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoSobrescrita = void 0;
-class AtribuicaoSobrescrita {
-    constructor(hashArquivo, linha, objeto, indice, valor) {
+var AtribuicaoSobrescrita = /** @class */ (function () {
+    function AtribuicaoSobrescrita(hashArquivo, linha, objeto, indice, valor) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.indice = indice;
         this.valor = valor;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoAtribuicaoSobrescrita(this);
-    }
-}
+    AtribuicaoSobrescrita.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoAtribuicaoSobrescrita(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return AtribuicaoSobrescrita;
+}());
 exports.AtribuicaoSobrescrita = AtribuicaoSobrescrita;
 
 },{}],13:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
-class Atribuir {
-    constructor(hashArquivo, simbolo, valor) {
+var Atribuir = /** @class */ (function () {
+    function Atribuir(hashArquivo, simbolo, valor) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
         this.simbolo = simbolo;
         this.valor = valor;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoDeAtribuicao(this);
-    }
-}
+    Atribuir.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoDeAtribuicao(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Atribuir;
+}());
 exports.Atribuir = Atribuir;
 
 },{}],14:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
 /**
@@ -1397,36 +1860,88 @@ exports.Binario = void 0;
  * - `%` (Módulo) e `%=` (Módulo com Atribuição)
  * - `**` (Exponenciação)
  */
-class Binario {
-    constructor(hashArquivo, esquerda, operador, direita) {
+var Binario = /** @class */ (function () {
+    function Binario(hashArquivo, esquerda, operador, direita) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoBinaria(this);
-    }
-}
+    Binario.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoBinaria(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Binario;
+}());
 exports.Binario = Binario;
 
 },{}],15:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
-class Chamada {
-    constructor(hashArquivo, entidadeChamada, parentese, argumentos) {
+var Chamada = /** @class */ (function () {
+    function Chamada(hashArquivo, entidadeChamada, parentese, argumentos) {
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.parentese = parentese;
         this.argumentos = argumentos;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoDeChamada(this);
-    }
-}
+    Chamada.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoDeChamada(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Chamada;
+}());
 exports.Chamada = Chamada;
 
 },{}],16:[function(require,module,exports){
@@ -1435,54 +1950,183 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],17:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
-class DefinirValor {
-    constructor(hashArquivo, linha, objeto, nome, valor) {
+var DefinirValor = /** @class */ (function () {
+    function DefinirValor(hashArquivo, linha, objeto, nome, valor) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.objeto = objeto;
         this.nome = nome;
         this.valor = valor;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoDefinirValor(this);
-    }
-}
+    DefinirValor.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoDefinirValor(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return DefinirValor;
+}());
 exports.DefinirValor = DefinirValor;
 
 },{}],18:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
-class Dicionario {
-    constructor(hashArquivo, linha, chaves, valores) {
+var Dicionario = /** @class */ (function () {
+    function Dicionario(hashArquivo, linha, chaves, valores) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.chaves = chaves;
         this.valores = valores;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoDicionario(this);
-    }
-}
+    Dicionario.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoDicionario(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Dicionario;
+}());
 exports.Dicionario = Dicionario;
 
 },{}],19:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
-class FuncaoConstruto {
-    constructor(hashArquivo, linha, parametros, corpo) {
+var FuncaoConstruto = /** @class */ (function () {
+    function FuncaoConstruto(hashArquivo, linha, parametros, corpo) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.parametros = parametros;
         this.corpo = corpo;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoDeleguaFuncao(this));
-    }
-}
+    FuncaoConstruto.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoDeleguaFuncao(this))];
+            });
+        });
+    };
+    return FuncaoConstruto;
+}());
 exports.FuncaoConstruto = FuncaoConstruto;
 
 },{}],20:[function(require,module,exports){
@@ -1523,175 +2167,686 @@ __exportStar(require("./vetor"), exports);
 
 },{"./acesso-indice-variavel":9,"./acesso-metodo":10,"./agrupamento":11,"./atribuicao-sobrescrita":12,"./atribuir":13,"./binario":14,"./chamada":15,"./construto":16,"./definir-valor":17,"./dicionario":18,"./funcao":19,"./isto":21,"./literal":22,"./logico":23,"./super":24,"./unario":25,"./variavel":26,"./vetor":27}],21:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
-class Isto {
-    constructor(hashArquivo, linha, palavraChave) {
+var Isto = /** @class */ (function () {
+    function Isto(hashArquivo, linha, palavraChave) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.palavraChave = palavraChave;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoIsto(this));
-    }
-}
+    Isto.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoIsto(this))];
+            });
+        });
+    };
+    return Isto;
+}());
 exports.Isto = Isto;
 
 },{}],22:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
-class Literal {
-    constructor(hashArquivo, linha, valor) {
+var Literal = /** @class */ (function () {
+    function Literal(hashArquivo, linha, valor) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.valor = valor;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoLiteral(this));
-    }
-}
+    Literal.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoLiteral(this))];
+            });
+        });
+    };
+    return Literal;
+}());
 exports.Literal = Literal;
 
 },{}],23:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
-class Logico {
-    constructor(hashArquivo, esquerda, operador, direita) {
+var Logico = /** @class */ (function () {
+    function Logico(hashArquivo, esquerda, operador, direita) {
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoLogica(this);
-    }
-}
+    Logico.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoLogica(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Logico;
+}());
 exports.Logico = Logico;
 
 },{}],24:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
-class Super {
-    constructor(hashArquivo, simboloChave, metodo) {
+var Super = /** @class */ (function () {
+    function Super(hashArquivo, simboloChave, metodo) {
         this.linha = Number(simboloChave.linha);
         this.hashArquivo = hashArquivo;
         this.simboloChave = simboloChave;
         this.metodo = metodo;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoSuper(this));
-    }
-}
+    Super.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoSuper(this))];
+            });
+        });
+    };
+    return Super;
+}());
 exports.Super = Super;
 
 },{}],25:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
-class Unario {
-    constructor(hashArquivo, operador, direita) {
+var Unario = /** @class */ (function () {
+    function Unario(hashArquivo, operador, direita) {
         this.linha = operador.linha;
         this.hashArquivo = hashArquivo;
         this.operador = operador;
         this.direita = direita;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoUnaria(this);
-    }
-}
+    Unario.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoUnaria(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Unario;
+}());
 exports.Unario = Unario;
 
 },{}],26:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
-class Variavel {
-    constructor(hashArquivo, simbolo) {
+var Variavel = /** @class */ (function () {
+    function Variavel(hashArquivo, simbolo) {
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
         this.simbolo = simbolo;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoDeVariavel(this));
-    }
-}
+    Variavel.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoDeVariavel(this))];
+            });
+        });
+    };
+    return Variavel;
+}());
 exports.Variavel = Variavel;
 
 },{}],27:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
-class Vetor {
-    constructor(hashArquivo, linha, valores) {
+var Vetor = /** @class */ (function () {
+    function Vetor(hashArquivo, linha, valores) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.valores = valores;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoVetor(this);
-    }
-}
+    Vetor.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoVetor(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Vetor;
+}());
 exports.Vetor = Vetor;
 
 },{}],28:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
-const declaracao_1 = require("./declaracao");
-class Bloco extends declaracao_1.Declaracao {
-    constructor(hashArquivo, linha, declaracoes) {
-        super(linha, hashArquivo);
-        this.declaracoes = declaracoes;
+var declaracao_1 = require("./declaracao");
+var Bloco = /** @class */ (function (_super) {
+    __extends(Bloco, _super);
+    function Bloco(hashArquivo, linha, declaracoes) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.declaracoes = declaracoes;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoBloco(this);
-    }
-}
+    Bloco.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoBloco(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Bloco;
+}(declaracao_1.Declaracao));
 exports.Bloco = Bloco;
 
 },{"./declaracao":31}],29:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
-const declaracao_1 = require("./declaracao");
-class Classe extends declaracao_1.Declaracao {
-    constructor(simbolo, superClasse, metodos) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
-        this.simbolo = simbolo;
-        this.superClasse = superClasse;
-        this.metodos = metodos;
+var declaracao_1 = require("./declaracao");
+var Classe = /** @class */ (function (_super) {
+    __extends(Classe, _super);
+    function Classe(simbolo, superClasse, metodos) {
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
+        _this.simbolo = simbolo;
+        _this.superClasse = superClasse;
+        _this.metodos = metodos;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoClasse(this);
-    }
-}
+    Classe.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoClasse(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Classe;
+}(declaracao_1.Declaracao));
 exports.Classe = Classe;
 
 },{"./declaracao":31}],30:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
-const declaracao_1 = require("./declaracao");
-class Continua extends declaracao_1.Declaracao {
-    constructor(simbolo) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
+var declaracao_1 = require("./declaracao");
+var Continua = /** @class */ (function (_super) {
+    __extends(Continua, _super);
+    function Continua(simbolo) {
+        return _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoContinua(this));
-    }
-}
+    Continua.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoContinua(this))];
+            });
+        });
+    };
+    return Continua;
+}(declaracao_1.Declaracao));
 exports.Continua = Continua;
 
 },{"./declaracao":31}],31:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
-class Declaracao {
-    constructor(linha, hashArquivo) {
+var Declaracao = /** @class */ (function () {
+    function Declaracao(linha, hashArquivo) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         // TODO: Por ora, todos os testes são feitos num script só.
@@ -1699,131 +2854,560 @@ class Declaracao {
         // pensar numa forma melhor de preencher isso.
         this.assinaturaMetodo = '<principal>';
     }
-    async aceitar(visitante) {
-        return Promise.reject(new Error('Este método não deveria ser chamado.'));
-    }
-}
+    Declaracao.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.reject(new Error('Este método não deveria ser chamado.'))];
+            });
+        });
+    };
+    return Declaracao;
+}());
 exports.Declaracao = Declaracao;
 
 },{}],32:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
-const declaracao_1 = require("./declaracao");
-class Enquanto extends declaracao_1.Declaracao {
-    constructor(condicao, corpo) {
-        super(condicao.linha, condicao.hashArquivo);
-        this.condicao = condicao;
-        this.corpo = corpo;
+var declaracao_1 = require("./declaracao");
+var Enquanto = /** @class */ (function (_super) {
+    __extends(Enquanto, _super);
+    function Enquanto(condicao, corpo) {
+        var _this = _super.call(this, condicao.linha, condicao.hashArquivo) || this;
+        _this.condicao = condicao;
+        _this.corpo = corpo;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoEnquanto(this);
-    }
-}
+    Enquanto.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoEnquanto(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Enquanto;
+}(declaracao_1.Declaracao));
 exports.Enquanto = Enquanto;
 
 },{"./declaracao":31}],33:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
-const declaracao_1 = require("./declaracao");
+var declaracao_1 = require("./declaracao");
 /**
  * Declaração de escolha de caminho a executar de acordo com literal ou identificador.
  */
-class Escolha extends declaracao_1.Declaracao {
-    constructor(identificadorOuLiteral, caminhos, caminhoPadrao) {
-        super(identificadorOuLiteral.linha, identificadorOuLiteral.hashArquivo);
-        this.identificadorOuLiteral = identificadorOuLiteral;
-        this.caminhos = caminhos;
-        this.caminhoPadrao = caminhoPadrao;
+var Escolha = /** @class */ (function (_super) {
+    __extends(Escolha, _super);
+    function Escolha(identificadorOuLiteral, caminhos, caminhoPadrao) {
+        var _this = _super.call(this, identificadorOuLiteral.linha, identificadorOuLiteral.hashArquivo) || this;
+        _this.identificadorOuLiteral = identificadorOuLiteral;
+        _this.caminhos = caminhos;
+        _this.caminhoPadrao = caminhoPadrao;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoEscolha(this);
-    }
-}
+    Escolha.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoEscolha(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Escolha;
+}(declaracao_1.Declaracao));
 exports.Escolha = Escolha;
 
 },{"./declaracao":31}],34:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
-const declaracao_1 = require("./declaracao");
-class Escreva extends declaracao_1.Declaracao {
-    constructor(linha, hashArquivo, argumentos) {
-        super(linha, hashArquivo);
-        this.argumentos = argumentos;
+var declaracao_1 = require("./declaracao");
+var Escreva = /** @class */ (function (_super) {
+    __extends(Escreva, _super);
+    function Escreva(linha, hashArquivo, argumentos) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.argumentos = argumentos;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoEscreva(this);
-    }
-}
+    Escreva.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoEscreva(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Escreva;
+}(declaracao_1.Declaracao));
 exports.Escreva = Escreva;
 
 },{"./declaracao":31}],35:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
-const declaracao_1 = require("./declaracao");
-class Expressao extends declaracao_1.Declaracao {
-    constructor(expressao) {
-        super(expressao.linha, expressao.hashArquivo);
-        this.expressao = expressao;
+var declaracao_1 = require("./declaracao");
+var Expressao = /** @class */ (function (_super) {
+    __extends(Expressao, _super);
+    function Expressao(expressao) {
+        var _this = _super.call(this, expressao.linha, expressao.hashArquivo) || this;
+        _this.expressao = expressao;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarDeclaracaoDeExpressao(this);
-    }
-}
+    Expressao.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarDeclaracaoDeExpressao(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Expressao;
+}(declaracao_1.Declaracao));
 exports.Expressao = Expressao;
 
 },{"./declaracao":31}],36:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
-const declaracao_1 = require("./declaracao");
-class Fazer extends declaracao_1.Declaracao {
-    constructor(hashArquivo, linha, caminhoFazer, condicaoEnquanto) {
-        super(linha, hashArquivo);
-        this.caminhoFazer = caminhoFazer;
-        this.condicaoEnquanto = condicaoEnquanto;
+var declaracao_1 = require("./declaracao");
+var Fazer = /** @class */ (function (_super) {
+    __extends(Fazer, _super);
+    function Fazer(hashArquivo, linha, caminhoFazer, condicaoEnquanto) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.caminhoFazer = caminhoFazer;
+        _this.condicaoEnquanto = condicaoEnquanto;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoFazer(this);
-    }
-}
+    Fazer.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoFazer(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Fazer;
+}(declaracao_1.Declaracao));
 exports.Fazer = Fazer;
 
 },{"./declaracao":31}],37:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
-const declaracao_1 = require("./declaracao");
-class FuncaoDeclaracao extends declaracao_1.Declaracao {
-    constructor(simbolo, funcao) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
-        this.simbolo = simbolo;
-        this.funcao = funcao;
+var declaracao_1 = require("./declaracao");
+var FuncaoDeclaracao = /** @class */ (function (_super) {
+    __extends(FuncaoDeclaracao, _super);
+    function FuncaoDeclaracao(simbolo, funcao) {
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
+        _this.simbolo = simbolo;
+        _this.funcao = funcao;
+        return _this;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoFuncao(this));
-    }
-}
+    FuncaoDeclaracao.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoFuncao(this))];
+            });
+        });
+    };
+    return FuncaoDeclaracao;
+}(declaracao_1.Declaracao));
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
 },{"./declaracao":31}],38:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
-const declaracao_1 = require("./declaracao");
-class Importar extends declaracao_1.Declaracao {
-    constructor(caminho, simboloFechamento) {
-        super(caminho.linha, caminho.hashArquivo);
-        this.caminho = caminho;
-        this.simboloFechamento = simboloFechamento;
+var declaracao_1 = require("./declaracao");
+var Importar = /** @class */ (function (_super) {
+    __extends(Importar, _super);
+    function Importar(caminho, simboloFechamento) {
+        var _this = _super.call(this, caminho.linha, caminho.hashArquivo) || this;
+        _this.caminho = caminho;
+        _this.simboloFechamento = simboloFechamento;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoImportar(this);
-    }
-}
+    Importar.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoImportar(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Importar;
+}(declaracao_1.Declaracao));
 exports.Importar = Importar;
 
 },{"./declaracao":31}],39:[function(require,module,exports){
@@ -1864,180 +3448,624 @@ __exportStar(require("./var"), exports);
 
 },{"./bloco":28,"./classe":29,"./continua":30,"./declaracao":31,"./enquanto":32,"./escolha":33,"./escreva":34,"./expressao":35,"./fazer":36,"./funcao":37,"./importar":38,"./leia":40,"./para":41,"./retorna":42,"./se":43,"./sustar":44,"./tente":45,"./var":46}],40:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
-const declaracao_1 = require("./declaracao");
+var declaracao_1 = require("./declaracao");
 /**
  * Declaração que pede a leitura de uma informação da entrada
  * configurada no início da aplicação.
  */
-class Leia extends declaracao_1.Declaracao {
-    constructor(linha, hashArquivo, argumentos) {
-        super(linha, hashArquivo);
-        this.argumentos = argumentos;
+var Leia = /** @class */ (function (_super) {
+    __extends(Leia, _super);
+    function Leia(linha, hashArquivo, argumentos) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.argumentos = argumentos;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoLeia(this);
-    }
-}
+    Leia.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoLeia(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Leia;
+}(declaracao_1.Declaracao));
 exports.Leia = Leia;
 
 },{"./declaracao":31}],41:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
-const declaracao_1 = require("./declaracao");
-class Para extends declaracao_1.Declaracao {
-    constructor(hashArquivo, linha, inicializador, condicao, incrementar, corpo) {
-        super(linha, hashArquivo);
-        this.inicializador = inicializador;
-        this.condicao = condicao;
-        this.incrementar = incrementar;
-        this.corpo = corpo;
+var declaracao_1 = require("./declaracao");
+var Para = /** @class */ (function (_super) {
+    __extends(Para, _super);
+    function Para(hashArquivo, linha, inicializador, condicao, incrementar, corpo) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.inicializador = inicializador;
+        _this.condicao = condicao;
+        _this.incrementar = incrementar;
+        _this.corpo = corpo;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoPara(this);
-    }
-}
+    Para.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoPara(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Para;
+}(declaracao_1.Declaracao));
 exports.Para = Para;
 
 },{"./declaracao":31}],42:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
-const declaracao_1 = require("./declaracao");
-class Retorna extends declaracao_1.Declaracao {
-    constructor(simboloChave, valor) {
-        super(Number(simboloChave.linha), simboloChave.hashArquivo);
-        this.simboloChave = simboloChave;
-        this.valor = valor;
+var declaracao_1 = require("./declaracao");
+var Retorna = /** @class */ (function (_super) {
+    __extends(Retorna, _super);
+    function Retorna(simboloChave, valor) {
+        var _this = _super.call(this, Number(simboloChave.linha), simboloChave.hashArquivo) || this;
+        _this.simboloChave = simboloChave;
+        _this.valor = valor;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoRetornar(this);
-    }
-}
+    Retorna.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoRetornar(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Retorna;
+}(declaracao_1.Declaracao));
 exports.Retorna = Retorna;
 
 },{"./declaracao":31}],43:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
-const declaracao_1 = require("./declaracao");
-class Se extends declaracao_1.Declaracao {
-    constructor(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao) {
-        super(condicao.linha, condicao.hashArquivo);
-        this.condicao = condicao;
-        this.caminhoEntao = caminhoEntao;
-        this.caminhosSeSenao = caminhosSeSenao;
-        this.caminhoSenao = caminhoSenao;
+var declaracao_1 = require("./declaracao");
+var Se = /** @class */ (function (_super) {
+    __extends(Se, _super);
+    function Se(condicao, caminhoEntao, caminhosSeSenao, caminhoSenao) {
+        var _this = _super.call(this, condicao.linha, condicao.hashArquivo) || this;
+        _this.condicao = condicao;
+        _this.caminhoEntao = caminhoEntao;
+        _this.caminhosSeSenao = caminhosSeSenao;
+        _this.caminhoSenao = caminhoSenao;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoSe(this);
-    }
-}
+    Se.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoSe(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Se;
+}(declaracao_1.Declaracao));
 exports.Se = Se;
 
 },{"./declaracao":31}],44:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
-const declaracao_1 = require("./declaracao");
-class Sustar extends declaracao_1.Declaracao {
-    constructor(simbolo) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
+var declaracao_1 = require("./declaracao");
+var Sustar = /** @class */ (function (_super) {
+    __extends(Sustar, _super);
+    function Sustar(simbolo) {
+        return _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
     }
-    async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoSustar(this));
-    }
-}
+    Sustar.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, Promise.resolve(visitante.visitarExpressaoSustar(this))];
+            });
+        });
+    };
+    return Sustar;
+}(declaracao_1.Declaracao));
 exports.Sustar = Sustar;
 
 },{"./declaracao":31}],45:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
-const declaracao_1 = require("./declaracao");
-class Tente extends declaracao_1.Declaracao {
-    constructor(hashArquivo, linha, caminhoTente, caminhoPegue, caminhoSenao, caminhoFinalmente) {
-        super(linha, hashArquivo);
-        this.caminhoTente = caminhoTente;
-        this.caminhoPegue = caminhoPegue;
-        this.caminhoSenao = caminhoSenao;
-        this.caminhoFinalmente = caminhoFinalmente;
+var declaracao_1 = require("./declaracao");
+var Tente = /** @class */ (function (_super) {
+    __extends(Tente, _super);
+    function Tente(hashArquivo, linha, caminhoTente, caminhoPegue, caminhoSenao, caminhoFinalmente) {
+        var _this = _super.call(this, linha, hashArquivo) || this;
+        _this.caminhoTente = caminhoTente;
+        _this.caminhoPegue = caminhoPegue;
+        _this.caminhoSenao = caminhoSenao;
+        _this.caminhoFinalmente = caminhoFinalmente;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoTente(this);
-    }
-}
+    Tente.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoTente(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Tente;
+}(declaracao_1.Declaracao));
 exports.Tente = Tente;
 
 },{"./declaracao":31}],46:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
-const declaracao_1 = require("./declaracao");
-class Var extends declaracao_1.Declaracao {
-    constructor(simbolo, inicializador) {
-        super(Number(simbolo.linha), simbolo.hashArquivo);
-        this.simbolo = simbolo;
-        this.inicializador = inicializador;
+var declaracao_1 = require("./declaracao");
+var Var = /** @class */ (function (_super) {
+    __extends(Var, _super);
+    function Var(simbolo, inicializador) {
+        var _this = _super.call(this, Number(simbolo.linha), simbolo.hashArquivo) || this;
+        _this.simbolo = simbolo;
+        _this.inicializador = inicializador;
+        return _this;
     }
-    async aceitar(visitante) {
-        return await visitante.visitarExpressaoVar(this);
-    }
-}
+    Var.prototype.aceitar = function (visitante) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, visitante.visitarExpressaoVar(this)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    return Var;
+}(declaracao_1.Declaracao));
 exports.Var = Var;
 
 },{"./declaracao":31}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
-class EspacoVariaveis {
-    constructor() {
+var EspacoVariaveis = /** @class */ (function () {
+    function EspacoVariaveis() {
         this.valores = {};
     }
-}
+    return EspacoVariaveis;
+}());
 exports.EspacoVariaveis = EspacoVariaveis;
 
 },{}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
-class Chamavel {
-    aridade() {
+var Chamavel = /** @class */ (function () {
+    function Chamavel() {
+    }
+    Chamavel.prototype.aridade = function () {
         return this.valorAridade;
-    }
-    chamar(interpretador, argumentos, simbolo) {
+    };
+    Chamavel.prototype.chamar = function (interpretador, argumentos, simbolo) {
         throw new Error('Este método não deveria ser chamado.');
-    }
-}
+    };
+    return Chamavel;
+}());
 exports.Chamavel = Chamavel;
 
 },{}],49:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
-const chamavel_1 = require("./chamavel");
-const objeto_padrao_1 = require("./objeto-padrao");
+var chamavel_1 = require("./chamavel");
+var objeto_padrao_1 = require("./objeto-padrao");
 /**
  * Classe de importação de classes de bibliotecas do JavaScript.
  */
-class ClassePadrao extends chamavel_1.Chamavel {
-    constructor(nome, funcaoDeClasse) {
-        super();
-        this.nome = nome;
-        this.funcaoDeClasse = funcaoDeClasse;
-        this.metodos = {};
+var ClassePadrao = /** @class */ (function (_super) {
+    __extends(ClassePadrao, _super);
+    function ClassePadrao(nome, funcaoDeClasse) {
+        var _this = _super.call(this) || this;
+        _this.nome = nome;
+        _this.funcaoDeClasse = funcaoDeClasse;
+        _this.metodos = {};
+        return _this;
     }
-    encontrarMetodo(nome) {
+    ClassePadrao.prototype.encontrarMetodo = function (nome) {
         if (this.metodos.hasOwnProperty(nome)) {
             return this.metodos[nome];
         }
         return undefined;
-    }
-    paraTexto() {
-        return `<classe-padrão ${this.nome}>`;
-    }
+    };
+    ClassePadrao.prototype.paraTexto = function () {
+        return "<classe-padr\u00E3o ".concat(this.nome, ">");
+    };
     /**
      * Para o caso de uma classe padrão, chamá-la na verdade é
      * invocar o construtor e adicionar no corpo de propriedades
@@ -2045,29 +4073,47 @@ class ClassePadrao extends chamavel_1.Chamavel {
      * @param argumentos
      * @param simbolo
      */
-    chamar(argumentos, simbolo) {
-        const novoObjeto = new objeto_padrao_1.ObjetoPadrao(this.nome);
+    ClassePadrao.prototype.chamar = function (argumentos, simbolo) {
+        var novoObjeto = new objeto_padrao_1.ObjetoPadrao(this.nome);
         this.funcaoDeClasse.apply(novoObjeto, argumentos);
         Object.assign(novoObjeto, this.metodos);
         return novoObjeto;
-    }
-}
+    };
+    return ClassePadrao;
+}(chamavel_1.Chamavel));
 exports.ClassePadrao = ClassePadrao;
 
 },{"./chamavel":48,"./objeto-padrao":57}],50:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaClasse = void 0;
-const chamavel_1 = require("./chamavel");
-const objeto_delegua_classe_1 = require("./objeto-delegua-classe");
-class DeleguaClasse extends chamavel_1.Chamavel {
-    constructor(nome, superClasse, metodos) {
-        super();
-        this.nome = nome;
-        this.superClasse = superClasse;
-        this.metodos = metodos;
+var chamavel_1 = require("./chamavel");
+var objeto_delegua_classe_1 = require("./objeto-delegua-classe");
+var DeleguaClasse = /** @class */ (function (_super) {
+    __extends(DeleguaClasse, _super);
+    function DeleguaClasse(nome, superClasse, metodos) {
+        var _this = _super.call(this) || this;
+        _this.nome = nome;
+        _this.superClasse = superClasse;
+        _this.metodos = metodos;
+        return _this;
     }
-    encontrarMetodo(nome) {
+    DeleguaClasse.prototype.encontrarMetodo = function (nome) {
         if (this.metodos.hasOwnProperty(nome)) {
             return this.metodos[nome];
         }
@@ -2075,110 +4121,239 @@ class DeleguaClasse extends chamavel_1.Chamavel {
             return this.superClasse.encontrarMetodo(nome);
         }
         return undefined;
-    }
-    paraTexto() {
-        return `<classe ${this.nome}>`;
-    }
-    aridade() {
-        const inicializador = this.encontrarMetodo('construtor');
+    };
+    DeleguaClasse.prototype.paraTexto = function () {
+        return "<classe ".concat(this.nome, ">");
+    };
+    DeleguaClasse.prototype.aridade = function () {
+        var inicializador = this.encontrarMetodo('construtor');
         return inicializador ? inicializador.aridade() : 0;
-    }
-    chamar(interpretador, argumentos) {
-        const instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
-        const inicializador = this.encontrarMetodo('construtor');
+    };
+    DeleguaClasse.prototype.chamar = function (interpretador, argumentos) {
+        var instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
+        var inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
             inicializador
                 .definirInstancia(instancia)
                 .chamar(interpretador, argumentos);
         }
         return instancia;
-    }
-}
+    };
+    return DeleguaClasse;
+}(chamavel_1.Chamavel));
 exports.DeleguaClasse = DeleguaClasse;
 
 },{"./chamavel":48,"./objeto-delegua-classe":56}],51:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
-const chamavel_1 = require("./chamavel");
-const espaco_variaveis_1 = require("../espaco-variaveis");
-const quebras_1 = require("../quebras");
-class DeleguaFuncao extends chamavel_1.Chamavel {
-    constructor(nome, declaracao, instancia = undefined, eInicializador = false) {
-        super();
-        this.nome = nome;
-        this.declaracao = declaracao;
-        this.instancia = instancia;
-        this.eInicializador = eInicializador;
+var chamavel_1 = require("./chamavel");
+var espaco_variaveis_1 = require("../espaco-variaveis");
+var quebras_1 = require("../quebras");
+var DeleguaFuncao = /** @class */ (function (_super) {
+    __extends(DeleguaFuncao, _super);
+    function DeleguaFuncao(nome, declaracao, instancia, eInicializador) {
+        if (instancia === void 0) { instancia = undefined; }
+        if (eInicializador === void 0) { eInicializador = false; }
+        var _this = _super.call(this) || this;
+        _this.nome = nome;
+        _this.declaracao = declaracao;
+        _this.instancia = instancia;
+        _this.eInicializador = eInicializador;
+        return _this;
     }
-    aridade() {
+    DeleguaFuncao.prototype.aridade = function () {
         var _a, _b;
         return ((_b = (_a = this.declaracao) === null || _a === void 0 ? void 0 : _a.parametros) === null || _b === void 0 ? void 0 : _b.length) || 0;
-    }
-    paraTexto() {
+    };
+    DeleguaFuncao.prototype.paraTexto = function () {
         if (this.nome === null)
             return '<função>';
-        return `<função ${this.nome}>`;
-    }
-    async chamar(interpretador, argumentos) {
-        const ambiente = new espaco_variaveis_1.EspacoVariaveis();
-        const parametros = this.declaracao.parametros;
-        if (parametros && parametros.length) {
-            for (let i = 0; i < parametros.length; i++) {
-                const parametro = parametros[i];
-                const nome = parametro['nome'].lexema;
-                let valor = argumentos[i];
-                if (argumentos[i] === null) {
-                    valor = parametro['padrao']
-                        ? parametro['padrao'].valor
-                        : null;
+        return "<fun\u00E7\u00E3o ".concat(this.nome, ">");
+    };
+    DeleguaFuncao.prototype.chamar = function (interpretador, argumentos) {
+        return __awaiter(this, void 0, void 0, function () {
+            var ambiente, parametros, i, parametro, nome, valor, retornoBloco;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        ambiente = new espaco_variaveis_1.EspacoVariaveis();
+                        parametros = this.declaracao.parametros;
+                        if (parametros && parametros.length) {
+                            for (i = 0; i < parametros.length; i++) {
+                                parametro = parametros[i];
+                                nome = parametro['nome'].lexema;
+                                valor = argumentos[i];
+                                if (argumentos[i] === null) {
+                                    valor = parametro['padrao']
+                                        ? parametro['padrao'].valor
+                                        : null;
+                                }
+                                ambiente.valores[nome] = valor;
+                            }
+                        }
+                        if (this.instancia !== undefined) {
+                            ambiente.valores['isto'] = {
+                                valor: this.instancia,
+                                tipo: 'objeto',
+                            };
+                        }
+                        return [4 /*yield*/, interpretador.executarBloco(this.declaracao.corpo, ambiente)];
+                    case 1:
+                        retornoBloco = _a.sent();
+                        if (retornoBloco instanceof quebras_1.RetornoQuebra) {
+                            return [2 /*return*/, retornoBloco.valor];
+                        }
+                        if (this.eInicializador) {
+                            return [2 /*return*/, this.instancia];
+                        }
+                        return [2 /*return*/, retornoBloco];
                 }
-                ambiente.valores[nome] = valor;
-            }
-        }
-        if (this.instancia !== undefined) {
-            ambiente.valores['isto'] = {
-                valor: this.instancia,
-                tipo: 'objeto',
-            };
-        }
-        const retornoBloco = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
-        if (retornoBloco instanceof quebras_1.RetornoQuebra) {
-            return retornoBloco.valor;
-        }
-        if (this.eInicializador) {
-            return this.instancia;
-        }
-        return retornoBloco;
-    }
-    definirInstancia(instancia) {
+            });
+        });
+    };
+    DeleguaFuncao.prototype.definirInstancia = function (instancia) {
         return new DeleguaFuncao(this.nome, this.declaracao, instancia, this.eInicializador);
-    }
-}
+    };
+    return DeleguaFuncao;
+}(chamavel_1.Chamavel));
 exports.DeleguaFuncao = DeleguaFuncao;
 
 },{"../espaco-variaveis":47,"../quebras":70,"./chamavel":48}],52:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
-const chamavel_1 = require("./chamavel");
+var chamavel_1 = require("./chamavel");
 /**
  * Uma `FuncaoPadrao` normalmente é uma função em JavaScript.
  */
-class FuncaoPadrao extends chamavel_1.Chamavel {
-    constructor(valorAridade, funcao) {
-        super();
-        this.valorAridade = valorAridade;
-        this.funcao = funcao;
+var FuncaoPadrao = /** @class */ (function (_super) {
+    __extends(FuncaoPadrao, _super);
+    function FuncaoPadrao(valorAridade, funcao) {
+        var _this = _super.call(this) || this;
+        _this.valorAridade = valorAridade;
+        _this.funcao = funcao;
+        return _this;
     }
-    async chamar(argumentos, simbolo) {
-        this.simbolo = simbolo;
-        return await this.funcao.apply(this, argumentos);
-    }
-    paraTexto() {
+    FuncaoPadrao.prototype.chamar = function (argumentos, simbolo) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.simbolo = simbolo;
+                        return [4 /*yield*/, this.funcao.apply(this, argumentos)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    FuncaoPadrao.prototype.paraTexto = function () {
         return '<função>';
-    }
-}
+    };
+    return FuncaoPadrao;
+}(chamavel_1.Chamavel));
 exports.FuncaoPadrao = FuncaoPadrao;
 
 },{"./chamavel":48}],53:[function(require,module,exports){
@@ -2210,9 +4385,33 @@ __exportStar(require("./objeto-padrao"), exports);
 
 },{"./chamavel":48,"./classe-padrao":49,"./delegua-classe":50,"./delegua-funcao":51,"./funcao-padrao":52,"./metodo-primitiva":54,"./modulo":55,"./objeto-delegua-classe":56,"./objeto-padrao":57}],54:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
-const chamavel_1 = require("./chamavel");
+var chamavel_1 = require("./chamavel");
 /**
  * Classe de método de primitiva.
  * Exemplos:
@@ -2223,60 +4422,66 @@ const chamavel_1 = require("./chamavel");
  * A aridade é sempre a quantidade de argumentos do método menos um porque o
  * primeiro parâmetro é sempre a referência para a primitiva.
  */
-class MetodoPrimitiva extends chamavel_1.Chamavel {
-    constructor(primitiva, metodo) {
-        super();
-        this.primitiva = primitiva;
-        this.metodo = metodo;
-        this.valorAridade = metodo.length - 1;
+var MetodoPrimitiva = /** @class */ (function (_super) {
+    __extends(MetodoPrimitiva, _super);
+    function MetodoPrimitiva(primitiva, metodo) {
+        var _this = _super.call(this) || this;
+        _this.primitiva = primitiva;
+        _this.metodo = metodo;
+        _this.valorAridade = metodo.length - 1;
+        return _this;
     }
-    chamar(argumentos = []) {
-        return this.metodo(this.primitiva, ...argumentos);
-    }
-}
+    MetodoPrimitiva.prototype.chamar = function (argumentos) {
+        if (argumentos === void 0) { argumentos = []; }
+        return this.metodo.apply(this, __spreadArray([this.primitiva], argumentos, false));
+    };
+    return MetodoPrimitiva;
+}(chamavel_1.Chamavel));
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
 },{"./chamavel":48}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
-class DeleguaModulo {
-    constructor(nome) {
+var DeleguaModulo = /** @class */ (function () {
+    function DeleguaModulo(nome) {
         this.nome = nome || '';
         this.componentes = {};
     }
-    toString() {
-        return this.nome ? `<modulo ${this.nome}>` : '<modulo>';
-    }
-}
+    DeleguaModulo.prototype.toString = function () {
+        return this.nome ? "<modulo ".concat(this.nome, ">") : '<modulo>';
+    };
+    return DeleguaModulo;
+}());
 exports.DeleguaModulo = DeleguaModulo;
 
 },{}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
-const excecoes_1 = require("../excecoes");
-class ObjetoDeleguaClasse {
-    constructor(classe) {
-        this.classe = classe;
+var excecoes_1 = require("../excecoes");
+var ObjetoDeleguaClasse = /** @class */ (function () {
+    function ObjetoDeleguaClasse(criarClasse) {
+        this.classe = criarClasse;
         this.campos = {};
     }
-    obter(simbolo) {
+    ObjetoDeleguaClasse.prototype.get = function (simbolo) {
         if (this.campos.hasOwnProperty(simbolo.lexema)) {
             return this.campos[simbolo.lexema];
         }
-        const metodo = this.classe.encontrarMetodo(simbolo.lexema);
+        var metodo = this.classe.encontrarMetodo(simbolo.lexema);
         if (metodo)
             return metodo.definirInstancia(this);
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, 'Método indefinido não recuperado.');
-    }
-    definir(simbolo, valor) {
+    };
+    ObjetoDeleguaClasse.prototype.set = function (simbolo, valor) {
         this.campos[simbolo.lexema] = valor;
-    }
-    toString() {
+    };
+    ObjetoDeleguaClasse.prototype.toString = function () {
         return '<Objeto ' + this.classe.nome + '>';
-    }
-}
+    };
+    return ObjetoDeleguaClasse;
+}());
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
 },{"../excecoes":59}],57:[function(require,module,exports){
@@ -2286,34 +4491,54 @@ exports.ObjetoPadrao = void 0;
 /**
  * Um objeto padrão é uma instância de uma Classe Padrão (JavaScript).
  */
-class ObjetoPadrao {
-    constructor(classePadrao) {
+var ObjetoPadrao = /** @class */ (function () {
+    function ObjetoPadrao(classePadrao) {
         this.classePadrao = classePadrao;
     }
-    paraTexto() {
-        let retornoTexto = `<objeto-padrão da classe ${this.classePadrao}>\n`;
-        for (const [nome, valor] of Object.entries(this)) {
-            retornoTexto += `    - ${nome}: ${valor}\n`;
+    ObjetoPadrao.prototype.paraTexto = function () {
+        var retornoTexto = "<objeto-padr\u00E3o da classe ".concat(this.classePadrao, ">\n");
+        for (var _i = 0, _a = Object.entries(this); _i < _a.length; _i++) {
+            var _b = _a[_i], nome = _b[0], valor = _b[1];
+            retornoTexto += "    - ".concat(nome, ": ").concat(valor, "\n");
         }
-        retornoTexto += `</objeto-padrão>`;
+        retornoTexto += "</objeto-padr\u00E3o>";
         return retornoTexto;
-    }
-}
+    };
+    return ObjetoPadrao;
+}());
 exports.ObjetoPadrao = ObjetoPadrao;
 
 },{}],58:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
-class ErroEmTempoDeExecucao extends Error {
-    constructor(simbolo, mensagem, linha) {
-        super(mensagem);
-        this.simbolo = simbolo;
-        this.mensagem = mensagem;
-        this.linha = linha;
-        Object.setPrototypeOf(this, ErroEmTempoDeExecucao.prototype);
+var ErroEmTempoDeExecucao = /** @class */ (function (_super) {
+    __extends(ErroEmTempoDeExecucao, _super);
+    function ErroEmTempoDeExecucao(simbolo, mensagem, linha) {
+        var _this = _super.call(this, mensagem) || this;
+        _this.simbolo = simbolo;
+        _this.mensagem = mensagem;
+        _this.linha = linha;
+        Object.setPrototypeOf(_this, ErroEmTempoDeExecucao.prototype);
+        return _this;
     }
-}
+    return ErroEmTempoDeExecucao;
+}(Error));
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
 },{}],59:[function(require,module,exports){
@@ -2369,7 +4594,7 @@ __exportStar(require("../interfaces/retornos/retorno-interpretador"), exports);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
 function inferirTipoVariavel(variavel) {
-    const tipo = typeof variavel;
+    var tipo = typeof variavel;
     switch (tipo) {
         case 'string':
             return 'texto';
@@ -2420,31 +4645,69 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Interpretador = void 0;
-const caminho = __importStar(require("path"));
-const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
-const espaco_variaveis_1 = require("../espaco-variaveis");
-const biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-global"));
-const importar_biblioteca_1 = __importDefault(require("../bibliotecas/importar-biblioteca"));
-const excecoes_1 = require("../excecoes");
-const estruturas_1 = require("../estruturas");
-const pilha_escopos_execucao_1 = require("./pilha-escopos-execucao");
-const quebras_1 = require("../quebras");
-const inferenciador_1 = require("./inferenciador");
-const metodo_primitiva_1 = require("../estruturas/metodo-primitiva");
-const primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
-const primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
-const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
+var caminho = __importStar(require("path"));
+var browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
+var espaco_variaveis_1 = require("../espaco-variaveis");
+var biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-global"));
+var importar_biblioteca_1 = __importDefault(require("../bibliotecas/importar-biblioteca"));
+var excecoes_1 = require("../excecoes");
+var estruturas_1 = require("../estruturas");
+var pilha_escopos_execucao_1 = require("./pilha-escopos-execucao");
+var quebras_1 = require("../quebras");
+var inferenciador_1 = require("./inferenciador");
+var metodo_primitiva_1 = require("../estruturas/metodo-primitiva");
+var primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
+var primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
+var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
  * e de fato executa a lógica de programação descrita no código.
  */
-class Interpretador {
-    constructor(importador, diretorioBase, performance = false, funcaoDeRetorno = null) {
+var Interpretador = /** @class */ (function () {
+    function Interpretador(importador, diretorioBase, performance, funcaoDeRetorno) {
+        if (performance === void 0) { performance = false; }
+        if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
         this.funcaoDeRetorno = null;
         this.interfaceDeEntrada = null;
         this.resultadoInterpretador = [];
@@ -2457,7 +4720,7 @@ class Interpretador {
         this.erros = [];
         this.declaracoes = [];
         this.pilhaEscoposExecucao = new pilha_escopos_execucao_1.PilhaEscoposExecucao();
-        const escopoExecucao = {
+        var escopoExecucao = {
             declaracoes: [],
             declaracaoAtual: 0,
             ambiente: new espaco_variaveis_1.EspacoVariaveis(),
@@ -2471,95 +4734,129 @@ class Interpretador {
      * @param expressao Expressão do tipo Leia
      * @returns Promise com o resultado da leitura.
      */
-    async visitarExpressaoLeia(expressao) {
-        const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '';
-        return new Promise(resolucao => this.interfaceEntradaSaida.question(mensagem, (resposta) => {
-            resolucao(resposta);
-        }));
-    }
+    Interpretador.prototype.visitarExpressaoLeia = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var mensagem;
+            var _this = this;
+            return __generator(this, function (_a) {
+                mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '';
+                return [2 /*return*/, new Promise(function (resolucao) {
+                        return _this.interfaceEntradaSaida.question(mensagem, function (resposta) {
+                            resolucao(resposta);
+                        });
+                    })];
+            });
+        });
+    };
     /**
      * Retira a interpolação de um texto.
      * @param {texto} texto O texto
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    retirarInterpolacao(texto, variaveis) {
-        const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
+    Interpretador.prototype.retirarInterpolacao = function (texto, variaveis) {
+        var _this = this;
+        var valoresVariaveis = variaveis.map(function (v) { return ({
+            valorResolvido: _this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
             variavel: v.variavel,
-        }));
-        let textoFinal = texto;
-        valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
+        }); });
+        var textoFinal = texto;
+        valoresVariaveis.forEach(function (elemento) {
+            var valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
                 ? elemento.valorResolvido.valor
                 : elemento.valorResolvido;
             textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
         });
         return textoFinal;
-    }
+    };
     /**
      * Busca variáveis interpoladas.
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
-    buscarVariaveisInterpolacao(textoOriginal) {
-        const variaveis = textoOriginal.match(this.regexInterpolacao);
-        return variaveis.map((s) => {
-            const nomeVariavel = s.replace(/[\$\{\}]*/g, '');
+    Interpretador.prototype.buscarVariaveisInterpolacao = function (textoOriginal) {
+        var _this = this;
+        var variaveis = textoOriginal.match(this.regexInterpolacao);
+        return variaveis.map(function (s) {
+            var nomeVariavel = s.replace(/[\$\{\}]*/g, '');
             return {
                 variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+                valor: _this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
             };
         });
-    }
-    visitarExpressaoLiteral(expressao) {
+    };
+    Interpretador.prototype.visitarExpressaoLiteral = function (expressao) {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
+            var variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
             return this.retirarInterpolacao(expressao.valor, variaveis);
         }
         return expressao.valor;
-    }
-    async avaliar(expressao) {
-        // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
-        // Por algum motivo o depurador do VSCode não funciona direito aqui
-        // com breakpoint condicional.
-        /* if (expressao === null || expressao === undefined) {
-            console.log('Aqui');
-        } */
-        return await expressao.aceitar(this);
-    }
-    async visitarExpressaoAgrupamento(expressao) {
-        return await this.avaliar(expressao.expressao);
-    }
-    eVerdadeiro(objeto) {
+    };
+    Interpretador.prototype.avaliar = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, expressao.aceitar(this)];
+                    case 1: 
+                    // Descomente o código abaixo quando precisar detectar expressões undefined ou nulas.
+                    // Por algum motivo o depurador do VSCode não funciona direito aqui
+                    // com breakpoint condicional.
+                    /* if (expressao === null || expressao === undefined) {
+                        console.log('Aqui');
+                    } */
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoAgrupamento = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.expressao)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.eVerdadeiro = function (objeto) {
         if (objeto === null)
             return false;
         if (typeof objeto === 'boolean')
             return Boolean(objeto);
         return true;
-    }
-    verificarOperandoNumero(operador, operando) {
+    };
+    Interpretador.prototype.verificarOperandoNumero = function (operador, operando) {
         if (typeof operando === 'number' || operando.tipo === 'número')
             return;
         throw new excecoes_1.ErroEmTempoDeExecucao(operador, 'Operando precisa ser um número.', Number(operador.linha));
-    }
-    async visitarExpressaoUnaria(expressao) {
-        const direita = await this.avaliar(expressao.direita);
-        const valor = direita.hasOwnProperty('valor') ?
-            direita.valor :
-            direita;
-        switch (expressao.operador.tipo) {
-            case delegua_1.default.SUBTRACAO:
-                this.verificarOperandoNumero(expressao.operador, valor);
-                return -valor;
-            case delegua_1.default.NEGACAO:
-                return !this.eVerdadeiro(valor);
-            case delegua_1.default.BIT_NOT:
-                return ~valor;
-        }
-        return null;
-    }
-    eIgual(esquerda, direita) {
+    };
+    Interpretador.prototype.visitarExpressaoUnaria = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var direita, valor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.direita)];
+                    case 1:
+                        direita = _a.sent();
+                        valor = direita.hasOwnProperty('valor') ?
+                            direita.valor :
+                            direita;
+                        switch (expressao.operador.tipo) {
+                            case delegua_1.default.SUBTRACAO:
+                                this.verificarOperandoNumero(expressao.operador, valor);
+                                return [2 /*return*/, -valor];
+                            case delegua_1.default.NEGACAO:
+                                return [2 /*return*/, !this.eVerdadeiro(valor)];
+                            case delegua_1.default.BIT_NOT:
+                                return [2 /*return*/, ~valor];
+                        }
+                        return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.eIgual = function (esquerda, direita) {
         if (esquerda === null && direita === null)
             return true;
         if (esquerda === null)
@@ -2574,7 +4871,7 @@ class Interpretador {
             return esquerda.valor === direita.valor;
         }
         return esquerda === direita;
-    }
+    };
     /**
      * Verifica se operandos são números, que podem ser tanto variáveis puras do JavaScript
      * (neste caso, `number`), ou podem ser variáveis de Delégua com inferência (`VariavelInterface`).
@@ -2583,13 +4880,13 @@ class Interpretador {
      * @param esquerda O operando esquerdo.
      * @returns Se ambos os operandos são números ou não.
      */
-    verificarOperandosNumeros(operador, direita, esquerda) {
-        const tipoDireita = direita.tipo
+    Interpretador.prototype.verificarOperandosNumeros = function (operador, direita, esquerda) {
+        var tipoDireita = direita.tipo
             ? direita.tipo
             : typeof direita === 'number'
                 ? 'número'
                 : String(NaN);
-        const tipoEsquerda = esquerda.tipo
+        var tipoEsquerda = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
                 ? 'número'
@@ -2597,376 +4894,609 @@ class Interpretador {
         if (tipoDireita === 'número' && tipoEsquerda === 'número')
             return;
         throw new excecoes_1.ErroEmTempoDeExecucao(operador, 'Operadores precisam ser números.', operador.linha);
-    }
-    async visitarExpressaoBinaria(expressao) {
-        try {
-            const esquerda = await this.avaliar(expressao.esquerda);
-            const direita = await this.avaliar(expressao.direita);
-            const valorEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('valor'))
-                ? esquerda.valor
-                : esquerda;
-            const valorDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('valor'))
-                ? direita.valor
-                : direita;
-            const tipoEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('tipo'))
-                ? esquerda.tipo
-                : (0, inferenciador_1.inferirTipoVariavel)(esquerda);
-            const tipoDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('tipo'))
-                ? direita.tipo
-                : (0, inferenciador_1.inferirTipoVariavel)(direita);
-            switch (expressao.operador.tipo) {
-                case delegua_1.default.EXPONENCIACAO:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Math.pow(valorEsquerdo, valorDireito);
-                case delegua_1.default.MAIOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) > Number(valorDireito);
-                case delegua_1.default.MAIOR_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) >= Number(valorDireito);
-                case delegua_1.default.MENOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) < Number(valorDireito);
-                case delegua_1.default.MENOR_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) <= Number(valorDireito);
-                case delegua_1.default.SUBTRACAO:
-                case delegua_1.default.MENOS_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) - Number(valorDireito);
-                case delegua_1.default.ADICAO:
-                case delegua_1.default.MAIS_IGUAL:
-                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
-                        return Number(valorEsquerdo) + Number(valorDireito);
-                    }
-                    else {
-                        return String(valorEsquerdo) + String(valorDireito);
-                    }
-                case delegua_1.default.DIVISAO:
-                case delegua_1.default.DIVISAO_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) / Number(valorDireito);
-                case delegua_1.default.MULTIPLICACAO:
-                case delegua_1.default.MULTIPLICACAO_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) * Number(valorDireito);
-                case delegua_1.default.MODULO:
-                case delegua_1.default.MODULO_IGUAL:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) % Number(valorDireito);
-                case delegua_1.default.BIT_AND:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) & Number(valorDireito);
-                case delegua_1.default.BIT_XOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) ^ Number(valorDireito);
-                case delegua_1.default.BIT_OR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) | Number(valorDireito);
-                case delegua_1.default.MENOR_MENOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) << Number(valorDireito);
-                case delegua_1.default.MAIOR_MAIOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) >> Number(valorDireito);
-                case delegua_1.default.DIFERENTE:
-                    return !this.eIgual(valorEsquerdo, valorDireito);
-                case delegua_1.default.IGUAL_IGUAL:
-                    return this.eIgual(valorEsquerdo, valorDireito);
-            }
-        }
-        catch (erro) {
-            return Promise.reject(erro);
-        }
-    }
+    };
+    Interpretador.prototype.visitarExpressaoBinaria = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var esquerda, direita, valorEsquerdo, valorDireito, tipoEsquerdo, tipoDireito, erro_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.avaliar(expressao.esquerda)];
+                    case 1:
+                        esquerda = _a.sent();
+                        return [4 /*yield*/, this.avaliar(expressao.direita)];
+                    case 2:
+                        direita = _a.sent();
+                        valorEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('valor'))
+                            ? esquerda.valor
+                            : esquerda;
+                        valorDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('valor'))
+                            ? direita.valor
+                            : direita;
+                        tipoEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('tipo'))
+                            ? esquerda.tipo
+                            : (0, inferenciador_1.inferirTipoVariavel)(esquerda);
+                        tipoDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('tipo'))
+                            ? direita.tipo
+                            : (0, inferenciador_1.inferirTipoVariavel)(direita);
+                        switch (expressao.operador.tipo) {
+                            case delegua_1.default.EXPONENCIACAO:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Math.pow(valorEsquerdo, valorDireito)];
+                            case delegua_1.default.MAIOR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) > Number(valorDireito)];
+                            case delegua_1.default.MAIOR_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) >= Number(valorDireito)];
+                            case delegua_1.default.MENOR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) < Number(valorDireito)];
+                            case delegua_1.default.MENOR_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) <= Number(valorDireito)];
+                            case delegua_1.default.SUBTRACAO:
+                            case delegua_1.default.MENOS_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) - Number(valorDireito)];
+                            case delegua_1.default.ADICAO:
+                            case delegua_1.default.MAIS_IGUAL:
+                                if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                                    return [2 /*return*/, Number(valorEsquerdo) + Number(valorDireito)];
+                                }
+                                else {
+                                    return [2 /*return*/, String(valorEsquerdo) + String(valorDireito)];
+                                }
+                            case delegua_1.default.DIVISAO:
+                            case delegua_1.default.DIVISAO_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) / Number(valorDireito)];
+                            case delegua_1.default.MULTIPLICACAO:
+                            case delegua_1.default.MULTIPLICACAO_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) * Number(valorDireito)];
+                            case delegua_1.default.MODULO:
+                            case delegua_1.default.MODULO_IGUAL:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) % Number(valorDireito)];
+                            case delegua_1.default.BIT_AND:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) & Number(valorDireito)];
+                            case delegua_1.default.BIT_XOR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) ^ Number(valorDireito)];
+                            case delegua_1.default.BIT_OR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) | Number(valorDireito)];
+                            case delegua_1.default.MENOR_MENOR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) << Number(valorDireito)];
+                            case delegua_1.default.MAIOR_MAIOR:
+                                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                                return [2 /*return*/, Number(valorEsquerdo) >> Number(valorDireito)];
+                            case delegua_1.default.DIFERENTE:
+                                return [2 /*return*/, !this.eIgual(valorEsquerdo, valorDireito)];
+                            case delegua_1.default.IGUAL_IGUAL:
+                                return [2 /*return*/, this.eIgual(valorEsquerdo, valorDireito)];
+                        }
+                        return [3 /*break*/, 4];
+                    case 3:
+                        erro_1 = _a.sent();
+                        return [2 /*return*/, Promise.reject(erro_1)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
     /**
      * Executa uma chamada de função, método ou classe.
      * @param expressao A expressão chamada.
      * @returns O resultado da chamada.
      */
-    async visitarExpressaoDeChamada(expressao) {
-        try {
-            const variavelEntidadeChamada = await this.avaliar(expressao.entidadeChamada);
-            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
-                ? variavelEntidadeChamada.valor
-                : variavelEntidadeChamada;
-            let argumentos = [];
-            for (let i = 0; i < expressao.argumentos.length; i++) {
-                argumentos.push(await this.avaliar(expressao.argumentos[i]));
-            }
-            if (!(entidadeChamada instanceof estruturas_1.Chamavel)) {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha));
-            }
-            if (entidadeChamada instanceof metodo_primitiva_1.MetodoPrimitiva) {
-                const argumentosResolvidos = [];
-                for (const argumento of expressao.argumentos) {
-                    const valorResolvido = await this.avaliar(argumento);
-                    argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor')
-                        ? valorResolvido.valor
-                        : valorResolvido);
+    Interpretador.prototype.visitarExpressaoDeChamada = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var variavelEntidadeChamada, entidadeChamada, argumentos, i, _a, _b, argumentosResolvidos, _i, _c, argumento, valorResolvido, parametros, diferenca, i, novosArgumentos, erro_2;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _d.trys.push([0, 11, , 12]);
+                        return [4 /*yield*/, this.avaliar(expressao.entidadeChamada)];
+                    case 1:
+                        variavelEntidadeChamada = _d.sent();
+                        entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
+                            ? variavelEntidadeChamada.valor
+                            : variavelEntidadeChamada;
+                        argumentos = [];
+                        i = 0;
+                        _d.label = 2;
+                    case 2:
+                        if (!(i < expressao.argumentos.length)) return [3 /*break*/, 5];
+                        _b = (_a = argumentos).push;
+                        return [4 /*yield*/, this.avaliar(expressao.argumentos[i])];
+                    case 3:
+                        _b.apply(_a, [_d.sent()]);
+                        _d.label = 4;
+                    case 4:
+                        i++;
+                        return [3 /*break*/, 2];
+                    case 5:
+                        if (!(entidadeChamada instanceof estruturas_1.Chamavel)) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha))];
+                        }
+                        if (!(entidadeChamada instanceof metodo_primitiva_1.MetodoPrimitiva)) return [3 /*break*/, 10];
+                        argumentosResolvidos = [];
+                        _i = 0, _c = expressao.argumentos;
+                        _d.label = 6;
+                    case 6:
+                        if (!(_i < _c.length)) return [3 /*break*/, 9];
+                        argumento = _c[_i];
+                        return [4 /*yield*/, this.avaliar(argumento)];
+                    case 7:
+                        valorResolvido = _d.sent();
+                        argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor')
+                            ? valorResolvido.valor
+                            : valorResolvido);
+                        _d.label = 8;
+                    case 8:
+                        _i++;
+                        return [3 /*break*/, 6];
+                    case 9: return [2 /*return*/, entidadeChamada.chamar(argumentosResolvidos)];
+                    case 10:
+                        parametros = void 0;
+                        if (entidadeChamada instanceof estruturas_1.DeleguaFuncao) {
+                            parametros = entidadeChamada.declaracao.parametros;
+                        }
+                        else if (entidadeChamada instanceof estruturas_1.DeleguaClasse) {
+                            parametros = entidadeChamada.metodos.inicializacao
+                                ? entidadeChamada.metodos.inicializacao.declaracao.parametros
+                                : [];
+                        }
+                        else {
+                            parametros = [];
+                        }
+                        // Completar os parâmetros não preenchidos com nulos.
+                        if (argumentos.length < entidadeChamada.aridade()) {
+                            diferenca = entidadeChamada.aridade() - argumentos.length;
+                            for (i = 0; i < diferenca; i++) {
+                                argumentos.push(null);
+                            }
+                        }
+                        else {
+                            if (parametros &&
+                                parametros.length > 0 &&
+                                parametros[parametros.length - 1].tipo === 'estrela') {
+                                novosArgumentos = argumentos.slice(0, parametros.length - 1);
+                                novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
+                                argumentos = novosArgumentos;
+                            }
+                        }
+                        if (entidadeChamada instanceof estruturas_1.FuncaoPadrao) {
+                            try {
+                                return [2 /*return*/, entidadeChamada.chamar(argumentos, expressao.entidadeChamada.nome)];
+                            }
+                            catch (erro) {
+                                this.erros.push(erro);
+                            }
+                        }
+                        return [2 /*return*/, entidadeChamada.chamar(this, argumentos)];
+                    case 11:
+                        erro_2 = _d.sent();
+                        console.log(erro_2);
+                        return [3 /*break*/, 12];
+                    case 12: return [2 /*return*/];
                 }
-                return entidadeChamada.chamar(argumentosResolvidos);
-            }
-            let parametros;
-            if (entidadeChamada instanceof estruturas_1.DeleguaFuncao) {
-                parametros = entidadeChamada.declaracao.parametros;
-            }
-            else if (entidadeChamada instanceof estruturas_1.DeleguaClasse) {
-                parametros = entidadeChamada.metodos.inicializacao
-                    ? entidadeChamada.metodos.inicializacao.declaracao.parametros
-                    : [];
-            }
-            else {
-                parametros = [];
-            }
-            // Completar os parâmetros não preenchidos com nulos.
-            if (argumentos.length < entidadeChamada.aridade()) {
-                const diferenca = entidadeChamada.aridade() - argumentos.length;
-                for (let i = 0; i < diferenca; i++) {
-                    argumentos.push(null);
-                }
-            }
-            else {
-                if (parametros &&
-                    parametros.length > 0 &&
-                    parametros[parametros.length - 1].tipo === 'estrela') {
-                    const novosArgumentos = argumentos.slice(0, parametros.length - 1);
-                    novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
-                    argumentos = novosArgumentos;
-                }
-            }
-            if (entidadeChamada instanceof estruturas_1.FuncaoPadrao) {
-                try {
-                    return entidadeChamada.chamar(argumentos, expressao.entidadeChamada.nome);
-                }
-                catch (erro) {
-                    this.erros.push(erro);
-                }
-            }
-            return entidadeChamada.chamar(this, argumentos);
-        }
-        catch (erro) {
-            console.log(erro);
-        }
-    }
+            });
+        });
+    };
     /**
      * Execução de uma expressão de atribuição.
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    async visitarExpressaoDeAtribuicao(expressao) {
-        const valor = await this.avaliar(expressao.valor);
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
-        return valor;
-    }
-    procurarVariavel(simbolo) {
+    Interpretador.prototype.visitarExpressaoDeAtribuicao = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.valor)];
+                    case 1:
+                        valor = _a.sent();
+                        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+                        return [2 /*return*/, valor];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.procurarVariavel = function (simbolo) {
         return this.pilhaEscoposExecucao.obterVariavel(simbolo);
-    }
-    visitarExpressaoDeVariavel(expressao) {
+    };
+    Interpretador.prototype.visitarExpressaoDeVariavel = function (expressao) {
         return this.procurarVariavel(expressao.simbolo);
-    }
-    async visitarDeclaracaoDeExpressao(declaracao) {
-        return await this.avaliar(declaracao.expressao);
-    }
-    async visitarExpressaoLogica(expressao) {
-        const esquerda = await this.avaliar(expressao.esquerda);
-        if (expressao.operador.tipo === delegua_1.default.EM) {
-            const direita = await this.avaliar(expressao.direita);
-            if (Array.isArray(direita) || typeof direita === 'string') {
-                return direita.includes(esquerda);
-            }
-            else if (direita.constructor === Object) {
-                return esquerda in direita;
-            }
-            else {
-                throw new excecoes_1.ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
-            }
-        }
-        // se um estado for verdadeiro, retorna verdadeiro
-        if (expressao.operador.tipo === delegua_1.default.OU) {
-            if (this.eVerdadeiro(esquerda))
-                return esquerda;
-        }
-        // se um estado for falso, retorna falso
-        if (expressao.operador.tipo === delegua_1.default.E) {
-            if (!this.eVerdadeiro(esquerda))
-                return esquerda;
-        }
-        return await this.avaliar(expressao.direita);
-    }
+    };
+    Interpretador.prototype.visitarDeclaracaoDeExpressao = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(declaracao.expressao)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoLogica = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var esquerda, direita;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.esquerda)];
+                    case 1:
+                        esquerda = _a.sent();
+                        if (!(expressao.operador.tipo === delegua_1.default.EM)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.avaliar(expressao.direita)];
+                    case 2:
+                        direita = _a.sent();
+                        if (Array.isArray(direita) || typeof direita === 'string') {
+                            return [2 /*return*/, direita.includes(esquerda)];
+                        }
+                        else if (direita.constructor === Object) {
+                            return [2 /*return*/, esquerda in direita];
+                        }
+                        else {
+                            throw new excecoes_1.ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
+                        }
+                        _a.label = 3;
+                    case 3:
+                        // se um estado for verdadeiro, retorna verdadeiro
+                        if (expressao.operador.tipo === delegua_1.default.OU) {
+                            if (this.eVerdadeiro(esquerda))
+                                return [2 /*return*/, esquerda];
+                        }
+                        // se um estado for falso, retorna falso
+                        if (expressao.operador.tipo === delegua_1.default.E) {
+                            if (!this.eVerdadeiro(esquerda))
+                                return [2 /*return*/, esquerda];
+                        }
+                        return [4 /*yield*/, this.avaliar(expressao.direita)];
+                    case 4: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     /**
      * Executa uma expressão Se, que tem uma condição, pode ter um bloco
      * Senão, e múltiplos blocos Senão-se.
      * @param declaracao A declaração Se.
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
-    async visitarExpressaoSe(declaracao) {
-        if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            return await this.executar(declaracao.caminhoEntao);
-        }
-        for (let i = 0; i < declaracao.caminhosSeSenao.length; i++) {
-            const atual = declaracao.caminhosSeSenao[i];
-            if (this.eVerdadeiro(await this.avaliar(atual.condicao))) {
-                return await this.executar(atual.caminho);
-            }
-        }
-        if (declaracao.caminhoSenao !== null) {
-            return await this.executar(declaracao.caminhoSenao);
-        }
-        return null;
-    }
-    async visitarExpressaoPara(declaracao) {
-        if (declaracao.inicializador !== null) {
-            await this.avaliar(declaracao.inicializador);
-        }
-        let retornoExecucao;
-        while (!(retornoExecucao instanceof quebras_1.Quebra)) {
-            if (declaracao.condicao !== null &&
-                !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-                break;
-            }
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-            }
-            catch (erro) {
-                return Promise.reject(erro);
-            }
-            if (declaracao.incrementar !== null) {
-                await this.avaliar(declaracao.incrementar);
-            }
-        }
-        return null;
-    }
-    async visitarExpressaoFazer(declaracao) {
-        let retornoExecucao;
-        do {
-            try {
-                retornoExecucao = await this.executar(declaracao.caminhoFazer);
-            }
-            catch (erro) {
-                return Promise.reject(erro);
-            }
-        } while (!(retornoExecucao instanceof quebras_1.Quebra) &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
-    }
-    async visitarExpressaoEscolha(declaracao) {
-        const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const caminhos = declaracao.caminhos;
-        const caminhoPadrao = declaracao.caminhoPadrao;
-        let encontrado = false;
-        try {
-            for (let i = 0; i < caminhos.length; i++) {
-                const caminho = caminhos[i];
-                for (let j = 0; j < caminho.condicoes.length; j++) {
-                    if (await this.avaliar(caminho.condicoes[j]) === condicaoEscolha) {
+    Interpretador.prototype.visitarExpressaoSe = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, i, atual, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _a = this.eVerdadeiro;
+                        return [4 /*yield*/, this.avaliar(declaracao.condicao)];
+                    case 1:
+                        if (!_a.apply(this, [_c.sent()])) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.executar(declaracao.caminhoEntao)];
+                    case 2: return [2 /*return*/, _c.sent()];
+                    case 3:
+                        i = 0;
+                        _c.label = 4;
+                    case 4:
+                        if (!(i < declaracao.caminhosSeSenao.length)) return [3 /*break*/, 8];
+                        atual = declaracao.caminhosSeSenao[i];
+                        _b = this.eVerdadeiro;
+                        return [4 /*yield*/, this.avaliar(atual.condicao)];
+                    case 5:
+                        if (!_b.apply(this, [_c.sent()])) return [3 /*break*/, 7];
+                        return [4 /*yield*/, this.executar(atual.caminho)];
+                    case 6: return [2 /*return*/, _c.sent()];
+                    case 7:
+                        i++;
+                        return [3 /*break*/, 4];
+                    case 8:
+                        if (!(declaracao.caminhoSenao !== null)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.executar(declaracao.caminhoSenao)];
+                    case 9: return [2 /*return*/, _c.sent()];
+                    case 10: return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoPara = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var retornoExecucao, _a, _b, erro_3;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (!(declaracao.inicializador !== null)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.avaliar(declaracao.inicializador)];
+                    case 1:
+                        _c.sent();
+                        _c.label = 2;
+                    case 2:
+                        if (!!(retornoExecucao instanceof quebras_1.Quebra)) return [3 /*break*/, 11];
+                        _a = declaracao.condicao !== null;
+                        if (!_a) return [3 /*break*/, 4];
+                        _b = this.eVerdadeiro;
+                        return [4 /*yield*/, this.avaliar(declaracao.condicao)];
+                    case 3:
+                        _a = !_b.apply(this, [_c.sent()]);
+                        _c.label = 4;
+                    case 4:
+                        if (_a) {
+                            return [3 /*break*/, 11];
+                        }
+                        _c.label = 5;
+                    case 5:
+                        _c.trys.push([5, 7, , 8]);
+                        return [4 /*yield*/, this.executar(declaracao.corpo)];
+                    case 6:
+                        retornoExecucao = _c.sent();
+                        return [3 /*break*/, 8];
+                    case 7:
+                        erro_3 = _c.sent();
+                        return [2 /*return*/, Promise.reject(erro_3)];
+                    case 8:
+                        if (!(declaracao.incrementar !== null)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.avaliar(declaracao.incrementar)];
+                    case 9:
+                        _c.sent();
+                        _c.label = 10;
+                    case 10: return [3 /*break*/, 2];
+                    case 11: return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoFazer = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var retornoExecucao, erro_4, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _c.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.executar(declaracao.caminhoFazer)];
+                    case 1:
+                        retornoExecucao = _c.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        erro_4 = _c.sent();
+                        return [2 /*return*/, Promise.reject(erro_4)];
+                    case 3:
+                        _a = !(retornoExecucao instanceof quebras_1.Quebra);
+                        if (!_a) return [3 /*break*/, 5];
+                        _b = this.eVerdadeiro;
+                        return [4 /*yield*/, this.avaliar(declaracao.condicaoEnquanto)];
+                    case 4:
+                        _a = _b.apply(this, [_c.sent()]);
+                        _c.label = 5;
+                    case 5:
+                        if (_a) return [3 /*break*/, 0];
+                        _c.label = 6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoEscolha = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var condicaoEscolha, caminhos, caminhoPadrao, encontrado, i, caminho_1, j, erro_5, erro_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(declaracao.identificadorOuLiteral)];
+                    case 1:
+                        condicaoEscolha = _a.sent();
+                        caminhos = declaracao.caminhos;
+                        caminhoPadrao = declaracao.caminhoPadrao;
+                        encontrado = false;
+                        _a.label = 2;
+                    case 2:
+                        _a.trys.push([2, 14, , 15]);
+                        i = 0;
+                        _a.label = 3;
+                    case 3:
+                        if (!(i < caminhos.length)) return [3 /*break*/, 11];
+                        caminho_1 = caminhos[i];
+                        j = 0;
+                        _a.label = 4;
+                    case 4:
+                        if (!(j < caminho_1.condicoes.length)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.avaliar(caminho_1.condicoes[j])];
+                    case 5:
+                        if (!((_a.sent()) === condicaoEscolha)) return [3 /*break*/, 9];
                         encontrado = true;
-                        try {
-                            await this.executarBloco(caminho.declaracoes);
+                        _a.label = 6;
+                    case 6:
+                        _a.trys.push([6, 8, , 9]);
+                        return [4 /*yield*/, this.executarBloco(caminho_1.declaracoes)];
+                    case 7:
+                        _a.sent();
+                        return [3 /*break*/, 9];
+                    case 8:
+                        erro_5 = _a.sent();
+                        return [2 /*return*/, Promise.reject(erro_5)];
+                    case 9:
+                        j++;
+                        return [3 /*break*/, 4];
+                    case 10:
+                        i++;
+                        return [3 /*break*/, 3];
+                    case 11:
+                        if (!(caminhoPadrao !== null && encontrado === false)) return [3 /*break*/, 13];
+                        return [4 /*yield*/, this.executarBloco(caminhoPadrao.declaracoes)];
+                    case 12:
+                        _a.sent();
+                        _a.label = 13;
+                    case 13: return [3 /*break*/, 15];
+                    case 14:
+                        erro_6 = _a.sent();
+                        throw erro_6;
+                    case 15: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoTente = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var sucesso, erro_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, , 10, 13]);
+                        sucesso = true;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 7]);
+                        return [4 /*yield*/, this.executarBloco(declaracao.caminhoTente)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 7];
+                    case 3:
+                        erro_7 = _a.sent();
+                        sucesso = false;
+                        if (!(declaracao.caminhoPegue !== null)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.executarBloco(declaracao.caminhoPegue)];
+                    case 4:
+                        _a.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        this.erros.push(erro_7);
+                        _a.label = 6;
+                    case 6: return [3 /*break*/, 7];
+                    case 7:
+                        if (!(sucesso && declaracao.caminhoSenao !== null)) return [3 /*break*/, 9];
+                        return [4 /*yield*/, this.executarBloco(declaracao.caminhoSenao)];
+                    case 8:
+                        _a.sent();
+                        _a.label = 9;
+                    case 9: return [3 /*break*/, 13];
+                    case 10:
+                        if (!(declaracao.caminhoFinalmente !== null)) return [3 /*break*/, 12];
+                        return [4 /*yield*/, this.executarBloco(declaracao.caminhoFinalmente)];
+                    case 11:
+                        _a.sent();
+                        _a.label = 12;
+                    case 12: return [7 /*endfinally*/];
+                    case 13: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoEnquanto = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var retornoExecucao, _a, _b, erro_8;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _a = !(retornoExecucao instanceof quebras_1.Quebra);
+                        if (!_a) return [3 /*break*/, 2];
+                        _b = this.eVerdadeiro;
+                        return [4 /*yield*/, this.avaliar(declaracao.condicao)];
+                    case 1:
+                        _a = _b.apply(this, [_c.sent()]);
+                        _c.label = 2;
+                    case 2:
+                        if (!_a) return [3 /*break*/, 7];
+                        _c.label = 3;
+                    case 3:
+                        _c.trys.push([3, 5, , 6]);
+                        return [4 /*yield*/, this.executar(declaracao.corpo)];
+                    case 4:
+                        retornoExecucao = _c.sent();
+                        return [3 /*break*/, 6];
+                    case 5:
+                        erro_8 = _c.sent();
+                        throw erro_8;
+                    case 6: return [3 /*break*/, 0];
+                    case 7: return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoImportar = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var caminhoRelativo, caminhoTotal, nomeArquivo, conteudoImportacao, retornoInterpretador, funcoesChamaveis, eDicionario, novoModulo, chaves, i;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(declaracao.caminho)];
+                    case 1:
+                        caminhoRelativo = _a.sent();
+                        caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
+                        nomeArquivo = caminho.basename(caminhoTotal);
+                        if (!caminhoTotal.endsWith('.egua') &&
+                            !caminhoTotal.endsWith('.delegua')) {
+                            try {
+                                return [2 /*return*/, (0, importar_biblioteca_1.default)(caminhoRelativo)];
+                            }
+                            catch (erro) {
+                                this.erros.push(erro);
+                                return [2 /*return*/, null];
+                            }
                         }
-                        catch (erro) {
-                            return Promise.reject(erro);
+                        conteudoImportacao = this.importador.importar(caminhoRelativo);
+                        retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true);
+                        funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
+                        eDicionario = function (objeto) { return objeto.constructor === Object; };
+                        if (eDicionario(funcoesChamaveis)) {
+                            novoModulo = new estruturas_1.DeleguaModulo();
+                            chaves = Object.keys(funcoesChamaveis);
+                            for (i = 0; i < chaves.length; i++) {
+                                novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
+                            }
+                            return [2 /*return*/, novoModulo];
                         }
-                    }
+                        return [2 /*return*/, funcoesChamaveis];
                 }
-            }
-            if (caminhoPadrao !== null && encontrado === false) {
-                await this.executarBloco(caminhoPadrao.declaracoes);
-            }
-        }
-        catch (erro) {
-            throw erro;
-        }
-    }
-    async visitarExpressaoTente(declaracao) {
-        try {
-            let sucesso = true;
-            try {
-                await this.executarBloco(declaracao.caminhoTente);
-            }
-            catch (erro) {
-                sucesso = false;
-                if (declaracao.caminhoPegue !== null) {
-                    await this.executarBloco(declaracao.caminhoPegue);
-                }
-                else {
-                    this.erros.push(erro);
-                }
-            }
-            if (sucesso && declaracao.caminhoSenao !== null) {
-                await this.executarBloco(declaracao.caminhoSenao);
-            }
-        }
-        finally {
-            if (declaracao.caminhoFinalmente !== null)
-                await this.executarBloco(declaracao.caminhoFinalmente);
-        }
-    }
-    async visitarExpressaoEnquanto(declaracao) {
-        let retornoExecucao;
-        while (!(retornoExecucao instanceof quebras_1.Quebra) &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-            }
-            catch (erro) {
-                throw erro;
-            }
-        }
-        return null;
-    }
-    async visitarExpressaoImportar(declaracao) {
-        const caminhoRelativo = await this.avaliar(declaracao.caminho);
-        const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
-        const nomeArquivo = caminho.basename(caminhoTotal);
-        if (!caminhoTotal.endsWith('.egua') &&
-            !caminhoTotal.endsWith('.delegua')) {
-            try {
-                return (0, importar_biblioteca_1.default)(caminhoRelativo);
-            }
-            catch (erro) {
-                this.erros.push(erro);
-                return null;
-            }
-        }
-        const conteudoImportacao = this.importador.importar(caminhoRelativo);
-        const retornoInterpretador = this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true);
-        const funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
-        const eDicionario = (objeto) => objeto.constructor === Object;
-        if (eDicionario(funcoesChamaveis)) {
-            const novoModulo = new estruturas_1.DeleguaModulo();
-            const chaves = Object.keys(funcoesChamaveis);
-            for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
-            }
-            return novoModulo;
-        }
-        return funcoesChamaveis;
-    }
+            });
+        });
+    };
     /**
      * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
      * alguma função para escrever numa página Web.
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao) {
-        try {
-            let valor;
-            for (const argumento of declaracao.argumentos) {
-                const resultadoAvaliacao = await this.avaliar(argumento);
-                valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor'))
-                    ? resultadoAvaliacao.valor
-                    : resultadoAvaliacao;
-            }
-            const formatoTexto = this.paraTexto(valor);
-            // Por enquanto `escreva` não devolve resultado no interpretador.
-            // this.resultadoInterpretador.push(formatoTexto);
-            this.funcaoDeRetorno(formatoTexto);
-            return null;
-        }
-        catch (erro) {
-            this.erros.push(erro);
-        }
-    }
+    Interpretador.prototype.visitarExpressaoEscreva = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valor, _i, _a, argumento, resultadoAvaliacao, formatoTexto, erro_9;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 5, , 6]);
+                        valor = void 0;
+                        _i = 0, _a = declaracao.argumentos;
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        argumento = _a[_i];
+                        return [4 /*yield*/, this.avaliar(argumento)];
+                    case 2:
+                        resultadoAvaliacao = _b.sent();
+                        valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor'))
+                            ? resultadoAvaliacao.valor
+                            : resultadoAvaliacao;
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        formatoTexto = this.paraTexto(valor);
+                        // Por enquanto `escreva` não devolve resultado no interpretador.
+                        // this.resultadoInterpretador.push(formatoTexto);
+                        this.funcaoDeRetorno(formatoTexto);
+                        return [2 /*return*/, null];
+                    case 5:
+                        erro_9 = _b.sent();
+                        this.erros.push(erro_9);
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
     /**
      * Empilha declarações na pilha de escopos de execução, cria um novo ambiente e
      * executa as declarações empilhadas.
@@ -2976,265 +5506,386 @@ class Interpretador {
      * @param declaracoes Um vetor de declaracoes a ser executado.
      * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
      */
-    async executarBloco(declaracoes, ambiente) {
-        const escopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: ambiente || new espaco_variaveis_1.EspacoVariaveis(),
-        };
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        const retornoUltimoEscopo = await this.executarUltimoEscopo();
-        if (retornoUltimoEscopo instanceof excecoes_1.ErroEmTempoDeExecucao) {
-            return Promise.reject(retornoUltimoEscopo);
-        }
-        return retornoUltimoEscopo;
-    }
-    async visitarExpressaoBloco(declaracao) {
-        return await this.executarBloco(declaracao.declaracoes);
-    }
+    Interpretador.prototype.executarBloco = function (declaracoes, ambiente) {
+        return __awaiter(this, void 0, void 0, function () {
+            var escopoExecucao, retornoUltimoEscopo;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        escopoExecucao = {
+                            declaracoes: declaracoes,
+                            declaracaoAtual: 0,
+                            ambiente: ambiente || new espaco_variaveis_1.EspacoVariaveis(),
+                        };
+                        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+                        return [4 /*yield*/, this.executarUltimoEscopo()];
+                    case 1:
+                        retornoUltimoEscopo = _a.sent();
+                        if (retornoUltimoEscopo instanceof excecoes_1.ErroEmTempoDeExecucao) {
+                            return [2 /*return*/, Promise.reject(retornoUltimoEscopo)];
+                        }
+                        return [2 /*return*/, retornoUltimoEscopo];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoBloco = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.executarBloco(declaracao.declaracoes)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     /**
      * Executa expressão de definição de variável.
      * @param declaracao A declaração Var
      * @returns Sempre retorna nulo.
      */
-    async visitarExpressaoVar(declaracao) {
-        let valorOuOutraVariavel = null;
-        if (declaracao.inicializador !== null) {
-            valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
-        }
-        let valorFinal = null;
-        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel;
-        }
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
-        return null;
-    }
-    visitarExpressaoContinua(declaracao) {
+    Interpretador.prototype.visitarExpressaoVar = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valorOuOutraVariavel, valorFinal;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        valorOuOutraVariavel = null;
+                        if (!(declaracao.inicializador !== null)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.avaliar(declaracao.inicializador)];
+                    case 1:
+                        valorOuOutraVariavel = _a.sent();
+                        _a.label = 2;
+                    case 2:
+                        valorFinal = null;
+                        if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
+                            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
+                                ? valorOuOutraVariavel.valor
+                                : valorOuOutraVariavel;
+                        }
+                        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
+                        return [2 /*return*/, null];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoContinua = function (declaracao) {
         return new quebras_1.ContinuarQuebra();
-    }
-    visitarExpressaoSustar(declaracao) {
+    };
+    Interpretador.prototype.visitarExpressaoSustar = function (declaracao) {
         return new quebras_1.SustarQuebra();
-    }
-    async visitarExpressaoRetornar(declaracao) {
-        let valor = null;
-        if (declaracao.valor != null)
-            valor = await this.avaliar(declaracao.valor);
-        return new quebras_1.RetornoQuebra(valor);
-    }
-    visitarExpressaoDeleguaFuncao(expressao) {
+    };
+    Interpretador.prototype.visitarExpressaoRetornar = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        valor = null;
+                        if (!(declaracao.valor != null)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.avaliar(declaracao.valor)];
+                    case 1:
+                        valor = _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/, new quebras_1.RetornoQuebra(valor)];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoDeleguaFuncao = function (expressao) {
         return new estruturas_1.DeleguaFuncao(null, expressao);
-    }
-    async visitarExpressaoAtribuicaoSobrescrita(expressao) {
-        const promises = await Promise.all([
-            this.avaliar(expressao.objeto),
-            this.avaliar(expressao.indice),
-            this.avaliar(expressao.valor)
-        ]);
-        let objeto = promises[0];
-        let indice = promises[1];
-        const valor = promises[2];
-        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
-        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
-        if (Array.isArray(objeto)) {
-            if (indice < 0 && objeto.length !== 0) {
-                while (indice < 0) {
-                    indice += objeto.length;
+    };
+    Interpretador.prototype.visitarExpressaoAtribuicaoSobrescrita = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var promises, objeto, indice, valor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Promise.all([
+                            this.avaliar(expressao.objeto),
+                            this.avaliar(expressao.indice),
+                            this.avaliar(expressao.valor)
+                        ])];
+                    case 1:
+                        promises = _a.sent();
+                        objeto = promises[0];
+                        indice = promises[1];
+                        valor = promises[2];
+                        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
+                        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+                        if (Array.isArray(objeto)) {
+                            if (indice < 0 && objeto.length !== 0) {
+                                while (indice < 0) {
+                                    indice += objeto.length;
+                                }
+                            }
+                            while (objeto.length < indice) {
+                                objeto.push(null);
+                            }
+                            objeto[indice] = valor;
+                        }
+                        else if (objeto.constructor === Object ||
+                            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+                            objeto instanceof estruturas_1.DeleguaFuncao ||
+                            objeto instanceof estruturas_1.DeleguaClasse ||
+                            objeto instanceof estruturas_1.DeleguaModulo) {
+                            objeto[indice] = valor;
+                        }
+                        else {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.', expressao.linha))];
+                        }
+                        return [2 /*return*/];
                 }
-            }
-            while (objeto.length < indice) {
-                objeto.push(null);
-            }
-            objeto[indice] = valor;
-        }
-        else if (objeto.constructor === Object ||
-            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
-            objeto instanceof estruturas_1.DeleguaFuncao ||
-            objeto instanceof estruturas_1.DeleguaClasse ||
-            objeto instanceof estruturas_1.DeleguaModulo) {
-            objeto[indice] = valor;
-        }
-        else {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.', expressao.linha));
-        }
-    }
-    async visitarExpressaoAcessoIndiceVariavel(expressao) {
-        const variavelObjeto = await this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        const indice = await this.avaliar(expressao.indice);
-        let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
-        if (Array.isArray(objeto)) {
-            if (!Number.isInteger(valorIndice)) {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar um vetor.', expressao.linha));
-            }
-            if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoAcessoIndiceVariavel = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var variavelObjeto, objeto, indice, valorIndice;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.entidadeChamada)];
+                    case 1:
+                        variavelObjeto = _a.sent();
+                        objeto = variavelObjeto.hasOwnProperty('valor')
+                            ? variavelObjeto.valor
+                            : variavelObjeto;
+                        return [4 /*yield*/, this.avaliar(expressao.indice)];
+                    case 2:
+                        indice = _a.sent();
+                        valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+                        if (Array.isArray(objeto)) {
+                            if (!Number.isInteger(valorIndice)) {
+                                return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar um vetor.', expressao.linha))];
+                            }
+                            if (valorIndice < 0 && objeto.length !== 0) {
+                                while (valorIndice < 0) {
+                                    valorIndice += objeto.length;
+                                }
+                            }
+                            if (valorIndice >= objeto.length) {
+                                return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice do vetor fora do intervalo.', expressao.linha))];
+                            }
+                            return [2 /*return*/, objeto[valorIndice]];
+                        }
+                        else if (objeto.constructor === Object ||
+                            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+                            objeto instanceof estruturas_1.DeleguaFuncao ||
+                            objeto instanceof estruturas_1.DeleguaClasse ||
+                            objeto instanceof estruturas_1.DeleguaModulo) {
+                            return [2 /*return*/, objeto[valorIndice] || null];
+                        }
+                        else if (typeof objeto === 'string') {
+                            if (!Number.isInteger(valorIndice)) {
+                                return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar um vetor.', expressao.linha))];
+                            }
+                            if (valorIndice < 0 && objeto.length !== 0) {
+                                while (valorIndice < 0) {
+                                    valorIndice += objeto.length;
+                                }
+                            }
+                            if (valorIndice >= objeto.length) {
+                                return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha))];
+                            }
+                            return [2 /*return*/, objeto.charAt(valorIndice)];
+                        }
+                        else {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.entidadeChamada.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.', expressao.linha))];
+                        }
+                        return [2 /*return*/];
                 }
-            }
-            if (valorIndice >= objeto.length) {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice do vetor fora do intervalo.', expressao.linha));
-            }
-            return objeto[valorIndice];
-        }
-        else if (objeto.constructor === Object ||
-            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
-            objeto instanceof estruturas_1.DeleguaFuncao ||
-            objeto instanceof estruturas_1.DeleguaClasse ||
-            objeto instanceof estruturas_1.DeleguaModulo) {
-            return objeto[valorIndice] || null;
-        }
-        else if (typeof objeto === 'string') {
-            if (!Number.isInteger(valorIndice)) {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar um vetor.', expressao.linha));
-            }
-            if (valorIndice < 0 && objeto.length !== 0) {
-                while (valorIndice < 0) {
-                    valorIndice += objeto.length;
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoDefinirValor = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var objeto, valor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.objeto)];
+                    case 1:
+                        objeto = _a.sent();
+                        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) &&
+                            objeto.constructor !== Object) {
+                            return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha))];
+                        }
+                        return [4 /*yield*/, this.avaliar(expressao.valor)];
+                    case 2:
+                        valor = _a.sent();
+                        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
+                            objeto.set(expressao.nome, valor);
+                            return [2 /*return*/, valor];
+                        }
+                        else if (objeto.constructor === Object) {
+                            objeto[expressao.simbolo.lexema] = valor;
+                        }
+                        return [2 /*return*/];
                 }
-            }
-            if (valorIndice >= objeto.length) {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice fora do tamanho.', expressao.linha));
-            }
-            return objeto.charAt(valorIndice);
-        }
-        else {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.entidadeChamada.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.', expressao.linha));
-        }
-    }
-    async visitarExpressaoDefinirValor(expressao) {
-        const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) &&
-            objeto.constructor !== Object) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
-        }
-        const valor = await this.avaliar(expressao.valor);
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
-            objeto.definir(expressao.nome, valor);
-            return valor;
-        }
-        else if (objeto.constructor === Object) {
-            objeto[expressao.simbolo.lexema] = valor;
-        }
-    }
-    visitarExpressaoFuncao(declaracao) {
-        const funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoFuncao = function (declaracao) {
+        var funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
-    }
+    };
     /**
      * Executa uma declaração de classe.
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
-    async visitarExpressaoClasse(declaracao) {
-        let superClasse = null;
-        if (declaracao.superClasse !== null) {
-            const variavelSuperClasse = await this.avaliar(declaracao.superClasse);
-            superClasse = variavelSuperClasse.valor;
-            if (!(superClasse instanceof estruturas_1.DeleguaClasse)) {
-                throw new excecoes_1.ErroEmTempoDeExecucao(declaracao.superClasse.nome, 'SuperClasse precisa ser uma classe.', declaracao.linha);
-            }
-        }
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
-        if (declaracao.superClasse !== null) {
-            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
-        }
-        const metodos = {};
-        const definirMetodos = declaracao.metodos;
-        for (let i = 0; i < declaracao.metodos.length; i++) {
-            const metodoAtual = definirMetodos[i];
-            const eInicializador = metodoAtual.simbolo.lexema === 'construtor';
-            const funcao = new estruturas_1.DeleguaFuncao(metodoAtual.simbolo.lexema, metodoAtual.funcao, undefined, eInicializador);
-            metodos[metodoAtual.simbolo.lexema] = funcao;
-        }
-        const deleguaClasse = new estruturas_1.DeleguaClasse(declaracao.simbolo.lexema, superClasse, metodos);
-        // TODO: Recolocar isso se for necessário.
-        /* if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
-        } */
-        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
-        return null;
-    }
+    Interpretador.prototype.visitarExpressaoClasse = function (declaracao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var superClasse, variavelSuperClasse, metodos, definirMetodos, i, metodoAtual, eInicializador, funcao, deleguaClasse;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        superClasse = null;
+                        if (!(declaracao.superClasse !== null)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.avaliar(declaracao.superClasse)];
+                    case 1:
+                        variavelSuperClasse = _a.sent();
+                        superClasse = variavelSuperClasse.valor;
+                        if (!(superClasse instanceof estruturas_1.DeleguaClasse)) {
+                            throw new excecoes_1.ErroEmTempoDeExecucao(declaracao.superClasse.nome, 'SuperClasse precisa ser uma classe.', declaracao.linha);
+                        }
+                        _a.label = 2;
+                    case 2:
+                        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, null);
+                        if (declaracao.superClasse !== null) {
+                            this.pilhaEscoposExecucao.definirVariavel('super', superClasse);
+                        }
+                        metodos = {};
+                        definirMetodos = declaracao.metodos;
+                        for (i = 0; i < declaracao.metodos.length; i++) {
+                            metodoAtual = definirMetodos[i];
+                            eInicializador = metodoAtual.simbolo.lexema === 'construtor';
+                            funcao = new estruturas_1.DeleguaFuncao(metodoAtual.simbolo.lexema, metodoAtual.funcao, undefined, eInicializador);
+                            metodos[metodoAtual.simbolo.lexema] = funcao;
+                        }
+                        deleguaClasse = new estruturas_1.DeleguaClasse(declaracao.simbolo.lexema, superClasse, metodos);
+                        // TODO: Recolocar isso se for necessário.
+                        /* if (superClasse !== null) {
+                            this.ambiente = this.ambiente.enclosing;
+                        } */
+                        this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, deleguaClasse);
+                        return [2 /*return*/, null];
+                }
+            });
+        });
+    };
     /**
      * Executa um acesso a método, normalmente de um objeto de classe.
      * @param expressao A expressão de acesso.
      * @returns O resultado da execução.
      */
-    async visitarExpressaoAcessoMetodo(expressao) {
-        const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
-            return objeto.obter(expressao.simbolo) || null;
-        }
-        if (objeto.constructor === Object) {
-            return objeto[expressao.simbolo.lexema] || null;
-        }
-        if (objeto instanceof estruturas_1.DeleguaModulo) {
-            return objeto.componentes[expressao.simbolo.lexema] || null;
-        }
-        switch (variavelObjeto.tipo) {
-            case 'texto':
-                const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema];
-                if (metodoDePrimitivaTexto) {
-                    return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+    Interpretador.prototype.visitarExpressaoAcessoMetodo = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var variavelObjeto, objeto, metodoDePrimitivaTexto, metodoDePrimitivaVetor;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.avaliar(expressao.objeto)];
+                    case 1:
+                        variavelObjeto = _a.sent();
+                        objeto = variavelObjeto === null || variavelObjeto === void 0 ? void 0 : variavelObjeto.valor;
+                        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
+                            return [2 /*return*/, objeto.get(expressao.simbolo) || null];
+                        }
+                        if (objeto.constructor === Object) {
+                            return [2 /*return*/, objeto[expressao.simbolo.lexema] || null];
+                        }
+                        if (objeto instanceof estruturas_1.DeleguaModulo) {
+                            return [2 /*return*/, objeto.componentes[expressao.simbolo.lexema] || null];
+                        }
+                        switch (variavelObjeto.tipo) {
+                            case 'texto':
+                                metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema];
+                                if (metodoDePrimitivaTexto) {
+                                    return [2 /*return*/, new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto)];
+                                }
+                                break;
+                            case 'vetor':
+                                metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema];
+                                if (metodoDePrimitivaVetor) {
+                                    return [2 /*return*/, new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor)];
+                                }
+                                break;
+                        }
+                        return [2 /*return*/, Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Você só pode acessar métodos do objeto e dicionários.', expressao.linha))];
                 }
-                break;
-            case 'vetor':
-                const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema];
-                if (metodoDePrimitivaVetor) {
-                    return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Você só pode acessar métodos do objeto e dicionários.', expressao.linha));
-    }
-    visitarExpressaoIsto(expressao) {
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoIsto = function (expressao) {
         return this.procurarVariavel(expressao.palavraChave);
-    }
-    async visitarExpressaoDicionario(expressao) {
-        const dicionario = {};
-        for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]),
-                this.avaliar(expressao.valores[i])
-            ]);
-            dicionario[promises[0]] = promises[1];
-        }
-        return dicionario;
-    }
-    async visitarExpressaoVetor(expressao) {
-        const valores = [];
-        for (let i = 0; i < expressao.valores.length; i++) {
-            valores.push(await this.avaliar(expressao.valores[i]));
-        }
-        return valores;
-    }
+    };
+    Interpretador.prototype.visitarExpressaoDicionario = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var dicionario, i, promises;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dicionario = {};
+                        i = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(i < expressao.chaves.length)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, Promise.all([
+                                this.avaliar(expressao.chaves[i]),
+                                this.avaliar(expressao.valores[i])
+                            ])];
+                    case 2:
+                        promises = _a.sent();
+                        dicionario[promises[0]] = promises[1];
+                        _a.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, dicionario];
+                }
+            });
+        });
+    };
+    Interpretador.prototype.visitarExpressaoVetor = function (expressao) {
+        return __awaiter(this, void 0, void 0, function () {
+            var valores, i, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        valores = [];
+                        i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(i < expressao.valores.length)) return [3 /*break*/, 4];
+                        _b = (_a = valores).push;
+                        return [4 /*yield*/, this.avaliar(expressao.valores[i])];
+                    case 2:
+                        _b.apply(_a, [_c.sent()]);
+                        _c.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, valores];
+                }
+            });
+        });
+    };
     // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
-    visitarExpressaoSuper(expressao) {
-        const superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
-        const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
-        const metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
+    Interpretador.prototype.visitarExpressaoSuper = function (expressao) {
+        var superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
+        var objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
+        var metodo = superClasse.valor.encontrarMetodo(expressao.metodo.lexema);
         if (metodo === undefined) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
         }
         return metodo.definirInstancia(objeto.valor);
-    }
-    paraTexto(objeto) {
+    };
+    Interpretador.prototype.paraTexto = function (objeto) {
         if (objeto === null || objeto === undefined)
             return 'nulo';
         if (typeof objeto === 'boolean') {
             return objeto ? 'verdadeiro' : 'falso';
         }
         if (objeto instanceof Date) {
-            const formato = Intl.DateTimeFormat('pt', {
+            var formato = Intl.DateTimeFormat('pt', {
                 dateStyle: 'full',
                 timeStyle: 'full',
             });
@@ -3247,23 +5898,33 @@ class Interpretador {
         if (typeof objeto === 'object')
             return JSON.stringify(objeto);
         return objeto.toString();
-    }
+    };
     /**
      * Efetivamente executa uma declaração.
      * @param declaracao A declaração a ser executada.
      * @param mostrarResultado Se resultado deve ser mostrado ou não. Normalmente usado
      *                         pelo modo LAIR.
      */
-    async executar(declaracao, mostrarResultado = false) {
-        const resultado = await declaracao.aceitar(this);
-        if (mostrarResultado) {
-            this.funcaoDeRetorno(this.paraTexto(resultado));
-        }
-        if (resultado || typeof resultado === 'boolean') {
-            this.resultadoInterpretador.push(this.paraTexto(resultado));
-        }
-        return resultado;
-    }
+    Interpretador.prototype.executar = function (declaracao, mostrarResultado) {
+        if (mostrarResultado === void 0) { mostrarResultado = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var resultado;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, declaracao.aceitar(this)];
+                    case 1:
+                        resultado = _a.sent();
+                        if (mostrarResultado) {
+                            this.funcaoDeRetorno(this.paraTexto(resultado));
+                        }
+                        if (resultado || typeof resultado === 'boolean') {
+                            this.resultadoInterpretador.push(this.paraTexto(resultado));
+                        }
+                        return [2 /*return*/, resultado];
+                }
+            });
+        });
+    };
     /**
      * Executa o último escopo empilhado no topo na pilha de escopos do interpretador.
      * Esse método pega exceções, mas apenas as devolve.
@@ -3274,27 +5935,45 @@ class Interpretador {
      * @param manterAmbiente Se verdadeiro, ambiente do topo da pilha de escopo é copiado para o ambiente imediatamente abaixo.
      * @returns O resultado da execução do escopo, se houver.
      */
-    async executarUltimoEscopo(manterAmbiente = false) {
-        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
-        try {
-            let retornoExecucao;
-            for (; !(retornoExecucao instanceof quebras_1.Quebra) &&
-                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
-                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
-            }
-            return retornoExecucao;
-        }
-        catch (erro) {
-            return Promise.reject(erro);
-        }
-        finally {
-            this.pilhaEscoposExecucao.removerUltimo();
-            if (manterAmbiente) {
-                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-                escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, ultimoEscopo.ambiente.valores);
-            }
-        }
-    }
+    Interpretador.prototype.executarUltimoEscopo = function (manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var ultimoEscopo, retornoExecucao, erro_10, escopoAnterior;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, 7, 8]);
+                        retornoExecucao = void 0;
+                        _a.label = 2;
+                    case 2:
+                        if (!(!(retornoExecucao instanceof quebras_1.Quebra) &&
+                            ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual])];
+                    case 3:
+                        retornoExecucao = _a.sent();
+                        _a.label = 4;
+                    case 4:
+                        ultimoEscopo.declaracaoAtual++;
+                        return [3 /*break*/, 2];
+                    case 5: return [2 /*return*/, retornoExecucao];
+                    case 6:
+                        erro_10 = _a.sent();
+                        return [2 /*return*/, Promise.reject(erro_10)];
+                    case 7:
+                        this.pilhaEscoposExecucao.removerUltimo();
+                        if (manterAmbiente) {
+                            escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                            escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, ultimoEscopo.ambiente.valores);
+                        }
+                        return [7 /*endfinally*/];
+                    case 8: return [2 /*return*/];
+                }
+            });
+        });
+    };
     /**
      * Interpretação sem depurador, com medição de performance.
      * Método que efetivamente inicia o processo de interpretação.
@@ -3303,149 +5982,169 @@ class Interpretador {
      *                       pelo modo REPL (LEIA).
      * @returns Um objeto com o resultado da interpretação.
      */
-    async interpretar(declaracoes, manterAmbiente = false) {
-        this.erros = [];
-        const escopoExecucao = {
-            declaracoes: declaracoes,
-            declaracaoAtual: 0,
-            ambiente: new espaco_variaveis_1.EspacoVariaveis(),
-        };
-        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
-        const inicioInterpretacao = (0, browser_process_hrtime_1.default)();
-        try {
-            const retornoOuErro = await this.executarUltimoEscopo(manterAmbiente);
-            if (retornoOuErro instanceof excecoes_1.ErroEmTempoDeExecucao) {
-                this.erros.push(retornoOuErro);
-            }
-        }
-        catch (erro) {
-            this.erros.push(erro);
-        }
-        finally {
-            if (this.performance) {
-                const deltaInterpretacao = (0, browser_process_hrtime_1.default)(inicioInterpretacao);
-                console.log(`[Interpretador] Tempo para interpretaçao: ${deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1]}ns`);
-            }
-            const retorno = {
-                erros: this.erros,
-                resultado: this.resultadoInterpretador,
-            };
-            this.resultadoInterpretador = [];
-            return retorno;
-        }
-    }
-}
+    Interpretador.prototype.interpretar = function (declaracoes, manterAmbiente) {
+        if (manterAmbiente === void 0) { manterAmbiente = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var escopoExecucao, inicioInterpretacao, retornoOuErro, erro_11, deltaInterpretacao, retorno;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.erros = [];
+                        escopoExecucao = {
+                            declaracoes: declaracoes,
+                            declaracaoAtual: 0,
+                            ambiente: new espaco_variaveis_1.EspacoVariaveis(),
+                        };
+                        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+                        inicioInterpretacao = (0, browser_process_hrtime_1.default)();
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, 4, 5]);
+                        return [4 /*yield*/, this.executarUltimoEscopo(manterAmbiente)];
+                    case 2:
+                        retornoOuErro = _a.sent();
+                        if (retornoOuErro instanceof excecoes_1.ErroEmTempoDeExecucao) {
+                            this.erros.push(retornoOuErro);
+                        }
+                        return [3 /*break*/, 5];
+                    case 3:
+                        erro_11 = _a.sent();
+                        this.erros.push(erro_11);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        if (this.performance) {
+                            deltaInterpretacao = (0, browser_process_hrtime_1.default)(inicioInterpretacao);
+                            console.log("[Interpretador] Tempo para interpreta\u00E7ao: ".concat(deltaInterpretacao[0] * 1e9 + deltaInterpretacao[1], "ns"));
+                        }
+                        retorno = {
+                            erros: this.erros,
+                            resultado: this.resultadoInterpretador,
+                        };
+                        this.resultadoInterpretador = [];
+                        return [2 /*return*/, retorno];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return Interpretador;
+}());
 exports.Interpretador = Interpretador;
 
 },{"../bibliotecas/biblioteca-global":5,"../bibliotecas/importar-biblioteca":6,"../bibliotecas/primitivas-texto":7,"../bibliotecas/primitivas-vetor":8,"../espaco-variaveis":47,"../estruturas":53,"../estruturas/metodo-primitiva":54,"../excecoes":59,"../quebras":70,"../tipos-de-simbolos/delegua":71,"./inferenciador":63,"./pilha-escopos-execucao":65,"browser-process-hrtime":72,"path":74}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
-const estruturas_1 = require("../estruturas");
-const excecoes_1 = require("../excecoes");
-const lexador_1 = require("../lexador");
-const inferenciador_1 = require("./inferenciador");
-class PilhaEscoposExecucao {
-    constructor() {
+var estruturas_1 = require("../estruturas");
+var excecoes_1 = require("../excecoes");
+var lexador_1 = require("../lexador");
+var inferenciador_1 = require("./inferenciador");
+var PilhaEscoposExecucao = /** @class */ (function () {
+    function PilhaEscoposExecucao() {
         this.pilha = [];
     }
-    empilhar(item) {
+    PilhaEscoposExecucao.prototype.empilhar = function (item) {
         this.pilha.push(item);
-    }
-    eVazio() {
+    };
+    PilhaEscoposExecucao.prototype.eVazio = function () {
         return this.pilha.length === 0;
-    }
-    elementos() {
+    };
+    PilhaEscoposExecucao.prototype.elementos = function () {
         return this.pilha.length;
-    }
-    naPosicao(posicao) {
+    };
+    PilhaEscoposExecucao.prototype.naPosicao = function (posicao) {
         return this.pilha[posicao];
-    }
-    topoDaPilha() {
+    };
+    PilhaEscoposExecucao.prototype.topoDaPilha = function () {
         if (this.eVazio())
             throw new Error('Pilha vazia.');
         return this.pilha[this.pilha.length - 1];
-    }
-    removerUltimo() {
+    };
+    PilhaEscoposExecucao.prototype.removerUltimo = function () {
         if (this.eVazio())
             throw new Error('Pilha vazia.');
         return this.pilha.pop();
-    }
-    definirVariavel(nomeVariavel, valor) {
+    };
+    PilhaEscoposExecucao.prototype.definirVariavel = function (nomeVariavel, valor) {
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel] = {
-            valor,
+            valor: valor,
             tipo: (0, inferenciador_1.inferirTipoVariavel)(valor),
         };
-    }
-    atribuirVariavelEm(distancia, simbolo, valor) {
-        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
+    };
+    PilhaEscoposExecucao.prototype.atribuirVariavelEm = function (distancia, simbolo, valor) {
+        var ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         ambienteAncestral.valores[simbolo.lexema] = {
-            valor,
+            valor: valor,
             tipo: (0, inferenciador_1.inferirTipoVariavel)(valor),
         };
-    }
-    atribuirVariavel(simbolo, valor) {
-        for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+    };
+    PilhaEscoposExecucao.prototype.atribuirVariavel = function (simbolo, valor) {
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 ambiente.valores[simbolo.lexema] = {
-                    valor,
+                    valor: valor,
                     tipo: (0, inferenciador_1.inferirTipoVariavel)(valor),
                 };
                 return;
             }
         }
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
-    }
-    obterVariavelEm(distancia, nome) {
-        const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
+    };
+    PilhaEscoposExecucao.prototype.obterVariavelEm = function (distancia, nome) {
+        var ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
-    }
-    obterVariavel(simbolo) {
-        for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+    };
+    PilhaEscoposExecucao.prototype.obterVariavel = function (simbolo) {
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 return ambiente.valores[simbolo.lexema];
             }
         }
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida: '" + simbolo.lexema + "'.");
-    }
-    obterVariavelPorNome(nome) {
-        for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+    };
+    PilhaEscoposExecucao.prototype.obterVariavelPorNome = function (nome) {
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[nome] !== undefined) {
                 return ambiente.valores[nome];
             }
         }
         throw new excecoes_1.ErroEmTempoDeExecucao(new lexador_1.Simbolo('especial', nome, nome, -1, -1), "Variável não definida: '" + nome + "'.");
-    }
+    };
     /**
      * Método usado pelo depurador para obter todas as variáveis definidas.
      */
-    obterTodasVariaveis(todasVariaveis = []) {
-        for (let i = 1; i <= this.pilha.length; i++) {
-            const ambiente = this.pilha[this.pilha.length - i].ambiente;
+    PilhaEscoposExecucao.prototype.obterTodasVariaveis = function (todasVariaveis) {
+        if (todasVariaveis === void 0) { todasVariaveis = []; }
+        for (var i = 1; i <= this.pilha.length; i++) {
+            var ambiente = this.pilha[this.pilha.length - i].ambiente;
             // TODO: Testar se isso faz sentido.
-            const vetorObjeto = Object.entries(ambiente).map((chave, valor) => ({ valor: valor, tipo: 'texto' }));
+            var vetorObjeto = Object.entries(ambiente).map(function (chave, valor) {
+                return ({ valor: valor, tipo: 'texto' });
+            });
             todasVariaveis.concat(vetorObjeto);
         }
         return todasVariaveis;
-    }
+    };
     /**
      * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
      * em console.
      */
-    obterTodasDeleguaFuncao() {
-        const retorno = {};
-        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
-        for (const [nome, corpo] of Object.entries(ambiente.valores)) {
+    PilhaEscoposExecucao.prototype.obterTodasDeleguaFuncao = function () {
+        var retorno = {};
+        var ambiente = this.pilha[this.pilha.length - 1].ambiente;
+        for (var _i = 0, _a = Object.entries(ambiente.valores); _i < _a.length; _i++) {
+            var _b = _a[_i], nome = _b[0], corpo = _b[1];
             if (corpo instanceof estruturas_1.DeleguaFuncao) {
                 retorno[nome] = corpo;
             }
         }
         return retorno;
-    }
-}
+    };
+    return PilhaEscoposExecucao;
+}());
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
 },{"../estruturas":53,"../excecoes":59,"../lexador":66,"./inferenciador":63}],66:[function(require,module,exports){
@@ -3475,18 +6174,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Lexador = void 0;
-const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
-const simbolo_1 = require("./simbolo");
-const palavras_reservadas_1 = __importDefault(require("./palavras-reservadas"));
-const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
+var browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
+var simbolo_1 = require("./simbolo");
+var palavras_reservadas_1 = __importDefault(require("./palavras-reservadas"));
+var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
  * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
  * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
  */
-class Lexador {
-    constructor(performance = false) {
+var Lexador = /** @class */ (function () {
+    function Lexador(performance) {
+        if (performance === void 0) { performance = false; }
         this.performance = performance;
         this.simbolos = [];
         this.erros = [];
@@ -3495,11 +6195,11 @@ class Lexador {
         this.atual = 0;
         this.linha = 0;
     }
-    eDigito(caractere) {
+    Lexador.prototype.eDigito = function (caractere) {
         return caractere >= '0' && caractere <= '9';
-    }
-    eAlfabeto(caractere) {
-        const acentuacoes = [
+    };
+    Lexador.prototype.eAlfabeto = function (caractere) {
+        var acentuacoes = [
             'á',
             'Á',
             'ã',
@@ -3529,55 +6229,57 @@ class Lexador {
         return ((caractere >= 'a' && caractere <= 'z') ||
             (caractere >= 'A' && caractere <= 'Z') ||
             acentuacoes.includes(caractere));
-    }
-    eAlfabetoOuDigito(caractere) {
+    };
+    Lexador.prototype.eAlfabetoOuDigito = function (caractere) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
-    }
-    eFinalDaLinha() {
+    };
+    Lexador.prototype.eFinalDaLinha = function () {
         if (this.codigo.length === this.linha) {
             return true;
         }
         return this.atual >= this.codigo[this.linha].length;
-    }
+    };
     /**
      * Indica se o código está na última linha.
      * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
      */
-    eUltimaLinha() {
+    Lexador.prototype.eUltimaLinha = function () {
         return this.linha >= this.codigo.length - 1;
-    }
-    eFinalDoCodigo() {
+    };
+    Lexador.prototype.eFinalDoCodigo = function () {
         return (this.eUltimaLinha() &&
             this.codigo[this.codigo.length - 1].length <= this.atual);
-    }
-    avancar() {
+    };
+    Lexador.prototype.avancar = function () {
         this.atual += 1;
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
         }
-    }
-    adicionarSimbolo(tipo, literal = null) {
-        const texto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+    };
+    Lexador.prototype.adicionarSimbolo = function (tipo, literal) {
+        if (literal === void 0) { literal = null; }
+        var texto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         this.simbolos.push(new simbolo_1.Simbolo(tipo, literal || texto, literal, this.linha + 1, this.hashArquivo));
-    }
-    simboloAtual() {
+    };
+    Lexador.prototype.simboloAtual = function () {
         if (this.eFinalDaLinha())
             return '\0';
         return this.codigo[this.linha].charAt(this.atual);
-    }
-    avancarParaProximaLinha() {
+    };
+    Lexador.prototype.avancarParaProximaLinha = function () {
         this.linha++;
         this.atual = 0;
-    }
-    proximoSimbolo() {
+    };
+    Lexador.prototype.proximoSimbolo = function () {
         return this.codigo[this.linha].charAt(this.atual + 1);
-    }
-    simboloAnterior() {
+    };
+    Lexador.prototype.simboloAnterior = function () {
         return this.codigo[this.linha].charAt(this.atual - 1);
-    }
-    analisarTexto(delimitador = '"') {
+    };
+    Lexador.prototype.analisarTexto = function (delimitador) {
+        if (delimitador === void 0) { delimitador = '"'; }
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
             this.avancar();
         }
@@ -3589,10 +6291,10 @@ class Lexador {
             });
             return;
         }
-        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
+        var valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
         this.adicionarSimbolo(delegua_1.default.TEXTO, valor);
-    }
-    analisarNumero() {
+    };
+    Lexador.prototype.analisarNumero = function () {
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
@@ -3602,20 +6304,20 @@ class Lexador {
                 this.avancar();
             }
         }
-        const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        var numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         this.adicionarSimbolo(delegua_1.default.NUMERO, parseFloat(numeroCompleto));
-    }
-    identificarPalavraChave() {
+    };
+    Lexador.prototype.identificarPalavraChave = function () {
         while (this.eAlfabetoOuDigito(this.simboloAtual())) {
             this.avancar();
         }
-        const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in palavras_reservadas_1.default
+        var codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        var tipo = codigo in palavras_reservadas_1.default
             ? palavras_reservadas_1.default[codigo]
             : delegua_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
-    }
-    encontrarFimComentarioAsterisco() {
+    };
+    Lexador.prototype.encontrarFimComentarioAsterisco = function () {
         while (!this.eFinalDoCodigo()) {
             this.avancar();
             if (this.simboloAtual() === '*' && this.proximoSimbolo() === '/') {
@@ -3624,9 +6326,9 @@ class Lexador {
                 break;
             }
         }
-    }
-    analisarToken() {
-        const caractere = this.simboloAtual();
+    };
+    Lexador.prototype.analisarToken = function () {
+        var caractere = this.simboloAtual();
         switch (caractere) {
             case '[':
                 this.adicionarSimbolo(delegua_1.default.COLCHETE_ESQUERDO);
@@ -3831,9 +6533,9 @@ class Lexador {
                     this.avancar();
                 }
         }
-    }
-    mapear(codigo, hashArquivo) {
-        const inicioMapeamento = (0, browser_process_hrtime_1.default)();
+    };
+    Lexador.prototype.mapear = function (codigo, hashArquivo) {
+        var inicioMapeamento = (0, browser_process_hrtime_1.default)();
         this.erros = [];
         this.simbolos = [];
         this.inicioSimbolo = 0;
@@ -3846,15 +6548,16 @@ class Lexador {
             this.analisarToken();
         }
         if (this.performance) {
-            const deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
-            console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
+            var deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
+            console.log("[Lexador] Tempo para mapeamento: ".concat(deltaMapeamento[0] * 1e9 + deltaMapeamento[1], "ns"));
         }
         return {
             simbolos: this.simbolos,
             erros: this.erros,
         };
-    }
-}
+    };
+    return Lexador;
+}());
 exports.Lexador = Lexador;
 
 },{"../tipos-de-simbolos/delegua":71,"./palavras-reservadas":68,"./simbolo":69,"browser-process-hrtime":72}],68:[function(require,module,exports){
@@ -3863,7 +6566,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
+var delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 exports.default = {
     e: delegua_1.default.E,
     em: delegua_1.default.EM,
@@ -3904,39 +6607,71 @@ exports.default = {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
-class Simbolo {
-    constructor(tipo, lexema, literal, linha, hashArquivo) {
+var Simbolo = /** @class */ (function () {
+    function Simbolo(tipo, lexema, literal, linha, hashArquivo) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
         this.linha = linha;
         this.hashArquivo = hashArquivo;
     }
-    paraTexto() {
+    Simbolo.prototype.paraTexto = function () {
         return this.tipo + ' ' + this.lexema + ' ' + this.literal;
-    }
-}
+    };
+    return Simbolo;
+}());
 exports.Simbolo = Simbolo;
 
 },{}],70:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
-class Quebra {
-}
-exports.Quebra = Quebra;
-class RetornoQuebra extends Quebra {
-    constructor(valor) {
-        super();
-        this.valor = valor;
+var Quebra = /** @class */ (function () {
+    function Quebra() {
     }
-}
+    return Quebra;
+}());
+exports.Quebra = Quebra;
+var RetornoQuebra = /** @class */ (function (_super) {
+    __extends(RetornoQuebra, _super);
+    function RetornoQuebra(valor) {
+        var _this = _super.call(this) || this;
+        _this.valor = valor;
+        return _this;
+    }
+    return RetornoQuebra;
+}(Quebra));
 exports.RetornoQuebra = RetornoQuebra;
-class SustarQuebra extends Quebra {
-}
+var SustarQuebra = /** @class */ (function (_super) {
+    __extends(SustarQuebra, _super);
+    function SustarQuebra() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return SustarQuebra;
+}(Quebra));
 exports.SustarQuebra = SustarQuebra;
-class ContinuarQuebra extends Quebra {
-}
+var ContinuarQuebra = /** @class */ (function (_super) {
+    __extends(ContinuarQuebra, _super);
+    function ContinuarQuebra() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return ContinuarQuebra;
+}(Quebra));
 exports.ContinuarQuebra = ContinuarQuebra;
 
 },{}],71:[function(require,module,exports){
