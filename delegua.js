@@ -1,5 +1,28 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Delegua = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -45,6 +68,8 @@ var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
 var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
 var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
+var matematica = __importStar(require("@designliquido/delegua-matematica"));
+var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
 var DeleguaWeb = /** @class */ (function () {
     function DeleguaWeb(nomeArquivo, funcaoDeRetorno) {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
@@ -61,6 +86,14 @@ var DeleguaWeb = /** @class */ (function () {
                 callback(resposta);
             }
         };
+        var moduloMatematica = new estruturas_1.DeleguaModulo("matematica");
+        var chaves = Object.keys(matematica);
+        for (var i = 0; i < chaves.length; i++) {
+            var funcao = matematica[chaves[i]];
+            moduloMatematica.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
+        }
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", moduloMatematica);
+        console.log(this.interpretador.pilhaEscoposExecucao);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -146,7 +179,538 @@ var DeleguaWeb = /** @class */ (function () {
 }());
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"@designliquido/delegua/fontes/avaliador-sintatico":4,"@designliquido/delegua/fontes/interpretador":62,"@designliquido/delegua/fontes/lexador":66,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":71}],2:[function(require,module,exports){
+},{"@designliquido/delegua-matematica":8,"@designliquido/delegua/fontes/avaliador-sintatico":14,"@designliquido/delegua/fontes/estruturas":63,"@designliquido/delegua/fontes/interpretador":72,"@designliquido/delegua/fontes/lexador":76,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":81}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.gerarPontosAbscissa = exports.somaElementosMatriz = void 0;
+/**
+ * Calcula a soma de todos os elementos da matriz
+ * @param {numero[]} matriz Matriz de N dimensões
+ * @returns {numero} Retorna o valor da soma dos elementos da matriz
+ */
+function somaElementosMatriz(matriz) {
+    const vetor = matriz.flatMap((n) => n);
+    const soma = vetor.reduce((acc, curr) => acc + curr);
+    return soma;
+}
+exports.somaElementosMatriz = somaElementosMatriz;
+//FUNÇÃO AFIM E QUADRÁTICA
+/**
+ * Gera valores para abscissa.
+ * @param {inteiro} distancia A distância entra dois pontos.
+ * @param {inteiro} valorPontoCentral O ponto central na abscissa.
+ * @param {inteiro} numeroPontos Número de pontos a serem gerados (padrão: 7).
+ * @returns Um vetor, contendo o número de pontos informado ou definido por padrão em uma abscissa.
+ *          Se o número informado é par, um ponto negativo a mais é gerado.
+ */
+function gerarPontosAbscissa(distancia, valorPontoCentral, numeroPontos) {
+    if (!numeroPontos) {
+        numeroPontos = 7;
+    }
+    const elementoInicial = valorPontoCentral - (((numeroPontos / 2) >> 0) * distancia);
+    const vetor = [];
+    for (let i = 0; i < numeroPontos; i++) {
+        vetor.push(elementoInicial + (i * distancia));
+    }
+    return vetor;
+}
+exports.gerarPontosAbscissa = gerarPontosAbscissa;
+;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.limite = void 0;
+/**
+ * Calcula o limite.
+ * @param {numero} valor Valor numérico.
+ * @param {numero} min Valor mínimo.
+ * @param {numero} max Valor máximo.
+ * @returns O cálculo do limite.
+ */
+function limite(valor, min, max) {
+    return valor < min ? min : (valor > max ? max : valor);
+}
+exports.limite = limite;
+
+},{}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.jurosCompostos = exports.jurosSimples = void 0;
+/**
+ * Calcula o juros simples
+ * @param {numero} capital Capital inicial.
+ * @param {numero} taxaDeJuros Taxa de juros.
+ * @param {numero} tempo Tempo da aplicação em meses.
+ * @returns O valor do juros.
+ */
+function jurosSimples(capital, taxaDeJuros, tempo) {
+    taxaDeJuros = taxaDeJuros / 100;
+    const juros = (capital * taxaDeJuros * tempo);
+    // const montante = capital + juros;
+    return juros;
+}
+exports.jurosSimples = jurosSimples;
+/**
+ * Calcula o juros composto
+ * @param {numero} capital Capital inicial.
+ * @param {numero} taxaDeJuros Taxa de juros.
+ * @param {numero} tempo Tempo da aplicação em meses.
+ * @returns O valor do juros.
+ */
+function jurosCompostos(capital, taxaDeJuros, tempo) {
+    taxaDeJuros = taxaDeJuros / 100;
+    const montante = capital * ((1 + taxaDeJuros) ** tempo);
+    const juros = montante - capital;
+    return juros;
+}
+exports.jurosCompostos = jurosCompostos;
+;
+
+},{}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.linspace = exports.fun2R = exports.yVertice = exports.xVertice = exports.fun2 = exports.fun1R = exports.fun1 = void 0;
+const funcoes_algebricas_1 = require("./funcoes-algebricas");
+/**
+ * Retorna o desenho da função afim.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @returns O desenho da função afim.
+ */
+function fun1(a, b) {
+    const x = [b - 4, b - 3, b - 2, b - 1, b, b + 1, b + 2, b + 3, b + 4];
+    const f = x.map(function (x) { return ((x * a) + b); });
+    return ['f(x) =' + f];
+}
+exports.fun1 = fun1;
+/**
+ * Calcula a raíz da função afim.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @returns A raiz da função afim.
+ */
+function fun1R(a, b) {
+    return (-1 * b) / a;
+}
+exports.fun1R = fun1R;
+;
+/**
+ * Retorna o desenho da função quadrática.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @param {number} c O valor de c.
+ * @returns O desenho da função quadrática.
+ */
+function fun2(a, b, c) {
+    const n = 2.5;
+    var arr = [];
+    var step = (n - (-n)) / (n - 1);
+    for (var i = 0; i < n; i = i + 0.01) {
+        arr.push(((-n - 1.945) + (step * i)));
+    }
+    const x = arr;
+    const f = x.map(function (x) { return ((x * x * a) + (b * x) + c); });
+    return f;
+}
+exports.fun2 = fun2;
+/**
+ * Calcula x do vértice.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @param {number} c O valor de c.
+ * @returns As raizes da função quadrática.
+ */
+function xVertice(a, b, c) {
+    const xv = (-1 * b) / (2 * a);
+    return xv;
+}
+exports.xVertice = xVertice;
+;
+/**
+ * Calcula y do vértice.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @param {number} c O valor de c.
+ * @returns As raizes da função quadrática.
+ */
+function yVertice(a, b, c) {
+    const yv = (-1 * (Math.pow(b, 2) - (4 * a * c))) / 4 * a;
+    return yv;
+}
+exports.yVertice = yVertice;
+;
+/**
+ * Calcula as raízes da função quadrática.
+ * @param {number} a O valor de a.
+ * @param {number} b O valor de b.
+ * @param {number} c O valor de c.
+ * @returns As raizes da função quadrática.
+ */
+function fun2R(a, b, c) {
+    const r1 = ((-1 * b) + (0, funcoes_algebricas_1.raizQuadrada)((b ** 2) - (4 * a * c))) / (2 * a);
+    const r2 = ((-1 * b) - (0, funcoes_algebricas_1.raizQuadrada)((b ** 2) - (4 * a * c))) / (2 * a);
+    return [r1, r2];
+}
+exports.fun2R = fun2R;
+;
+/**
+ * Preenche um intervalo entre dois números dada uma cardinalidade.
+ * @param {numero} valorInicial O valor inicial.
+ * @param {numero} valorDeParada O valor de parada.
+ * @param {numero} cardinalidade A cardinalidade.
+ * @returns
+ */
+function linspace(valorInicial, valorDeParada, cardinalidade) {
+    const lista = [];
+    const passo = (valorDeParada - valorInicial) / (cardinalidade - 1);
+    for (var i = 0; i < cardinalidade; i++) {
+        lista.push(valorInicial + (passo * i));
+    }
+    return lista;
+}
+exports.linspace = linspace;
+;
+
+},{"./funcoes-algebricas":6}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.raizQuadrada = exports.aleatorio = exports.potencia = exports.logaritmo = exports.exp = void 0;
+/**
+ * Retorna a constante de Euler elevada ao valor passado por parâmetro
+ * @param {numero} valor A potência a elevar a constante e
+ * @returns Valor da constante e elevado à potência
+ */
+function exp(valor) {
+    return Math.exp(valor);
+}
+exports.exp = exp;
+/**
+ * Calcula o logarítimo natural.
+ * @param {number} valor Número a ser calculado.
+ * @returns O logarítimo do número.
+ */
+function logaritmo(valor) {
+    return Math.log(valor);
+}
+exports.logaritmo = logaritmo;
+/**
+ * Faz a exponenciação de uma base a determinado expoente.
+ * @param {number} base O valor da base.
+ * @param {number} expoente O valor do expoente.
+ * @returns O cálculo da exponenciação.
+ */
+function potencia(base, expoente) {
+    return Math.pow(base, expoente);
+}
+exports.potencia = potencia;
+/**
+ * Gera e retorna um valor aleatório.
+ * @returns Valor aleatório
+ */
+//Funçao que gera um valor aleatório
+function aleatorio() {
+    return Math.random();
+}
+exports.aleatorio = aleatorio;
+/**
+ * Calcula a raíz quadrada.
+ * @param {number} valor Um número para aplicar a radiciação.
+ * @returns O valor da radiciação.
+ */
+function raizQuadrada(valor) {
+    return Math.sqrt(valor);
+}
+exports.raizQuadrada = raizQuadrada;
+
+},{}],7:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pontoMedio = exports.distanciaDoisPontos = exports.areaTriangulo = exports.areaTrapezio = exports.areaLosango = exports.areaRetangulo = exports.areaQuadrado = exports.areaCirculo = void 0;
+const funcoes_algebricas_1 = require("./funcoes-algebricas");
+/**
+ * Função da área do círculo.
+ * @param {numero} raio Raio do circulo.
+ * @returns A área do círculo.
+ */
+function areaCirculo(raio) {
+    return ((Math.PI * raio * raio * 100) / 100);
+}
+exports.areaCirculo = areaCirculo;
+/**
+ * Função da área do quadrado.
+ * @param {numero} lado Lado do quadrado.
+ * @returns A área do quadrado.
+ */
+function areaQuadrado(lado) {
+    return lado * lado;
+}
+exports.areaQuadrado = areaQuadrado;
+/**
+ * Função da área do retângulo.
+ * @param {numero} ladoX Lado eixo x do retângulo.
+ * @param {numero} ladoY Lado eixo y do retângulo.
+ * @returns A área do retângulo.
+ */
+function areaRetangulo(ladoX, ladoY) {
+    return ladoX * ladoY;
+}
+exports.areaRetangulo = areaRetangulo;
+/**
+ * Função da área do losango.
+ * @param {numero} diagonalMaior Lado eixo x do losango.
+ * @param {numero} diagonalMenor Lado eixo y do losango.
+ * @returns A área do losango.
+ */
+function areaLosango(diagonalMaior, diagonalMenor) {
+    return (diagonalMaior * diagonalMenor) / 2;
+}
+exports.areaLosango = areaLosango;
+/**
+ * Função da área do trapézio.
+ * @param {numero} baseMaior Base maior do trapézio.
+ * @param {numero} baseMenor Base menor do trapézio.
+ * @param {numero} altura Altura do trapézio.
+ * @returns A área do trapézio.
+ */
+function areaTrapezio(baseMaior, baseMenor, altura) {
+    return ((baseMaior + baseMenor) * altura) / 2;
+}
+exports.areaTrapezio = areaTrapezio;
+/**
+ * Função da área do triângulo.
+ * @param {numero} base Base do triângulo.
+ * @param {numero} altura Altura do triângulo.
+ * @returns A área do triângulo.
+ */
+function areaTriangulo(base, altura) {
+    return (base * altura) / 2;
+}
+exports.areaTriangulo = areaTriangulo;
+/**
+ * Função distância entre 2 pontos.
+ * @param {numero} x1 x inicial.
+ * @param {numero} x2 x final.
+ * @param {numero} y1 y inicial.
+ * @param {numero} y2 y final.
+ * @returns A distância entre os dois pontos.
+ */
+function distanciaDoisPontos(x1, x2, y1, y2) {
+    const x = ((0, funcoes_algebricas_1.potencia)(x2, 2)) - 2 * x2 * x1 + ((0, funcoes_algebricas_1.potencia)(x1, 2));
+    const y = ((0, funcoes_algebricas_1.potencia)(y2, 2)) - 2 * y2 * y1 + ((0, funcoes_algebricas_1.potencia)(y1, 2));
+    return (0, funcoes_algebricas_1.raizQuadrada)((x + y));
+}
+exports.distanciaDoisPontos = distanciaDoisPontos;
+/**
+ * Função do ponto médio.
+ * @param {numero} x1 x inicial.
+ * @param {numero} x2 x final.
+ * @param {numero} y1 y inicial.
+ * @param {numero} y2 y final.
+ * @returns Uma lista contendo o ponto médio de x e y respectivamente.
+ */
+function pontoMedio(x1, x2, y1, y2) {
+    const xm = (x2 + x1) / 2;
+    const ym = (y2 + y1) / 2;
+    return [xm, ym];
+}
+exports.pontoMedio = pontoMedio;
+
+},{"./funcoes-algebricas":6}],8:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./algebra-linear"), exports);
+__exportStar(require("./calculo-diferencial-integral"), exports);
+__exportStar(require("./financeira"), exports);
+__exportStar(require("./funcao-primeiro-grau"), exports);
+__exportStar(require("./funcoes-algebricas"), exports);
+__exportStar(require("./geometria-plana"), exports);
+__exportStar(require("./miscelanea"), exports);
+__exportStar(require("./trigonometria"), exports);
+__exportStar(require("./vetores"), exports);
+
+},{"./algebra-linear":2,"./calculo-diferencial-integral":3,"./financeira":4,"./funcao-primeiro-grau":5,"./funcoes-algebricas":6,"./geometria-plana":7,"./miscelanea":9,"./trigonometria":10,"./vetores":11}],9:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.arredondarParaBaixo = exports.pontosAleatorios = exports.aprox = void 0;
+/**
+ * Aproximação de valores.
+ * @param {number} x Um valor a ser arredondado.
+ * @param {number} casasDecimais O número de casas decimais.
+ * @returns O arredondamento do valor.
+ */
+function aprox(x, casasDecimais) {
+    if (casasDecimais == undefined) {
+        casasDecimais = 2;
+    }
+    if (typeof x == "number") {
+        return x.toFixed(casasDecimais);
+    }
+    if (x[0].length == undefined) {
+        // Vetor de 1 dimensão
+        for (let i = 0; i < x.length; i++) {
+            x[i] = parseFloat(x[i].toFixed(casasDecimais));
+        }
+        return x;
+    }
+    for (let i = 0; i < x.length; i++) {
+        // Vetor de 2 dimensões
+        for (let j = 0; j < x[0].length; j++) {
+            x[i][j] = parseFloat(x[i][j].toFixed(casasDecimais));
+        }
+    }
+    return x;
+}
+exports.aprox = aprox;
+/**
+ * Cria um vetor de números aleatórios.
+ * @param {numero} numeroPontos O número de pontos aleatórios a ser gerado.
+ * @returns O vetor de números aleatórios.
+ */
+function pontosAleatorios(numeroPontos) {
+    let ex = 0;
+    const x = [];
+    x[0] = 100;
+    for (let i = 1; i < numeroPontos; i++) {
+        x[i] = ex + x[i - 1] + Math.random() * 2 - 1;
+    }
+    return aprox(x, 2);
+}
+exports.pontosAleatorios = pontosAleatorios;
+//
+/**
+ * Arredonda o número passado por parâmetro para baixo.
+ * @param {numero} valor O valor a ser arredondado.
+ * @returns O valor arredondado para baixo, como um número inteiro.
+ */
+function arredondarParaBaixo(valor) {
+    return Math.floor(valor);
+}
+exports.arredondarParaBaixo = arredondarParaBaixo;
+
+},{}],10:[function(require,module,exports){
+"use strict";
+/*TRIGONOMETRIA*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.radiano = exports.arcoTangente = exports.arcoSeno = exports.arcoCosseno = exports.tangente = exports.cosseno = exports.seno = exports.graus = exports.pi = void 0;
+/**
+ * Constante pi.
+ * @see https://pt.wikipedia.org/wiki/Pi
+ */
+function pi() { return Math.PI; }
+exports.pi = pi;
+/**
+ * Converte radiano para graus.
+ * @param {numero} angulo Ângulo em radianos
+ * @returns O ângulo em graus
+ */
+function graus(angulo) {
+    return angulo * (180 / Math.PI);
+}
+exports.graus = graus;
+/**
+ * Calcula o valor do seno de um ângulo.
+ * @param {numero} angulo Ângulo em radiano.
+ * @returns O seno do ângulo.
+ */
+function seno(angulo) {
+    return Math.sin(angulo);
+}
+exports.seno = seno;
+/**
+ * Calcula o valor do cosseno de um ângulo.
+ * @param {numero} angulo Ângulo em radiano.
+ * @returns O cosseno do ângulo.
+ */
+function cosseno(angulo) {
+    return Math.cos(angulo);
+}
+exports.cosseno = cosseno;
+/**
+ * Calcula o valor da tangente de um ângulo.
+ * @param {numero} angulo Ângulo em radiano.
+ * @returns A tangente do ângulo.
+ */
+function tangente(angulo) {
+    return Math.tan(angulo);
+}
+exports.tangente = tangente;
+/**
+ * Calcula o arco cosseno de um número.
+ * @param {numero} valor Um valor.
+ * @returns O arco cosseno.
+ */
+function arcoCosseno(valor) {
+    return Math.acos(valor);
+}
+exports.arcoCosseno = arcoCosseno;
+/**
+ * Calcula o arco seno de um número.
+ * @param {numero} valor Um valor.
+ * @returns O arco seno.
+ */
+function arcoSeno(valor) {
+    return Math.asin(valor);
+}
+exports.arcoSeno = arcoSeno;
+/**
+ * Calcula o arco tangente de um número.
+ * @param {numero} valor Um valor.
+ * @returns O arco tangente.
+ */
+function arcoTangente(valor) {
+    return Math.atan(valor);
+}
+exports.arcoTangente = arcoTangente;
+/**
+ * Calcula o valor radiano de um ângulo. O radiano é o comprimento do arco formado
+ * por um ângulo em uma circunferência.
+ * @param {inteiro} angulo O ângulo, em graus, do valor radiano desejado.
+ * @returns O valor, em radianos, do arco formado pelo ângulo.
+ * @see https://pt.wikipedia.org/wiki/Radiano
+ */
+function radiano(angulo) {
+    return angulo * (Math.PI / 180);
+}
+exports.radiano = radiano;
+
+},{}],11:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.numeroOcorrencias = exports.comprimentoVetor = void 0;
+/**
+ * Retorna o comprimento de um vetor.
+ * @param {any[]} vetor Um vetor de itens quaisquer.
+ * @returns O comprimento do vetor.
+ */
+function comprimentoVetor(vetor) {
+    return vetor.length;
+}
+exports.comprimentoVetor = comprimentoVetor;
+;
+/**
+ * Conta quantas vezes um determinado valor aparece em um vetor.
+ * @param {qualquer[]} vetor Vetor de elementos
+ * @param {qualquer} valor Valor a ser encontrado no vetor
+ * @returns Valor inteiro, com o número de vezes que `valor` foi encontrado em `vetor`.
+ */
+function numeroOcorrencias(vetor, valor) {
+    return vetor.filter((v) => (v === valor)).length;
+}
+exports.numeroOcorrencias = numeroOcorrencias;
+;
+
+},{}],12:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -865,7 +1429,7 @@ var AvaliadorSintatico = /** @class */ (function () {
 }());
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":20,"../declaracoes":39,"../tipos-de-simbolos/delegua":71,"./erro-avaliador-sintatico":3,"browser-process-hrtime":72}],3:[function(require,module,exports){
+},{"../construtos":30,"../declaracoes":49,"../tipos-de-simbolos/delegua":81,"./erro-avaliador-sintatico":13,"browser-process-hrtime":82}],13:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -896,7 +1460,7 @@ var ErroAvaliadorSintatico = /** @class */ (function (_super) {
 }(Error));
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
-},{}],4:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -916,7 +1480,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./avaliador-sintatico"), exports);
 __exportStar(require("./erro-avaliador-sintatico"), exports);
 
-},{"./avaliador-sintatico":2,"./erro-avaliador-sintatico":3}],5:[function(require,module,exports){
+},{"./avaliador-sintatico":12,"./erro-avaliador-sintatico":13}],15:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1309,7 +1873,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
 }
 exports.default = default_1;
 
-},{"../estruturas":53,"../estruturas/delegua-classe":50,"../estruturas/funcao-padrao":52,"../estruturas/objeto-delegua-classe":56,"../excecoes":59}],6:[function(require,module,exports){
+},{"../estruturas":63,"../estruturas/delegua-classe":60,"../estruturas/funcao-padrao":62,"../estruturas/objeto-delegua-classe":66,"../excecoes":69}],16:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -1426,7 +1990,7 @@ function default_1(nome) {
 exports.default = default_1;
 
 }).call(this)}).call(this,require('_process'))
-},{"../estruturas/classe-padrao":49,"../estruturas/funcao-padrao":52,"../estruturas/modulo":55,"../excecoes":59,"_process":75,"child_process":73,"path":74}],7:[function(require,module,exports){
+},{"../estruturas/classe-padrao":59,"../estruturas/funcao-padrao":62,"../estruturas/modulo":65,"../excecoes":69,"_process":85,"child_process":83,"path":84}],17:[function(require,module,exports){
 "use strict";
 var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
@@ -1454,7 +2018,7 @@ exports.default = {
     dividir: function (texto, divisor, limite) { return __spreadArray([], texto.split(divisor, limite), true); },
 };
 
-},{}],8:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -1490,7 +2054,7 @@ exports.default = {
     },
 };
 
-},{}],9:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1556,7 +2120,7 @@ var AcessoIndiceVariavel = /** @class */ (function () {
 }());
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],10:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1621,7 +2185,7 @@ var AcessoMetodo = /** @class */ (function () {
 }());
 exports.AcessoMetodo = AcessoMetodo;
 
-},{}],11:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1686,7 +2250,7 @@ var Agrupamento = /** @class */ (function () {
 }());
 exports.Agrupamento = Agrupamento;
 
-},{}],12:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1748,7 +2312,7 @@ var AtribuicaoSobrescrita = /** @class */ (function () {
 }());
 exports.AtribuicaoSobrescrita = AtribuicaoSobrescrita;
 
-},{}],13:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1809,7 +2373,7 @@ var Atribuir = /** @class */ (function () {
 }());
 exports.Atribuir = Atribuir;
 
-},{}],14:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1882,7 +2446,7 @@ var Binario = /** @class */ (function () {
 }());
 exports.Binario = Binario;
 
-},{}],15:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1944,11 +2508,11 @@ var Chamada = /** @class */ (function () {
 }());
 exports.Chamada = Chamada;
 
-},{}],16:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],17:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2010,7 +2574,7 @@ var DefinirValor = /** @class */ (function () {
 }());
 exports.DefinirValor = DefinirValor;
 
-},{}],18:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2071,7 +2635,7 @@ var Dicionario = /** @class */ (function () {
 }());
 exports.Dicionario = Dicionario;
 
-},{}],19:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2129,7 +2693,7 @@ var FuncaoConstruto = /** @class */ (function () {
 }());
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],20:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2165,7 +2729,7 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./acesso-indice-variavel":9,"./acesso-metodo":10,"./agrupamento":11,"./atribuicao-sobrescrita":12,"./atribuir":13,"./binario":14,"./chamada":15,"./construto":16,"./definir-valor":17,"./dicionario":18,"./funcao":19,"./isto":21,"./literal":22,"./logico":23,"./super":24,"./unario":25,"./variavel":26,"./vetor":27}],21:[function(require,module,exports){
+},{"./acesso-indice-variavel":19,"./acesso-metodo":20,"./agrupamento":21,"./atribuicao-sobrescrita":22,"./atribuir":23,"./binario":24,"./chamada":25,"./construto":26,"./definir-valor":27,"./dicionario":28,"./funcao":29,"./isto":31,"./literal":32,"./logico":33,"./super":34,"./unario":35,"./variavel":36,"./vetor":37}],31:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2222,7 +2786,7 @@ var Isto = /** @class */ (function () {
 }());
 exports.Isto = Isto;
 
-},{}],22:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2279,7 +2843,7 @@ var Literal = /** @class */ (function () {
 }());
 exports.Literal = Literal;
 
-},{}],23:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2341,7 +2905,7 @@ var Logico = /** @class */ (function () {
 }());
 exports.Logico = Logico;
 
-},{}],24:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2399,7 +2963,7 @@ var Super = /** @class */ (function () {
 }());
 exports.Super = Super;
 
-},{}],25:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2460,7 +3024,7 @@ var Unario = /** @class */ (function () {
 }());
 exports.Unario = Unario;
 
-},{}],26:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2517,7 +3081,7 @@ var Variavel = /** @class */ (function () {
 }());
 exports.Variavel = Variavel;
 
-},{}],27:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2577,7 +3141,7 @@ var Vetor = /** @class */ (function () {
 }());
 exports.Vetor = Vetor;
 
-},{}],28:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2654,7 +3218,7 @@ var Bloco = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Bloco = Bloco;
 
-},{"./declaracao":31}],29:[function(require,module,exports){
+},{"./declaracao":41}],39:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2733,7 +3297,7 @@ var Classe = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Classe = Classe;
 
-},{"./declaracao":31}],30:[function(require,module,exports){
+},{"./declaracao":41}],40:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2805,7 +3369,7 @@ var Continua = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Continua = Continua;
 
-},{"./declaracao":31}],31:[function(require,module,exports){
+},{"./declaracao":41}],41:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -2865,7 +3429,7 @@ var Declaracao = /** @class */ (function () {
 }());
 exports.Declaracao = Declaracao;
 
-},{}],32:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -2943,7 +3507,7 @@ var Enquanto = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":31}],33:[function(require,module,exports){
+},{"./declaracao":41}],43:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3025,7 +3589,7 @@ var Escolha = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Escolha = Escolha;
 
-},{"./declaracao":31}],34:[function(require,module,exports){
+},{"./declaracao":41}],44:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3102,7 +3666,7 @@ var Escreva = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Escreva = Escreva;
 
-},{"./declaracao":31}],35:[function(require,module,exports){
+},{"./declaracao":41}],45:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3179,7 +3743,7 @@ var Expressao = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Expressao = Expressao;
 
-},{"./declaracao":31}],36:[function(require,module,exports){
+},{"./declaracao":41}],46:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3257,7 +3821,7 @@ var Fazer = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Fazer = Fazer;
 
-},{"./declaracao":31}],37:[function(require,module,exports){
+},{"./declaracao":41}],47:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3332,7 +3896,7 @@ var FuncaoDeclaracao = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"./declaracao":31}],38:[function(require,module,exports){
+},{"./declaracao":41}],48:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3410,7 +3974,7 @@ var Importar = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Importar = Importar;
 
-},{"./declaracao":31}],39:[function(require,module,exports){
+},{"./declaracao":41}],49:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3446,7 +4010,7 @@ __exportStar(require("./declaracao"), exports);
 __exportStar(require("./tente"), exports);
 __exportStar(require("./var"), exports);
 
-},{"./bloco":28,"./classe":29,"./continua":30,"./declaracao":31,"./enquanto":32,"./escolha":33,"./escreva":34,"./expressao":35,"./fazer":36,"./funcao":37,"./importar":38,"./leia":40,"./para":41,"./retorna":42,"./se":43,"./sustar":44,"./tente":45,"./var":46}],40:[function(require,module,exports){
+},{"./bloco":38,"./classe":39,"./continua":40,"./declaracao":41,"./enquanto":42,"./escolha":43,"./escreva":44,"./expressao":45,"./fazer":46,"./funcao":47,"./importar":48,"./leia":50,"./para":51,"./retorna":52,"./se":53,"./sustar":54,"./tente":55,"./var":56}],50:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3527,7 +4091,7 @@ var Leia = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Leia = Leia;
 
-},{"./declaracao":31}],41:[function(require,module,exports){
+},{"./declaracao":41}],51:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3607,7 +4171,7 @@ var Para = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Para = Para;
 
-},{"./declaracao":31}],42:[function(require,module,exports){
+},{"./declaracao":41}],52:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3685,7 +4249,7 @@ var Retorna = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Retorna = Retorna;
 
-},{"./declaracao":31}],43:[function(require,module,exports){
+},{"./declaracao":41}],53:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3765,7 +4329,7 @@ var Se = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Se = Se;
 
-},{"./declaracao":31}],44:[function(require,module,exports){
+},{"./declaracao":41}],54:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3837,7 +4401,7 @@ var Sustar = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Sustar = Sustar;
 
-},{"./declaracao":31}],45:[function(require,module,exports){
+},{"./declaracao":41}],55:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3917,7 +4481,7 @@ var Tente = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Tente = Tente;
 
-},{"./declaracao":31}],46:[function(require,module,exports){
+},{"./declaracao":41}],56:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -3995,7 +4559,7 @@ var Var = /** @class */ (function (_super) {
 }(declaracao_1.Declaracao));
 exports.Var = Var;
 
-},{"./declaracao":31}],47:[function(require,module,exports){
+},{"./declaracao":41}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
@@ -4007,7 +4571,7 @@ var EspacoVariaveis = /** @class */ (function () {
 }());
 exports.EspacoVariaveis = EspacoVariaveis;
 
-},{}],48:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -4024,7 +4588,7 @@ var Chamavel = /** @class */ (function () {
 }());
 exports.Chamavel = Chamavel;
 
-},{}],49:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4083,7 +4647,7 @@ var ClassePadrao = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":48,"./objeto-padrao":57}],50:[function(require,module,exports){
+},{"./chamavel":58,"./objeto-padrao":67}],60:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4143,7 +4707,7 @@ var DeleguaClasse = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.DeleguaClasse = DeleguaClasse;
 
-},{"./chamavel":48,"./objeto-delegua-classe":56}],51:[function(require,module,exports){
+},{"./chamavel":58,"./objeto-delegua-classe":66}],61:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4270,7 +4834,7 @@ var DeleguaFuncao = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../espaco-variaveis":47,"../quebras":70,"./chamavel":48}],52:[function(require,module,exports){
+},{"../espaco-variaveis":57,"../quebras":80,"./chamavel":58}],62:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4356,7 +4920,7 @@ var FuncaoPadrao = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":48}],53:[function(require,module,exports){
+},{"./chamavel":58}],63:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4383,7 +4947,7 @@ __exportStar(require("./modulo"), exports);
 __exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./objeto-padrao"), exports);
 
-},{"./chamavel":48,"./classe-padrao":49,"./delegua-classe":50,"./delegua-funcao":51,"./funcao-padrao":52,"./metodo-primitiva":54,"./modulo":55,"./objeto-delegua-classe":56,"./objeto-padrao":57}],54:[function(require,module,exports){
+},{"./chamavel":58,"./classe-padrao":59,"./delegua-classe":60,"./delegua-funcao":61,"./funcao-padrao":62,"./metodo-primitiva":64,"./modulo":65,"./objeto-delegua-classe":66,"./objeto-padrao":67}],64:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4439,7 +5003,7 @@ var MetodoPrimitiva = /** @class */ (function (_super) {
 }(chamavel_1.Chamavel));
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":48}],55:[function(require,module,exports){
+},{"./chamavel":58}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -4455,7 +5019,7 @@ var DeleguaModulo = /** @class */ (function () {
 }());
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],56:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -4484,7 +5048,7 @@ var ObjetoDeleguaClasse = /** @class */ (function () {
 }());
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../excecoes":59}],57:[function(require,module,exports){
+},{"../excecoes":69}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -4508,7 +5072,7 @@ var ObjetoPadrao = /** @class */ (function () {
 }());
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],58:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -4541,7 +5105,7 @@ var ErroEmTempoDeExecucao = /** @class */ (function (_super) {
 }(Error));
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],59:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4560,15 +5124,15 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":58}],60:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":68}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],61:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],62:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4589,7 +5153,7 @@ __exportStar(require("./erro-interpretador"), exports);
 __exportStar(require("./interpretador"), exports);
 __exportStar(require("../interfaces/retornos/retorno-interpretador"), exports);
 
-},{"../interfaces/retornos/retorno-interpretador":60,"./erro-interpretador":61,"./interpretador":64}],63:[function(require,module,exports){
+},{"../interfaces/retornos/retorno-interpretador":70,"./erro-interpretador":71,"./interpretador":74}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
@@ -4620,7 +5184,7 @@ function inferirTipoVariavel(variavel) {
 }
 exports.inferirTipoVariavel = inferirTipoVariavel;
 
-},{}],64:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6031,7 +6595,7 @@ var Interpretador = /** @class */ (function () {
 }());
 exports.Interpretador = Interpretador;
 
-},{"../bibliotecas/biblioteca-global":5,"../bibliotecas/importar-biblioteca":6,"../bibliotecas/primitivas-texto":7,"../bibliotecas/primitivas-vetor":8,"../espaco-variaveis":47,"../estruturas":53,"../estruturas/metodo-primitiva":54,"../excecoes":59,"../quebras":70,"../tipos-de-simbolos/delegua":71,"./inferenciador":63,"./pilha-escopos-execucao":65,"browser-process-hrtime":72,"path":74}],65:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":15,"../bibliotecas/importar-biblioteca":16,"../bibliotecas/primitivas-texto":17,"../bibliotecas/primitivas-vetor":18,"../espaco-variaveis":57,"../estruturas":63,"../estruturas/metodo-primitiva":64,"../excecoes":69,"../quebras":80,"../tipos-de-simbolos/delegua":81,"./inferenciador":73,"./pilha-escopos-execucao":75,"browser-process-hrtime":82,"path":84}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -6147,7 +6711,7 @@ var PilhaEscoposExecucao = /** @class */ (function () {
 }());
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":53,"../excecoes":59,"../lexador":66,"./inferenciador":63}],66:[function(require,module,exports){
+},{"../estruturas":63,"../excecoes":69,"../lexador":76,"./inferenciador":73}],76:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6167,7 +6731,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":67,"./simbolo":69}],67:[function(require,module,exports){
+},{"./lexador":77,"./simbolo":79}],77:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6560,7 +7124,7 @@ var Lexador = /** @class */ (function () {
 }());
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":71,"./palavras-reservadas":68,"./simbolo":69,"browser-process-hrtime":72}],68:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":81,"./palavras-reservadas":78,"./simbolo":79,"browser-process-hrtime":82}],78:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6603,7 +7167,7 @@ exports.default = {
     verdadeiro: delegua_1.default.VERDADEIRO
 };
 
-},{"../tipos-de-simbolos/delegua":71}],69:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":81}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -6622,7 +7186,7 @@ var Simbolo = /** @class */ (function () {
 }());
 exports.Simbolo = Simbolo;
 
-},{}],70:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -6674,7 +7238,7 @@ var ContinuarQuebra = /** @class */ (function (_super) {
 }(Quebra));
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],71:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -6754,7 +7318,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],72:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -6785,9 +7349,9 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":75}],73:[function(require,module,exports){
+},{"_process":85}],83:[function(require,module,exports){
 
-},{}],74:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -7320,7 +7884,7 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":75}],75:[function(require,module,exports){
+},{"_process":85}],85:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
