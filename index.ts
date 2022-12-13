@@ -12,6 +12,8 @@ import {
     SimboloInterface,
 } from "@designliquido/delegua/fontes/interfaces/index";
 import { RetornoImportador } from "@designliquido/delegua/fontes/importador";
+import * as matematica from "@designliquido/delegua-matematica";
+import { DeleguaFuncao, DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
 
 export class DeleguaWeb implements DeleguaInterface {
     nomeArquivo: string;
@@ -50,6 +52,20 @@ export class DeleguaWeb implements DeleguaInterface {
                 callback(resposta);
             }
         }
+
+        const moduloMatematica = new DeleguaModulo("matematica");
+        const chaves = Object.keys(matematica);
+        for (let i = 0; i < chaves.length; i++) {
+            const funcao = matematica[chaves[i]];
+            moduloMatematica.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
+        }
+
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "matematica",
+            moduloMatematica
+        );
+
+        console.log(this.interpretador.pilhaEscoposExecucao);
 
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;

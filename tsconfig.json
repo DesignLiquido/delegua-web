@@ -13,10 +13,5 @@
     "esModuleInterop": true,
     "allowJs": true
   },
-  "files": [
-    "index.ts",
-    "exemplos.ts",
-    "editor.ts",
-    "menu.ts"
-  ]
+  "exclude": ["babel.config.js", "dist/**/*"]
 }
