@@ -13,7 +13,7 @@ import {
 } from "@designliquido/delegua/fontes/interfaces/index";
 import { RetornoImportador } from "@designliquido/delegua/fontes/importador";
 import * as matematica from "@designliquido/delegua-matematica";
-import { DeleguaFuncao, DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
+import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
 
 export class DeleguaWeb implements DeleguaInterface {
     nomeArquivo: string;
@@ -64,8 +64,6 @@ export class DeleguaWeb implements DeleguaInterface {
             "matematica",
             moduloMatematica
         );
-
-        console.log(this.interpretador.pilhaEscoposExecucao);
 
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
@@ -125,7 +123,7 @@ export class DeleguaWeb implements DeleguaInterface {
     }
 
     versao() {
-        return "0.9";
+        return "0.11";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
