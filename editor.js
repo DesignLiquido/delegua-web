@@ -35,9 +35,6 @@ clearOutput();
 var executarCodigo = function () {
     var delegua = new Delegua.DeleguaWeb("", mostrarResultado);
     var codigo = editor.getCode().split("\n");
-    for (var linha = 0; linha < codigo.length; linha++) {
-        codigo[linha] += "\0";
-    }
     var retornoLexador = delegua.lexador.mapear(codigo, -1);
     var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });

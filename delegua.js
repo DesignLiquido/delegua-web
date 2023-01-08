@@ -93,7 +93,6 @@ var DeleguaWeb = /** @class */ (function () {
             moduloMatematica.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
         }
         this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", moduloMatematica);
-        console.log(this.interpretador.pilhaEscoposExecucao);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -144,7 +143,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.9";
+        return "0.11";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -3677,6 +3676,9 @@ class Interpretador {
             }
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             }
             catch (erro) {
                 return Promise.reject(erro);
@@ -3692,6 +3694,9 @@ class Interpretador {
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             }
             catch (erro) {
                 return Promise.reject(erro);
@@ -3757,6 +3762,9 @@ class Interpretador {
             this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
             }
             catch (erro) {
                 throw erro;
@@ -3778,7 +3786,7 @@ class Interpretador {
                 return null;
             }
         }
-        const conteudoImportacao = this.importador.importar(caminhoRelativo, false);
+        const conteudoImportacao = this.importador.importar(caminhoRelativo, false, false);
         const retornoInterpretador = await this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true);
         const funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
         const eDicionario = (objeto) => objeto.constructor === Object;
@@ -4484,13 +4492,7 @@ class Lexador {
                 this.avancar();
             }
         }
-        let numeroCompleto = '';
-        if (this.atual !== 0) {
-            numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        }
-        else {
-            numeroCompleto = this.codigo[this.linha - 1].substring(this.inicioSimbolo);
-        }
+        const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         this.adicionarSimbolo(delegua_1.default.NUMERO, parseFloat(numeroCompleto));
     }
     identificarPalavraChave() {
@@ -4750,6 +4752,9 @@ class Lexador {
         this.linha = 0;
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\0';
+        }
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
             this.analisarToken();

@@ -92,7 +92,6 @@ var DeleguaWeb = /** @class */ (function () {
             moduloMatematica.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
         }
         this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", moduloMatematica);
-        console.log(this.interpretador.pilhaEscoposExecucao);
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
     }
@@ -143,7 +142,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.9";
+        return "0.11";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
