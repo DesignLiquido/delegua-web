@@ -44,10 +44,6 @@ const executarCodigo = function () {
 
     const codigo = editor.getCode().split("\n");
 
-    for (let linha = 0; linha < codigo.length; linha++) {
-        codigo[linha] += "\0";
-    }
-
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico =
         delegua.avaliadorSintatico.analisar(retornoLexador);
