@@ -80,6 +80,7 @@ nav .icone-burger {
   padding: 20px;
 }
 
+#botaoTraduzir,
 #botaoExecutar {
   cursor: pointer;
   background-color: transparent;
@@ -97,6 +98,16 @@ nav .icone-burger {
   border-top: 1px solid #d9d9d9;
 }
 
+textarea {
+  border: none;
+  outline: none;
+  overflow: hidden;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  resize: none;
+}
+
 @media only screen and (max-width: 768px) {
   #editor {
     width: 100% !important;
@@ -110,7 +121,8 @@ nav .icone-burger {
     position: relative !important;
   }
 
-  #botaoExecutar {
+  #botaoTraduzir,
+#botaoExecutar {
     width: 50px;
     font-size: 11px;
   }

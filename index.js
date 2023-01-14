@@ -69,11 +69,15 @@ var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
 var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
 var matematica = __importStar(require("@designliquido/delegua-matematica"));
 var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
+var tradutores_1 = require("@designliquido/delegua/fontes/tradutores");
 var DeleguaWeb = /** @class */ (function () {
     function DeleguaWeb(nomeArquivo, funcaoDeRetorno) {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
+        this.teveErro = false;
+        this.teveErroEmTempoDeExecucao = false;
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
+        this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.nomeArquivo = nomeArquivo;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.lexador = new lexador_1.Lexador();
@@ -92,8 +96,6 @@ var DeleguaWeb = /** @class */ (function () {
             moduloMatematica.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
         }
         this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", moduloMatematica);
-        this.teveErro = false;
-        this.teveErroEmTempoDeExecucao = false;
     }
     DeleguaWeb.prototype.executar = function (retornoImportador, manterAmbiente) {
         if (manterAmbiente === void 0) { manterAmbiente = false; }
