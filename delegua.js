@@ -4998,6 +4998,7 @@ class TradutorJavaScript {
             FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
             Isto: () => 'this',
             Literal: this.traduzirConstrutoLiteral.bind(this),
+            Logico: this.traduzirConstrutoLogico.bind(this),
             Variavel: this.traduzirConstrutoVariavel.bind(this),
         };
         this.dicionarioDeclaracoes = {
@@ -5028,6 +5029,8 @@ class TradutorJavaScript {
                 return '!==';
             case delegua_1.default.DIVISAO:
                 return '/';
+            case delegua_1.default.E:
+                return '&&';
             case delegua_1.default.EXPONENCIACAO:
                 return '**';
             case delegua_1.default.IGUAL:
@@ -5046,6 +5049,8 @@ class TradutorJavaScript {
                 return '%';
             case delegua_1.default.MULTIPLICACAO:
                 return '*';
+            case delegua_1.default.OU:
+                return '||';
             case delegua_1.default.SUBTRACAO:
                 return '-';
         }
@@ -5355,6 +5360,12 @@ class TradutorJavaScript {
         resultado += ') ';
         resultado += this.logicaComumBlocoEscopo(funcaoConstruto.corpo);
         return resultado;
+    }
+    traduzirConstrutoLogico(logico) {
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+        return `${direita} ${operador} ${esquerda}`;
     }
     traduzir(declaracoes) {
         let resultado = '';
