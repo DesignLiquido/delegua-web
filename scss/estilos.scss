@@ -89,6 +89,7 @@ nav {
     padding: 20px;
 }
 
+#botaoTraduzir,
 #botaoExecutar {
     cursor: pointer;
     background-color: transparent;
@@ -106,6 +107,18 @@ nav {
     border-top: 1px solid $borda;
 }
 
+textarea {
+    border: none;
+    outline: none;
+    overflow: hidden;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none;
+}
+
 @media only screen and (max-width: 768px) {
     #editor {
         width: 100% !important;
@@ -119,6 +132,7 @@ nav {
         position: relative !important;
     }
 
+    #botaoTraduzir,
     #botaoExecutar {
         width: 50px;
         font-size: 11px;
