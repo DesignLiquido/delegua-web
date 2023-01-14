@@ -1,5 +1,6 @@
 const outputDiv: HTMLElement = document.getElementById("output") as HTMLElement;
-const runButton = document.getElementById("botaoExecutar");
+const botaoTraduzir = document.getElementById("botaoTraduzir");
+const botaoExecutar = document.getElementById("botaoExecutar");
 const seletorDemos = document.getElementById("seletorDemos");
 
 const CodeFlask = (window as any).CodeFlask;
@@ -20,11 +21,20 @@ function getQueryVariable(variable: any) {
     }
 }
 
-const mostrarResultado = function (msg: string) {
-    const p: any = document.createElement("p");
-    p.textContent = msg;
-    p.classList = " output";
-    outputDiv?.appendChild(p);
+const mostrarResultadoTradutor = function(codigo: string) {
+    const textarea: any = document.createElement("textarea");
+    textarea.textContent = codigo;
+    textarea.classList = " output";
+    textarea.style.height = "100%";
+    textarea.style.width = "100%";
+    outputDiv?.appendChild(textarea);
+}
+
+const mostrarResultadoExecutar = function(codigo: string) {
+    const paragrafo: any = document.createElement("p");
+    paragrafo.textContent = codigo;
+    paragrafo.classList = " output";
+    outputDiv?.appendChild(paragrafo);
 };
 
 const clearOutput = function () {
@@ -39,8 +49,22 @@ const editor = new CodeFlask("#editor", {
 
 clearOutput();
 
+const executarTradutor = function () {
+    const delegua = new Delegua.DeleguaWeb("");
+
+    const codigo = editor.getCode().split("\n");
+
+    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico =
+        delegua.avaliadorSintatico.analisar(retornoLexador);
+
+    const retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes)
+
+    this.mostrarResultadoTradutor(retornoTradutor);
+}
+
 const executarCodigo = function () {
-    const delegua = new Delegua.DeleguaWeb("", mostrarResultado);
+    const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 
     const codigo = editor.getCode().split("\n");
 
@@ -51,7 +75,12 @@ const executarCodigo = function () {
     delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
 };
 
-runButton.addEventListener("click", function () {
+botaoTraduzir.addEventListener("click", function () {
+    clearOutput();
+    executarTradutor();
+});
+
+botaoExecutar.addEventListener("click", function () {
     clearOutput();
     executarCodigo();
 });

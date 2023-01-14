@@ -14,12 +14,13 @@ import {
 import { RetornoImportador } from "@designliquido/delegua/fontes/importador";
 import * as matematica from "@designliquido/delegua-matematica";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
+import { TradutorJavaScript } from "@designliquido/delegua/fontes/tradutores";
 
 export class DeleguaWeb implements DeleguaInterface {
     nomeArquivo: string;
 
-    teveErro: boolean;
-    teveErroEmTempoDeExecucao: boolean;
+    teveErro: boolean = false;
+    teveErroEmTempoDeExecucao: boolean = false;
     // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
     dialeto: string = "delegua";
     arquivosAbertos: any;
@@ -32,6 +33,7 @@ export class DeleguaWeb implements DeleguaInterface {
     carregarArquivo: any;
     conteudoArquivosAbertos: any;
     executarUmaLinha: any;
+    tradutorJavascript = new TradutorJavaScript();
 
     constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
         this.nomeArquivo = nomeArquivo;
@@ -64,9 +66,6 @@ export class DeleguaWeb implements DeleguaInterface {
             "matematica",
             moduloMatematica
         );
-
-        this.teveErro = false;
-        this.teveErroEmTempoDeExecucao = false;
     }
 
     async executar(
