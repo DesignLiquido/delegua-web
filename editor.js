@@ -24,6 +24,7 @@ var mostrarResultadoTradutor = function (codigo) {
     textarea.classList = " output";
     textarea.style.height = "100%";
     textarea.style.width = "100%";
+    textarea.style.overflow = 'auto';
     outputDiv === null || outputDiv === void 0 ? void 0 : outputDiv.appendChild(textarea);
 };
 var mostrarResultadoExecutar = function (codigo) {

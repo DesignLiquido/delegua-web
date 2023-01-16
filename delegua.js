@@ -1074,21 +1074,6 @@ class AvaliadorSintatico {
         const condicao = this.expressao();
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
         const caminhoEntao = this.resolverDeclaracao();
-        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
-        // funciona do jeito que deveria.
-        // Marcando este código para ser removido em versões futuras.
-        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
-            const condicaoSeSenao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
-
-            const caminho = this.resolverDeclaracao();
-
-            caminhosSeSenao.push({
-                condicao: condicaoSeSenao,
-                caminho: caminho,
-            });
-        } */
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SENAO, delegua_1.default.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
@@ -4989,8 +4974,10 @@ class TradutorJavaScript {
     constructor() {
         this.indentacao = 0;
         this.dicionarioConstrutos = {
+            AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
             AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
             Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+            AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
             Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             Chamada: this.traduzirConstrutoChamada.bind(this),
@@ -4999,7 +4986,9 @@ class TradutorJavaScript {
             Isto: () => 'this',
             Literal: this.traduzirConstrutoLiteral.bind(this),
             Logico: this.traduzirConstrutoLogico.bind(this),
+            Unario: this.traduzirConstrutoUnario.bind(this),
             Variavel: this.traduzirConstrutoVariavel.bind(this),
+            Vetor: this.traduzirConstrutoVetor.bind(this),
         };
         this.dicionarioDeclaracoes = {
             Bloco: this.traduzirDeclaracaoBloco.bind(this),
@@ -5025,6 +5014,14 @@ class TradutorJavaScript {
         switch (operador.tipo) {
             case delegua_1.default.ADICAO:
                 return '+';
+            case delegua_1.default.BIT_AND:
+                return '&';
+            case delegua_1.default.BIT_OR:
+                return '|';
+            case delegua_1.default.BIT_XOR:
+                return '^';
+            case delegua_1.default.BIT_NOT:
+                return '~';
             case delegua_1.default.DIFERENTE:
                 return '!==';
             case delegua_1.default.DIVISAO:
@@ -5259,6 +5256,7 @@ class TradutorJavaScript {
         let resultado = 'for (';
         resultado +=
             this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+        resultado += !resultado.includes(';') ? ';' : '';
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
         resultado +=
@@ -5366,6 +5364,47 @@ class TradutorJavaScript {
         let operador = this.traduzirSimboloOperador(logico.operador);
         let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
         return `${direita} ${operador} ${esquerda}`;
+    }
+    traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita) {
+        var _a, _b;
+        let resultado = '';
+        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+        resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) + ']';
+        resultado += ' = ';
+        if ((_b = (_a = atribuicaoSobrescrita === null || atribuicaoSobrescrita === void 0 ? void 0 : atribuicaoSobrescrita.valor) === null || _a === void 0 ? void 0 : _a.simbolo) === null || _b === void 0 ? void 0 : _b.lexema) {
+            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+        }
+        else {
+            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](atribuicaoSobrescrita.valor);
+        }
+        return resultado;
+    }
+    traduzirAcessoIndiceVariavel(acessoIndiceVariavel) {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[acessoIndiceVariavel.entidadeChamada.constructor.name](acessoIndiceVariavel.entidadeChamada);
+        resultado += `[${this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice)}]`;
+        return resultado;
+    }
+    traduzirConstrutoVetor(vetor) {
+        if (!vetor.valores.length) {
+            return '[]';
+        }
+        let resultado = '[';
+        for (let valor of vetor.valores) {
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
+        }
+        if (vetor.valores.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ']';
+        return resultado;
+    }
+    traduzirConstrutoUnario(unario) {
+        var _a;
+        let resultado = '';
+        resultado += this.traduzirSimboloOperador(unario.operador);
+        resultado += (_a = unario.direita.valor) !== null && _a !== void 0 ? _a : unario.direita.simbolo.lexema;
+        return resultado;
     }
     traduzir(declaracoes) {
         let resultado = '';
