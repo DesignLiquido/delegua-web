@@ -27,6 +27,7 @@ const mostrarResultadoTradutor = function(codigo: string) {
     textarea.classList = " output";
     textarea.style.height = "100%";
     textarea.style.width = "100%";
+    textarea.style.overflow = 'auto'
     outputDiv?.appendChild(textarea);
 }
 
