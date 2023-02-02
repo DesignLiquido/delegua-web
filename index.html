@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
 
   <title>Linguagem Delégua por Design Líquido - Editor Web</title>
+  <link data-name="vs/editor/editor.main" rel="stylesheet" href="vs/editor/editor.main.css" />
   <link rel="icon" href="./icones/favicon-32.png" sizes="32x32">
   <link rel="icon" href="./icones/favicon-128.png" sizes="128x128">
   <link rel="icon" href="./icones/favicon-180.png" sizes="180x180">
@@ -48,12 +49,19 @@
   <div id="editor" style="z-index: 0 !important;"></div>
   <div id="output" aria-live="polite"></div>
 
+  <script src="./exemplos.js"></script>
+
   <script src="./delegua.js"></script>
 
   <!-- framework do editor do código -->
   <script src="./codeflask.min.js"></script>
 
   <script src="./exemplos.js"></script>
+  
+  <script src="vs/loader.js"></script>
+  <script src="vs/editor/editor.main.nls.js"></script>
+  <script src="vs/editor/editor.main.js"></script>
+
   <script src="./editor.js"></script>
 </body>
 
