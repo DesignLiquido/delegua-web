@@ -287,6 +287,17 @@ mostrar_fila();`,
             'var',
             'verdadeiro',
 
+            /* keywords delégua funções nativas */
+            'aleatorio',
+            'aleatorioEntre',
+            'escreva',
+            'inteiro',
+            'real',
+            'texto',
+            'mapear',
+            'ordenar',
+            'tamanho'
+
             /* keywords javascript */
             // 'abstract',
             // 'any',
@@ -656,33 +667,33 @@ window.onload = function () {
     language: 'delegua'
   });
 
-  // Monaco.languages.registerCompletionItemProvider('delegua', {
-  //   provideCompletionItems: () => {
-  //     var suggestions = [{
-  //       label: 'simpleText',
-  //       kind: Monaco.languages.CompletionItemKind.Text,
-  //       insertText: 'simpleText'
-  //     }, {
-  //       label: 'testing',
-  //       kind: Monaco.languages.CompletionItemKind.Keyword,
-  //       insertText: 'testing(${1:condition})',
-  //       insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-  //     }, {
-  //       label: '',
-  //       kind: Monaco.languages.CompletionItemKind.Snippet,
-  //       insertText: [
-  //         'if (${1:condition}) {',
-  //         '\t$0',
-  //         '} else {',
-  //         '\t',
-  //         '}'
-  //       ].join('\n'),
-  //       insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-  //       documentation: 'If-Else Statement'
-  //     }];
-  //     return { suggestions: suggestions };
-  //   }
-  // });
+  Monaco.languages.registerCompletionItemProvider('delegua', {
+    provideCompletionItems: () => {
+      var suggestions = [{
+        label: 'escreva',
+        kind: Monaco.languages.CompletionItemKind.Text,
+        insertText: 'escreva(\'\')'
+      }, {
+        label: 'aleatorioEntre',
+        kind: Monaco.languages.CompletionItemKind.Keyword,
+        insertText: 'aleatorioEntre(1, 10)',
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+      }, {
+        label: 'se',
+        kind: Monaco.languages.CompletionItemKind.Snippet,
+        insertText: [
+          'se (${1:condition}) {',
+          '\t$0',
+          '} senao {',
+          '\t',
+          '}'
+        ].join('\n'),
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        documentation: 'Declaração Se-Senão'
+      }];
+      return { suggestions: suggestions };
+    }
+  });
 
   Monaco.languages.registerHoverProvider('delegua', {
     provideHover: function(model, position) { 
