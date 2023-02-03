@@ -254,10 +254,63 @@ window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
   const Monaco = (window as any).monaco;
+
+  //TODO: @Samuel
+  Monaco.languages.register({
+    id: 'delegua'
+  });
+  Monaco.languages.setMonarchTokensProvider('delegua', {
+    tokenizer: {
+      root: [
+        [/\[error.*/, 'custom-error'],
+        [/\[notice.*/, 'custom-notice'],
+        [/\[info.*/, 'custom-info'],
+        [/\[[a-zA-Z 0-9:]+\]/, 'custom-date']
+      ]
+    }
+  });
+
+  Monaco.languages.registerCompletionItemProvider('delegua', {
+    provideCompletionItems: () => {
+      var suggestions = [{
+        label: 'simpleText',
+        kind: Monaco.languages.CompletionItemKind.Text,
+        insertText: 'simpleText'
+      }, {
+        label: 'testing',
+        kind: Monaco.languages.CompletionItemKind.Keyword,
+        insertText: 'testing(${1:condition})',
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+      }, {
+        label: '',
+        kind: Monaco.languages.CompletionItemKind.Snippet,
+        insertText: [
+          'if (${1:condition}) {',
+          '\t$0',
+          '} else {',
+          '\t',
+          '}'
+        ].join('\n'),
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        documentation: 'If-Else Statement'
+      }];
+      return { suggestions: suggestions };
+    }
+  });
+
+  Monaco.languages.registerHoverProvider('delegua', {
+    provideHover: function(model, position) { 
+      // Log the current word in the console, you probably want to do something else here.
+      console.log(model.getWordAtPosition(position));
+    }
+  })
+
   Monaco.editor.create(document.getElementById("editor"), {
       value: Exemplos[exemploId],
-      language: "delegua"
+      language: "delegua",
   });
+
+  console.log(Monaco.editor)
 
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
