@@ -47,10 +47,6 @@
             "to": "dist/icones/"
         },
         {
-            "from": "node_modules/codeflask/build/**/*",
-            "to": "dist/"
-        },
-        {
           "from": "node_modules/monaco-editor/min/vs/**/*",
           "to": "dist/vs"
         }
