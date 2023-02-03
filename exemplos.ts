@@ -257,8 +257,31 @@ window.onload = function () {
 
   //TODO: @Samuel
   Monaco.languages.register({
-    id: 'delegua'
+    id: 'delegua',
+    extensions: ['.delegua'],
+    aliases: ['delegua'],
+    mimetypes: ['application/delegua'],
   });
+  Monaco.languages.setLanguageConfiguration('delegua', {
+    wordPattern: /(-?\d*\.\d\w*)|([^\[\{\]\}\:\"\,\s]+)/g,
+
+    comments: {
+      lineComment: '//',
+      blockComment: ['/*', '*/']
+    },
+  
+    brackets: [
+      ['{', '}'],
+      ['[', ']']
+    ],
+  
+    autoClosingPairs: [
+      { open: '{', close: '}', notIn: ['string'] },
+      { open: '[', close: ']', notIn: ['string'] },
+      { open: '"', close: '"', notIn: ['string'] }
+    ]
+  });
+
   Monaco.languages.setMonarchTokensProvider('delegua', {
     tokenizer: {
       root: [
