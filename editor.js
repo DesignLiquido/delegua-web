@@ -60,4 +60,7 @@ botaoExecutar.addEventListener("click", function () {
     clearOutput();
     executarCodigo();
 });
+var definirTema = function (tema) {
+    Monaco.editor.setTheme(tema);
+};
 //# sourceMappingURL=editor.js.map

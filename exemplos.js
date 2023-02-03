@@ -1,3 +1,12 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var Exemplos = {
     OlaMundo: 'escreva("Olá, mundo!");',
     OperacoesBasicas: "var a = 10;\nvar b = 4;\n\nescreva(\"Valor de A: \" + texto(a));\n\nescreva(\"Valor de B: \" + texto(b));\n\nvar soma = a + b; // Soma os dois valores\nvar sub  = a - b; // Subtrai os dois valores\nvar mult = a * b; // Multiplica os dois valores\nvar div  = a / b; // Divide os dois valores\n\nescreva(\"A soma dos n\u00FAmeros \u00E9 igual a: \" + texto(soma));\t    // Exibe o resultado da soma\nescreva(\"A subtra\u00E7\u00E3o dos n\u00FAmeros \u00E9 igual a: \" + texto(sub));\t    // Exibe o resultado da subtra\u00E7\u00E3o\nescreva(\"A multiplica\u00E7\u00E3o dos n\u00FAmeros \u00E9 igual a: \" + texto(mult));   // Exibe o resultado da multiplica\u00E7\u00E3o\nescreva(\"A divis\u00E3o dos n\u00FAmeros \u00E9 igual a: \" + texto(div));          // Exibe o resultado da divis\u00E3o",
@@ -9,12 +18,427 @@ var Exemplos = {
     Perceptron: "var pesoInicial1 = 0.3;\nvar pesoInicial2 = 0.4;\nvar entrada1 = 1;\nvar entrada2 = 1;\nvar erro = 1;\nvar resultadoEsperado;\nenquanto (erro != 0) {\n  se (entrada1 == 1) {\n    se (entrada2 == 1) {\n      resultadoEsperado = 1;\n    }\n  } sen\u00E3o {\n    resultadoEsperado = 0;\n  }\n          \n  var somatoria = pesoInicial1 * entrada1;\n  somatoria = pesoInicial2 * entrada2 + somatoria;\n          \n  var resultado;\n          \n  se (somatoria < 1) {\n    resultado = 0;\n  } sen\u00E3o {\n    se (somatoria >= 1) {\n      resultado = 1;\n    }\n  }\n          \n  escreva(\"resultado: \" + texto(resultado));\n  \n  erro = resultadoEsperado - resultado;\n  escreva(\"p1: \" + texto(pesoInicial1));\n  escreva(\"p2: \" + texto(pesoInicial2));\n  pesoInicial1 = 0.1 * entrada1 * erro + pesoInicial1;\n  pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2;\n  escreva(\"erro: \" + texto(erro));\n}",
     FilaEstatica: "funcao enfileirar (valorEntrada) {\nse (indexFinal == maximoDeElementos) {\n  escreva(\"Fila Cheia\");\n} senao {\n  filaEstatica[indexFinal] = valorEntrada;\n  escreva(\"Valor inserido com sucesso: \" + texto(filaEstatica[indexFinal]));\n    retorna indexFinal = indexFinal + 1;\n  }\n}\nfun\u00E7\u00E3o desenfileirar() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (i = 0; i <= indexFinal; i = i + 1){\n      se (i + 1 == indexFinal) {\n        indexFinal = indexFinal - 1;\n        escreva(\"Valor retirado com sucesso.\");\n      } senao {\n        filaEstatica[i] = filaEstatica[i+1];\n      }\n    }\n  }\n}\nfun\u00E7\u00E3o mostrar_fila() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (var i = 0; i < indexFinal; i = i + 1) {\n      escreva(\"index \" + texto(i)); \n      escreva(texto(filaEstatica[i]));\n    }\n  }\n}\nvar maximoDeElementos = 4;\nvar indexInicial = 0;\nvar indexFinal = 0;\n// Variavel de controle em itera\u00E7\u00F5es\nvar i = 0;\nvar filaEstatica = [];\n// Demonstra\u00E7\u00E3o de uso das fun\u00E7\u00F5es:\nmostrar_fila();\nvar valorEntrada = 2;\nenfileirar(valorEntrada);\nvar valorEntrada = 8;\nenfileirar(valorEntrada);\nvar valorEntrada = 23;\nenfileirar(valorEntrada);\nvar valorEntrada = 7;\nenfileirar(valorEntrada);\nmostrar_fila();\ndesenfileirar();\nmostrar_fila();\nvar valorEntrada = 24;\nenfileirar(valorEntrada);\nmostrar_fila();",
 };
+function definirLinguagemDelegua() {
+    return {
+        defaultToken: 'invalid',
+        tokenPostfix: '.ts',
+        keywords: [
+            // Should match the keys of textToKeywordObj in
+            // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
+            'caso',
+            'classe',
+            'continua',
+            'enquanto',
+            'escolha',
+            'falso',
+            'fazer',
+            'finalmente',
+            'função',
+            'funcao',
+            'herda',
+            'isto',
+            'leia',
+            'nulo',
+            'padrão',
+            'padrao',
+            'para',
+            'pegue',
+            'retorna',
+            'se',
+            'senão se',
+            'senão',
+            'senao se',
+            'senao',
+            'sustar',
+            'tente',
+            'var',
+            'verdadeiro',
+            /* keywords delégua funções nativas */
+            'aleatorio',
+            'aleatorioEntre',
+            'escreva',
+            'inteiro',
+            'real',
+            'texto',
+            'mapear',
+            'ordenar',
+            'tamanho'
+            /* keywords javascript */
+            // 'abstract',
+            // 'any',
+            // 'as',
+            // 'asserts',
+            // 'bigint',
+            // 'boolean',
+            // 'break',
+            // 'case',
+            // 'catch',
+            // 'class',
+            // 'continue',
+            // 'const',
+            // 'constructor',
+            // 'debugger',
+            // 'declare',
+            // 'default',
+            // 'delete',
+            // 'do',
+            // 'else',
+            // 'enum',
+            // 'export',
+            // 'extends',
+            // 'false',
+            // 'finally',
+            // 'for',
+            // 'from',
+            // 'function',
+            // 'get',
+            // 'if',
+            // 'implements',
+            // 'import',
+            // 'in',
+            // 'infer',
+            // 'instanceof',
+            // 'interface',
+            // 'is',
+            // 'keyof',
+            // 'let',
+            // 'module',
+            // 'namespace',
+            // 'never',
+            // 'new',
+            // 'null',
+            // 'number',
+            // 'object',
+            // 'out',
+            // 'package',
+            // 'private',
+            // 'protected',
+            // 'public',
+            // 'override',
+            // 'readonly',
+            // 'require',
+            // 'global',
+            // 'return',
+            // 'satisfies',
+            // 'set',
+            // 'static',
+            // 'string',
+            // 'super',
+            // 'switch',
+            // 'symbol',
+            // 'this',
+            // 'throw',
+            // 'true',
+            // 'try',
+            // 'type',
+            // 'typeof',
+            // 'undefined',
+            // 'unique',
+            // 'unknown',
+            // 'var',
+            // 'void',
+            // 'while',
+            // 'with',
+            // 'yield',
+            // 'async',
+            // 'await',
+            // 'of'
+        ],
+        operators: [
+            'e',
+            'ou',
+            /* operators javascript */
+            '<=',
+            '>=',
+            '==',
+            '!=',
+            '===',
+            '!==',
+            '=>',
+            '+',
+            '-',
+            '**',
+            '*',
+            '/',
+            '%',
+            '++',
+            '--',
+            '<<',
+            // '</',
+            '>>',
+            // '>>>',
+            '&',
+            '|',
+            '^',
+            '!',
+            '~',
+            // '&&',
+            // '||',
+            // '??',
+            // '?',
+            // ':',
+            '=',
+            '+=',
+            '-=',
+            '*=',
+            '**=',
+            '/=',
+            '%=',
+            // '<<=',
+            // '>>=',
+            // '>>>=',
+            // '&=',
+            // '|=',
+            // '^=',
+            // '@'
+        ],
+        // we include these common regular expressions
+        symbols: /[=><!~?:&|+\-*\/\^%]+/,
+        escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+        digits: /\d+(_+\d+)*/,
+        octaldigits: /[0-7]+(_+[0-7]+)*/,
+        binarydigits: /[0-1]+(_+[0-1]+)*/,
+        hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
+        regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
+        regexpesc: /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
+        // The main tokenizer for our languages
+        tokenizer: {
+            root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
+            common: [
+                // identifiers and keywords
+                [
+                    /[a-z_$][\w$]*/,
+                    {
+                        cases: {
+                            '@keywords': 'keyword',
+                            '@default': 'identifier'
+                        }
+                    }
+                ],
+                [/[A-Z][\w\$]*/, 'type.identifier'],
+                // [/[A-Z][\w\$]*/, 'identifier'],
+                // whitespace
+                { include: '@whitespace' },
+                // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
+                [
+                    /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
+                    { token: 'regexp', bracket: '@open', next: '@regexp' }
+                ],
+                // delimiters and operators
+                [/[()\[\]]/, '@brackets'],
+                [/[<>](?!@symbols)/, '@brackets'],
+                [/!(?=([^=]|$))/, 'delimiter'],
+                [
+                    /@symbols/,
+                    {
+                        cases: {
+                            '@operators': 'delimiter',
+                            '@default': ''
+                        }
+                    }
+                ],
+                // numbers
+                [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
+                [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
+                [/0[xX](@hexdigits)n?/, 'number.hex'],
+                [/0[oO]?(@octaldigits)n?/, 'number.octal'],
+                [/0[bB](@binarydigits)n?/, 'number.binary'],
+                [/(@digits)n?/, 'number'],
+                // delimiter: after number because of .\d floats
+                [/[;,.]/, 'delimiter'],
+                // strings
+                [/"([^"\\]|\\.)*$/, 'string.invalid'],
+                [/'([^'\\]|\\.)*$/, 'string.invalid'],
+                [/"/, 'string', '@string_double'],
+                [/'/, 'string', '@string_single'],
+                [/`/, 'string', '@string_backtick']
+            ],
+            whitespace: [
+                [/[ \t\r\n]+/, ''],
+                [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
+                [/\/\*/, 'comment', '@comment'],
+                [/\/\/.*$/, 'comment']
+            ],
+            comment: [
+                [/[^\/*]+/, 'comment'],
+                [/\*\//, 'comment', '@pop'],
+                [/[\/*]/, 'comment']
+            ],
+            jsdoc: [
+                [/[^\/*]+/, 'comment.doc'],
+                [/\*\//, 'comment.doc', '@pop'],
+                [/[\/*]/, 'comment.doc']
+            ],
+            // We match regular expression quite precisely
+            regexp: [
+                [
+                    /(\{)(\d+(?:,\d*)?)(\})/,
+                    ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']
+                ],
+                [
+                    /(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/,
+                    ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]
+                ],
+                [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
+                [/[()]/, 'regexp.escape.control'],
+                [/@regexpctl/, 'regexp.escape.control'],
+                [/[^\\\/]/, 'regexp'],
+                [/@regexpesc/, 'regexp.escape'],
+                [/\\\./, 'regexp.invalid'],
+                [/(\/)([dgimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']]
+            ],
+            regexrange: [
+                [/-/, 'regexp.escape.control'],
+                [/\^/, 'regexp.invalid'],
+                [/@regexpesc/, 'regexp.escape'],
+                [/[^\]]/, 'regexp'],
+                [
+                    /\]/,
+                    {
+                        token: 'regexp.escape.control',
+                        next: '@pop',
+                        bracket: '@close'
+                    }
+                ]
+            ],
+            string_double: [
+                [/[^\\"]+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/"/, 'string', '@pop']
+            ],
+            string_single: [
+                [/[^\\']+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/'/, 'string', '@pop']
+            ],
+            string_backtick: [
+                [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
+                [/[^\\`$]+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/`/, 'string', '@pop']
+            ],
+            bracketCounting: [
+                [/\{/, 'delimiter.bracket', '@bracketCounting'],
+                [/\}/, 'delimiter.bracket', '@pop'],
+                { include: 'common' }
+            ]
+        }
+    };
+}
+var primitivasTexto = [
+    {
+        nome: 'maiusculo',
+        documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
+    },
+    {
+        nome: 'minusculo',
+        documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
+    },
+    {
+        nome: 'texto',
+        documentacao: 'Transforma números flutuantes ou inteiros em texto.'
+    },
+];
+var primitivasVetor = [
+    {
+        nome: 'mapear',
+        documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
+    },
+    {
+        nome: 'ordenar',
+        documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
+    },
+    {
+        nome: 'tamanho',
+        documentacao: 'Retorna o número de elementos que compõem um vetor.'
+    },
+];
+var primitivasNumero = [
+    {
+        nome: 'aleatorio',
+        documentacao: 'Retorna um número aleatório entre 0 e 1.'
+    },
+    {
+        nome: 'aleatorioEntre',
+        documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
+    },
+    {
+        nome: 'inteiro',
+        documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
+    },
+    {
+        nome: 'real',
+        documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
+    },
+];
+var ordenar = function (a, b) {
+    var nome1 = a['nome'].toUpperCase();
+    var nome2 = b['nome'].toUpperCase();
+    if (nome1 > nome2)
+        return 1;
+    else if (nome1 < nome2)
+        return -1;
+    return 0;
+};
+var primitivas = __spreadArray(__spreadArray(__spreadArray([], primitivasNumero, true), primitivasTexto, true), primitivasVetor, true).sort(ordenar);
 window.onload = function () {
     var exemploId = window.location.search.split('?exemploId=')[1];
     var Monaco = window.monaco;
-    Monaco.editor.create(document.getElementById("editor"), {
+    Monaco.languages.register({
+        id: 'delegua',
+        extensions: ['.delegua'],
+        aliases: ['delegua', 'language-generation'],
+        mimetypes: ['application/delegua'],
+    });
+    Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    Monaco.editor.create(document.getElementById('editor'), {
         value: Exemplos[exemploId],
-        language: "delegua"
+        language: 'delegua'
+    });
+    Monaco.languages.registerCompletionItemProvider('delegua', {
+        provideCompletionItems: function () {
+            var suggestions = [{
+                    label: 'escreva',
+                    kind: Monaco.languages.CompletionItemKind.Text,
+                    insertText: 'escreva(\'\')'
+                }, {
+                    label: 'aleatorioEntre',
+                    kind: Monaco.languages.CompletionItemKind.Keyword,
+                    insertText: 'aleatorioEntre(1, 10)',
+                    insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+                }, {
+                    label: 'se',
+                    kind: Monaco.languages.CompletionItemKind.Snippet,
+                    insertText: [
+                        'se (${1:condition}) {',
+                        '\t$0',
+                        '} senao {',
+                        '\t',
+                        '}'
+                    ].join('\n'),
+                    insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    documentation: 'Declaração Se-Senão'
+                }];
+            return { suggestions: suggestions };
+        }
+    });
+    Monaco.languages.registerHoverProvider('delegua', {
+        provideHover: function (model, position) {
+            var palavra = model.getWordAtPosition(position);
+            var primitiva = primitivas.find(function (p) { return p.nome === palavra.word; });
+            if (primitiva) {
+                return {
+                    contents: [
+                        { value: "**".concat(primitiva.nome, "**") },
+                        { value: primitiva.documentacao },
+                    ]
+                };
+            }
+            return { contents: [] };
+        }
     });
     if (exemploId) {
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
