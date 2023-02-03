@@ -310,8 +310,6 @@ window.onload = function () {
       language: "delegua",
   });
 
-  console.log(Monaco.editor)
-
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
