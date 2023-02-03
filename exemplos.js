@@ -11,8 +11,12 @@ var Exemplos = {
 };
 window.onload = function () {
     var exemploId = window.location.search.split('?exemploId=')[1];
+    var Monaco = window.monaco;
+    Monaco.editor.create(document.getElementById("editor"), {
+        value: Exemplos[exemploId],
+        language: "delegua"
+    });
     if (exemploId) {
-        editor.updateCode(Exemplos[exemploId]);
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
     }
 };

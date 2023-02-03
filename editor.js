@@ -2,8 +2,8 @@ var outputDiv = document.getElementById("output");
 var botaoTraduzir = document.getElementById("botaoTraduzir");
 var botaoExecutar = document.getElementById("botaoExecutar");
 var seletorDemos = document.getElementById("seletorDemos");
-var CodeFlask = window.CodeFlask;
 var Delegua = window.Delegua;
+var Monaco = window.monaco;
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -36,15 +36,10 @@ var mostrarResultadoExecutar = function (codigo) {
 var clearOutput = function () {
     outputDiv.innerHTML = "";
 };
-var editor = new CodeFlask("#editor", {
-    language: "js",
-    lineNumbers: true,
-    defaultTheme: false,
-});
 clearOutput();
 var executarTradutor = function () {
     var delegua = new Delegua.DeleguaWeb("");
-    var codigo = editor.getCode().split("\n");
+    var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
     var retornoLexador = delegua.lexador.mapear(codigo, -1);
     var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     var retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes);
@@ -52,7 +47,7 @@ var executarTradutor = function () {
 };
 var executarCodigo = function () {
     var delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
-    var codigo = editor.getCode().split("\n");
+    var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
     var retornoLexador = delegua.lexador.mapear(codigo, -1);
     var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });
