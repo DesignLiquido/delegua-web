@@ -253,8 +253,13 @@ mostrar_fila();`,
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
+  const Monaco = (window as any).monaco;
+  Monaco.editor.create(document.getElementById("editor"), {
+      value: Exemplos[exemploId],
+      language: "delegua"
+  });
+
   if(exemploId){
-    editor.updateCode(Exemplos[exemploId]);
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
 }
