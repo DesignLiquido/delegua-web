@@ -574,6 +574,70 @@ mostrar_fila();`,
         };
     }
 
+    const primitivasTexto = [
+      {
+          nome: 'maiusculo',
+          documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
+      },
+      {
+          nome: 'minusculo',
+          documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
+      },
+      {
+          nome: 'texto',
+          documentacao: 'Transforma números flutuantes ou inteiros em texto.'
+      },
+    ]
+
+    const primitivasVetor = [
+      {
+          nome: 'mapear',
+          documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
+      },
+      {
+          nome: 'ordenar',
+          documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
+      },
+      {
+          nome: 'tamanho',
+          documentacao: 'Retorna o número de elementos que compõem um vetor.'
+      },
+    ]
+
+    const primitivasNumero = [
+      {
+          nome: 'aleatorio',
+          documentacao: 'Retorna um número aleatório entre 0 e 1.'
+      },
+      {
+          nome: 'aleatorioEntre',
+          documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
+      },
+      {
+          nome: 'inteiro',
+          documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
+      },
+      {
+          nome: 'real',
+          documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
+      },
+    ]
+
+    const ordenar = (a: any, b: any) => {
+      const nome1 = a['nome'].toUpperCase();
+      const nome2 = b['nome'].toUpperCase();
+      
+      if (nome1 > nome2) return 1;
+      else if (nome1 < nome2) return -1;
+      return 0;
+    }
+  
+    const primitivas = [
+      ...primitivasNumero, 
+      ...primitivasTexto, 
+      ...primitivasVetor
+    ].sort(ordenar);
+
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
@@ -620,12 +684,21 @@ window.onload = function () {
   //   }
   // });
 
-  // Monaco.languages.registerHoverProvider('delegua', {
-  //   provideHover: function(model, position) { 
-  //     // Log the current word in the console, you probably want to do something else here.
-  //     console.log(model.getWordAtPosition(position));
-  //   }
-  // })
+  Monaco.languages.registerHoverProvider('delegua', {
+    provideHover: function(model, position) { 
+      const palavra = model.getWordAtPosition(position);
+      const primitiva = primitivas.find(p => p.nome === palavra.word)
+      if(primitiva){
+        return {
+          contents: [
+            { value: `**${primitiva.nome}**` },
+            { value: primitiva.documentacao },
+          ]
+        }
+      }
+      return { contents: [] }
+    }
+  })
 
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
