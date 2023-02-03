@@ -3,8 +3,8 @@ const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoExecutar = document.getElementById("botaoExecutar");
 const seletorDemos = document.getElementById("seletorDemos");
 
-const CodeFlask = (window as any).CodeFlask;
 const Delegua = (window as any).Delegua;
+const Monaco = (window as any).monaco;
 
 function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -42,18 +42,12 @@ const clearOutput = function () {
     outputDiv.innerHTML = "";
 };
 
-const editor = new CodeFlask("#editor", {
-    language: "js",
-    lineNumbers: true,
-    defaultTheme: false,
-});
-
 clearOutput();
 
 const executarTradutor = function () {
     const delegua = new Delegua.DeleguaWeb("");
 
-    const codigo = editor.getCode().split("\n");
+    const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico =
@@ -67,7 +61,7 @@ const executarTradutor = function () {
 const executarCodigo = function () {
     const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 
-    const codigo = editor.getCode().split("\n");
+    const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico =
