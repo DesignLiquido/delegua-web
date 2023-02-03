@@ -3,7 +3,7 @@
     "description": "Demonstração da Linguagem Delégua funcional em qualquer navegador de internet.",
     "scripts": {
         "copiar-arquivos": "yarn copy-files-from-to",
-        "empacotar": "yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
+        "empacotar": "del-cli ./dist && yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
         "gerar-css:tempo-real": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
         "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js",
@@ -15,6 +15,7 @@
         "browserify": "latest",
         "codeflask": "^1.4.1",
         "copy-files-from-to": "^3.6.0",
+        "del-cli": "^5.0.0",
         "gh-pages": "^3.2.3",
         "sass": "^1.50.1",
         "ts-node": "^10.7.0",
@@ -47,8 +48,8 @@
             "to": "dist/icones/"
         },
         {
-          "from": "node_modules/monaco-editor/min/vs/**/*",
-          "to": "dist/vs"
+            "from": "node_modules/monaco-editor/min/vs/**/*",
+            "to": "dist/vs"
         }
-      ]
+    ]
 }
