@@ -21,16 +21,6 @@ function getQueryVariable(variable: any) {
     }
 }
 
-const mostrarResultadoTradutor = function(codigo: string) {
-    const textarea: any = document.createElement("textarea");
-    textarea.textContent = codigo;
-    textarea.classList = " resultadoEditor";
-    textarea.style.height = "100%";
-    textarea.style.width = "100%";
-    textarea.style.overflow = 'auto'
-    resultadoEditorDiv?.appendChild(textarea);
-}
-
 const mostrarResultadoExecutar = function(codigo: string) {
     const paragrafo: any = document.createElement("p");
     paragrafo.textContent = codigo;
@@ -54,8 +44,11 @@ const executarTradutor = function () {
         delegua.avaliadorSintatico.analisar(retornoLexador);
 
     const retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes)
-
-    this.mostrarResultadoTradutor(retornoTradutor);
+    
+    Monaco.editor.create(document.getElementById("resultadoEditor"), {
+        value: retornoTradutor,
+        language: "javascript"
+    });
 }
 
 const executarCodigo = function () {
