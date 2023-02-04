@@ -253,7 +253,7 @@ mostrar_fila();`,
     function definirLinguagemDelegua() {
         return {
           defaultToken: 'invalid',
-          tokenPostfix: '.ts',
+          tokenPostfix: '.delegua',
         
           keywords: [
             // Should match the keys of textToKeywordObj in
@@ -269,6 +269,7 @@ mostrar_fila();`,
             'função',
             'funcao',
             'herda',
+            'importar',
             'isto',
             'leia',
             'nulo',
@@ -389,7 +390,7 @@ mostrar_fila();`,
             '>=',
             '==',
             '!=',
-            '===',
+            // '===',
             '!==',
             '=>',
             '+',
@@ -448,7 +449,7 @@ mostrar_fila();`,
               common: [
                 // identifiers and keywords
                 [
-                  /[a-z_$][\w$]*/,
+                  /[a-z_$][çã\w$]*/,
                   {
                     cases: {
                       '@keywords': 'keyword',
