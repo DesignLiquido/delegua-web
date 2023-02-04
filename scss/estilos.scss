@@ -126,7 +126,7 @@ textarea {
         position: relative !important;
     }
 
-    #output {
+    #resultadoEditor {
         width: 100% !important;
         height: 29% !important;
         position: relative !important;
@@ -144,7 +144,7 @@ textarea {
     }
 }
 
-#output {
+#resultadoEditor {
     width: calc(35% - 4px);
     height: calc(100% - 65px);
     right: 0;
@@ -154,7 +154,7 @@ textarea {
     overflow-y: scroll;
 }
 
-.output {
+.resultadoEditor {
     margin: 1px 10px;
     padding-top: 0;
     font-size: 13px;

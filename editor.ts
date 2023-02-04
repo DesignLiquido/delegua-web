@@ -1,4 +1,4 @@
-const outputDiv: HTMLElement = document.getElementById("output") as HTMLElement;
+const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoExecutar = document.getElementById("botaoExecutar");
 const seletorDemos = document.getElementById("seletorDemos");
@@ -24,25 +24,25 @@ function getQueryVariable(variable: any) {
 const mostrarResultadoTradutor = function(codigo: string) {
     const textarea: any = document.createElement("textarea");
     textarea.textContent = codigo;
-    textarea.classList = " output";
+    textarea.classList = " resultadoEditor";
     textarea.style.height = "100%";
     textarea.style.width = "100%";
     textarea.style.overflow = 'auto'
-    outputDiv?.appendChild(textarea);
+    resultadoEditorDiv?.appendChild(textarea);
 }
 
 const mostrarResultadoExecutar = function(codigo: string) {
     const paragrafo: any = document.createElement("p");
     paragrafo.textContent = codigo;
-    paragrafo.classList = " output";
-    outputDiv?.appendChild(paragrafo);
+    paragrafo.classList = " resultadoEditor";
+    resultadoEditorDiv?.appendChild(paragrafo);
 };
 
-const clearOutput = function () {
-    outputDiv.innerHTML = "";
+const limparResultadoEditor = function () {
+    resultadoEditorDiv.innerHTML = "";
 };
 
-clearOutput();
+limparResultadoEditor();
 
 const executarTradutor = function () {
     const delegua = new Delegua.DeleguaWeb("");
@@ -71,12 +71,12 @@ const executarCodigo = function () {
 };
 
 botaoTraduzir.addEventListener("click", function () {
-    clearOutput();
+    limparResultadoEditor();
     executarTradutor();
 });
 
 botaoExecutar.addEventListener("click", function () {
-    clearOutput();
+    limparResultadoEditor();
     executarCodigo();
 });
 
