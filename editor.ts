@@ -28,12 +28,6 @@ const mostrarResultadoExecutar = function(codigo: string) {
     resultadoEditorDiv?.appendChild(paragrafo);
 };
 
-const limparResultadoEditor = function () {
-    resultadoEditorDiv.innerHTML = "";
-};
-
-limparResultadoEditor();
-
 const executarTradutor = function () {
     const delegua = new Delegua.DeleguaWeb("");
 
@@ -64,12 +58,10 @@ const executarCodigo = function () {
 };
 
 botaoTraduzir.addEventListener("click", function () {
-    limparResultadoEditor();
     executarTradutor();
 });
 
 botaoExecutar.addEventListener("click", function () {
-    limparResultadoEditor();
     executarCodigo();
 });
 
