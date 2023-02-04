@@ -586,72 +586,10 @@ mostrar_fila();`,
         };
     }
 
-    const primitivasTexto = [
-      {
-          nome: 'maiusculo',
-          documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
-      },
-      {
-          nome: 'minusculo',
-          documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
-      },
-      {
-          nome: 'texto',
-          documentacao: 'Transforma números flutuantes ou inteiros em texto.'
-      },
-    ]
-
-    const primitivasVetor = [
-      {
-          nome: 'mapear',
-          documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
-      },
-      {
-          nome: 'ordenar',
-          documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
-      },
-      {
-          nome: 'tamanho',
-          documentacao: 'Retorna o número de elementos que compõem um vetor.'
-      },
-    ]
-
-    const primitivasNumero = [
-      {
-          nome: 'aleatorio',
-          documentacao: 'Retorna um número aleatório entre 0 e 1.'
-      },
-      {
-          nome: 'aleatorioEntre',
-          documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
-      },
-      {
-          nome: 'inteiro',
-          documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
-      },
-      {
-          nome: 'real',
-          documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
-      },
-    ]
-
-    const ordenar = (a: any, b: any) => {
-      const nome1 = a['nome'].toUpperCase();
-      const nome2 = b['nome'].toUpperCase();
-      
-      if (nome1 > nome2) return 1;
-      else if (nome1 < nome2) return -1;
-      return 0;
-    }
-  
-    const primitivas = [
-      ...primitivasNumero, 
-      ...primitivasTexto, 
-      ...primitivasVetor
-    ].sort(ordenar);
-
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
+
+  console.log(this)
 
   this.Monaco?.editor?.create(document.getElementById('editor'), {
     value: Exemplos[exemploId],
@@ -664,6 +602,7 @@ window.onload = function () {
     aliases: ['delegua', 'language-generation'],
     mimetypes: ['application/delegua'],
   });
+
   this.Monaco?.languages?.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
 
   this.Monaco?.languages?.registerCompletionItemProvider('delegua', {
