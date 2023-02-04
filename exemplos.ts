@@ -194,9 +194,9 @@ enquanto (erro != 0) {
 }`,
 
 FilaEstatica: `funcao enfileirar (valorEntrada) {
-se (indexFinal == maximoDeElementos) {
-  escreva("Fila Cheia");
-} senao {
+  se (indexFinal == maximoDeElementos) {
+    escreva("Fila Cheia");
+  } senao {
   filaEstatica[indexFinal] = valorEntrada;
   escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
     retorna indexFinal = indexFinal + 1;
