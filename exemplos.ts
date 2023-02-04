@@ -250,14 +250,466 @@ enfileirar(valorEntrada);
 mostrar_fila();`,
 }
 
+    function definirLinguagemDelegua() {
+        return {
+          defaultToken: 'invalid',
+          tokenPostfix: '.ts',
+        
+          keywords: [
+            // Should match the keys of textToKeywordObj in
+            // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
+            'caso',
+            'classe',
+            'continua',
+            'enquanto',
+            'escolha',
+            'falso',
+            'fazer',
+            'finalmente',
+            'função',
+            'funcao',
+            'herda',
+            'isto',
+            'leia',
+            'nulo',
+            'padrão',
+            'padrao',
+            'para',
+            'pegue',
+            'retorna',
+            'se',
+            'senão se',
+            'senão',
+            'senao se',
+            'senao',
+            'sustar',
+            'tente',
+            'var',
+            'verdadeiro',
+
+            /* keywords delégua funções nativas */
+            'aleatorio',
+            'aleatorioEntre',
+            'escreva',
+            'inteiro',
+            'real',
+            'texto',
+            'mapear',
+            'ordenar',
+            'tamanho'
+
+            /* keywords javascript */
+            // 'abstract',
+            // 'any',
+            // 'as',
+            // 'asserts',
+            // 'bigint',
+            // 'boolean',
+            // 'break',
+            // 'case',
+            // 'catch',
+            // 'class',
+            // 'continue',
+            // 'const',
+            // 'constructor',
+            // 'debugger',
+            // 'declare',
+            // 'default',
+            // 'delete',
+            // 'do',
+            // 'else',
+            // 'enum',
+            // 'export',
+            // 'extends',
+            // 'false',
+            // 'finally',
+            // 'for',
+            // 'from',
+            // 'function',
+            // 'get',
+            // 'if',
+            // 'implements',
+            // 'import',
+            // 'in',
+            // 'infer',
+            // 'instanceof',
+            // 'interface',
+            // 'is',
+            // 'keyof',
+            // 'let',
+            // 'module',
+            // 'namespace',
+            // 'never',
+            // 'new',
+            // 'null',
+            // 'number',
+            // 'object',
+            // 'out',
+            // 'package',
+            // 'private',
+            // 'protected',
+            // 'public',
+            // 'override',
+            // 'readonly',
+            // 'require',
+            // 'global',
+            // 'return',
+            // 'satisfies',
+            // 'set',
+            // 'static',
+            // 'string',
+            // 'super',
+            // 'switch',
+            // 'symbol',
+            // 'this',
+            // 'throw',
+            // 'true',
+            // 'try',
+            // 'type',
+            // 'typeof',
+            // 'undefined',
+            // 'unique',
+            // 'unknown',
+            // 'var',
+            // 'void',
+            // 'while',
+            // 'with',
+            // 'yield',
+            // 'async',
+            // 'await',
+            // 'of'
+          ],
+        
+          operators: [
+            'e',
+            'ou',
+
+            /* operators javascript */
+            '<=',
+            '>=',
+            '==',
+            '!=',
+            '===',
+            '!==',
+            '=>',
+            '+',
+            '-',
+            '**',
+            '*',
+            '/',
+            '%',
+            '++',
+            '--',
+            '<<',
+            // '</',
+            '>>',
+            // '>>>',
+            '&',
+            '|',
+            '^',
+            '!',
+            '~',
+            // '&&',
+            // '||',
+            // '??',
+            // '?',
+            // ':',
+            '=',
+            '+=',
+            '-=',
+            '*=',
+            '**=',
+            '/=',
+            '%=',
+            // '<<=',
+            // '>>=',
+            // '>>>=',
+            // '&=',
+            // '|=',
+            // '^=',
+            // '@'
+          ],
+        
+          // we include these common regular expressions
+          symbols: /[=><!~?:&|+\-*\/\^%]+/,
+          escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+          digits: /\d+(_+\d+)*/,
+          octaldigits: /[0-7]+(_+[0-7]+)*/,
+          binarydigits: /[0-1]+(_+[0-1]+)*/,
+          hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
+        
+          regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
+          regexpesc: /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
+
+            // The main tokenizer for our languages
+            tokenizer: {
+              root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
+
+              common: [
+                // identifiers and keywords
+                [
+                  /[a-z_$][\w$]*/,
+                  {
+                    cases: {
+                      '@keywords': 'keyword',
+                      '@default': 'identifier'
+                    }
+                  }
+                ],
+                [/[A-Z][\w\$]*/, 'type.identifier'], // to show class names nicely
+                // [/[A-Z][\w\$]*/, 'identifier'],
+          
+                // whitespace
+                { include: '@whitespace' },
+          
+                // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
+                [
+                  /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
+                  { token: 'regexp', bracket: '@open', next: '@regexp' }
+                ],
+          
+                // delimiters and operators
+                [/[()\[\]]/, '@brackets'],
+                [/[<>](?!@symbols)/, '@brackets'],
+                [/!(?=([^=]|$))/, 'delimiter'],
+                [
+                  /@symbols/,
+                  {
+                    cases: {
+                      '@operators': 'delimiter',
+                      '@default': ''
+                    }
+                  }
+                ],
+          
+                // numbers
+                [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
+                [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
+                [/0[xX](@hexdigits)n?/, 'number.hex'],
+                [/0[oO]?(@octaldigits)n?/, 'number.octal'],
+                [/0[bB](@binarydigits)n?/, 'number.binary'],
+                [/(@digits)n?/, 'number'],
+          
+                // delimiter: after number because of .\d floats
+                [/[;,.]/, 'delimiter'],
+          
+                // strings
+                [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+                [/'([^'\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+                [/"/, 'string', '@string_double'],
+                [/'/, 'string', '@string_single'],
+                [/`/, 'string', '@string_backtick']
+              ],
+          
+              whitespace: [
+                [/[ \t\r\n]+/, ''],
+                [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
+                [/\/\*/, 'comment', '@comment'],
+                [/\/\/.*$/, 'comment']
+              ],
+          
+              comment: [
+                [/[^\/*]+/, 'comment'],
+                [/\*\//, 'comment', '@pop'],
+                [/[\/*]/, 'comment']
+              ],
+          
+              jsdoc: [
+                [/[^\/*]+/, 'comment.doc'],
+                [/\*\//, 'comment.doc', '@pop'],
+                [/[\/*]/, 'comment.doc']
+              ],
+          
+              // We match regular expression quite precisely
+              regexp: [
+                [
+                  /(\{)(\d+(?:,\d*)?)(\})/,
+                  ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']
+                ],
+                [
+                  /(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/,
+                  ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]
+                ],
+                [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
+                [/[()]/, 'regexp.escape.control'],
+                [/@regexpctl/, 'regexp.escape.control'],
+                [/[^\\\/]/, 'regexp'],
+                [/@regexpesc/, 'regexp.escape'],
+                [/\\\./, 'regexp.invalid'],
+                [/(\/)([dgimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']]
+              ],
+          
+              regexrange: [
+                [/-/, 'regexp.escape.control'],
+                [/\^/, 'regexp.invalid'],
+                [/@regexpesc/, 'regexp.escape'],
+                [/[^\]]/, 'regexp'],
+                [
+                  /\]/,
+                  {
+                    token: 'regexp.escape.control',
+                    next: '@pop',
+                    bracket: '@close'
+                  }
+                ]
+              ],
+          
+              string_double: [
+                [/[^\\"]+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/"/, 'string', '@pop']
+              ],
+          
+              string_single: [
+                [/[^\\']+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/'/, 'string', '@pop']
+              ],
+          
+              string_backtick: [
+                [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
+                [/[^\\`$]+/, 'string'],
+                [/@escapes/, 'string.escape'],
+                [/\\./, 'string.escape.invalid'],
+                [/`/, 'string', '@pop']
+              ],
+          
+              bracketCounting: [
+                [/\{/, 'delimiter.bracket', '@bracketCounting'],
+                [/\}/, 'delimiter.bracket', '@pop'],
+                { include: 'common' }
+              ]
+            }
+        };
+    }
+
+    const primitivasTexto = [
+      {
+          nome: 'maiusculo',
+          documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
+      },
+      {
+          nome: 'minusculo',
+          documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
+      },
+      {
+          nome: 'texto',
+          documentacao: 'Transforma números flutuantes ou inteiros em texto.'
+      },
+    ]
+
+    const primitivasVetor = [
+      {
+          nome: 'mapear',
+          documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
+      },
+      {
+          nome: 'ordenar',
+          documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
+      },
+      {
+          nome: 'tamanho',
+          documentacao: 'Retorna o número de elementos que compõem um vetor.'
+      },
+    ]
+
+    const primitivasNumero = [
+      {
+          nome: 'aleatorio',
+          documentacao: 'Retorna um número aleatório entre 0 e 1.'
+      },
+      {
+          nome: 'aleatorioEntre',
+          documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
+      },
+      {
+          nome: 'inteiro',
+          documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
+      },
+      {
+          nome: 'real',
+          documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
+      },
+    ]
+
+    const ordenar = (a: any, b: any) => {
+      const nome1 = a['nome'].toUpperCase();
+      const nome2 = b['nome'].toUpperCase();
+      
+      if (nome1 > nome2) return 1;
+      else if (nome1 < nome2) return -1;
+      return 0;
+    }
+  
+    const primitivas = [
+      ...primitivasNumero, 
+      ...primitivasTexto, 
+      ...primitivasVetor
+    ].sort(ordenar);
+
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
   const Monaco = (window as any).monaco;
-  Monaco.editor.create(document.getElementById("editor"), {
-      value: Exemplos[exemploId],
-      language: "delegua"
+
+  Monaco.languages.register({
+    id: 'delegua',
+    extensions: ['.delegua'],
+    aliases: ['delegua', 'language-generation'],
+    mimetypes: ['application/delegua'],
   });
+  Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+
+  Monaco.editor.create(document.getElementById('editor'), {
+    value: Exemplos[exemploId],
+    language: 'delegua'
+  });
+
+  Monaco.languages.registerCompletionItemProvider('delegua', {
+    provideCompletionItems: () => {
+      var suggestions = [{
+        label: 'escreva',
+        kind: Monaco.languages.CompletionItemKind.Text,
+        insertText: 'escreva(\'\')'
+      }, {
+        label: 'aleatorioEntre',
+        kind: Monaco.languages.CompletionItemKind.Keyword,
+        insertText: 'aleatorioEntre(1, 10)',
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+      }, {
+        label: 'se',
+        kind: Monaco.languages.CompletionItemKind.Snippet,
+        insertText: [
+          'se (${1:condition}) {',
+          '\t$0',
+          '} senao {',
+          '\t',
+          '}'
+        ].join('\n'),
+        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        documentation: 'Declaração Se-Senão'
+      }];
+      return { suggestions: suggestions };
+    }
+  });
+
+  Monaco.languages.registerHoverProvider('delegua', {
+    provideHover: function(model, position) { 
+      const palavra = model.getWordAtPosition(position);
+      const primitiva = primitivas.find(p => p.nome === palavra.word)
+      if(primitiva){
+        return {
+          contents: [
+            { value: `**${primitiva.nome}**` },
+            { value: primitiva.documentacao },
+          ]
+        }
+      }
+      return { contents: [] }
+    }
+  })
 
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;

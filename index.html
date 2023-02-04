@@ -36,6 +36,12 @@
     <div class="navbar-central">
       <p id="titulo-arquivo">index.delegua</p>
     </div>
+    <select onchange="definirTema(this.value)" id="temaEditor">
+      <option value="vs">Padrão</option>
+      <option value="vs-dark">Visual Studio Escuro</option>
+      <option value="hc-black">Escuro</option>
+      <option value="hc-light">Claro</option>
+    </select>
     <div class="navbar-direita">
       <button id="botaoTraduzir" style="padding-right: 16px;" title="Traduzir">
         <i class="fa fa-language" style="font-size:20px;"></i>
