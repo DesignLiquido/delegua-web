@@ -1,25 +1,9 @@
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoExecutar = document.getElementById("botaoExecutar");
-const seletorDemos = document.getElementById("seletorDemos");
 
 const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
-
-function capitalize(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-function getQueryVariable(variable: any) {
-    var query = window.location.search.substring(1);
-    var vars = query.split("&");
-    for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split("=");
-        if (decodeURIComponent(pair[0]) == variable) {
-            return decodeURIComponent(pair[1]);
-        }
-    }
-}
 
 const mostrarResultadoExecutar = function(codigo: string) {
     const paragrafo: any = document.createElement("p");
@@ -28,21 +12,31 @@ const mostrarResultadoExecutar = function(codigo: string) {
     resultadoEditorDiv?.appendChild(paragrafo);
 };
 
+const limparResultadoEditor = function () {
+    resultadoEditorDiv.innerHTML = "";
+};
+
+limparResultadoEditor();
+
 const executarTradutor = function () {
     const delegua = new Delegua.DeleguaWeb("");
 
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico =
-        delegua.avaliadorSintatico.analisar(retornoLexador);
-
-    const retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes)
+    if(codigo[0]){
+        const retornoLexador = delegua.lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico =
+            delegua.avaliadorSintatico.analisar(retornoLexador);
     
-    Monaco.editor.create(document.getElementById("resultadoEditor"), {
-        value: retornoTradutor,
-        language: "javascript"
-    });
+        const retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes)
+
+        if(retornoTradutor){
+            Monaco.editor.create(document.getElementById("resultadoEditor"), {
+                value: retornoTradutor,
+                language: "javascript"
+            });
+        }
+    }
 }
 
 const executarCodigo = function () {
@@ -58,10 +52,12 @@ const executarCodigo = function () {
 };
 
 botaoTraduzir.addEventListener("click", function () {
+    limparResultadoEditor();
     executarTradutor();
 });
 
 botaoExecutar.addEventListener("click", function () {
+    limparResultadoEditor();
     executarCodigo();
 });
 

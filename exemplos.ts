@@ -653,35 +653,33 @@ mostrar_fila();`,
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
-  const Monaco = (window as any).monaco;
+  this.Monaco?.editor?.create(document.getElementById('editor'), {
+    value: Exemplos[exemploId],
+    language: 'delegua'
+  });
 
-  Monaco.languages.register({
+  this.Monaco?.languages?.register({
     id: 'delegua',
     extensions: ['.delegua'],
     aliases: ['delegua', 'language-generation'],
     mimetypes: ['application/delegua'],
   });
-  Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+  this.Monaco?.languages?.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
 
-  Monaco.editor.create(document.getElementById('editor'), {
-    value: Exemplos[exemploId],
-    language: 'delegua'
-  });
-
-  Monaco.languages.registerCompletionItemProvider('delegua', {
+  this.Monaco?.languages?.registerCompletionItemProvider('delegua', {
     provideCompletionItems: () => {
       var suggestions = [{
         label: 'escreva',
-        kind: Monaco.languages.CompletionItemKind.Text,
+        kind: this.Monaco.languages.CompletionItemKind.Text,
         insertText: 'escreva(\'\')'
       }, {
         label: 'aleatorioEntre',
-        kind: Monaco.languages.CompletionItemKind.Keyword,
+        kind: this.Monaco.languages.CompletionItemKind.Keyword,
         insertText: 'aleatorioEntre(1, 10)',
-        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+        insertTextRules: this.Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
       }, {
         label: 'se',
-        kind: Monaco.languages.CompletionItemKind.Snippet,
+        kind: this.Monaco.languages.CompletionItemKind.Snippet,
         insertText: [
           'se (${1:condition}) {',
           '\t$0',
@@ -689,17 +687,17 @@ window.onload = function () {
           '\t',
           '}'
         ].join('\n'),
-        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        insertTextRules: this.Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         documentation: 'Declaração Se-Senão'
       }];
       return { suggestions: suggestions };
     }
   });
 
-  Monaco.languages.registerHoverProvider('delegua', {
+  this.Monaco?.languages?.registerHoverProvider('delegua', {
     provideHover: function(model, position) { 
       const palavra = model.getWordAtPosition(position);
-      const primitiva = primitivas.find(p => p.nome === palavra.word)
+      const primitiva = primitivas.find(p => p.nome === palavra?.word)
       if(primitiva){
         return {
           contents: [
@@ -711,7 +709,7 @@ window.onload = function () {
       return { contents: [] }
     }
   })
-
+  
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
