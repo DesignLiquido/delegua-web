@@ -1,4 +1,4 @@
-var outputDiv = document.getElementById("output");
+var resultadoEditorDiv = document.getElementById("resultadoEditor");
 var botaoTraduzir = document.getElementById("botaoTraduzir");
 var botaoExecutar = document.getElementById("botaoExecutar");
 var seletorDemos = document.getElementById("seletorDemos");
@@ -18,32 +18,26 @@ function getQueryVariable(variable) {
         }
     }
 }
-var mostrarResultadoTradutor = function (codigo) {
-    var textarea = document.createElement("textarea");
-    textarea.textContent = codigo;
-    textarea.classList = " output";
-    textarea.style.height = "100%";
-    textarea.style.width = "100%";
-    textarea.style.overflow = 'auto';
-    outputDiv === null || outputDiv === void 0 ? void 0 : outputDiv.appendChild(textarea);
-};
 var mostrarResultadoExecutar = function (codigo) {
     var paragrafo = document.createElement("p");
     paragrafo.textContent = codigo;
-    paragrafo.classList = " output";
-    outputDiv === null || outputDiv === void 0 ? void 0 : outputDiv.appendChild(paragrafo);
+    paragrafo.classList = " resultadoEditor";
+    resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
 };
-var clearOutput = function () {
-    outputDiv.innerHTML = "";
+var limparResultadoEditor = function () {
+    resultadoEditorDiv.innerHTML = "";
 };
-clearOutput();
+limparResultadoEditor();
 var executarTradutor = function () {
     var delegua = new Delegua.DeleguaWeb("");
     var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
     var retornoLexador = delegua.lexador.mapear(codigo, -1);
     var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     var retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes);
-    this.mostrarResultadoTradutor(retornoTradutor);
+    Monaco.editor.create(document.getElementById("resultadoEditor"), {
+        value: retornoTradutor,
+        language: "javascript"
+    });
 };
 var executarCodigo = function () {
     var delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
@@ -53,11 +47,11 @@ var executarCodigo = function () {
     delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico });
 };
 botaoTraduzir.addEventListener("click", function () {
-    clearOutput();
+    limparResultadoEditor();
     executarTradutor();
 });
 botaoExecutar.addEventListener("click", function () {
-    clearOutput();
+    limparResultadoEditor();
     executarCodigo();
 });
 var definirTema = function (tema) {

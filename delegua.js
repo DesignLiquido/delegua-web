@@ -180,7 +180,7 @@ var DeleguaWeb = /** @class */ (function () {
 }());
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"@designliquido/delegua-matematica":8,"@designliquido/delegua/fontes/avaliador-sintatico":14,"@designliquido/delegua/fontes/estruturas":65,"@designliquido/delegua/fontes/interpretador":74,"@designliquido/delegua/fontes/lexador":78,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":83,"@designliquido/delegua/fontes/tradutores":84}],2:[function(require,module,exports){
+},{"@designliquido/delegua-matematica":8,"@designliquido/delegua/fontes/avaliador-sintatico":14,"@designliquido/delegua/fontes/estruturas":65,"@designliquido/delegua/fontes/interpretador":74,"@designliquido/delegua/fontes/lexador":79,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":84,"@designliquido/delegua/fontes/tradutores":85}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gerarPontosAbscissa = exports.somaElementosMatriz = void 0;
@@ -1139,7 +1139,8 @@ class AvaliadorSintatico {
     declaracaoRetorna() {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
-        if ([delegua_1.default.VARIAVEL,
+        if ([
+            delegua_1.default.VARIAVEL,
             delegua_1.default.ISTO,
             delegua_1.default.TEXTO,
             delegua_1.default.NUMERO,
@@ -1148,7 +1149,7 @@ class AvaliadorSintatico {
             delegua_1.default.NEGACAO,
             delegua_1.default.FALSO,
             delegua_1.default.PARENTESE_ESQUERDO,
-            delegua_1.default.SUPER
+            delegua_1.default.SUPER,
         ]) {
             valor = this.expressao();
         }
@@ -1222,7 +1223,7 @@ class AvaliadorSintatico {
             if (this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_ESQUERDO)) {
                 // Caso 1: com parâmetro de erro.
                 // `pegue` recebe um `FuncaoConstruto`.
-                blocoPegue = this.corpoDaFuncao("bloco `pegue`");
+                blocoPegue = this.corpoDaFuncao('bloco `pegue`');
             }
             else {
                 // Caso 2: sem parâmetro de erro.
@@ -1439,7 +1440,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":31,"../declaracoes":51,"../tipos-de-simbolos/delegua":83,"./erro-avaliador-sintatico":13,"browser-process-hrtime":87}],13:[function(require,module,exports){
+},{"../construtos":31,"../declaracoes":51,"../tipos-de-simbolos/delegua":84,"./erro-avaliador-sintatico":13,"browser-process-hrtime":88}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -1484,9 +1485,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     const todosEmCondicao = async function (vetor, funcaoCondicional) {
         if (vetor === null || vetor === undefined)
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         const valorFuncaoCondicional = funcaoCondicional.hasOwnProperty('valor')
             ? funcaoCondicional.valor
             : funcaoCondicional;
@@ -1497,9 +1496,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função todosEmCondicao() deve ser uma função.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
-            if (!await valorFuncaoCondicional.chamar(interpretador, [
-                valorVetor[indice],
-            ]))
+            if (!(await valorFuncaoCondicional.chamar(interpretador, [valorVetor[indice]])))
                 return false;
         }
         return true;
@@ -1513,43 +1510,32 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(1, async function (minimo, maximo) {
         // eslint-disable-next-line prefer-rest-params
         if (!arguments[0]) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "A função recebe ao menos um parâmetro."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
         }
-        const valorMinimo = minimo.hasOwnProperty('valor')
-            ? minimo.valor
-            : minimo;
+        const valorMinimo = minimo.hasOwnProperty('valor') ? minimo.valor : minimo;
         if (arguments.length === 1) {
             if (typeof valorMinimo !== 'number') {
-                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "O parâmetro deve ser um número."));
+                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'O parâmetro deve ser um número.'));
             }
-            ;
             return Math.floor(Math.random() * (0 - valorMinimo)) + valorMinimo;
         }
         if (arguments.length > 2) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "A quantidade de parâmetros máxima para esta função é 2."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'A quantidade de parâmetros máxima para esta função é 2.'));
         }
-        const valorMaximo = maximo.hasOwnProperty('valor')
-            ? maximo.valor
-            : maximo;
-        if (typeof valorMinimo !== 'number' ||
-            typeof valorMaximo !== 'number') {
+        const valorMaximo = maximo.hasOwnProperty('valor') ? maximo.valor : maximo;
+        if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Os dois parâmetros devem ser do tipo número.'));
         }
-        return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) +
-            valorMinimo);
+        return Promise.resolve(Math.floor(Math.random() * (valorMaximo - valorMinimo)) + valorMinimo);
     }));
     pilhaEscoposExecucao.definirVariavel('algum', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, funcaoPesquisa) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-            ? funcaoPesquisa.valor
-            : funcaoPesquisa;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
             if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
@@ -1559,17 +1545,13 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         return false;
     }));
     pilhaEscoposExecucao.definirVariavel('encontrar', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoPesquisa) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-            ? funcaoPesquisa.valor
-            : funcaoPesquisa;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
             if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
@@ -1579,17 +1561,13 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         return null;
     }));
     pilhaEscoposExecucao.definirVariavel('encontrarUltimo', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoPesquisa) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-            ? funcaoPesquisa.valor
-            : funcaoPesquisa;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         for (let indice = valorVetor.length - 1; indice >= 0; --indice) {
             if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
@@ -1598,17 +1576,13 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         }
     }));
     pilhaEscoposExecucao.definirVariavel('encontrarIndice', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, funcaoPesquisa) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-            ? funcaoPesquisa.valor
-            : funcaoPesquisa;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
             if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
@@ -1618,17 +1592,13 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         return -1;
     }));
     pilhaEscoposExecucao.definirVariavel('encontrarUltimoIndice', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, funcaoPesquisa) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor')
-            ? funcaoPesquisa.valor
-            : funcaoPesquisa;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoPesquisa = funcaoPesquisa.hasOwnProperty('valor') ? funcaoPesquisa.valor : funcaoPesquisa;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         for (let indice = valorVetor.length - 1; indice >= 0; --indice) {
             if (await valorFuncaoPesquisa.chamar(interpretador, [valorVetor[indice]])) {
@@ -1637,14 +1607,10 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         }
     }));
     pilhaEscoposExecucao.definirVariavel('incluido', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, valor) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorValor = valor.hasOwnProperty('valor')
-            ? valor.valor
-            : valor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorValor = valor.hasOwnProperty('valor') ? valor.valor : valor;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
             if (valorVetor[indice] == valorValor) {
@@ -1656,9 +1622,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('inteiro', new funcao_padrao_1.FuncaoPadrao(1, async function (numero) {
         if (numero === null || numero === undefined)
             return Promise.resolve(0);
-        const valor = numero.hasOwnProperty('valor')
-            ? numero.valor
-            : numero;
+        const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
         if (isNaN(valor)) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece ser um número. Somente números ou textos com números podem ser convertidos para inteiro.'));
         }
@@ -1670,9 +1634,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('mapear', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoMapeamento) {
         if (vetor === null || vetor === undefined)
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função mapear() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         const valorFuncaoMapeamento = funcaoMapeamento.hasOwnProperty('valor')
             ? funcaoMapeamento.valor
             : funcaoMapeamento;
@@ -1684,9 +1646,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         }
         const resultados = [];
         for (let indice = 0; indice < valorVetor.length; ++indice) {
-            resultados.push(await valorFuncaoMapeamento.chamar(interpretador, [
-                valorVetor[indice],
-            ]));
+            resultados.push(await valorFuncaoMapeamento.chamar(interpretador, [valorVetor[indice]]));
         }
         return resultados;
     }));
@@ -1695,9 +1655,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('filtrarPor', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor, funcaoFiltragem) {
         if (vetor === null || vetor === undefined)
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
             ? funcaoFiltragem.valor
             : funcaoFiltragem;
@@ -1709,21 +1667,15 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         }
         const resultados = [];
         for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]) &&
-                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [
-                    valorVetor[indice],
-                ]));
+            (await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]])) &&
+                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]));
         }
         return resultados;
     }));
     pilhaEscoposExecucao.definirVariavel('primeiroEmCondicao', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, funcaoFiltragem) {
         if (vetor === null || vetor === undefined)
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
             ? funcaoFiltragem.valor
             : funcaoFiltragem;
@@ -1735,21 +1687,15 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         }
         const resultados = [];
         for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]) &&
-                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [
-                    valorVetor[indice],
-                ]));
+            (await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]])) &&
+                resultados.push(await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]));
         }
         return resultados[0];
     }));
     pilhaEscoposExecucao.definirVariavel('paraCada', new funcao_padrao_1.FuncaoPadrao(2, async function (vetor, funcaoFiltragem) {
         if (vetor === null || vetor === undefined)
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() não pode ser nulo.'));
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         const valorFuncaoFiltragem = funcaoFiltragem.hasOwnProperty('valor')
             ? funcaoFiltragem.valor
             : funcaoFiltragem;
@@ -1760,17 +1706,13 @@ function default_1(interpretador, pilhaEscoposExecucao) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função paraCada() deve ser uma função.'));
         }
         for (let indice = 0; indice < valorVetor.length; ++indice) {
-            await valorFuncaoFiltragem.chamar(interpretador, [
-                valorVetor[indice],
-            ]);
+            await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
         }
     }));
     pilhaEscoposExecucao.definirVariavel('ordenar', new funcao_padrao_1.FuncaoPadrao(1, async function (vetor) {
         if (vetor === null || vetor === undefined)
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função ordenar() não pode ser nulo.');
-        const objeto = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
+        const objeto = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
         if (!Array.isArray(objeto)) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor inválido. Objeto inserido não é um vetor.'));
         }
@@ -1790,29 +1732,21 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('real', new funcao_padrao_1.FuncaoPadrao(1, async function (numero) {
         if (numero === null || numero === undefined)
             return Promise.resolve(parseFloat('0'));
-        const valor = numero.hasOwnProperty('valor')
-            ? numero.valor
-            : numero;
+        const valor = numero.hasOwnProperty('valor') ? numero.valor : numero;
         if (!/^(-)?\d+(\.\d+)?$/.test(valor)) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Valor não parece estar estruturado como um número (texto/valor vazio, falso ou não definido). Somente números ou textos com números podem ser convertidos para real.'));
         }
         return Promise.resolve(parseFloat(valor));
     }));
     pilhaEscoposExecucao.definirVariavel('reduzir', new funcao_padrao_1.FuncaoPadrao(3, async function (vetor, funcaoReducao, padrao = null) {
-        const valorVetor = vetor.hasOwnProperty('valor')
-            ? vetor.valor
-            : vetor;
-        const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor')
-            ? funcaoReducao.valor
-            : funcaoReducao;
-        const valorPadrao = padrao.hasOwnProperty('valor')
-            ? padrao.valor
-            : padrao;
+        const valorVetor = vetor.hasOwnProperty('valor') ? vetor.valor : vetor;
+        const valorFuncaoReducao = funcaoReducao.hasOwnProperty('valor') ? funcaoReducao.valor : funcaoReducao;
+        const valorPadrao = padrao.hasOwnProperty('valor') ? padrao.valor : padrao;
         if (!Array.isArray(valorVetor)) {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
         }
         if (valorFuncaoReducao.constructor.name !== 'DeleguaFuncao') {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, "Parâmetro inválido. O segundo parâmetro da função deve ser uma função."));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função deve ser uma função.'));
         }
         let resultado = valorPadrao;
         let inicio = 0;
@@ -1826,9 +1760,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         return resultado;
     }));
     pilhaEscoposExecucao.definirVariavel('tamanho', new funcao_padrao_1.FuncaoPadrao(1, async function (objeto) {
-        const valorObjeto = objeto.hasOwnProperty('valor')
-            ? objeto.valor
-            : objeto;
+        const valorObjeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
         if (typeof valorObjeto === 'number') {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Função global tamanho() não funciona com números.'));
         }
@@ -1844,19 +1776,15 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         if (valorObjeto instanceof delegua_classe_1.DeleguaClasse) {
             const metodos = valorObjeto.metodos;
             let tamanho = 0;
-            if (metodos.inicializacao &&
-                metodos.inicializacao.eInicializador) {
-                tamanho =
-                    metodos.inicializacao.declaracao.parametros.length;
+            if (metodos.inicializacao && metodos.inicializacao.eInicializador) {
+                tamanho = metodos.inicializacao.declaracao.parametros.length;
             }
             return Promise.resolve(tamanho);
         }
         return Promise.resolve(valorObjeto.length);
     }));
     pilhaEscoposExecucao.definirVariavel('texto', new funcao_padrao_1.FuncaoPadrao(1, async function (valorOuVariavel) {
-        return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor')
-            ? valorOuVariavel.valor
-            : valorOuVariavel}`);
+        return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
     }));
     return pilhaEscoposExecucao;
 }
@@ -1922,7 +1850,7 @@ const carregarBiblioteca = async (nomeDaBiblioteca, caminhoDaBiblioteca) => {
             dadosDoModulo = await importarPacoteExternoCompleto(nomeDaBiblioteca);
         }
         catch (erro2) {
-            throw new excecoes_1.ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação. Informações adicionais: ${(erro2 === null || erro2 === void 0 ? void 0 : erro2.message) || "(nenhuma)"}`);
+            throw new excecoes_1.ErroEmTempoDeExecucao(null, `Biblioteca ${nomeDaBiblioteca} não encontrada para importação. Informações adicionais: ${(erro2 === null || erro2 === void 0 ? void 0 : erro2.message) || '(nenhuma)'}`);
         }
     }
     return modularizarBiblioteca(dadosDoModulo, nomeDaBiblioteca);
@@ -1958,9 +1886,10 @@ const importarPacoteCaminhoBase = async (caminhoRelativo) => {
     let resultado = null;
     const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
     const global = processoFilho.spawnSync(npm, ['root', '--location=global']);
-    const caminhoAbsoluto = caminho.join((global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\package.json`;
+    const caminhoAbsoluto = caminho.join(global.output[1].toString().trim()) + `\\${caminhoRelativo}\\package.json`;
     let arquivoInicio = JSON.parse(sistemaArquivos.readFileSync(caminhoAbsoluto, 'utf-8')).main || 'index.js';
-    await (_a = caminho.join('file:///' + (global.output[1]).toString().trim()) + `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`, Promise.resolve().then(() => __importStar(require(_a)))).then(resposta => {
+    await (_a = caminho.join('file:///' + global.output[1].toString().trim()) +
+        `\\${caminhoRelativo}\\${arquivoInicio.replace('./', '')}`, Promise.resolve().then(() => __importStar(require(_a)))).then((resposta) => {
         resultado = resposta;
     });
     return resultado;
@@ -1996,20 +1925,18 @@ async function default_1(nome) {
 exports.default = default_1;
 
 }).call(this)}).call(this,require('_process'))
-},{"../estruturas/classe-padrao":61,"../estruturas/funcao-padrao":64,"../estruturas/modulo":67,"../excecoes":71,"_process":91,"child_process":88,"fs":88,"path":90}],17:[function(require,module,exports){
+},{"../estruturas/classe-padrao":61,"../estruturas/funcao-padrao":64,"../estruturas/modulo":67,"../excecoes":71,"_process":92,"child_process":89,"fs":89,"path":91}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    dividir: (texto, divisor, limite) => [
-        ...texto.split(divisor, limite),
-    ],
+    dividir: (texto, divisor, limite) => [...texto.split(divisor, limite)],
     fatiar: (texto, inicio, fim) => texto.slice(inicio, fim),
     inclui: (texto, elemento) => texto.includes(elemento),
     maiusculo: (texto) => texto.toUpperCase(),
     minusculo: (texto) => texto.toLowerCase(),
     substituir: (texto, elemento, substituto) => texto.replace(elemento, substituto),
     subtexto: (texto, inicio, fim) => texto.slice(inicio, fim),
-    tamanho: (texto) => texto.length
+    tamanho: (texto) => texto.length,
 };
 
 },{}],18:[function(require,module,exports){
@@ -2044,7 +1971,7 @@ exports.default = {
         return vetor;
     },
     somar: (vetor) => vetor.reduce((a, b) => a + b),
-    tamanho: (vetor) => vetor.length
+    tamanho: (vetor) => vetor.length,
 };
 
 },{}],19:[function(require,module,exports){
@@ -2141,7 +2068,7 @@ class Atribuir {
         this.valor = valor;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoDeAtribuicao(this);
+        return await visitante.visitarDeclaracaoDeAtribuicao(this);
     }
 }
 exports.Atribuir = Atribuir;
@@ -2181,11 +2108,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
 class Chamada {
     constructor(hashArquivo, entidadeChamada, parentese, argumentos) {
+        this.id = this.uuidv4();
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.parentese = parentese;
         this.argumentos = argumentos;
+    }
+    uuidv4() {
+        // Public Domain/MIT
+        let d = new Date().getTime(); // Timestamp
+        let d2 = (typeof performance !== 'undefined' && performance.now && performance.now() * 1000) || 0; // Time in microseconds since page-load or 0 if unsupported
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = Math.random() * 16; // random number between 0 and 16
+            if (d > 0) {
+                // Use timestamp until depleted
+                r = (d + r) % 16 | 0;
+                d = Math.floor(d / 16);
+            }
+            else {
+                // Use microseconds since page-load if supported
+                r = (d2 + r) % 16 | 0;
+                d2 = Math.floor(d2 / 16);
+            }
+            return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+        });
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoDeChamada(this);
@@ -2454,7 +2401,7 @@ class Classe extends declaracao_1.Declaracao {
         this.metodos = metodos;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoClasse(this);
+        return await visitante.visitarDeclaracaoClasse(this);
     }
 }
 exports.Classe = Classe;
@@ -2505,7 +2452,7 @@ class Enquanto extends declaracao_1.Declaracao {
         this.corpo = corpo;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoEnquanto(this);
+        return await visitante.visitarDeclaracaoEnquanto(this);
     }
 }
 exports.Enquanto = Enquanto;
@@ -2526,7 +2473,7 @@ class Escolha extends declaracao_1.Declaracao {
         this.caminhoPadrao = caminhoPadrao;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoEscolha(this);
+        return await visitante.visitarDeclaracaoEscolha(this);
     }
 }
 exports.Escolha = Escolha;
@@ -2558,7 +2505,7 @@ class Escreva extends declaracao_1.Declaracao {
         this.argumentos = argumentos;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoEscreva(this);
+        return await visitante.visitarDeclaracaoEscreva(this);
     }
 }
 exports.Escreva = Escreva;
@@ -2591,7 +2538,7 @@ class Fazer extends declaracao_1.Declaracao {
         this.condicaoEnquanto = condicaoEnquanto;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoFazer(this);
+        return await visitante.visitarDeclaracaoFazer(this);
     }
 }
 exports.Fazer = Fazer;
@@ -2608,7 +2555,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
         this.funcao = funcao;
     }
     async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoFuncao(this));
+        return Promise.resolve(visitante.visitarDeclaracaoDefinicaoFuncao(this));
     }
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
@@ -2625,7 +2572,7 @@ class Importar extends declaracao_1.Declaracao {
         this.simboloFechamento = simboloFechamento;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoImportar(this);
+        return await visitante.visitarDeclaracaoImportar(this);
     }
 }
 exports.Importar = Importar;
@@ -2701,7 +2648,7 @@ class Para extends declaracao_1.Declaracao {
         this.corpo = corpo;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoPara(this);
+        return await visitante.visitarDeclaracaoPara(this);
     }
 }
 exports.Para = Para;
@@ -2737,7 +2684,7 @@ class Se extends declaracao_1.Declaracao {
         this.caminhoSenao = caminhoSenao;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoSe(this);
+        return await visitante.visitarDeclaracaoSe(this);
     }
 }
 exports.Se = Se;
@@ -2774,7 +2721,7 @@ class Tente extends declaracao_1.Declaracao {
         this.caminhoFinalmente = caminhoFinalmente;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoTente(this);
+        return await visitante.visitarDeclaracaoTente(this);
     }
 }
 exports.Tente = Tente;
@@ -2791,7 +2738,7 @@ class Var extends declaracao_1.Declaracao {
         this.inicializador = inicializador;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoVar(this);
+        return await visitante.visitarDeclaracaoVar(this);
     }
 }
 exports.Var = Var;
@@ -2800,9 +2747,19 @@ exports.Var = Var;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
+/**
+ * Um espaço de variáveis é ligado a um `EscopoExecucao`.
+ * Contém os valores de variáveis e resoluções de chamadas.
+ *
+ * As resoluções de chamadas são utilizadas pelo depurador quando
+ * uma certa linha precisa "executar duas vezes". Isso acontece quando
+ * um ponto de parada é ativado dentro de um escopo relacionado com
+ * a chamada. É apenas usado pelo Interpretador com Depuração.
+ */
 class EspacoVariaveis {
     constructor() {
         this.valores = {};
+        this.resolucoesChamadas = {};
     }
 }
 exports.EspacoVariaveis = EspacoVariaveis;
@@ -2884,9 +2841,7 @@ class DeleguaClasse extends chamavel_1.Chamavel {
         const instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            inicializador
-                .definirInstancia(instancia)
-                .chamar(interpretador, argumentos);
+            inicializador.definirInstancia(instancia).chamar(interpretador, argumentos);
         }
         return instancia;
     }
@@ -2900,6 +2855,9 @@ exports.DeleguaFuncao = void 0;
 const chamavel_1 = require("./chamavel");
 const espaco_variaveis_1 = require("../espaco-variaveis");
 const quebras_1 = require("../quebras");
+/**
+ * Qualquer função declarada em código é uma DeleguaFuncao.
+ */
 class DeleguaFuncao extends chamavel_1.Chamavel {
     constructor(nome, declaracao, instancia = undefined, eInicializador = false) {
         super();
@@ -2926,9 +2884,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
                 const nome = parametro['nome'].lexema;
                 let valor = argumentos[i];
                 if (argumentos[i] === null) {
-                    valor = parametro['padrao']
-                        ? parametro['padrao'].valor
-                        : null;
+                    valor = parametro['padrao'] ? parametro['padrao'].valor : null;
                 }
                 ambiente.valores[nome] = valor;
             }
@@ -2954,7 +2910,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
 }
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../espaco-variaveis":59,"../quebras":82,"./chamavel":60}],64:[function(require,module,exports){
+},{"../espaco-variaveis":59,"../quebras":83,"./chamavel":60}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -3160,9 +3116,10 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-interpretador"), exports);
 __exportStar(require("./interpretador"), exports);
+__exportStar(require("./interpretador-com-depuracao"), exports);
 __exportStar(require("../interfaces/retornos/retorno-interpretador"), exports);
 
-},{"../interfaces/retornos/retorno-interpretador":72,"./erro-interpretador":73,"./interpretador":76}],75:[function(require,module,exports){
+},{"../interfaces/retornos/retorno-interpretador":72,"./erro-interpretador":73,"./interpretador":77,"./interpretador-com-depuracao":76}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
@@ -3196,6 +3153,502 @@ function inferirTipoVariavel(variavel) {
 exports.inferirTipoVariavel = inferirTipoVariavel;
 
 },{}],76:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.InterpretadorComDepuracao = void 0;
+const espaco_variaveis_1 = require("../espaco-variaveis");
+const quebras_1 = require("../quebras");
+const interpretador_1 = require("./interpretador");
+const construtos_1 = require("../construtos");
+const inferenciador_1 = require("./inferenciador");
+/**
+ * Implementação do Interpretador com suporte a depuração.
+ * Herda o Interpretador padrão de Delégua e implementa métodos a mais, que são
+ * usados pelo servidor de depuração.
+ * Alguns métodos do Interpretador original, como `executarBloco` e `interpretar`,
+ * são reimplementados aqui.
+ *
+ * A separação entre `Interpretador` e `InterpretadorComDepuracao` se faz
+ * necessária por uma série de motivos.
+ * O primeiro deles é o desempenho. A depuração torna o desempenho do
+ * Interpretador com depuração inferior ao Interpretador original pelas
+ * várias verificações de controle que precisam ser feitas para a
+ * funcionalidade do suporte a depuração, como verificar pontos de parada,
+ * estados da pilha de execução e variáveis.
+ * O segundo deles é manter o Interpretador original tão simples quanto possível.
+ * Uma implementação mais simples normalmente é mais robusta.
+ * O terceiro deles é o uso de memória. O Interpretador original não possui
+ * uma série de variáveis implementadas aqui, o que o torna mais econômico em
+ * recursos de máquina.
+ */
+class InterpretadorComDepuracao extends interpretador_1.Interpretador {
+    constructor(importador, diretorioBase, funcaoDeRetorno) {
+        super(importador, diretorioBase, false, funcaoDeRetorno);
+        this.pontosParada = [];
+        this.pontoDeParadaAtivo = false;
+        this.avisoPontoParadaAtivado = () => console.log('Aviso: Ponto de parada ativado.');
+        this.escopoAtual = 0;
+        this.executandoChamada = false;
+        this.passos = 0;
+    }
+    /**
+     * Resolve problema de literais que tenham vírgulas, e confundem a resolução de chamadas.
+     * @param valor O valor do argumento, que pode ser um literal com virgulas.
+     * @returns Uma string com vírgulas escapadas.
+     */
+    escaparVirgulas(valor) {
+        return String(valor).replace(/,/i, ',');
+    }
+    /**
+     * Gera um identificador para resolução de chamadas.
+     * Usado para não chamar funções repetidamente quando usando instruções
+     * de passo, como "próximo" ou "adentrar-escopo".
+     * @param expressao A expressão de chamada.
+     * @returns Uma Promise que resolve como string.
+     */
+    async gerarIdResolucaoChamada(expressao) {
+        const argumentosResolvidos = [];
+        for (let argumento of expressao.argumentos) {
+            argumentosResolvidos.push(await this.avaliar(argumento));
+        }
+        return argumentosResolvidos.reduce((acumulador, argumento) => (acumulador += `,${this.escaparVirgulas(argumento.hasOwnProperty('valor') ? argumento.valor : argumento)}`), expressao.id);
+    }
+    async visitarExpressaoDeChamada(expressao) {
+        const _idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao);
+        // Usado na abertura do bloco de escopo da chamada.
+        this.idChamadaAtual = _idChamadaComArgumentos;
+        this.executandoChamada = true;
+        this.proximoEscopo = 'funcao';
+        const retorno = await super.visitarExpressaoDeChamada(expressao);
+        this.executandoChamada = false;
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAtual.ambiente.resolucoesChamadas[_idChamadaComArgumentos] = retorno;
+        return retorno;
+    }
+    /**
+     * A execução de uma atribuição de variável no interpretador com depuração pode ser em duas etapas.
+     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
+     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
+     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
+     * segunda para efetivamente atribuir o valor da variável.
+     * @param expressao
+     * @returns
+     */
+    async visitarDeclaracaoDeAtribuicao(expressao) {
+        if (expressao.valor instanceof construtos_1.Chamada) {
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(expressao.valor);
+            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, retornar);
+                delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                return retornar;
+            }
+        }
+        const valor = await this.avaliar(expressao.valor);
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
+        return valor;
+    }
+    async avaliarArgumentosEscreva(argumentos) {
+        let formatoTexto = '';
+        for (const argumento of argumentos) {
+            let resultadoAvaliacao;
+            if (argumento instanceof construtos_1.Chamada) {
+                const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+                const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(argumento);
+                if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                    resultadoAvaliacao = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                    delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                }
+                else {
+                    resultadoAvaliacao = await this.avaliar(argumento);
+                }
+            }
+            else {
+                resultadoAvaliacao = await this.avaliar(argumento);
+            }
+            let valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor')) ? resultadoAvaliacao.valor : resultadoAvaliacao;
+            formatoTexto += `${this.paraTexto(valor)} `;
+        }
+        return formatoTexto;
+    }
+    /**
+     * Execução de uma escrita na saída configurada, que pode ser `console` (padrão) ou
+     * alguma função para escrever numa página Web.
+     * Se ponto de parada foi ativado durante a avaliação de argumentos, não escreve.
+     * @param declaracao A declaração.
+     * @returns Sempre nulo, por convenção de visita.
+     */
+    async visitarDeclaracaoEscreva(declaracao) {
+        try {
+            const formatoTexto = await this.avaliarArgumentosEscreva(declaracao.argumentos);
+            if (this.pontoDeParadaAtivo) {
+                return null;
+            }
+            this.funcaoDeRetorno(formatoTexto);
+            return null;
+        }
+        catch (erro) {
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
+        }
+    }
+    /**
+     * A execução de `var` no interpretador com depuração pode ser em duas etapas.
+     * O desenvolvedor pode inspecionar o lado direito e ir parando a execução usando
+     * F10, por exemplo. Neste caso, a instrução aqui é executada duas vezes:
+     * A primeira para armazenar o valor do lado direito em `this.valorRetornoEscopoAnterior`, e a
+     * segunda para efetivamente atribuir o valor da variável.
+     * @param declaracao A declaração Var
+     * @returns O valor do resultado resolvido, se a declaração resolveu.
+     * Nulo ou indefinido em caso contrário.
+     */
+    async visitarDeclaracaoVar(declaracao) {
+        if (declaracao.inicializador instanceof construtos_1.Chamada) {
+            const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+            const idChamadaComArgumentos = await this.gerarIdResolucaoChamada(declaracao.inicializador);
+            if (escopoAtual.ambiente.resolucoesChamadas.hasOwnProperty(idChamadaComArgumentos)) {
+                const retornar = escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, retornar);
+                delete escopoAtual.ambiente.resolucoesChamadas[idChamadaComArgumentos];
+                return retornar;
+            }
+        }
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
+        if (valorFinal !== null && valorFinal !== undefined) {
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
+        }
+        return valorFinal;
+    }
+    /**
+     * Ao executar um retorno, manter o valor retornado no Interpretador para
+     * uso por linhas que foram executadas com o comando `próximo` do depurador.
+     * @param declaracao Uma declaracao Retorna
+     * @returns O resultado da execução da visita.
+     */
+    async visitarExpressaoRetornar(declaracao) {
+        const retorno = await super.visitarExpressaoRetornar(declaracao);
+        // O escopo atual é marcado como finalizado, para notificar a
+        // instrução de que deve ser descartado.
+        const escopoAtual = this.pilhaEscoposExecucao.topoDaPilha();
+        escopoAtual.finalizado = true;
+        // Acha o primeiro escopo de função.
+        const escopoFuncao = this.pilhaEscoposExecucao.obterEscopoPorTipo('funcao');
+        if (escopoFuncao === undefined) {
+            return Promise.reject('retorna() chamado fora de execução de função.');
+        }
+        if (escopoFuncao.idChamada !== undefined) {
+            escopoAtual.ambiente.resolucoesChamadas[escopoFuncao.idChamada] =
+                retorno && retorno.hasOwnProperty('valor') ? retorno.valor : retorno;
+        }
+        return retorno;
+    }
+    /**
+     * Se bloco de execução já foi instanciado antes (por exemplo, quando há um ponto de parada e a
+     * execução do código é retomada pelo depurador), retoma a execução do bloco do ponto em que havia parado.
+     * Se bloco de execução ainda não foi instanciado, empilha declarações na pilha de escopos de execução,
+     * cria um novo ambiente e executa as declarações empilhadas.
+     * Se depurador comandou uma instrução 'adentrar-escopo', execução do bloco não ocorre, mas
+     * ponteiros de escopo e execução são atualizados.
+     * @param declaracoes Um vetor de declaracoes a ser executado.
+     * @param ambiente O ambiente de execução quando houver, como parâmetros, argumentos, etc.
+     */
+    async executarBloco(declaracoes, ambiente) {
+        // Se o escopo atual não é o último.
+        if (this.escopoAtual < this.pilhaEscoposExecucao.elementos() - 1) {
+            this.escopoAtual++;
+            const proximoEscopo = this.pilhaEscoposExecucao.naPosicao(this.escopoAtual);
+            let retornoExecucao;
+            // Sempre executa a próxima instrução, mesmo que haja ponto de parada.
+            retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+            proximoEscopo.declaracaoAtual++;
+            for (; !(retornoExecucao instanceof quebras_1.Quebra) &&
+                proximoEscopo.declaracaoAtual < proximoEscopo.declaracoes.length; proximoEscopo.declaracaoAtual++) {
+                this.pontoDeParadaAtivo = this.verificarPontoParada(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+                if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
+                    break;
+                }
+                retornoExecucao = await this.executar(proximoEscopo.declaracoes[proximoEscopo.declaracaoAtual]);
+                // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
+                // Por isso verificamos outra parada aqui para evitar que
+                // `this.declaracaoAtual` seja incrementado.
+                if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
+                    break;
+                }
+            }
+            this.pilhaEscoposExecucao.removerUltimo();
+            this.escopoAtual--;
+            return retornoExecucao;
+        }
+        else {
+            this.abrirNovoBlocoEscopo(declaracoes, ambiente, this.proximoEscopo || 'outro');
+            const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+            if (this.idChamadaAtual) {
+                ultimoEscopo.idChamada = this.idChamadaAtual;
+                this.idChamadaAtual = undefined;
+            }
+            this.proximoEscopo = undefined;
+            if (this.comando !== 'adentrarEscopo') {
+                return await this.executarUltimoEscopo();
+            }
+        }
+    }
+    /**
+     * Para fins de depuração, verifica se há ponto de parada no mesmo pragma da declaração.
+     * @param declaracao A declaração a ser executada.
+     * @returns True quando execução deve parar. False caso contrário.
+     */
+    verificarPontoParada(declaracao) {
+        const buscaPontoParada = this.pontosParada.filter((p) => p.hashArquivo === declaracao.hashArquivo && p.linha === declaracao.linha);
+        if (buscaPontoParada.length > 0) {
+            console.log(`Ponto de parada encontrado. Linha: ${declaracao.linha}.`);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * No interpretador com depuração, este método é dividido em dois outros métodos privados:
+     * - `this.executarUmPassoNoEscopo`, que executa apenas uma instrução e nada mais;
+     * - `this.executarUltimoEscopoComandoContinuar`, que é a execução trivial de um escopo inteiro,
+     *      ou com todas as instruções, ou até encontrar um ponto de parada.
+     * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
+     *                       imediatamente abaixo.
+     * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
+     *                                     verificar o ponto de parada na primeira execução.
+     *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
+     * @returns O retorno da execução.
+     */
+    async executarUltimoEscopo(manterAmbiente = false, naoVerificarPrimeiraExecucao = false) {
+        switch (this.comando) {
+            case 'adentrarEscopo':
+            case 'proximo':
+                if (!this.executandoChamada) {
+                    return this.executarUmPassoNoEscopo();
+                }
+                else {
+                    return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
+                }
+            default:
+                return this.executarUltimoEscopoComandoContinuar(manterAmbiente, naoVerificarPrimeiraExecucao);
+        }
+    }
+    async executarUmPassoNoEscopo() {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        let retornoExecucao;
+        if (this.passos > 0) {
+            this.passos--;
+            retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+            if (!this.pontoDeParadaAtivo) {
+                ultimoEscopo.declaracaoAtual++;
+            }
+            if (ultimoEscopo.declaracaoAtual >= ultimoEscopo.declaracoes.length || ultimoEscopo.finalizado) {
+                let outroEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+                if (retornoExecucao instanceof quebras_1.RetornoQuebra) {
+                    while (outroEscopo.tipo !== 'funcao') {
+                        this.pilhaEscoposExecucao.removerUltimo();
+                        const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                        escopoAnterior.ambiente.resolucoesChamadas = Object.assign(escopoAnterior.ambiente.resolucoesChamadas, outroEscopo.ambiente.resolucoesChamadas);
+                        this.escopoAtual--;
+                        outroEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+                    }
+                }
+                this.pilhaEscoposExecucao.removerUltimo();
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(escopoAnterior.ambiente.resolucoesChamadas, outroEscopo.ambiente.resolucoesChamadas);
+                this.escopoAtual--;
+            }
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                this.finalizacaoDaExecucao();
+            }
+        }
+        return retornoExecucao;
+    }
+    /**
+     * Continua a interpretação parcial do último ponto em que parou.
+     * Pode ser tanto o começo da execução inteira, ou pós comando do depurador
+     * quando há um ponto de parada.
+     * @param manterAmbiente Se verdadeiro, junta elementos do último escopo com o escopo
+     *                       imediatamente abaixo.
+     * @param naoVerificarPrimeiraExecucao Booleano que pede ao Interpretador para não
+     *                                     verificar o ponto de parada na primeira execução.
+     *                                     Normalmente usado pelo Servidor de Depuração para continuar uma linha.
+     * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    async executarUltimoEscopoComandoContinuar(manterAmbiente = false, naoVerificarPrimeiraExecucao = false) {
+        const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
+        let retornoExecucao;
+        try {
+            for (; !(retornoExecucao instanceof quebras_1.Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+                if (naoVerificarPrimeiraExecucao) {
+                    naoVerificarPrimeiraExecucao = false;
+                }
+                else {
+                    this.pontoDeParadaAtivo = this.verificarPontoParada(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                    if (this.pontoDeParadaAtivo) {
+                        this.avisoPontoParadaAtivado();
+                        break;
+                    }
+                }
+                retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
+                // Um ponto de parada ativo pode ter vindo de um escopo mais interno.
+                // Por isso verificamos outra parada aqui para evitar que
+                // `this.declaracaoAtual` seja incrementado.
+                if (this.pontoDeParadaAtivo) {
+                    this.avisoPontoParadaAtivado();
+                    break;
+                }
+            }
+            return retornoExecucao;
+        }
+        finally {
+            if (!this.pontoDeParadaAtivo && this.comando !== 'adentrarEscopo') {
+                this.pilhaEscoposExecucao.removerUltimo();
+                const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
+                escopoAnterior.ambiente.resolucoesChamadas = Object.assign(escopoAnterior.ambiente.resolucoesChamadas, ultimoEscopo.ambiente.resolucoesChamadas);
+                if (manterAmbiente) {
+                    escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, ultimoEscopo.ambiente.valores);
+                }
+                this.escopoAtual--;
+            }
+            if (this.pilhaEscoposExecucao.elementos() === 1) {
+                this.finalizacaoDaExecucao();
+            }
+        }
+    }
+    /**
+     * Continua a interpretação, conforme comando do depurador.
+     * Quando um ponto de parada é ativado, a pilha de execução do TypeScript é perdida.
+     * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
+     * primeiro escopo, subindo até o último elemento executado do último escopo.
+     * Se entre escopos houver ponto de parada ativo, a execução é suspensa até o próximo comando
+     * do desenvolvedor.
+     * @see executarUltimoEscopo
+     */
+    async instrucaoContinuarInterpretacao(escopo = 1) {
+        let retornoExecucao;
+        if (escopo < this.escopoAtual) {
+            retornoExecucao = await this.instrucaoContinuarInterpretacao(escopo + 1);
+        }
+        if (this.pontoDeParadaAtivo) {
+            return;
+        }
+        await this.executarUltimoEscopoComandoContinuar(false, true);
+    }
+    /**
+     * Empilha um escopo se for possível.
+     * Se não for, apenas executa a instrução corrente.
+     */
+    async adentrarEscopo() {
+        throw new Error('Método não implementado.');
+    }
+    /**
+     * Interpreta apenas uma instrução a partir do ponto de parada ativo, conforme comando do depurador.
+     * Esse método cria uma nova pilha de execução do lado do JS, começando do último elemento executado do
+     * primeiro escopo, subindo até o último elemento executado do último escopo.
+     * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
+     */
+    async instrucaoPasso(escopo = 1) {
+        this.passos = 1;
+        const escopoVisitado = this.pilhaEscoposExecucao.naPosicao(escopo);
+        if (escopoVisitado.declaracaoAtual >= escopoVisitado.declaracoes.length || escopoVisitado.finalizado) {
+            this.pilhaEscoposExecucao.removerUltimo();
+        }
+        if (this.pilhaEscoposExecucao.elementos() === 1) {
+            return this.finalizacaoDaExecucao();
+        }
+        if (escopo < this.escopoAtual) {
+            await this.instrucaoPasso(escopo + 1);
+        }
+        else {
+            await this.executarUmPassoNoEscopo();
+        }
+    }
+    /**
+     * Interpreta restante do bloco de execução em que o ponto de parada está, conforme comando do depurador.
+     * Se houver outros pontos de parada no mesmo escopo à frente da instrução atual, todos são ignorados.
+     * @param escopo Indica o escopo a ser visitado. Usado para construir uma pilha de chamadas do lado JS.
+     */
+    async instrucaoProximoESair() {
+        this.executarUltimoEscopoComandoContinuar(false, true);
+    }
+    /**
+     * Prepara a pilha de escopos para uma situação de depuração.
+     * Não há execução de código neste caso.
+     * @param declaracoes Um vetor de declarações.
+     */
+    prepararParaDepuracao(declaracoes) {
+        this.declaracoes = declaracoes;
+        this.abrirNovoBlocoEscopo(declaracoes);
+    }
+    abrirNovoBlocoEscopo(declaracoes, ambiente, tipoEscopo = 'outro') {
+        const escopoExecucao = {
+            declaracoes: declaracoes,
+            declaracaoAtual: 0,
+            ambiente: ambiente || new espaco_variaveis_1.EspacoVariaveis(),
+            finalizado: false,
+            tipo: tipoEscopo,
+        };
+        this.pilhaEscoposExecucao.empilhar(escopoExecucao);
+        this.escopoAtual++;
+    }
+    /**
+     * Reimplementando este método aqui porque a execução por depuração não requer
+     * mostrar o resultado em momento algum, ou lidar com o retorno.
+     * @param declaracao A declaracao a ser executada.
+     * @param mostrarResultado Sempre falso.
+     * @returns O resultado da execução.
+     */
+    async executar(declaracao, mostrarResultado = false) {
+        return await declaracao.aceitar(this);
+    }
+    /**
+     * Interpretação utilizada pelo depurador para avaliar valores de variáveis.
+     * Diferentemente da interpretação tradicional, não possui indicadores
+     * de performance porque eles não fazem sentido aqui.
+     * @param declaracoes Um vetor de declarações.
+     * @returns Um objeto de retorno, com erros encontrados se houverem.
+     */
+    async interpretar(declaracoes, manterAmbiente = false) {
+        this.erros = [];
+        this.declaracoes = declaracoes;
+        this.abrirNovoBlocoEscopo(declaracoes);
+        const resultado = await super.executarUltimoEscopo(manterAmbiente);
+        // Corrigir contador de escopos
+        this.escopoAtual--;
+        const retorno = {
+            erros: this.erros,
+            // resultado: this.resultadoInterpretador // Removido para simplificar `this.executar()`.
+            resultado: [resultado],
+        };
+        this.resultadoInterpretador = [];
+        return retorno;
+    }
+    /**
+     * Obtém o valor de uma variável por nome.
+     * Em versões anteriores, o mecanismo de avaliação fazia toda a avaliação tradicional,
+     * passando por Lexador, Avaliador Sintático e Interpretador.
+     * Isso tem sua cota de problemas, sobretudo porque a avaliação insere e descarta escopos,
+     * entrando em condição de corrida com a interpretação com depuração.
+     * @param nome O nome da variável.
+     */
+    obterVariavel(nome) {
+        const valorOuVariavel = this.pilhaEscoposExecucao.obterValorVariavel({ lexema: nome });
+        return valorOuVariavel.hasOwnProperty('valor')
+            ? valorOuVariavel
+            : {
+                valor: valorOuVariavel,
+                tipo: (0, inferenciador_1.inferirTipoVariavel)(valorOuVariavel),
+            };
+    }
+}
+exports.InterpretadorComDepuracao = InterpretadorComDepuracao;
+
+},{"../construtos":31,"../espaco-variaveis":59,"../quebras":83,"./inferenciador":75,"./interpretador":77}],77:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -3263,6 +3716,8 @@ class Interpretador {
             declaracoes: [],
             declaracaoAtual: 0,
             ambiente: new espaco_variaveis_1.EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro',
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         (0, biblioteca_global_1.default)(this, this.pilhaEscoposExecucao);
@@ -3275,7 +3730,7 @@ class Interpretador {
      */
     async visitarExpressaoLeia(expressao) {
         const mensagem = expressao.argumentos && expressao.argumentos[0] ? expressao.argumentos[0].valor : '> ';
-        return new Promise(resolucao => this.interfaceEntradaSaida.question(mensagem, (resposta) => {
+        return new Promise((resolucao) => this.interfaceEntradaSaida.question(mensagem, (resposta) => {
             resolucao(resposta);
         }));
     }
@@ -3350,9 +3805,7 @@ class Interpretador {
     }
     async visitarExpressaoUnaria(expressao) {
         const direita = await this.avaliar(expressao.direita);
-        const valor = direita.hasOwnProperty('valor') ?
-            direita.valor :
-            direita;
+        const valor = direita.hasOwnProperty('valor') ? direita.valor : direita;
         switch (expressao.operador.tipo) {
             case delegua_1.default.SUBTRACAO:
                 this.verificarOperandoNumero(expressao.operador, valor);
@@ -3365,14 +3818,10 @@ class Interpretador {
         return null;
     }
     async visitarExpressaoFormatacaoEscrita(declaracao) {
-        let resultado = "";
+        let resultado = '';
         const conteudo = await this.avaliar(declaracao.expressao);
-        const valorConteudo = (conteudo === null || conteudo === void 0 ? void 0 : conteudo.hasOwnProperty('valor'))
-            ? conteudo.valor
-            : conteudo;
-        const tipoConteudo = conteudo.hasOwnProperty('tipo')
-            ? conteudo.tipo
-            : typeof conteudo;
+        const valorConteudo = (conteudo === null || conteudo === void 0 ? void 0 : conteudo.hasOwnProperty('valor')) ? conteudo.valor : conteudo;
+        const tipoConteudo = conteudo.hasOwnProperty('tipo') ? conteudo.tipo : typeof conteudo;
         resultado = valorConteudo;
         if (['número', 'number'].includes(tipoConteudo) && declaracao.casasDecimais > 0) {
             resultado = valorConteudo.toLocaleString('pt', { maximumFractionDigits: declaracao.casasDecimais });
@@ -3398,11 +3847,7 @@ class Interpretador {
      * @returns Se ambos os operandos são números ou não.
      */
     verificarOperandosNumeros(operador, direita, esquerda) {
-        const tipoDireita = direita.tipo
-            ? direita.tipo
-            : typeof direita === 'number'
-                ? 'número'
-                : String(NaN);
+        const tipoDireita = direita.tipo ? direita.tipo : typeof direita === 'number' ? 'número' : String(NaN);
         const tipoEsquerda = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === 'number'
@@ -3416,18 +3861,12 @@ class Interpretador {
         try {
             const esquerda = await this.avaliar(expressao.esquerda);
             const direita = await this.avaliar(expressao.direita);
-            const valorEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('valor'))
-                ? esquerda.valor
-                : esquerda;
-            const valorDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('valor'))
-                ? direita.valor
-                : direita;
+            const valorEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('valor')) ? esquerda.valor : esquerda;
+            const valorDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('valor')) ? direita.valor : direita;
             const tipoEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('tipo'))
                 ? esquerda.tipo
                 : (0, inferenciador_1.inferirTipoVariavel)(esquerda);
-            const tipoDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('tipo'))
-                ? direita.tipo
-                : (0, inferenciador_1.inferirTipoVariavel)(direita);
+            const tipoDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('tipo')) ? direita.tipo : (0, inferenciador_1.inferirTipoVariavel)(direita);
             switch (expressao.operador.tipo) {
                 case delegua_1.default.EXPONENCIACAO:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -3522,9 +3961,7 @@ class Interpretador {
                 const argumentosResolvidos = [];
                 for (const argumento of expressao.argumentos) {
                     const valorResolvido = await this.avaliar(argumento);
-                    argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor')
-                        ? valorResolvido.valor
-                        : valorResolvido);
+                    argumentosResolvidos.push(valorResolvido.hasOwnProperty('valor') ? valorResolvido.valor : valorResolvido);
                 }
                 return entidadeChamada.chamar(argumentosResolvidos);
             }
@@ -3540,8 +3977,7 @@ class Interpretador {
             else {
                 parametros = [];
             }
-            const aridade = entidadeChamada.aridade ?
-                entidadeChamada.aridade() : entidadeChamada.length;
+            const aridade = entidadeChamada.aridade ? entidadeChamada.aridade() : entidadeChamada.length;
             // Completar os parâmetros não preenchidos com nulos.
             if (argumentos.length < aridade) {
                 const diferenca = aridade - argumentos.length;
@@ -3550,9 +3986,7 @@ class Interpretador {
                 }
             }
             else {
-                if (parametros &&
-                    parametros.length > 0 &&
-                    parametros[parametros.length - 1].tipo === 'estrela') {
+                if (parametros && parametros.length > 0 && parametros[parametros.length - 1].tipo === 'estrela') {
                     const novosArgumentos = argumentos.slice(0, parametros.length - 1);
                     novosArgumentos.push(argumentos.slice(parametros.length - 1, argumentos.length));
                     argumentos = novosArgumentos;
@@ -3560,13 +3994,13 @@ class Interpretador {
             }
             if (entidadeChamada instanceof estruturas_1.FuncaoPadrao) {
                 try {
-                    return entidadeChamada.chamar(argumentos.map(a => a !== null && a.hasOwnProperty('valor') ? a.valor : a), expressao.entidadeChamada.nome);
+                    return entidadeChamada.chamar(argumentos.map((a) => (a !== null && a.hasOwnProperty('valor') ? a.valor : a)), expressao.entidadeChamada.nome);
                 }
                 catch (erro) {
                     this.erros.push(erro);
                 }
             }
-            if ((entidadeChamada instanceof estruturas_1.Chamavel)) {
+            if (entidadeChamada instanceof estruturas_1.Chamavel) {
                 return entidadeChamada.chamar(this, argumentos);
             }
             // A função chamada pode ser de uma biblioteca JavaScript.
@@ -3589,13 +4023,13 @@ class Interpretador {
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    async visitarExpressaoDeAtribuicao(expressao) {
+    async visitarDeclaracaoDeAtribuicao(expressao) {
         const valor = await this.avaliar(expressao.valor);
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
         return valor;
     }
     procurarVariavel(simbolo) {
-        return this.pilhaEscoposExecucao.obterVariavel(simbolo);
+        return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
     }
     visitarExpressaoDeVariavel(expressao) {
         return this.procurarVariavel(expressao.simbolo);
@@ -3635,7 +4069,7 @@ class Interpretador {
      * @param declaracao A declaração Se.
      * @returns O resultado da avaliação do bloco cuja condição é verdadeira.
      */
-    async visitarExpressaoSe(declaracao) {
+    async visitarDeclaracaoSe(declaracao) {
         if (this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             return await this.executar(declaracao.caminhoEntao);
         }
@@ -3650,14 +4084,13 @@ class Interpretador {
         }
         return null;
     }
-    async visitarExpressaoPara(declaracao) {
+    async visitarDeclaracaoPara(declaracao) {
         if (declaracao.inicializador !== null) {
             await this.avaliar(declaracao.inicializador);
         }
         let retornoExecucao;
         while (!(retornoExecucao instanceof quebras_1.Quebra)) {
-            if (declaracao.condicao !== null &&
-                !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+            if (declaracao.condicao !== null && !this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
                 break;
             }
             try {
@@ -3675,7 +4108,7 @@ class Interpretador {
         }
         return null;
     }
-    async visitarExpressaoFazer(declaracao) {
+    async visitarDeclaracaoFazer(declaracao) {
         let retornoExecucao;
         do {
             try {
@@ -3690,7 +4123,7 @@ class Interpretador {
         } while (!(retornoExecucao instanceof quebras_1.Quebra) &&
             this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
     }
-    async visitarExpressaoEscolha(declaracao) {
+    async visitarDeclaracaoEscolha(declaracao) {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
@@ -3699,7 +4132,7 @@ class Interpretador {
             for (let i = 0; i < caminhos.length; i++) {
                 const caminho = caminhos[i];
                 for (let j = 0; j < caminho.condicoes.length; j++) {
-                    if (await this.avaliar(caminho.condicoes[j]) === condicaoEscolha) {
+                    if ((await this.avaliar(caminho.condicoes[j])) === condicaoEscolha) {
                         encontrado = true;
                         try {
                             await this.executarBloco(caminho.declaracoes);
@@ -3722,7 +4155,7 @@ class Interpretador {
      * Interpretação de uma declaração `tente`.
      * @param declaracao O objeto da declaração.
      */
-    async visitarExpressaoTente(declaracao) {
+    async visitarDeclaracaoTente(declaracao) {
         let valorRetorno;
         try {
             let sucesso = true;
@@ -3752,10 +4185,9 @@ class Interpretador {
         }
         return valorRetorno;
     }
-    async visitarExpressaoEnquanto(declaracao) {
+    async visitarDeclaracaoEnquanto(declaracao) {
         let retornoExecucao;
-        while (!(retornoExecucao instanceof quebras_1.Quebra) &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
+        while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
@@ -3768,12 +4200,16 @@ class Interpretador {
         }
         return null;
     }
-    async visitarExpressaoImportar(declaracao) {
+    /**
+     * Importa um arquivo como módulo.
+     * @param declaracao A declaração de importação.
+     * @returns Ou um `DeleguaModulo`, ou um dicionário de funções.
+     */
+    async visitarDeclaracaoImportar(declaracao) {
         const caminhoRelativo = await this.avaliar(declaracao.caminho);
         const caminhoTotal = caminho.join(this.diretorioBase, caminhoRelativo);
         const nomeArquivo = caminho.basename(caminhoTotal);
-        if (!caminhoTotal.endsWith('.egua') &&
-            !caminhoTotal.endsWith('.delegua')) {
+        if (!caminhoTotal.endsWith('.delegua')) {
             try {
                 return await (0, importar_biblioteca_1.default)(caminhoRelativo);
             }
@@ -3785,24 +4221,26 @@ class Interpretador {
         const conteudoImportacao = this.importador.importar(caminhoRelativo, false, false);
         const retornoInterpretador = await this.interpretar(conteudoImportacao.retornoAvaliadorSintatico.declaracoes, true);
         const funcoesChamaveis = this.pilhaEscoposExecucao.obterTodasDeleguaFuncao();
-        const eDicionario = (objeto) => objeto.constructor === Object;
-        if (eDicionario(funcoesChamaveis)) {
-            const novoModulo = new estruturas_1.DeleguaModulo();
-            const chaves = Object.keys(funcoesChamaveis);
-            for (let i = 0; i < chaves.length; i++) {
-                novoModulo.componentes[chaves[i]] = funcoesChamaveis[chaves[i]];
-            }
-            return novoModulo;
+        const declaracoesClasse = this.pilhaEscoposExecucao.obterTodasDeclaracaoClasse();
+        if (declaracoesClasse.hasOwnProperty('super')) {
+            delete declaracoesClasse['super'];
         }
-        return funcoesChamaveis;
+        const novoModulo = new estruturas_1.DeleguaModulo();
+        const chavesFuncoesChamaveis = Object.keys(funcoesChamaveis);
+        for (let i = 0; i < chavesFuncoesChamaveis.length; i++) {
+            novoModulo.componentes[chavesFuncoesChamaveis[i]] = funcoesChamaveis[chavesFuncoesChamaveis[i]];
+        }
+        const chavesDeclaracoesClasse = Object.keys(declaracoesClasse);
+        for (let i = 0; i < chavesDeclaracoesClasse.length; i++) {
+            novoModulo.componentes[chavesDeclaracoesClasse[i]] = declaracoesClasse[chavesDeclaracoesClasse[i]];
+        }
+        return novoModulo;
     }
     async avaliarArgumentosEscreva(argumentos) {
         let formatoTexto = '';
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor'))
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor')) ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
         }
         return formatoTexto;
@@ -3823,7 +4261,7 @@ class Interpretador {
             this.erros.push({
                 erroInterno: erro,
                 linha: declaracao.linha,
-                hashArquivo: declaracao.hashArquivo
+                hashArquivo: declaracao.hashArquivo,
             });
         }
     }
@@ -3833,14 +4271,18 @@ class Interpretador {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscreva(declaracao) {
+    async visitarDeclaracaoEscreva(declaracao) {
         try {
             const formatoTexto = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetorno(formatoTexto);
             return null;
         }
         catch (erro) {
-            this.erros.push(erro);
+            this.erros.push({
+                erroInterno: erro,
+                linha: declaracao.linha,
+                hashArquivo: declaracao.hashArquivo,
+            });
         }
     }
     /**
@@ -3857,6 +4299,8 @@ class Interpretador {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: ambiente || new espaco_variaveis_1.EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro',
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const retornoUltimoEscopo = await this.executarUltimoEscopo();
@@ -3868,12 +4312,7 @@ class Interpretador {
     async visitarExpressaoBloco(declaracao) {
         return await this.executarBloco(declaracao.declaracoes);
     }
-    /**
-     * Executa expressão de definição de variável.
-     * @param declaracao A declaração Var
-     * @returns Sempre retorna nulo.
-     */
-    async visitarExpressaoVar(declaracao) {
+    async avaliacaoDeclaracaoVar(declaracao) {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
             valorOuOutraVariavel = await this.avaliar(declaracao.inicializador);
@@ -3884,6 +4323,15 @@ class Interpretador {
                 ? valorOuOutraVariavel.valor
                 : valorOuOutraVariavel;
         }
+        return valorFinal;
+    }
+    /**
+     * Executa expressão de definição de variável.
+     * @param declaracao A declaração Var
+     * @returns Sempre retorna nulo.
+     */
+    async visitarDeclaracaoVar(declaracao) {
+        const valorFinal = await this.avaliacaoDeclaracaoVar(declaracao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal);
         return null;
     }
@@ -3899,14 +4347,14 @@ class Interpretador {
             valor = await this.avaliar(declaracao.valor);
         return new quebras_1.RetornoQuebra(valor);
     }
-    visitarExpressaoDeleguaFuncao(expressao) {
-        return new estruturas_1.DeleguaFuncao(null, expressao);
+    visitarExpressaoDeleguaFuncao(declaracao) {
+        return new estruturas_1.DeleguaFuncao(null, declaracao);
     }
     async visitarExpressaoAtribuicaoSobrescrita(expressao) {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),
-            this.avaliar(expressao.valor)
+            this.avaliar(expressao.valor),
         ]);
         let objeto = promises[0];
         let indice = promises[1];
@@ -3937,9 +4385,7 @@ class Interpretador {
     }
     async visitarExpressaoAcessoIndiceVariavel(expressao) {
         const variavelObjeto = await this.avaliar(expressao.entidadeChamada);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         const indice = await this.avaliar(expressao.indice);
         let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
@@ -3983,11 +4429,8 @@ class Interpretador {
     }
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) &&
-            objeto.constructor !== Object) {
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) && objeto.constructor !== Object) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
         }
         const valor = await this.avaliar(expressao.valor);
@@ -3999,7 +4442,7 @@ class Interpretador {
             objeto[expressao.simbolo.lexema] = valor;
         }
     }
-    visitarExpressaoFuncao(declaracao) {
+    visitarDeclaracaoDefinicaoFuncao(declaracao) {
         const funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
     }
@@ -4008,7 +4451,7 @@ class Interpretador {
      * @param declaracao A declaração de classe.
      * @returns Sempre retorna nulo, por ser requerido pelo contrato de visita.
      */
-    async visitarExpressaoClasse(declaracao) {
+    async visitarDeclaracaoClasse(declaracao) {
         let superClasse = null;
         if (declaracao.superClasse !== null) {
             const variavelSuperClasse = await this.avaliar(declaracao.superClasse);
@@ -4044,13 +4487,11 @@ class Interpretador {
      */
     async visitarExpressaoAcessoMetodo(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
             return objeto.obter(expressao.simbolo) || null;
         }
-        // TODO: Possivelmente depreciar esta forma. 
+        // TODO: Possivelmente depreciar esta forma.
         // Não parece funcionar em momento algum.
         if (objeto.constructor === Object) {
             return objeto[expressao.simbolo.lexema] || null;
@@ -4090,10 +4531,7 @@ class Interpretador {
     async visitarExpressaoDicionario(expressao) {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
-            const promises = await Promise.all([
-                this.avaliar(expressao.chaves[i]),
-                this.avaliar(expressao.valores[i])
-            ]);
+            const promises = await Promise.all([this.avaliar(expressao.chaves[i]), this.avaliar(expressao.valores[i])]);
             dicionario[promises[0]] = promises[1];
         }
         return dicionario;
@@ -4166,8 +4604,7 @@ class Interpretador {
         const ultimoEscopo = this.pilhaEscoposExecucao.topoDaPilha();
         try {
             let retornoExecucao;
-            for (; !(retornoExecucao instanceof quebras_1.Quebra) &&
-                ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
+            for (; !(retornoExecucao instanceof quebras_1.Quebra) && ultimoEscopo.declaracaoAtual < ultimoEscopo.declaracoes.length; ultimoEscopo.declaracaoAtual++) {
                 retornoExecucao = await this.executar(ultimoEscopo.declaracoes[ultimoEscopo.declaracaoAtual]);
             }
             return retornoExecucao;
@@ -4197,6 +4634,8 @@ class Interpretador {
             declaracoes: declaracoes,
             declaracaoAtual: 0,
             ambiente: new espaco_variaveis_1.EspacoVariaveis(),
+            finalizado: false,
+            tipo: 'outro',
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         const inicioInterpretacao = (0, browser_process_hrtime_1.default)();
@@ -4226,7 +4665,7 @@ class Interpretador {
 exports.Interpretador = Interpretador;
 
 }).call(this)}).call(this,require('_process'))
-},{"../bibliotecas/biblioteca-global":15,"../bibliotecas/importar-biblioteca":16,"../bibliotecas/primitivas-texto":17,"../bibliotecas/primitivas-vetor":18,"../construtos":31,"../espaco-variaveis":59,"../estruturas":65,"../estruturas/metodo-primitiva":66,"../excecoes":71,"../quebras":82,"../tipos-de-simbolos/delegua":83,"./inferenciador":75,"./pilha-escopos-execucao":77,"_process":91,"browser-process-hrtime":87,"path":90}],77:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":15,"../bibliotecas/importar-biblioteca":16,"../bibliotecas/primitivas-texto":17,"../bibliotecas/primitivas-vetor":18,"../construtos":31,"../espaco-variaveis":59,"../estruturas":65,"../estruturas/metodo-primitiva":66,"../excecoes":71,"../quebras":83,"../tipos-de-simbolos/delegua":84,"./inferenciador":75,"./pilha-escopos-execucao":78,"_process":92,"browser-process-hrtime":88,"path":91}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -4286,11 +4725,20 @@ class PilhaEscoposExecucao {
         }
         throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, "Variável não definida '" + simbolo.lexema + "'.");
     }
+    obterEscopoPorTipo(tipo) {
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const escopoAtual = this.pilha[this.pilha.length - i];
+            if (escopoAtual.tipo === tipo) {
+                return escopoAtual;
+            }
+        }
+        return undefined;
+    }
     obterVariavelEm(distancia, nome) {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         return ambienteAncestral.valores[nome];
     }
-    obterVariavel(simbolo) {
+    obterValorVariavel(simbolo) {
         for (let i = 1; i <= this.pilha.length; i++) {
             const ambiente = this.pilha[this.pilha.length - i].ambiente;
             if (ambiente.valores[simbolo.lexema] !== undefined) {
@@ -4314,14 +4762,18 @@ class PilhaEscoposExecucao {
     obterTodasVariaveis(todasVariaveis = []) {
         for (let i = 1; i <= this.pilha.length - 1; i++) {
             const valoresAmbiente = this.pilha[this.pilha.length - i].ambiente.valores;
-            const vetorObjeto = Object.entries(valoresAmbiente).map((chaveEValor, indice) => ({ nome: chaveEValor[0], valor: chaveEValor[1].valor, tipo: chaveEValor[1].tipo }));
+            const vetorObjeto = Object.entries(valoresAmbiente).map((chaveEValor, indice) => ({
+                nome: chaveEValor[0],
+                valor: chaveEValor[1].valor,
+                tipo: chaveEValor[1].tipo,
+            }));
             todasVariaveis = todasVariaveis.concat(vetorObjeto);
         }
         return todasVariaveis;
     }
     /**
      * Obtém todas as funções declaradas ou por código-fonte, ou pelo desenvolvedor
-     * em console.
+     * em console, do último escopo.
      */
     obterTodasDeleguaFuncao() {
         const retorno = {};
@@ -4334,10 +4786,25 @@ class PilhaEscoposExecucao {
         }
         return retorno;
     }
+    /**
+     * Obtém todas as declarações de classe do último escopo.
+     * @returns
+     */
+    obterTodasDeclaracaoClasse() {
+        const retorno = {};
+        const ambiente = this.pilha[this.pilha.length - 1].ambiente;
+        for (const [nome, corpo] of Object.entries(ambiente.valores)) {
+            const corpoValor = corpo.hasOwnProperty('valor') ? corpo.valor : corpo;
+            if (corpoValor instanceof estruturas_1.DeleguaClasse) {
+                retorno[nome] = corpoValor;
+            }
+        }
+        return retorno;
+    }
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":65,"../excecoes":71,"../lexador":78,"./inferenciador":75}],78:[function(require,module,exports){
+},{"../estruturas":65,"../excecoes":71,"../lexador":79,"./inferenciador":75}],79:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4357,7 +4824,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":79,"./simbolo":81}],79:[function(require,module,exports){
+},{"./lexador":80,"./simbolo":82}],80:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4437,8 +4904,7 @@ class Lexador {
         return this.linha >= this.codigo.length - 1;
     }
     eFinalDoCodigo() {
-        return (this.eUltimaLinha() &&
-            this.codigo[this.codigo.length - 1].length <= this.atual);
+        return this.eUltimaLinha() && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
     avancar() {
         this.atual += 1;
@@ -4499,9 +4965,7 @@ class Lexador {
             this.avancar();
         }
         const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in palavras_reservadas_1.default
-            ? palavras_reservadas_1.default[codigo]
-            : delegua_1.default.IDENTIFICADOR;
+        const tipo = codigo in palavras_reservadas_1.default ? palavras_reservadas_1.default[codigo] : delegua_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
     encontrarFimComentarioAsterisco() {
@@ -4770,7 +5234,7 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":83,"./palavras-reservadas":80,"./simbolo":81,"browser-process-hrtime":87}],80:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":84,"./palavras-reservadas":81,"./simbolo":82,"browser-process-hrtime":88}],81:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4810,10 +5274,10 @@ exports.default = {
     sustar: delegua_1.default.SUSTAR,
     tente: delegua_1.default.TENTE,
     var: delegua_1.default.VARIAVEL,
-    verdadeiro: delegua_1.default.VERDADEIRO
+    verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
-},{"../tipos-de-simbolos/delegua":83}],81:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":84}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -4831,7 +5295,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -4852,7 +5316,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -4935,7 +5399,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -4955,7 +5419,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./tradutor-javascript"), exports);
 __exportStar(require("./tradutor-reverso-javascript"), exports);
 
-},{"./tradutor-javascript":85,"./tradutor-reverso-javascript":86}],85:[function(require,module,exports){
+},{"./tradutor-javascript":86,"./tradutor-reverso-javascript":87}],86:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5093,9 +5557,9 @@ class TradutorJavaScript {
     traduzirConstrutoChamada(chamada) {
         let resultado = '';
         const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
-        const instanciaClasse = this.declaracoesDeClasses.some(declaracao => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
+        const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
         if (instanciaClasse) {
-            const classe = this.declaracoesDeClasses.find(declaracao => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
+            const classe = this.declaracoesDeClasses.find((declaracao) => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
             if (classe.simbolo.lexema === retorno)
                 resultado += `new ${retorno}`;
         }
@@ -5247,15 +5711,16 @@ class TradutorJavaScript {
         return resultado;
     }
     traduzirDeclaracaoImportar(declaracaoImportar) {
-        throw new Error('`importar()` não é suportado por este padrão de JavaScript.');
+        return `'importar() não é suportado por este padrão de JavaScript'`;
     }
     traduzirDeclaracaoLeia(declaracaoImportar) {
-        throw new Error('`leia()` não é suportado por este padrão de JavaScript.');
+        return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'for (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+                ' ';
         resultado += !resultado.includes(';') ? ';' : '';
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
@@ -5276,13 +5741,15 @@ class TradutorJavaScript {
         resultado += ')';
         resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
         if (declaracaoSe.caminhoSenao !== null) {
-            resultado += '\nelse ';
+            resultado += ' '.repeat(this.indentacao);
+            resultado += 'else ';
             const se = declaracaoSe === null || declaracaoSe === void 0 ? void 0 : declaracaoSe.caminhoSenao;
             if (se === null || se === void 0 ? void 0 : se.caminhoEntao) {
                 resultado += 'if (';
                 resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
                 resultado += ')';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
+                resultado += ' '.repeat(this.indentacao);
                 if (se === null || se === void 0 ? void 0 : se.caminhoSenao) {
                     resultado += 'else ';
                     resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
@@ -5335,8 +5802,13 @@ class TradutorJavaScript {
             resultado += ';';
         else {
             resultado += ' = ';
-            resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
-            resultado += ";";
+            if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+            }
+            else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+            }
+            resultado += ';';
         }
         return resultado;
     }
@@ -5369,7 +5841,9 @@ class TradutorJavaScript {
         var _a, _b;
         let resultado = '';
         resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
-        resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) + ']';
+        resultado +=
+            this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+                ']';
         resultado += ' = ';
         if ((_b = (_a = atribuicaoSobrescrita === null || atribuicaoSobrescrita === void 0 ? void 0 : atribuicaoSobrescrita.valor) === null || _a === void 0 ? void 0 : _a.simbolo) === null || _b === void 0 ? void 0 : _b.lexema) {
             resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
@@ -5408,7 +5882,7 @@ class TradutorJavaScript {
     }
     traduzir(declaracoes) {
         let resultado = '';
-        this.declaracoesDeClasses = declaracoes.filter(declaracao => declaracao instanceof declaracoes_1.Classe);
+        this.declaracoesDeClasses = declaracoes.filter((declaracao) => declaracao instanceof declaracoes_1.Classe);
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
@@ -5417,7 +5891,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":31,"../declaracoes":51,"../tipos-de-simbolos/delegua":83}],86:[function(require,module,exports){
+},{"../construtos":31,"../declaracoes":51,"../tipos-de-simbolos/delegua":84}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -5429,114 +5903,325 @@ class TradutorReversoJavaScript {
     constructor() {
         this.indentacao = 0;
         this.dicionarioConstrutos = {
+            AssignmentExpression: this.traduzirConstrutoAtribuir.bind(this),
+            ArrayExpression: this.traduzirConstrutoVetor.bind(this),
             ArrowFunctionExpression: this.traduzirDeclaracaoFuncao.bind(this),
             // Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-            // Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             BinaryExpression: this.traduzirConstrutoBinario.bind(this),
-            // Chamada: this.traduzirConstrutoChamada.bind(this),
+            CallExpression: this.traduzirConstrutoChamada.bind(this),
             // DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
             // Isto: this.traduzirConstrutoIsto.bind(this),
+            Identifier: this.traduzirIdentificador.bind(this),
             Literal: this.traduzirConstrutoLiteral.bind(this),
+            LogicalExpression: this.traduzirConstrutoLogico.bind(this),
+            MemberExpression: this.traduzirExpressao.bind(this),
+            NewExpression: this.traduzirNovo.bind(this),
+            ThisExpression: (expressao) => 'isto.',
+            UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this),
             // Variavel: this.traduzirConstrutoVariavel.bind(this),
-        };
-        this.dicionarioDeclaracoes = {
-            ExpressionStatement: this.traduzirExpressaoDeclaracao.bind(this),
-            // traduzirDeclaracaoEscreva
         };
         // Qualquer coisa pro ESLint ficar feliz.
     }
     traduzirSimboloOperador(operador) {
         switch (operador) {
-            case '==':
             case '===':
                 return '==';
+            case '&&':
+                return 'e';
+            case '||':
+                return 'ou';
+            default:
+                return operador;
         }
+    }
+    traduzirConstrutoVetor(vetor) {
+        if (!vetor.elements.length) {
+            return '[]';
+        }
+        let resultado = '[';
+        for (let elemento of vetor.elements) {
+            resultado += this.dicionarioConstrutos[elemento.constructor.name](elemento) + ', ';
+        }
+        if (vetor.elements.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ']';
+        return resultado;
+    }
+    traduzirIdentificador(identificador) {
+        return identificador.name;
+    }
+    traduzirAtualizacaoVariavel(atualizarVariavel) {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](atualizarVariavel.argument);
+        resultado += this.traduzirSimboloOperador(atualizarVariavel.operator);
+        return resultado;
+    }
+    traduzirNovo(novo) {
+        let identificador = novo.callee;
+        let resultado = `${identificador.name}(`;
+        for (let argumento of novo.arguments) {
+            resultado += this.dicionarioConstrutos[argumento.type](argumento) + ', ';
+        }
+        if (novo.arguments.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ')';
+        return resultado;
+    }
+    traduzirExpressao(expressao) {
+        let objeto = this.dicionarioConstrutos[expressao.object.type](expressao.object);
+        let propriedade = this.dicionarioConstrutos[expressao.property.type](expressao.property);
+        if (objeto === 'console' && propriedade === 'log') {
+            return 'escreva';
+        }
+        return `${objeto}${propriedade}`;
+    }
+    traduzirConstrutoLogico(logico) {
+        return this.dicionarioConstrutos[logico.constructor.name](logico);
+    }
+    traduzirConstrutoChamada(chamada) {
+        let resultado = '';
+        resultado += this.dicionarioConstrutos[chamada.callee.type](chamada.callee) + '(';
+        for (let parametro of chamada.arguments) {
+            resultado += this.dicionarioConstrutos[parametro.type](parametro) + ', ';
+        }
+        if (chamada.arguments.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += ')';
+        return resultado;
+    }
+    traduzirConstrutoAtribuir(atribuir) {
+        let resultado = '';
+        const direita = this.dicionarioConstrutos[atribuir.right.type](atribuir.right);
+        const esquerda = this.dicionarioConstrutos[atribuir.left.type](atribuir.left);
+        resultado += `${esquerda} ${this.traduzirSimboloOperador(atribuir.operator)} ${direita}`;
+        return resultado;
     }
     traduzirExpressaoDeclaracao(declaracao) {
-        var _a, _b;
-        let resultado = '';
-        let informacoesExpressao = declaracao.expression.callee;
-        if (informacoesExpressao.type === 'MemberExpression') {
-            if (((_a = informacoesExpressao === null || informacoesExpressao === void 0 ? void 0 : informacoesExpressao.object) === null || _a === void 0 ? void 0 : _a.name) === 'console' && ((_b = informacoesExpressao === null || informacoesExpressao === void 0 ? void 0 : informacoesExpressao.property) === null || _b === void 0 ? void 0 : _b.name) === 'log') {
-                for (let argumento of declaracao.expression.arguments) {
-                    resultado += `escreva(${this.dicionarioConstrutos[argumento.type](argumento)})`;
-                }
-            }
-        }
-        return resultado;
-    }
-    traduzirDeclaracaoFuncao(funcao) {
-        console.log(funcao);
-        return '';
+        return this.dicionarioConstrutos[declaracao.expression.type](declaracao.expression);
     }
     traduzirConstrutoLiteral(literal) {
-        let resultado = '';
-        if (typeof literal.value === 'string')
-            resultado += `'${literal.value}'`;
-        else
-            resultado += `${literal.value}`;
-        return resultado;
+        if (literal.raw === 'true')
+            return 'verdadeiro';
+        else if (literal.raw === 'false')
+            return 'falso';
+        return `${literal.raw}`;
     }
     traduzirConstrutoBinario(binario) {
         let resultado = '';
-        let direita = typeof binario.right.value === 'string' ? `'${binario.right.value}'` : binario.right.value;
-        let esquerda = typeof binario.left.value === 'string' ? `'${binario.left.value}'` : binario.left.value;
+        const direita = this.dicionarioConstrutos[binario.right.type](binario.right);
+        const esquerda = this.dicionarioConstrutos[binario.left.type](binario.left);
         resultado += `${esquerda} ${this.traduzirSimboloOperador(binario.operator)} ${direita}`;
         return resultado;
     }
-    traduzirDeclaracaoDeVariavel(declaracao) {
+    traduzirDeclaracaoVariavel(declaracao) {
+        let resultado = '';
         let informacoesDaVariavel = declaracao.declarations[0];
-        let resultado = `var ${informacoesDaVariavel.id.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+        const identificador = informacoesDaVariavel.id;
+        if (identificador) {
+            resultado += `var ${identificador.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+        }
         return resultado;
     }
     logicaComumBlocoEscopo(declaracoes) {
         let resultado = '{\n';
         this.indentacao += 4;
-        // if (typeof declaracoes[Symbol.iterator] === 'function') {
-        for (const declaracaoOuConstruto of declaracoes.body.body) {
+        const corpo = declaracoes.body.body || declaracoes.body;
+        for (const declaracaoOuConstruto of corpo) {
             resultado += ' '.repeat(this.indentacao);
             const nomeConstrutor = declaracaoOuConstruto.constructor.name;
             if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
                 resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
             }
             else {
-                resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
+                resultado += this.traduzirDeclaracao(declaracaoOuConstruto);
             }
             resultado += '\n';
         }
-        // }
         this.indentacao -= 4;
         resultado += ' '.repeat(this.indentacao) + '}\n';
         return resultado;
     }
-    traduzirDeclaracaoDeFuncao(declaracao) {
+    traduzirDeclaracaoPara(declaracao) {
         let resultado = '';
-        resultado += `funcao ${declaracao.id.name}(`;
+        resultado += 'para (';
+        resultado += this.traduzirDeclaracao(declaracao.init) + '; ';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test) + '; ';
+        resultado += this.dicionarioConstrutos[declaracao.update.type](declaracao.update) + ') ';
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+        return resultado;
+    }
+    traduzirDeclaracaoFuncao(declaracao) {
+        let resultado = '';
+        const eFuncaoSeta = !declaracao.id;
+        resultado += eFuncaoSeta ? '(' : `funcao ${declaracao.id.name}(`;
         for (let parametro of declaracao.params) {
             resultado += parametro.name + ', ';
         }
         if (declaracao.params.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += ') ';
+        resultado += eFuncaoSeta ? ') => ' : ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
         return resultado;
     }
-    traduzirClasseDeclaracao(declaracao) {
+    //TODO: Refatorar esse método. @Samuel
+    traduzirDeclaracaoClasse(declaracao) {
+        let resultado = `classe ${declaracao.id.name} `;
+        if (declaracao.superClass) {
+            let identificador = declaracao.superClass;
+            resultado += `herda ${identificador.name} `;
+        }
+        resultado += '{\n';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+        for (let corpo of declaracao.body.body) {
+            if (corpo.type === 'MethodDefinition') {
+                let _corpo = corpo;
+                if (_corpo.kind === 'constructor') {
+                    resultado += 'construtor(';
+                    for (let valor of _corpo.value.params) {
+                        if (valor.type === 'Identifier') {
+                            resultado += `${valor.name}, `;
+                        }
+                    }
+                    if (_corpo.value.params.length > 0) {
+                        resultado = resultado.slice(0, -2);
+                    }
+                    resultado += ')';
+                    resultado += this.logicaComumBlocoEscopo(_corpo.value);
+                }
+                else if (_corpo.kind === 'method') {
+                    resultado += ' '.repeat(this.indentacao);
+                    let identificador = _corpo.key;
+                    resultado += identificador.name + '(';
+                    for (let valor of _corpo.value.params) {
+                        if (valor.type === 'Identifier') {
+                            resultado += `${valor.name}, `;
+                        }
+                    }
+                    if (_corpo.value.params.length > 0) {
+                        resultado = resultado.slice(0, -2);
+                    }
+                    resultado += ')';
+                    resultado += this.logicaComumBlocoEscopo(_corpo.value);
+                }
+            }
+            else if (corpo.constructor.name === 'PropertyDefinition') {
+            }
+            else if (corpo.constructor.name === 'StaticBlock') {
+            }
+        }
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+        return resultado;
+    }
+    traduzirDeclaracaoRetorna(declaracao) {
+        return `retorna ${this.dicionarioConstrutos[declaracao.argument.type](declaracao.argument)}`;
+    }
+    traduzirDeclaracaoEnquanto(declaracao) {
+        let resultado = 'enquanto(';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
+        resultado += ')';
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+        return resultado;
+    }
+    traduzirDeclaracaoFazerEnquanto(declaracao) {
+        let resultado = 'fazer';
+        resultado += this.logicaComumBlocoEscopo(declaracao);
+        resultado += 'enquanto(';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
+        resultado += ')';
+        return resultado;
+    }
+    traduzirDeclaracaoSe(declaracao) {
+        let resultado = 'se (';
+        resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test);
+        resultado += ')';
+        resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
+        if (declaracao === null || declaracao === void 0 ? void 0 : declaracao.alternate) {
+            resultado += 'senao ';
+            if (declaracao.alternate.constructor.name === 'BlockStatement') {
+                const bloco = declaracao.alternate;
+                resultado += this.logicaComumBlocoEscopo(bloco);
+                return resultado;
+            }
+            const se = declaracao.alternate;
+            resultado += this.traduzirDeclaracao(se);
+        }
+        return resultado;
+    }
+    traduzirDeclaracaoTente(declaracao) {
+        let resultado = 'tente ';
+        resultado += this.logicaComumBlocoEscopo(declaracao.block);
+        if (declaracao.handler) {
+            resultado += 'pegue';
+            if (declaracao.handler.param) {
+                const identificador = declaracao.handler.param;
+                resultado += `(${identificador.name})`;
+            }
+            resultado += this.logicaComumBlocoEscopo(declaracao.block);
+        }
+        if (declaracao.finalizer) {
+            resultado += 'finalmente';
+            resultado += this.logicaComumBlocoEscopo(declaracao.finalizer);
+        }
+        return resultado;
+    }
+    traduzirDeclaracaoEscolha(declaracao) {
         let resultado = '';
-        console.log(declaracao);
-        return '';
+        this.indentacao += 4;
+        resultado += `escolha(${this.dicionarioConstrutos[declaracao.discriminant.type](declaracao.discriminant)}) {`;
+        resultado += ' '.repeat(this.indentacao);
+        for (let caso of declaracao.cases) {
+            if (!caso.test) {
+                resultado += 'padrao:';
+                resultado += ' '.repeat(this.indentacao + 4);
+                for (let bloco of caso.consequent) {
+                    if (bloco.type === 'BreakStatement')
+                        continue;
+                    resultado += this.traduzirDeclaracao(bloco) + '\n';
+                }
+                break;
+            }
+            resultado += `caso ${this.dicionarioConstrutos[caso.test.type](caso.test)}:`;
+            resultado += ' '.repeat(this.indentacao + 4);
+            for (let bloco of caso.consequent) {
+                if (bloco.type === 'BreakStatement')
+                    continue;
+                resultado += this.traduzirDeclaracao(bloco) + '\n';
+            }
+        }
+        this.indentacao -= 4;
+        resultado += ' '.repeat(this.indentacao) + '}\n';
+        return resultado;
     }
     traduzirDeclaracao(declaracao) {
         switch (declaracao.type) {
             case 'ClassDeclaration':
-                return this.traduzirClasseDeclaracao(declaracao);
+                return this.traduzirDeclaracaoClasse(declaracao);
+            case 'DoWhileStatement':
+                return this.traduzirDeclaracaoFazerEnquanto(declaracao);
             case 'ExpressionStatement':
                 return this.traduzirExpressaoDeclaracao(declaracao);
+            case 'ForStatement':
+                return this.traduzirDeclaracaoPara(declaracao);
             case 'FunctionDeclaration':
-                return this.traduzirDeclaracaoDeFuncao(declaracao);
+                return this.traduzirDeclaracaoFuncao(declaracao);
+            case 'IfStatement':
+                return this.traduzirDeclaracaoSe(declaracao);
+            case 'ReturnStatement':
+                return this.traduzirDeclaracaoRetorna(declaracao);
+            case 'SwitchStatement':
+                return this.traduzirDeclaracaoEscolha(declaracao);
+            case 'TryStatement':
+                return this.traduzirDeclaracaoTente(declaracao);
             case 'VariableDeclaration':
-                return this.traduzirDeclaracaoDeVariavel(declaracao);
+                return this.traduzirDeclaracaoVariavel(declaracao);
+            case 'WhileStatement':
+                return this.traduzirDeclaracaoEnquanto(declaracao);
         }
     }
     traduzir(codigo) {
@@ -5545,17 +6230,12 @@ class TradutorReversoJavaScript {
         for (let declaracao of declaracoes.body) {
             resultado += `${this.traduzirDeclaracao(declaracao)} \n`;
         }
-        console.log(resultado);
         return resultado;
     }
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
-//cd ./fontes/tradutores
-//ts-node -T tradutor-reverso-javascript.ts
-// var tjs = new TradutorReversoJavaScript();
-// tjs.traduzir();
 
-},{"esprima":89}],87:[function(require,module,exports){
+},{"esprima":90}],88:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -5586,9 +6266,9 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":91}],88:[function(require,module,exports){
+},{"_process":92}],89:[function(require,module,exports){
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -12298,7 +12978,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -12831,7 +13511,7 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":91}],91:[function(require,module,exports){
+},{"_process":92}],92:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

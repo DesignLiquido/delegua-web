@@ -21,7 +21,7 @@ var Exemplos = {
 function definirLinguagemDelegua() {
     return {
         defaultToken: 'invalid',
-        tokenPostfix: '.ts',
+        tokenPostfix: '.delegua',
         keywords: [
             // Should match the keys of textToKeywordObj in
             // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
@@ -36,6 +36,7 @@ function definirLinguagemDelegua() {
             'função',
             'funcao',
             'herda',
+            'importar',
             'isto',
             'leia',
             'nulo',
@@ -152,7 +153,7 @@ function definirLinguagemDelegua() {
             '>=',
             '==',
             '!=',
-            '===',
+            // '===',
             '!==',
             '=>',
             '+',
@@ -207,7 +208,7 @@ function definirLinguagemDelegua() {
             common: [
                 // identifiers and keywords
                 [
-                    /[a-z_$][\w$]*/,
+                    /[a-z_$][çã\w$]*/,
                     {
                         cases: {
                             '@keywords': 'keyword',
