@@ -40,10 +40,10 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
   integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
 
-"@designliquido/delegua@^0.11.13":
-  version "0.11.14"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.11.14.tgz#caf0cf6d63c285c023116da33d25aadb71a4ebf9"
-  integrity sha512-V2uSsuGbR/3yXzgmPVwpS/kQ/kfvy+srvzecTZWvOxHhfGGX5NUWMKC3N+wyKnw8imuXnZO1eokaMT0jnJXymA==
+"@designliquido/delegua@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.13.0.tgz#d3e29e0376692a738742d4e2fe5b8b5dce01ca7e"
+  integrity sha512-KYa0GGIKRgeknHJ77iHmmTgci97Y3ktu+bulxKnruFwk83dxP1rT4S4qXOYGwdHFeBXLzlcKD2ygcfvYUifCHg==
   dependencies:
     browser-process-hrtime "^1.0.0"
     chalk "4.1.2"
@@ -137,6 +137,11 @@
   integrity sha512-SExIIPso8qx2Bij5YVw7WTlnWCL5UngCvpsf+m1G0LMP4MOaFUfmJmoceFnpiP9+ZfVCXIhyOmwb5sTM1Br/xg==
   dependencies:
     "@types/prismjs" "*"
+
+"@types/estree@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.0.tgz#5fb2e536c1ae9bf35366eed879e827fa59ca41c2"
+  integrity sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==
 
 "@types/minimist@^1.2.2":
   version "1.2.2"
