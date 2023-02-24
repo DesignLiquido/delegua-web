@@ -1,6 +1,7 @@
 interface IPrimitiva {
     nome: string;
     documentacao: string;
+    exemplo: string;
 }
 
 const ordenarPrimitivaPorNome = (a: IPrimitiva, b: IPrimitiva) => {

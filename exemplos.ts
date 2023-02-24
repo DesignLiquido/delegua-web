@@ -589,13 +589,6 @@ mostrar_fila();`,
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
-  console.log(this)
-
-  this.Monaco?.editor?.create(document.getElementById('editor'), {
-    value: Exemplos[exemploId],
-    language: 'delegua'
-  });
-
   this.Monaco?.languages?.register({
     id: 'delegua',
     extensions: ['.delegua'],
@@ -607,29 +600,30 @@ window.onload = function () {
 
   this.Monaco?.languages?.registerCompletionItemProvider('delegua', {
     provideCompletionItems: () => {
-      var suggestions = [{
-        label: 'escreva',
-        kind: this.Monaco.languages.CompletionItemKind.Text,
-        insertText: 'escreva(\'\')'
-      }, {
-        label: 'aleatorioEntre',
-        kind: this.Monaco.languages.CompletionItemKind.Keyword,
-        insertText: 'aleatorioEntre(1, 10)',
-        insertTextRules: this.Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-      }, {
-        label: 'se',
-        kind: this.Monaco.languages.CompletionItemKind.Snippet,
-        insertText: [
-          'se (${1:condition}) {',
-          '\t$0',
-          '} senao {',
-          '\t',
-          '}'
-        ].join('\n'),
-        insertTextRules: this.Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        documentation: 'Declaração Se-Senão'
-      }];
-      return { suggestions: suggestions };
+      // var suggestions = [{
+      //   label: 'escreva',
+      //   kind: this.Monaco.languages.CompletionItemKind.Text,
+      //   insertText: 'escreva(\'\')'
+      // }];
+      const formatoPrimitivas = primitivas.filter(p => p.exemplo).map(({ nome, exemplo }) => {
+        return {
+          label: nome,
+          kind: 17, // Keyword,
+          insertText: exemplo,
+          insertTextRules: 4 // InsertAsSnippet
+        }
+      });
+      const formatoSnippets = deleguaCodeSnippets?.map(({ prefix, body, description }) => {
+        return {
+          label: prefix,
+          kind: 15, // Snippet,
+          insertText: body.join('\n'),
+          documentation: description,
+          insertTextRules: 4 // InsertAsSnippet
+        }
+      })
+      const sugestoes = [...formatoPrimitivas,...formatoSnippets]
+      return { suggestions: sugestoes };
     }
   });
 
@@ -648,6 +642,11 @@ window.onload = function () {
       return { contents: [] }
     }
   })
+
+  this.Monaco?.editor?.create(document.getElementById('editor'), {
+    value: Exemplos[exemploId],
+    language: 'delegua'
+  });
   
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
