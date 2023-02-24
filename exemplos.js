@@ -16,7 +16,7 @@ var Exemplos = {
     Bhaskara: "funcao bhaskara(a,b,c) {\n  // A vari\u00E1vel \"d\" vai simbolizar o Delta.\n  // \"a\", \"b\", e \"c\" ir\u00E3o representar os coeficientes da equa\u00E7\u00E3o.\n  var d = b ** 2;\n  var f = 4 * a * c; \n            \n  d = d - f;\n            \n  escreva(\"O valor de Delta \u00E9: \" + texto(d));\n            \n  d = d ** 0.5;\n            \n  // Encontrando os valores de X1 e X2.\n  var x1 = -b + d;\n  x1 = x1 / 2 * a;\n  escreva(\"O valor de X1 \u00E9: \"+ texto(x1));\n            \n  var x2 = -b-d;\n  x2 = x2 / 2 * a;\n  escreva(\"O valor de X2 \u00E9: \"+ texto(x2));\n  // Resultado das substitui\u00E7\u00F5es de X por X1 e X2 na equa\u00E7\u00E3o.\n  var r1 = x1 ** 2;\n  r1 = a * r1;\n  r1 = b * x1 + r1;\n  r1 = r1 + c;\n  escreva(\"Substituindo X1 na equa\u00E7\u00E3o obt\u00E9m-se:\"+ texto(r1));\n  var r2 = x2 ** 2;\n  r2 = a * r2;\n  r2 = b * x2 + r2;\n  r2 = r2 + c;\n  escreva(\"Substituindo X2 na equa\u00E7\u00E3o obt\u00E9m-se:\"+ texto(r2));\n}\n// Insira o valor do coeficiente A:\nvar a = 1;\n// Insira o valor do coeficiente B:\nvar b = -1;\n// Insira o valor do coeficiente B:\nvar c = -30;\nbhaskara(a,b,c);",
     Fibonacci: "// Recurs\u00E3o para o c\u00E1lculo da sequ\u00EAncia de Fibonacci\nfuncao fibonacci(n) {\n  se (n == 0) {\n    retorna(0);\n  }\n  se(n == 1) {\n    retorna(1);\n  }\n          \n  var n1 = n-1;\n  var n2 = n-2;\n  var f1 = fibonacci(n1);\n  var f2 = fibonacci(n2);\n  retorna(f1 + f2);\n}\nvar a = fibonacci(0);\nescreva(a);\na = fibonacci(1);\nescreva(a);\na = fibonacci(2);\nescreva(a);\na = fibonacci(3);\nescreva(a);\na = fibonacci(4);\nescreva(a);\na = fibonacci(5);\nescreva(a);",
     Perceptron: "var pesoInicial1 = 0.3;\nvar pesoInicial2 = 0.4;\nvar entrada1 = 1;\nvar entrada2 = 1;\nvar erro = 1;\nvar resultadoEsperado;\nenquanto (erro != 0) {\n  se (entrada1 == 1) {\n    se (entrada2 == 1) {\n      resultadoEsperado = 1;\n    }\n  } sen\u00E3o {\n    resultadoEsperado = 0;\n  }\n          \n  var somatoria = pesoInicial1 * entrada1;\n  somatoria = pesoInicial2 * entrada2 + somatoria;\n          \n  var resultado;\n          \n  se (somatoria < 1) {\n    resultado = 0;\n  } sen\u00E3o {\n    se (somatoria >= 1) {\n      resultado = 1;\n    }\n  }\n          \n  escreva(\"resultado: \" + texto(resultado));\n  \n  erro = resultadoEsperado - resultado;\n  escreva(\"p1: \" + texto(pesoInicial1));\n  escreva(\"p2: \" + texto(pesoInicial2));\n  pesoInicial1 = 0.1 * entrada1 * erro + pesoInicial1;\n  pesoInicial2 = 0.1 * entrada2 * erro + pesoInicial2;\n  escreva(\"erro: \" + texto(erro));\n}",
-    FilaEstatica: "funcao enfileirar (valorEntrada) {\nse (indexFinal == maximoDeElementos) {\n  escreva(\"Fila Cheia\");\n} senao {\n  filaEstatica[indexFinal] = valorEntrada;\n  escreva(\"Valor inserido com sucesso: \" + texto(filaEstatica[indexFinal]));\n    retorna indexFinal = indexFinal + 1;\n  }\n}\nfun\u00E7\u00E3o desenfileirar() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (i = 0; i <= indexFinal; i = i + 1){\n      se (i + 1 == indexFinal) {\n        indexFinal = indexFinal - 1;\n        escreva(\"Valor retirado com sucesso.\");\n      } senao {\n        filaEstatica[i] = filaEstatica[i+1];\n      }\n    }\n  }\n}\nfun\u00E7\u00E3o mostrar_fila() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (var i = 0; i < indexFinal; i = i + 1) {\n      escreva(\"index \" + texto(i)); \n      escreva(texto(filaEstatica[i]));\n    }\n  }\n}\nvar maximoDeElementos = 4;\nvar indexInicial = 0;\nvar indexFinal = 0;\n// Variavel de controle em itera\u00E7\u00F5es\nvar i = 0;\nvar filaEstatica = [];\n// Demonstra\u00E7\u00E3o de uso das fun\u00E7\u00F5es:\nmostrar_fila();\nvar valorEntrada = 2;\nenfileirar(valorEntrada);\nvar valorEntrada = 8;\nenfileirar(valorEntrada);\nvar valorEntrada = 23;\nenfileirar(valorEntrada);\nvar valorEntrada = 7;\nenfileirar(valorEntrada);\nmostrar_fila();\ndesenfileirar();\nmostrar_fila();\nvar valorEntrada = 24;\nenfileirar(valorEntrada);\nmostrar_fila();",
+    FilaEstatica: "funcao enfileirar (valorEntrada) {\n  se (indexFinal == maximoDeElementos) {\n    escreva(\"Fila Cheia\");\n  } senao {\n  filaEstatica[indexFinal] = valorEntrada;\n  escreva(\"Valor inserido com sucesso: \" + texto(filaEstatica[indexFinal]));\n    retorna indexFinal = indexFinal + 1;\n  }\n}\nfun\u00E7\u00E3o desenfileirar() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (i = 0; i <= indexFinal; i = i + 1){\n      se (i + 1 == indexFinal) {\n        indexFinal = indexFinal - 1;\n        escreva(\"Valor retirado com sucesso.\");\n      } senao {\n        filaEstatica[i] = filaEstatica[i+1];\n      }\n    }\n  }\n}\nfun\u00E7\u00E3o mostrar_fila() {\n  se (indexInicial == indexFinal) {\n    escreva(\"Fila Vazia\");\n  } senao {\n    para (var i = 0; i < indexFinal; i = i + 1) {\n      escreva(\"index \" + texto(i)); \n      escreva(texto(filaEstatica[i]));\n    }\n  }\n}\nvar maximoDeElementos = 4;\nvar indexInicial = 0;\nvar indexFinal = 0;\n// Variavel de controle em itera\u00E7\u00F5es\nvar i = 0;\nvar filaEstatica = [];\n// Demonstra\u00E7\u00E3o de uso das fun\u00E7\u00F5es:\nmostrar_fila();\nvar valorEntrada = 2;\nenfileirar(valorEntrada);\nvar valorEntrada = 8;\nenfileirar(valorEntrada);\nvar valorEntrada = 23;\nenfileirar(valorEntrada);\nvar valorEntrada = 7;\nenfileirar(valorEntrada);\nmostrar_fila();\ndesenfileirar();\nmostrar_fila();\nvar valorEntrada = 24;\nenfileirar(valorEntrada);\nmostrar_fila();",
 };
 function definirLinguagemDelegua() {
     return {
@@ -329,107 +329,50 @@ function definirLinguagemDelegua() {
         }
     };
 }
-var primitivasTexto = [
-    {
-        nome: 'maiusculo',
-        documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
-    },
-    {
-        nome: 'minusculo',
-        documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
-    },
-    {
-        nome: 'texto',
-        documentacao: 'Transforma números flutuantes ou inteiros em texto.'
-    },
-];
-var primitivasVetor = [
-    {
-        nome: 'mapear',
-        documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
-    },
-    {
-        nome: 'ordenar',
-        documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
-    },
-    {
-        nome: 'tamanho',
-        documentacao: 'Retorna o número de elementos que compõem um vetor.'
-    },
-];
-var primitivasNumero = [
-    {
-        nome: 'aleatorio',
-        documentacao: 'Retorna um número aleatório entre 0 e 1.'
-    },
-    {
-        nome: 'aleatorioEntre',
-        documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
-    },
-    {
-        nome: 'inteiro',
-        documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
-    },
-    {
-        nome: 'real',
-        documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
-    },
-];
-var ordenar = function (a, b) {
-    var nome1 = a['nome'].toUpperCase();
-    var nome2 = b['nome'].toUpperCase();
-    if (nome1 > nome2)
-        return 1;
-    else if (nome1 < nome2)
-        return -1;
-    return 0;
-};
-var primitivas = __spreadArray(__spreadArray(__spreadArray([], primitivasNumero, true), primitivasTexto, true), primitivasVetor, true).sort(ordenar);
 window.onload = function () {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     var exemploId = window.location.search.split('?exemploId=')[1];
-    var Monaco = window.monaco;
-    Monaco.languages.register({
+    (_b = (_a = this.Monaco) === null || _a === void 0 ? void 0 : _a.languages) === null || _b === void 0 ? void 0 : _b.register({
         id: 'delegua',
         extensions: ['.delegua'],
         aliases: ['delegua', 'language-generation'],
         mimetypes: ['application/delegua'],
     });
-    Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
-    Monaco.editor.create(document.getElementById('editor'), {
-        value: Exemplos[exemploId],
-        language: 'delegua'
-    });
-    Monaco.languages.registerCompletionItemProvider('delegua', {
+    (_d = (_c = this.Monaco) === null || _c === void 0 ? void 0 : _c.languages) === null || _d === void 0 ? void 0 : _d.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    (_f = (_e = this.Monaco) === null || _e === void 0 ? void 0 : _e.languages) === null || _f === void 0 ? void 0 : _f.registerCompletionItemProvider('delegua', {
         provideCompletionItems: function () {
-            var suggestions = [{
-                    label: 'escreva',
-                    kind: Monaco.languages.CompletionItemKind.Text,
-                    insertText: 'escreva(\'\')'
-                }, {
-                    label: 'aleatorioEntre',
-                    kind: Monaco.languages.CompletionItemKind.Keyword,
-                    insertText: 'aleatorioEntre(1, 10)',
-                    insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-                }, {
-                    label: 'se',
-                    kind: Monaco.languages.CompletionItemKind.Snippet,
-                    insertText: [
-                        'se (${1:condition}) {',
-                        '\t$0',
-                        '} senao {',
-                        '\t',
-                        '}'
-                    ].join('\n'),
-                    insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    documentation: 'Declaração Se-Senão'
-                }];
-            return { suggestions: suggestions };
+            // var suggestions = [{
+            //   label: 'escreva',
+            //   kind: this.Monaco.languages.CompletionItemKind.Text,
+            //   insertText: 'escreva(\'\')'
+            // }];
+            var formatoPrimitivas = primitivas.filter(function (p) { return p.exemplo; }).map(function (_a) {
+                var nome = _a.nome, exemplo = _a.exemplo;
+                return {
+                    label: nome,
+                    kind: 17,
+                    insertText: exemplo,
+                    insertTextRules: 4 // InsertAsSnippet
+                };
+            });
+            var formatoSnippets = deleguaCodeSnippets === null || deleguaCodeSnippets === void 0 ? void 0 : deleguaCodeSnippets.map(function (_a) {
+                var prefix = _a.prefix, body = _a.body, description = _a.description;
+                return {
+                    label: prefix,
+                    kind: 15,
+                    insertText: body.join('\n'),
+                    documentation: description,
+                    insertTextRules: 4 // InsertAsSnippet
+                };
+            });
+            var sugestoes = __spreadArray(__spreadArray([], formatoPrimitivas, true), formatoSnippets, true);
+            return { suggestions: sugestoes };
         }
     });
-    Monaco.languages.registerHoverProvider('delegua', {
+    (_h = (_g = this.Monaco) === null || _g === void 0 ? void 0 : _g.languages) === null || _h === void 0 ? void 0 : _h.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
             var palavra = model.getWordAtPosition(position);
-            var primitiva = primitivas.find(function (p) { return p.nome === palavra.word; });
+            var primitiva = primitivas.find(function (p) { return p.nome === (palavra === null || palavra === void 0 ? void 0 : palavra.word); });
             if (primitiva) {
                 return {
                     contents: [
@@ -440,6 +383,10 @@ window.onload = function () {
             }
             return { contents: [] };
         }
+    });
+    (_k = (_j = this.Monaco) === null || _j === void 0 ? void 0 : _j.editor) === null || _k === void 0 ? void 0 : _k.create(document.getElementById('editor'), {
+        value: Exemplos[exemploId],
+        language: 'delegua'
     });
     if (exemploId) {
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
