@@ -194,9 +194,9 @@ enquanto (erro != 0) {
 }`,
 
 FilaEstatica: `funcao enfileirar (valorEntrada) {
-se (indexFinal == maximoDeElementos) {
-  escreva("Fila Cheia");
-} senao {
+  se (indexFinal == maximoDeElementos) {
+    escreva("Fila Cheia");
+  } senao {
   filaEstatica[indexFinal] = valorEntrada;
   escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
     retorna indexFinal = indexFinal + 1;
@@ -586,120 +586,51 @@ mostrar_fila();`,
         };
     }
 
-    const primitivasTexto = [
-      {
-          nome: 'maiusculo',
-          documentacao: 'Converte todos os caracteres alfabéticos para maiúsculas.'
-      },
-      {
-          nome: 'minusculo',
-          documentacao: 'Converte todos os caracteres alfabéticos para minúsculas.'
-      },
-      {
-          nome: 'texto',
-          documentacao: 'Transforma números flutuantes ou inteiros em texto.'
-      },
-    ]
-
-    const primitivasVetor = [
-      {
-          nome: 'mapear',
-          documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.'
-      },
-      {
-          nome: 'ordenar',
-          documentacao: 'Ordena valores em ordem crescente. Esta função só aceita vetores.'
-      },
-      {
-          nome: 'tamanho',
-          documentacao: 'Retorna o número de elementos que compõem um vetor.'
-      },
-    ]
-
-    const primitivasNumero = [
-      {
-          nome: 'aleatorio',
-          documentacao: 'Retorna um número aleatório entre 0 e 1.'
-      },
-      {
-          nome: 'aleatorioEntre',
-          documentacao: 'Retorna um número inteiro aleatório entre os valores passados para a função.'
-      },
-      {
-          nome: 'inteiro',
-          documentacao: 'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.'
-      },
-      {
-          nome: 'real',
-          documentacao: 'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.'
-      },
-    ]
-
-    const ordenar = (a: any, b: any) => {
-      const nome1 = a['nome'].toUpperCase();
-      const nome2 = b['nome'].toUpperCase();
-      
-      if (nome1 > nome2) return 1;
-      else if (nome1 < nome2) return -1;
-      return 0;
-    }
-  
-    const primitivas = [
-      ...primitivasNumero, 
-      ...primitivasTexto, 
-      ...primitivasVetor
-    ].sort(ordenar);
-
 window.onload = function () {
   const exemploId: any = window.location.search.split('?exemploId=')[1];
 
-  const Monaco = (window as any).monaco;
-
-  Monaco.languages.register({
+  this.Monaco?.languages?.register({
     id: 'delegua',
     extensions: ['.delegua'],
     aliases: ['delegua', 'language-generation'],
     mimetypes: ['application/delegua'],
   });
-  Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
 
-  Monaco.editor.create(document.getElementById('editor'), {
-    value: Exemplos[exemploId],
-    language: 'delegua'
-  });
+  this.Monaco?.languages?.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
 
-  Monaco.languages.registerCompletionItemProvider('delegua', {
+  this.Monaco?.languages?.registerCompletionItemProvider('delegua', {
     provideCompletionItems: () => {
-      var suggestions = [{
-        label: 'escreva',
-        kind: Monaco.languages.CompletionItemKind.Text,
-        insertText: 'escreva(\'\')'
-      }, {
-        label: 'aleatorioEntre',
-        kind: Monaco.languages.CompletionItemKind.Keyword,
-        insertText: 'aleatorioEntre(1, 10)',
-        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-      }, {
-        label: 'se',
-        kind: Monaco.languages.CompletionItemKind.Snippet,
-        insertText: [
-          'se (${1:condition}) {',
-          '\t$0',
-          '} senao {',
-          '\t',
-          '}'
-        ].join('\n'),
-        insertTextRules: Monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        documentation: 'Declaração Se-Senão'
-      }];
-      return { suggestions: suggestions };
+      // var suggestions = [{
+      //   label: 'escreva',
+      //   kind: this.Monaco.languages.CompletionItemKind.Text,
+      //   insertText: 'escreva(\'\')'
+      // }];
+      const formatoPrimitivas = primitivas.filter(p => p.exemplo).map(({ nome, exemplo }) => {
+        return {
+          label: nome,
+          kind: 17, // Keyword,
+          insertText: exemplo,
+          insertTextRules: 4 // InsertAsSnippet
+        }
+      });
+      const formatoSnippets = deleguaCodeSnippets?.map(({ prefix, body, description }) => {
+        return {
+          label: prefix,
+          kind: 15, // Snippet,
+          insertText: body.join('\n'),
+          documentation: description,
+          insertTextRules: 4 // InsertAsSnippet
+        }
+      })
+      const sugestoes = [...formatoPrimitivas,...formatoSnippets]
+      return { suggestions: sugestoes };
     }
   });
 
-  Monaco.languages.registerHoverProvider('delegua', {
+  this.Monaco?.languages?.registerHoverProvider('delegua', {
     provideHover: function(model, position) { 
       const palavra = model.getWordAtPosition(position);
-      const primitiva = primitivas.find(p => p.nome === palavra.word)
+      const primitiva = primitivas.find(p => p.nome === palavra?.word)
       if(primitiva){
         return {
           contents: [
@@ -712,6 +643,11 @@ window.onload = function () {
     }
   })
 
+  this.Monaco?.editor?.create(document.getElementById('editor'), {
+    value: Exemplos[exemploId],
+    language: 'delegua'
+  });
+  
   if(exemploId){
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
