@@ -1,22 +1,19 @@
 import { Lexador } from "@designliquido/delegua/fontes/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
-import { Interpretador } from "@designliquido/delegua/fontes/interpretador";
+import { InterpretadorBase } from "@designliquido/delegua/fontes/interpretador/interpretador-base";
 import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
 import {
     AvaliadorSintaticoInterface,
-    DeleguaInterface,
-    ImportadorInterface,
     InterpretadorInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
 } from "@designliquido/delegua/fontes/interfaces/index";
-import { RetornoImportador } from "@designliquido/delegua/fontes/importador";
 import * as matematica from "@designliquido/delegua-matematica";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
 import { TradutorJavaScript } from "@designliquido/delegua/fontes/tradutores";
 
-export class DeleguaWeb implements DeleguaInterface {
+export class DeleguaWeb {
     nomeArquivo: string;
 
     teveErro: boolean = false;
@@ -24,10 +21,9 @@ export class DeleguaWeb implements DeleguaInterface {
     // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
     dialeto: string = "delegua";
     arquivosAbertos: any;
-    interpretador: InterpretadorInterface;
+    interpretador: InterpretadorBase;
     lexador: LexadorInterface;
     avaliadorSintatico: AvaliadorSintaticoInterface;
-    importador: ImportadorInterface;
     funcaoDeRetorno: Function;
     iniciarDelegua: any;
     carregarArquivo: any;
@@ -41,10 +37,10 @@ export class DeleguaWeb implements DeleguaInterface {
 
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
-        this.interpretador = new Interpretador(
-            null,
+        this.interpretador = new InterpretadorBase(
             "",
             false,
+            this.funcaoDeRetorno,
             this.funcaoDeRetorno
         );
 
@@ -69,7 +65,7 @@ export class DeleguaWeb implements DeleguaInterface {
     }
 
     async executar(
-        retornoImportador: RetornoImportador,
+        retornoImportador: any,
         manterAmbiente: boolean = false
     ): Promise<RetornoExecucaoInterface> {
         if (retornoImportador.retornoLexador.erros.length > 0) {
@@ -122,7 +118,7 @@ export class DeleguaWeb implements DeleguaInterface {
     }
 
     versao() {
-        return "0.11";
+        return "0.15";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
@@ -135,35 +131,18 @@ export class DeleguaWeb implements DeleguaInterface {
         this.teveErro = true;
     }
 
-    erro(simbolo: SimboloInterface, mensagemDeErro: string) {
-        if (simbolo.tipo === tiposDeSimbolos.EOF) {
-            this.reportar(Number(simbolo.linha), " no final", mensagemDeErro);
+    erro(simbolo: SimboloInterface, mensagemDeErro: string): void {
+        const _simbolo = simbolo || { tipo: tiposDeSimbolos.EOF, linha: -1, lexema: '(indefinido)' };
+        if (_simbolo.tipo === tiposDeSimbolos.EOF) {
+            this.reportar(Number(_simbolo.linha), ' no final do código', mensagemDeErro);
         } else {
-            this.reportar(
-                Number(simbolo.linha),
-                ` no '${simbolo.lexema}'`,
-                mensagemDeErro
-            );
+            this.reportar(Number(_simbolo.linha), ` no '${_simbolo.lexema}'`, mensagemDeErro);
         }
     }
 
     erroEmTempoDeExecucao(erro: any): void {
-        if (erro && erro.simbolo && erro.simbolo.linha) {
-            if (this.nomeArquivo)
-                console.error(
-                    `Erro: [Arquivo: ${this.nomeArquivo}] [Linha: ${erro.simbolo.linha}]` +
-                        ` ${erro.mensagem}`
-                );
-            else
-                console.error(
-                    `Erro: [Linha: ${erro.simbolo.linha}]` + ` ${erro.mensagem}`
-                );
-        } else {
-            console.error(
-                `Erro: [Linha: ${erro.linha || 0}]` + ` ${erro.mensagem}`
-            );
-        }
-
-        this.teveErroEmTempoDeExecucao = true;
+        const linha = erro?.simbolo?.linha || erro?.linha;
+        const mensagem = erro?.mensagem || erro?.message;
+        console.error(`Erro: [Linha: ${linha}]` + ` ${mensagem}`);
     }
 }

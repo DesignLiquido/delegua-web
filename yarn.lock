@@ -40,14 +40,13 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
   integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
 
-"@designliquido/delegua@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.13.0.tgz#d3e29e0376692a738742d4e2fe5b8b5dce01ca7e"
-  integrity sha512-KYa0GGIKRgeknHJ77iHmmTgci97Y3ktu+bulxKnruFwk83dxP1rT4S4qXOYGwdHFeBXLzlcKD2ygcfvYUifCHg==
+"@designliquido/delegua@^0.15.5":
+  version "0.15.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.15.5.tgz#d6ba3a598ba84df1be92e70b5f225f0e7bd76a0d"
+  integrity sha512-nUlg/UUyMQvXen4VXoawunMdlnDAEYLMvod85RacsKxfsTUz/rC6nRXk4thX3yUG3RJVEm6eTPUDA/Ob1mqmPA==
   dependencies:
+    antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
-    chalk "4.1.2"
-    commander "^9.4.1"
     esprima "^4.0.1"
 
 "@jridgewell/gen-mapping@^0.3.0":
@@ -231,6 +230,11 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
   integrity sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   dependencies:
     color-convert "^2.0.1"
+
+antlr4ts@^0.5.0-alpha.4:
+  version "0.5.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/antlr4ts/-/antlr4ts-0.5.0-alpha.4.tgz#71702865a87478ed0b40c0709f422cf14d51652a"
+  integrity sha512-WPQDt1B74OfPv/IMS2ekXAKkTZIHl88uMetg6q3OTqgFxZ/dxDXI0EWLyZid/1Pe6hTftyg5N7gel5wNAGxXyQ==
 
 anymatch@~3.1.2:
   version "3.1.2"
@@ -546,7 +550,7 @@ camelcase@^6.3.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.3.0.tgz#5685b95eb209ac9c0c177467778c9c84df58ba9a"
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
-chalk@4.1.2, chalk@=4.1.2:
+chalk@=4.1.2:
   version "4.1.2"
   resolved "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz"
   integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
@@ -667,11 +671,6 @@ commander@^2.18.0, commander@^2.20.0:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
-
-commander@^9.4.1:
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-9.4.1.tgz#d1dd8f2ce6faf93147295c0df13c7c21141cfbdd"
-  integrity sha512-5EEkTNyHNGFPD2H+c/dXXfQZYa/scCKasxWcXJaWnNJ99pnQN9Vnmqow+p+PlFPE63Q6mThaZws1T+HxfpgtPw==
 
 commondir@^1.0.1:
   version "1.0.1"
