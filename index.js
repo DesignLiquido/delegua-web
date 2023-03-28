@@ -65,7 +65,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaWeb = void 0;
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
-var interpretador_1 = require("@designliquido/delegua/fontes/interpretador");
+var interpretador_base_1 = require("@designliquido/delegua/fontes/interpretador/interpretador-base");
 var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
 var matematica = __importStar(require("@designliquido/delegua-matematica"));
 var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
@@ -82,7 +82,7 @@ var DeleguaWeb = /** @class */ (function () {
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
-        this.interpretador = new interpretador_1.Interpretador(null, "", false, this.funcaoDeRetorno);
+        this.interpretador = new interpretador_base_1.InterpretadorBase("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: function (mensagem, callback) {
                 var resposta = window.prompt(mensagem);
@@ -144,7 +144,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.11";
+        return "0.15";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -155,25 +155,19 @@ var DeleguaWeb = /** @class */ (function () {
         this.teveErro = true;
     };
     DeleguaWeb.prototype.erro = function (simbolo, mensagemDeErro) {
-        if (simbolo.tipo === delegua_1.default.EOF) {
-            this.reportar(Number(simbolo.linha), " no final", mensagemDeErro);
+        var _simbolo = simbolo || { tipo: delegua_1.default.EOF, linha: -1, lexema: '(indefinido)' };
+        if (_simbolo.tipo === delegua_1.default.EOF) {
+            this.reportar(Number(_simbolo.linha), ' no final do código', mensagemDeErro);
         }
         else {
-            this.reportar(Number(simbolo.linha), " no '".concat(simbolo.lexema, "'"), mensagemDeErro);
+            this.reportar(Number(_simbolo.linha), " no '".concat(_simbolo.lexema, "'"), mensagemDeErro);
         }
     };
     DeleguaWeb.prototype.erroEmTempoDeExecucao = function (erro) {
-        if (erro && erro.simbolo && erro.simbolo.linha) {
-            if (this.nomeArquivo)
-                console.error("Erro: [Arquivo: ".concat(this.nomeArquivo, "] [Linha: ").concat(erro.simbolo.linha, "]") +
-                    " ".concat(erro.mensagem));
-            else
-                console.error("Erro: [Linha: ".concat(erro.simbolo.linha, "]") + " ".concat(erro.mensagem));
-        }
-        else {
-            console.error("Erro: [Linha: ".concat(erro.linha || 0, "]") + " ".concat(erro.mensagem));
-        }
-        this.teveErroEmTempoDeExecucao = true;
+        var _a;
+        var linha = ((_a = erro === null || erro === void 0 ? void 0 : erro.simbolo) === null || _a === void 0 ? void 0 : _a.linha) || (erro === null || erro === void 0 ? void 0 : erro.linha);
+        var mensagem = (erro === null || erro === void 0 ? void 0 : erro.mensagem) || (erro === null || erro === void 0 ? void 0 : erro.message);
+        console.error("Erro: [Linha: ".concat(linha, "]") + " ".concat(mensagem));
     };
     return DeleguaWeb;
 }());
