@@ -1436,7 +1436,7 @@ class AvaliadorSintatico {
         }
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
-        return new declaracoes_1.Sustar(this.simbolos[this.atual]);
+        return new declaracoes_1.Sustar(this.simbolos[this.atual - 1]);
     }
     declaracaoContinua() {
         if (this.blocos < 1) {
@@ -1444,7 +1444,7 @@ class AvaliadorSintatico {
         }
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
-        return new declaracoes_1.Continua(this.simbolos[this.atual]);
+        return new declaracoes_1.Continua(this.simbolos[this.atual - 1]);
     }
     declaracaoRetorna() {
         const simboloChave = this.simbolos[this.atual - 1];
@@ -4041,17 +4041,9 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
     comparacaoIgualdade() {
         let expressao = this.comparar();
         while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.DIFERENTE, visualg_1.default.IGUAL)) {
-            // TODO: Este é um caso que o interpretador não deveria ter conhecimento
-            // do que é um símbolo.
-            // Em VisuAlg não existe '==', apenas '=', já que o símbolo de atribuição
-            // é uma seta: '<-'.
             const simboloAnterior = this.simbolos[this.atual - 1];
-            let operador = new lexador_1.Simbolo('IGUAL_IGUAL', '=', null, this.hashArquivo, Number(simboloAnterior.linha));
-            if (simboloAnterior.tipo === visualg_1.default.DIFERENTE) {
-                operador = simboloAnterior;
-            }
             const direito = this.comparar();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, simboloAnterior, direito);
         }
         return expressao;
     }
@@ -6385,8 +6377,9 @@ class InterpretadorBase {
      */
     async visitarDeclaracaoDeAtribuicao(expressao) {
         const valor = await this.avaliar(expressao.valor);
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valor);
-        return valor;
+        const valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
+        return valorResolvido;
     }
     procurarVariavel(simbolo) {
         return this.pilhaEscoposExecucao.obterValorVariavel(simbolo);
@@ -6468,20 +6461,20 @@ class InterpretadorBase {
         }
         return null;
     }
-    async visitarDeclaracaoFazer(declaracao) {
+    async visitarDeclaracaoEnquanto(declaracao) {
         let retornoExecucao;
-        do {
+        while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
-                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
                     retornoExecucao = null;
                 }
             }
             catch (erro) {
-                return Promise.reject(erro);
+                throw erro;
             }
-        } while (!(retornoExecucao instanceof quebras_1.Quebra) &&
-            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
+        }
+        return null;
     }
     async visitarDeclaracaoEscolha(declaracao) {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
@@ -6514,6 +6507,21 @@ class InterpretadorBase {
         catch (erro) {
             throw erro;
         }
+    }
+    async visitarDeclaracaoFazer(declaracao) {
+        let retornoExecucao;
+        do {
+            try {
+                retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
+                    retornoExecucao = null;
+                }
+            }
+            catch (erro) {
+                return Promise.reject(erro);
+            }
+        } while (!(retornoExecucao instanceof quebras_1.Quebra) &&
+            this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
     }
     /**
      * Interpretação de uma declaração `tente`.
@@ -6548,21 +6556,6 @@ class InterpretadorBase {
                 valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
         }
         return valorRetorno;
-    }
-    async visitarDeclaracaoEnquanto(declaracao) {
-        let retornoExecucao;
-        while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
-            try {
-                retornoExecucao = await this.executar(declaracao.corpo);
-                if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
-                    retornoExecucao = null;
-                }
-            }
-            catch (erro) {
-                throw erro;
-            }
-        }
-        return null;
     }
     async visitarDeclaracaoImportar(declaracao) {
         return Promise.reject("Importação de arquivos não suportada por Interpretador Base.");
