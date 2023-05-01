@@ -4,7 +4,6 @@ import { InterpretadorBase } from "@designliquido/delegua/fontes/interpretador/i
 import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
 import {
     AvaliadorSintaticoInterface,
-    InterpretadorInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
@@ -118,7 +117,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.15";
+        return "0.17";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
