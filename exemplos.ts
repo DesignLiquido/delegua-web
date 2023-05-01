@@ -648,6 +648,58 @@ window.onload = function () {
     }
   })
 
+  // this.Monaco?.languages?.registerCodeActionProvider('delegua', {
+  //   provideCodeActions: (
+  //     model /**ITextModel*/,
+  //     range /**Range*/,
+  //     context /**CodeActionContext*/,
+  //     token /**CancellationToken*/
+  //   ) => {
+  //     // const resource = model.uri;
+  //     // const start = model.getOffsetAt({
+  //     //   lineNumber: range.startLineNumber,
+  //     //   column: range.startColumn
+  //     // });
+  //     // const end = model.getOffsetAt({
+  //     //   lineNumber: range.endLineNumber,
+  //     //   column: range.endColumn
+  //     // });
+  //     // const errorCodes = context.markers
+  //     //   .filter((m) => m.code)
+  //     //   .map((m) => m.code)
+  //     //   .map(Number);
+
+  //     // console.log({resource, start, end, errorCodes})
+
+  //     const actions = context.markers.map(error => {
+  //       return {
+  //           title: `Example quick fix`,
+  //           diagnostics: [error],
+  //           kind: "quickfix",
+  //           edit: {
+  //               edits: [
+  //                   {
+  //                       resource: model.uri,
+  //                       edits: [
+  //                           {
+  //                               range: error,
+  //                               text: "This text replaces the text with the error"
+  //                           }
+  //                       ]
+  //                   }
+  //               ]
+  //           },
+  //           isPreferred: true
+  //       };
+  //     });
+  //     console.log('actions', actions)
+  //     return {
+  //         actions: actions,
+  //         dispose: () => {}
+  //     }
+  //   }
+  // })
+
   this.Monaco?.editor?.create(document.getElementById('editor'), {
     value: Exemplos[exemploId],
     language: 'delegua'
