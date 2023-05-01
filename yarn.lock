@@ -130,13 +130,6 @@
   resolved "https://registry.npmjs.org/@tsconfig/node16/-/node16-1.0.2.tgz"
   integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
 
-"@types/codeflask@^1.4.3":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@types/codeflask/-/codeflask-1.4.3.tgz#f1c45316f5c0dadde5d753c1ccd1a36a39fef740"
-  integrity sha512-SExIIPso8qx2Bij5YVw7WTlnWCL5UngCvpsf+m1G0LMP4MOaFUfmJmoceFnpiP9+ZfVCXIhyOmwb5sTM1Br/xg==
-  dependencies:
-    "@types/prismjs" "*"
-
 "@types/estree@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.0.tgz#5fb2e536c1ae9bf35366eed879e827fa59ca41c2"
@@ -157,7 +150,7 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
-"@types/prismjs@*", "@types/prismjs@^1.9.1":
+"@types/prismjs@^1.9.1":
   version "1.26.0"
   resolved "https://registry.yarnpkg.com/@types/prismjs/-/prismjs-1.26.0.tgz#a1c3809b0ad61c62cac6d4e0c56d610c910b7654"
   integrity sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==
