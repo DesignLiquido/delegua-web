@@ -1712,7 +1712,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":41,"../declaracoes":62,"../tipos-de-simbolos/delegua":112,"./erro-avaliador-sintatico":22,"browser-process-hrtime":125}],14:[function(require,module,exports){
+},{"../construtos":41,"../declaracoes":62,"../tipos-de-simbolos/delegua":112,"./erro-avaliador-sintatico":22,"browser-process-hrtime":124}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1723,7 +1723,6 @@ const construtos_1 = require("../../construtos");
 const declaracoes_1 = require("../../declaracoes");
 const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
-const utilidades_1 = require("../../utilidades");
 class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
     tratarSimbolos(simbolos) {
         let identificador = 0, adicao = 0, subtracao = 0;
@@ -2057,7 +2056,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         do {
             corpo.push(this.declaracao());
         } while (![birl_1.default.BIRL].includes(this.simbolos[this.atual].tipo));
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, (0, utilidades_1.limpaItensNull)(corpo));
+        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, corpo.filter(c => c));
     }
     declacacaoEnquanto() {
         const simboloEnquanto = this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA`.');
@@ -2170,7 +2169,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
 }
 exports.AvaliadorSintaticoBirl = AvaliadorSintaticoBirl;
 
-},{"../../construtos":41,"../../declaracoes":62,"../../tipos-de-simbolos/birl":110,"../../utilidades":124,"../avaliador-sintatico-base":12}],15:[function(require,module,exports){
+},{"../../construtos":41,"../../declaracoes":62,"../../tipos-de-simbolos/birl":110,"../avaliador-sintatico-base":12}],15:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3528,7 +3527,7 @@ class AvaliadorSintaticoEguaP {
 }
 exports.AvaliadorSintaticoEguaP = AvaliadorSintaticoEguaP;
 
-},{"../../construtos":41,"../../declaracoes":62,"../../lexador":103,"../../tipos-de-simbolos/eguap":114,"../erro-avaliador-sintatico":22,"browser-process-hrtime":125}],17:[function(require,module,exports){
+},{"../../construtos":41,"../../declaracoes":62,"../../lexador":103,"../../tipos-de-simbolos/eguap":114,"../erro-avaliador-sintatico":22,"browser-process-hrtime":124}],17:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -7352,7 +7351,7 @@ class InterpretadorBase {
                 await this.avaliar(declaracao.incrementar);
             }
         }
-        return null;
+        return retornoExecucao;
     }
     async visitarDeclaracaoEnquanto(declaracao) {
         let retornoExecucao;
@@ -7367,7 +7366,7 @@ class InterpretadorBase {
                 return Promise.reject(erro);
             }
         }
-        return null;
+        return retornoExecucao;
     }
     async visitarDeclaracaoEscolha(declaracao) {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
@@ -7906,7 +7905,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../bibliotecas/biblioteca-global":24,"../bibliotecas/primitivas-texto":25,"../bibliotecas/primitivas-vetor":26,"../construtos":41,"../espaco-variaveis":70,"../estruturas":76,"../estruturas/metodo-primitiva":77,"../excecoes":82,"../quebras":109,"../tipos-de-simbolos/delegua":112,"./inferenciador":84,"./pilha-escopos-execucao":86,"_process":127,"browser-process-hrtime":125}],86:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":24,"../bibliotecas/primitivas-texto":25,"../bibliotecas/primitivas-vetor":26,"../construtos":41,"../espaco-variaveis":70,"../estruturas":76,"../estruturas/metodo-primitiva":77,"../excecoes":82,"../quebras":109,"../tipos-de-simbolos/delegua":112,"./inferenciador":84,"./pilha-escopos-execucao":86,"_process":126,"browser-process-hrtime":124}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -7987,7 +7986,7 @@ class PilhaEscoposExecucao {
     atribuirVariavelEm(distancia, simbolo, valor) {
         const ambienteAncestral = this.pilha[this.pilha.length - distancia].ambiente;
         if (ambienteAncestral.valores[simbolo.lexema].imutavel) {
-            throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
+            throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
         }
         ambienteAncestral.valores[simbolo.lexema] = {
             valor,
@@ -8001,7 +8000,7 @@ class PilhaEscoposExecucao {
             if (ambiente.valores[simbolo.lexema] !== undefined) {
                 const variavel = ambiente.valores[simbolo.lexema];
                 if (variavel.imutavel) {
-                    throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, `Constante ${simbolo.lexema} não pode receber novos valores.`);
+                    throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, `Constante '${simbolo.lexema}' não pode receber novos valores.`);
                 }
                 const tipo = variavel && variavel.hasOwnProperty('tipo') ?
                     variavel.tipo :
@@ -9024,7 +9023,7 @@ class LexadorEguaP {
 }
 exports.LexadorEguaP = LexadorEguaP;
 
-},{"../../tipos-de-simbolos/eguap":114,"../palavras-reservadas":107,"../simbolo":108,"browser-process-hrtime":125}],91:[function(require,module,exports){
+},{"../../tipos-de-simbolos/eguap":114,"../palavras-reservadas":107,"../simbolo":108,"browser-process-hrtime":124}],91:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10998,7 +10997,7 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":112,"./palavras-reservadas":107,"./simbolo":108,"browser-process-hrtime":125}],107:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":112,"./palavras-reservadas":107,"./simbolo":108,"browser-process-hrtime":124}],107:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11042,6 +11041,7 @@ exports.default = {
     tente: delegua_1.default.TENTE,
     var: delegua_1.default.VARIAVEL,
     variavel: delegua_1.default.VARIAVEL,
+    variável: delegua_1.default.VARIAVEL,
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
@@ -12525,7 +12525,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{"esprima":126}],123:[function(require,module,exports){
+},{"esprima":125}],123:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12962,15 +12962,6 @@ class TradutorVisualg {
 exports.TradutorVisualg = TradutorVisualg;
 
 },{"../../fontes/avaliador-sintatico/dialetos":21,"../../fontes/lexador/dialetos":87,"../tipos-de-simbolos/delegua":112}],124:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.limpaItensNull = void 0;
-function limpaItensNull(arr) {
-    return arr.filter((item) => item !== null);
-}
-exports.limpaItensNull = limpaItensNull;
-
-},{}],125:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -13001,7 +12992,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":127}],126:[function(require,module,exports){
+},{"_process":126}],125:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -19711,7 +19702,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
-},{}],127:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
