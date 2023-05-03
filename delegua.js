@@ -812,7 +812,7 @@ class AvaliadorSintaticoBase {
         }
         return expressao;
     }
-    bitFill() {
+    bitShift() {
         throw new Error('Método não implementado.');
     }
     bitE() {
@@ -1145,7 +1145,7 @@ class AvaliadorSintatico {
         }
         return expressao;
     }
-    bitFill() {
+    bitShift() {
         let expressao = this.adicaoOuSubtracao();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.MENOR_MENOR, delegua_1.default.MAIOR_MAIOR)) {
             const operador = this.simbolos[this.atual - 1];
@@ -1155,10 +1155,10 @@ class AvaliadorSintatico {
         return expressao;
     }
     bitE() {
-        let expressao = this.bitFill();
+        let expressao = this.bitShift();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.BIT_AND)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.bitFill();
+            const direito = this.bitShift();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -2393,7 +2393,7 @@ class AvaliadorSintaticoEguaClassico {
         }
         return expressao;
     }
-    bitFill() {
+    bitShift() {
         let expressao = this.adicionar();
         while (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.MENOR_MENOR, egua_classico_1.default.MAIOR_MAIOR)) {
             const operador = this.simboloAnterior();
@@ -2403,10 +2403,10 @@ class AvaliadorSintaticoEguaClassico {
         return expressao;
     }
     bitE() {
-        let expressao = this.bitFill();
+        let expressao = this.bitShift();
         while (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.BIT_AND)) {
             const operador = this.simboloAnterior();
-            const direito = this.bitFill();
+            const direito = this.bitShift();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -3036,7 +3036,7 @@ class AvaliadorSintaticoEguaP {
         }
         return expressao;
     }
-    bitFill() {
+    bitShift() {
         let expressao = this.adicaoOuSubtracao();
         while (this.verificarSeSimboloAtualEIgualA(eguap_1.default.MENOR_MENOR, eguap_1.default.MAIOR_MAIOR)) {
             const operador = this.simboloAnterior();
@@ -3046,10 +3046,10 @@ class AvaliadorSintaticoEguaP {
         return expressao;
     }
     bitE() {
-        let expressao = this.bitFill();
+        let expressao = this.bitShift();
         while (this.verificarSeSimboloAtualEIgualA(eguap_1.default.BIT_AND)) {
             const operador = this.simboloAnterior();
-            const direito = this.bitFill();
+            const direito = this.bitShift();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -7340,6 +7340,9 @@ class InterpretadorBase {
             }
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof quebras_1.SustarQuebra) {
+                    return null;
+                }
                 if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -7358,6 +7361,9 @@ class InterpretadorBase {
         while (!(retornoExecucao instanceof quebras_1.Quebra) && this.eVerdadeiro(await this.avaliar(declaracao.condicao))) {
             try {
                 retornoExecucao = await this.executar(declaracao.corpo);
+                if (retornoExecucao instanceof quebras_1.SustarQuebra) {
+                    return null;
+                }
                 if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
                     retornoExecucao = null;
                 }
@@ -7405,6 +7411,9 @@ class InterpretadorBase {
         do {
             try {
                 retornoExecucao = await this.executar(declaracao.caminhoFazer);
+                if (retornoExecucao instanceof quebras_1.SustarQuebra) {
+                    return null;
+                }
                 if (retornoExecucao instanceof quebras_1.ContinuarQuebra) {
                     retornoExecucao = null;
                 }
