@@ -1931,6 +1931,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             const identificador = this.consumir(birl_1.default.IDENTIFICADOR, `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`);
             let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
+                if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
+                    valorInicializacao = this.declaracao();
+                }
                 if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
                     valorInicializacao = this.declaracao();
                 }
@@ -2066,7 +2069,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         do {
             corpo.push(this.declaracao());
         } while (![birl_1.default.BIRL].includes(this.simbolos[this.atual].tipo));
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, corpo.filter(c => c));
+        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, corpo.filter((c) => c));
     }
     declacacaoEnquanto() {
         const simboloEnquanto = this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA`.');
@@ -2120,6 +2123,25 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         const nomeFuncao = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado nome da função apos a declaração do tipo.');
         return new declaracoes_1.FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo), tipoRetorno);
     }
+    declaracaoChamaFuncao() {
+        const declaracaoInicio = this.consumir(birl_1.default.AJUDA, 'Esperado expressão `AJUDA`.');
+        this.consumir(birl_1.default.O, 'Esperado expressão `O` após `AJUDA`.');
+        this.consumir(birl_1.default.MALUCO, 'Esperado expressão `MALUCO` após `O`.');
+        this.consumir(birl_1.default.TA, 'Esperado expressão `TA` após `MALUCO`.');
+        this.consumir(birl_1.default.DOENTE, 'Esperado expressão `DOENTE` após `TA`.');
+        let expressao = this.primario();
+        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `DOENTE`.');
+        const paramentros = [];
+        while (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
+            paramentros.push(this.declaracao());
+            if (this.verificarTipoSimboloAtual(birl_1.default.VIRGULA)) {
+                this.avancarEDevolverAnterior();
+            }
+        }
+        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
+        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
+        return new construtos_1.Chamada(declaracaoInicio.hashArquivo, expressao, null, paramentros);
+    }
     declaracao() {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
@@ -2149,7 +2171,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             case birl_1.default.OH:
                 return this.funcao('funcao');
             case birl_1.default.AJUDA:
-            // Retornar uma declaração de chamar funcao
+                return this.declaracaoChamaFuncao();
             case birl_1.default.CE:
                 return this.declaracaoEscreva();
             case birl_1.default.PONTO_E_VIRGULA:
@@ -5612,6 +5634,9 @@ exports.default = {
     adicionar: (vetor, elemento) => {
         vetor.push(elemento);
         return vetor;
+    },
+    concatenar: (vetor, outroVetor) => {
+        return vetor.concat(outroVetor);
     },
     empilhar: (vetor, elemento) => {
         vetor.push(elemento);
@@ -11813,6 +11838,7 @@ class TradutorJavaScript {
             Importar: this.traduzirDeclaracaoImportar.bind(this),
             Leia: this.traduzirDeclaracaoLeia.bind(this),
             Para: this.traduzirDeclaracaoPara.bind(this),
+            ParaCada: this.traduzirDeclaracaoParaCada.bind(this),
             Sustar: () => 'break',
             Retorna: this.traduzirDeclaracaoRetorna.bind(this),
             Se: this.traduzirDeclaracaoSe.bind(this),
@@ -12061,6 +12087,13 @@ class TradutorJavaScript {
     }
     traduzirDeclaracaoLeia(declaracaoImportar) {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
+    }
+    traduzirDeclaracaoParaCada(declaracaoParaCada) {
+        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
+        resultado +=
+            this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ") ";
+        resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
+        return resultado;
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'for (';
@@ -12384,7 +12417,10 @@ class TradutorReversoJavaScript {
         let informacoesDaVariavel = declaracao.declarations[0];
         const identificador = informacoesDaVariavel.id;
         if (identificador) {
-            resultado += `${declaracao.kind === 'const' ? 'const' : 'var'} ${identificador.name} = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+            resultado += `${declaracao.kind === 'const' ? 'const' : 'var'} ${identificador.name}`;
+            if (informacoesDaVariavel.init) {
+                resultado += ` = ${this.dicionarioConstrutos[informacoesDaVariavel.init.type](informacoesDaVariavel.init)}`;
+            }
         }
         return resultado;
     }
@@ -12414,6 +12450,14 @@ class TradutorReversoJavaScript {
         resultado += this.dicionarioConstrutos[declaracao.test.type](declaracao.test) + '; ';
         resultado += this.dicionarioConstrutos[declaracao.update.type](declaracao.update) + ') ';
         resultado += this.logicaComumBlocoEscopo(declaracao);
+        return resultado;
+    }
+    traduzirDeclaracaoParaDe(declaracao) {
+        let resultado = '';
+        let emOuDe = declaracao.type === 'ForInStatement' ? 'em' : 'de';
+        resultado += `para (${this.traduzirDeclaracao(declaracao.left)} ${emOuDe} `;
+        resultado += this.dicionarioConstrutos[declaracao.right.constructor.name](declaracao.right) + ') ';
+        resultado += this.logicaComumBlocoEscopo(declaracao.body);
         return resultado;
     }
     traduzirDeclaracaoFuncao(declaracao) {
@@ -12568,6 +12612,9 @@ class TradutorReversoJavaScript {
                 return this.traduzirExpressaoDeclaracao(declaracao);
             case 'ForStatement':
                 return this.traduzirDeclaracaoPara(declaracao);
+            case 'ForInStatement':
+            case 'ForOfStatement':
+                return this.traduzirDeclaracaoParaDe(declaracao);
             case 'FunctionDeclaration':
                 return this.traduzirDeclaracaoFuncao(declaracao);
             case 'IfStatement':
