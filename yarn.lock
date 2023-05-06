@@ -40,10 +40,10 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
   integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
 
-"@designliquido/delegua@^0.19.0":
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.19.0.tgz#ed5751e5e0bb34c13c62ffbcbe950960c4ce1026"
-  integrity sha512-K71hjOb+NhA8yg4UUbg6kkSb10Spwz4eqcH2Pjg35v5Hx/1B4y7Hc/lpd2hlnqfv4o40oUNjFzA6tqpgrz4IGg==
+"@designliquido/delegua@^0.19.1":
+  version "0.19.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.19.1.tgz#a6647aec5fef2d0c802e1c755e4c8d0c7066f5ce"
+  integrity sha512-ursj/9A9//oxLwmmVc3OiSygXM+GJV6UNBEhHbWz9XJsJmJqZMWvrzC6x3qV1uyU7/jX1k1TREJo17gsWr2xnw==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
