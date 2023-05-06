@@ -297,16 +297,50 @@ function definirLinguagemDelegua() {
       'variável',
       'verdadeiro',
 
-      /* keywords delégua funções nativas */
-      'aleatorio',
-      'aleatorioEntre',
-      'escreva',
-      'inteiro',
-      'real',
+      /* keywords delégua funções nativas texto*/
+      'dividir',
+      'fatiar',
+      'inclui',
+      'maiusculo',
+      'minusculo',
       'texto',
+      'substituir',
+      'subtexto',
+
+      /* keywords delégua funções nativas vetor*/
+      'adicionar',
+      'concatenar',
+      'empilhar',
+      'fatiar',
+      'inclui',
+      'inverter',
+      'juntar',
       'mapear',
       'ordenar',
-      'tamanho'
+      'remover',
+      'removerPrimeiro',
+      'removerUltimo',
+      'somar',
+
+      /* keywords delégua funções nativas gerais*/
+      'aleatorio',
+      'aleatorioEntre',
+      'algum',
+      'encontrarIndice',
+      'encontrarUltimoIndice',
+      'encontrarUltimo',
+      'encontrar',
+      'escreva',
+      'filtrarPor',
+      'incluido',
+      'inteiro',
+      'paraCada',
+      'primeiroEmCondicao',
+      'real',
+      'reduzir',
+      'tamanho',
+      'todos',
+      'todosEmCondicao',
     ],
         
     operators: [
