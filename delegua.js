@@ -2065,6 +2065,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             paramentros.push(this.logicaComumParamentros());
         }
         this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
+        this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         let corpo = [];
         do {
             corpo.push(this.declaracao());
@@ -6615,11 +6616,11 @@ class DeleguaClasse extends chamavel_1.Chamavel {
         const inicializador = this.encontrarMetodo('construtor');
         return inicializador ? inicializador.aridade() : 0;
     }
-    chamar(interpretador, argumentos) {
+    chamar(visitante, argumentos) {
         const instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
         const inicializador = this.encontrarMetodo('construtor');
         if (inicializador) {
-            inicializador.definirInstancia(instancia).chamar(interpretador, argumentos);
+            inicializador.definirInstancia(instancia).chamar(visitante, argumentos);
         }
         return instancia;
     }
@@ -6653,7 +6654,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
             return '<função>';
         return `<função ${this.nome}>`;
     }
-    async chamar(interpretador, argumentos) {
+    async chamar(visitante, argumentos) {
         const ambiente = new espaco_variaveis_1.EspacoVariaveis();
         const parametros = this.declaracao.parametros;
         if (parametros && parametros.length) {
@@ -6674,6 +6675,8 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
                 imutavel: false
             };
         }
+        // TODO: Repensar essa dinâmica para análise semântica.
+        const interpretador = visitante;
         interpretador.proximoEscopo = 'funcao';
         const retornoBloco = await interpretador.executarBloco(this.declaracao.corpo, ambiente);
         if (retornoBloco instanceof quebras_1.RetornoQuebra) {
