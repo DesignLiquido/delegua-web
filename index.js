@@ -67,9 +67,12 @@ var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
 var interpretador_base_1 = require("@designliquido/delegua/fontes/interpretador/interpretador-base");
 var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
-var matematica = __importStar(require("@designliquido/delegua-matematica"));
 var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
 var tradutores_1 = require("@designliquido/delegua/fontes/tradutores");
+var estatistica = __importStar(require("@designliquido/delegua-estatistica"));
+var fisica = __importStar(require("@designliquido/delegua-fisica"));
+var matematica = __importStar(require("@designliquido/delegua-matematica"));
+var tempo = __importStar(require("@designliquido/delegua-tempo"));
 var DeleguaWeb = /** @class */ (function () {
     function DeleguaWeb(nomeArquivo, funcaoDeRetorno) {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
@@ -89,14 +92,23 @@ var DeleguaWeb = /** @class */ (function () {
                 callback(resposta);
             }
         };
+        var moduloEstatistica = new estruturas_1.DeleguaModulo("estatistica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("estatistica", this.montarModulo(estatistica, moduloEstatistica));
+        var moduloFisica = new estruturas_1.DeleguaModulo("fisica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("fisica", this.montarModulo(fisica, moduloFisica));
         var moduloMatematica = new estruturas_1.DeleguaModulo("matematica");
-        var chaves = Object.keys(matematica);
-        for (var i = 0; i < chaves.length; i++) {
-            var funcao = matematica[chaves[i]];
-            moduloMatematica.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
-        }
-        this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", moduloMatematica);
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("matematica", this.montarModulo(matematica, moduloMatematica));
+        var moduloTempo = new estruturas_1.DeleguaModulo("tempo");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("tempo", this.montarModulo(tempo, moduloTempo));
     }
+    DeleguaWeb.prototype.montarModulo = function (moduloNode, moduloDelegua) {
+        var chaves = Object.keys(moduloNode);
+        for (var i = 0; i < chaves.length; i++) {
+            var funcao = moduloNode[chaves[i]];
+            moduloDelegua.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
+        }
+        return moduloDelegua;
+    };
     DeleguaWeb.prototype.executar = function (retornoImportador, manterAmbiente) {
         if (manterAmbiente === void 0) { manterAmbiente = false; }
         return __awaiter(this, void 0, void 0, function () {
