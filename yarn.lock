@@ -35,10 +35,25 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@designliquido/delegua-estatistica@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-estatistica/-/delegua-estatistica-0.0.5.tgz#d1b0a6353e2f194849bff7797b4dec23efc96d5e"
+  integrity sha512-d5z7CQUuc0a2o0NaAGh9H2whs7TG4EVh8B31EbuPtKr6XVJNk0YiXNyPB8MEIUCkD7FpfslWiU2ytMK0u/3cqw==
+
+"@designliquido/delegua-fisica@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-fisica/-/delegua-fisica-0.0.2.tgz#182423e733b376b2d2853cbede66af33917f9466"
+  integrity sha512-7Sp+Vg7SBy/5M9vH7pXOw4udHIdGWThGxAtAWdBZBO9GzUjJGczfZi6+vJLj/pFfn/345l9ffN3rtSqYgbQM8w==
+
 "@designliquido/delegua-matematica@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
   integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
+
+"@designliquido/delegua-tempo@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
+  integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
 
 "@designliquido/delegua@^0.20.0":
   version "0.20.0"

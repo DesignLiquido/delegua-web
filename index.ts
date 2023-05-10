@@ -8,9 +8,13 @@ import {
     RetornoExecucaoInterface,
     SimboloInterface,
 } from "@designliquido/delegua/fontes/interfaces/index";
-import * as matematica from "@designliquido/delegua-matematica";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
 import { TradutorJavaScript } from "@designliquido/delegua/fontes/tradutores";
+
+import * as estatistica from "@designliquido/delegua-estatistica";
+import * as fisica from "@designliquido/delegua-fisica";
+import * as matematica from "@designliquido/delegua-matematica";
+import * as tempo from "@designliquido/delegua-tempo";
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -50,17 +54,39 @@ export class DeleguaWeb {
             }
         }
 
-        const moduloMatematica = new DeleguaModulo("matematica");
-        const chaves = Object.keys(matematica);
-        for (let i = 0; i < chaves.length; i++) {
-            const funcao = matematica[chaves[i]];
-            moduloMatematica.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
-        }
+        const moduloEstatistica = new DeleguaModulo("estatistica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "estatistica",
+            this.montarModulo(estatistica, moduloEstatistica)
+        );
 
+        const moduloFisica = new DeleguaModulo("fisica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "fisica",
+            this.montarModulo(fisica, moduloFisica)
+        );
+
+        const moduloMatematica = new DeleguaModulo("matematica");
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "matematica",
-            moduloMatematica
+            this.montarModulo(matematica, moduloMatematica)
         );
+
+        const moduloTempo = new DeleguaModulo("tempo");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "tempo",
+            this.montarModulo(tempo, moduloTempo)
+        );
+    }
+
+    montarModulo(moduloNode: any, moduloDelegua: DeleguaModulo): DeleguaModulo {
+        const chaves = Object.keys(moduloNode);
+        for (let i = 0; i < chaves.length; i++) {
+            const funcao = moduloNode[chaves[i]];
+            moduloDelegua.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
+        }
+
+        return moduloDelegua;
     }
 
     async executar(
