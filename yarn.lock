@@ -55,14 +55,15 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
   integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
 
-"@designliquido/delegua@^0.20.6":
-  version "0.20.6"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.20.6.tgz#325c4d9aa7e72763f8cef867319594b4643589b2"
-  integrity sha512-CnazzPUGjOWXuq20ueR2neK161pSHXFNnxTmPc/lar+WRnZRoP3imzBXgG4ifdxBfwy6VodiCCGutuhocr/1XQ==
+"@designliquido/delegua@^0.20.9":
+  version "0.20.9"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.20.9.tgz#99f05327758c6dd0887f050b842a7897bc8719c1"
+  integrity sha512-bbJanHYIicJRshQMlXB5FZuro44CchL+hQ7TYl1rUqxsz76N7rA+h1B/gzTAC4AbrjBPa3UOHNJ/nU/8d3AuHQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
     esprima "^4.0.1"
+    lodash.clonedeep "^4.5.0"
 
 "@jridgewell/gen-mapping@^0.3.0":
   version "0.3.2"
@@ -1622,6 +1623,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
 
 lodash.memoize@~3.0.3:
   version "3.0.4"
