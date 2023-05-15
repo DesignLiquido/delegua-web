@@ -114,19 +114,16 @@ textarea {
     height: 70% !important;
     position: relative !important;
   }
-
   #resultadoEditor {
     width: 100% !important;
     height: 29% !important;
     position: relative !important;
   }
-
   #botaoTraduzir,
-#botaoExecutar {
+  #botaoExecutar {
     width: 50px;
     font-size: 11px;
   }
-
   #seletorDemos {
     width: 108px;
     font-size: 11px;
