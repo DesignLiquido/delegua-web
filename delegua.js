@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -6012,7 +6012,7 @@ exports.default = {
     apararFim: (texto) => texto.trimEnd(),
     apararInicio: (texto) => texto.trimStart(),
     concatenar: (...texto) => "".concat(...texto),
-    dividir: (texto, divisor, limite) => [...texto.split(divisor, limite)],
+    dividir: (texto, divisor, limite) => texto.split(divisor || ' ', limite),
     fatiar: (texto, inicio, fim) => texto.slice(inicio, fim),
     inclui: (texto, elemento) => texto.includes(elemento),
     maiusculo: (texto) => texto.toUpperCase(),
@@ -8291,7 +8291,11 @@ class InterpretadorBase {
         if (objeto instanceof estruturas_1.DeleguaModulo) {
             return objeto.componentes[expressao.simbolo.lexema] || null;
         }
-        switch (variavelObjeto.tipo) {
+        let tipoObjeto = variavelObjeto.tipo;
+        if (tipoObjeto === null || tipoObjeto === undefined) {
+            tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(variavelObjeto);
+        }
+        switch (tipoObjeto) {
             case 'texto':
                 const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema];
                 if (metodoDePrimitivaTexto) {
@@ -8305,7 +8309,7 @@ class InterpretadorBase {
                 }
                 break;
         }
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Você só pode acessar métodos do objeto e dicionários.', expressao.linha));
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`, expressao.linha));
     }
     visitarExpressaoIsto(expressao) {
         return this.procurarVariavel(expressao.palavraChave);
