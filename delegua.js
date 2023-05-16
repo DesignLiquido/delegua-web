@@ -1753,16 +1753,17 @@ class AvaliadorSintatico {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
         if ([
+            delegua_1.default.COLCHETE_ESQUERDO,
+            delegua_1.default.FALSO,
             delegua_1.default.IDENTIFICADOR,
             delegua_1.default.ISTO,
-            delegua_1.default.TEXTO,
+            delegua_1.default.NEGACAO,
             delegua_1.default.NUMERO,
             delegua_1.default.NULO,
-            delegua_1.default.VERDADEIRO,
-            delegua_1.default.NEGACAO,
-            delegua_1.default.FALSO,
             delegua_1.default.PARENTESE_ESQUERDO,
             delegua_1.default.SUPER,
+            delegua_1.default.TEXTO,
+            delegua_1.default.VERDADEIRO,
         ].includes(this.simbolos[this.atual].tipo)) {
             valor = this.expressao();
         }
@@ -12772,10 +12773,16 @@ class TradutorJavaScript {
         return resultado;
     }
     traduzirConstrutoUnario(unario) {
-        var _a;
+        var _a, _b;
         let resultado = '';
-        resultado += this.traduzirSimboloOperador(unario.operador);
-        resultado += (_a = unario.operando.valor) !== null && _a !== void 0 ? _a : unario.operando.simbolo.lexema;
+        if ([delegua_1.default.INCREMENTAR, delegua_1.default.DECREMENTAR].includes(unario.operador.tipo)) {
+            resultado += (_a = unario.operando.valor) !== null && _a !== void 0 ? _a : unario.operando.simbolo.lexema;
+            resultado += unario.operador.tipo === delegua_1.default.INCREMENTAR ? '++' : '--';
+        }
+        else {
+            resultado += this.traduzirSimboloOperador(unario.operador);
+            resultado += (_b = unario.operando.valor) !== null && _b !== void 0 ? _b : unario.operando.simbolo.lexema;
+        }
         return resultado;
     }
     traduzir(declaracoes) {
