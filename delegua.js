@@ -1657,6 +1657,7 @@ class AvaliadorSintatico {
             declaracoes.push(this.declaracao());
         }
         this.consumir(delegua_1.default.CHAVE_DIREITA, "Esperado '}' após o bloco.");
+        this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
         return declaracoes;
     }
     declaracaoSe() {
