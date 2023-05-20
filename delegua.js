@@ -186,7 +186,7 @@ var DeleguaWeb = /** @class */ (function () {
 }());
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/fontes/avaliador-sintatico":30,"@designliquido/delegua/fontes/estruturas":84,"@designliquido/delegua/fontes/interpretador/interpretador-base":93,"@designliquido/delegua/fontes/lexador":111,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":120,"@designliquido/delegua/fontes/tradutores":128}],2:[function(require,module,exports){
+},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/fontes/avaliador-sintatico":31,"@designliquido/delegua/fontes/estruturas":86,"@designliquido/delegua/fontes/interpretador/interpretador-base":95,"@designliquido/delegua/fontes/lexador":115,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":125,"@designliquido/delegua/fontes/tradutores":135}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.moda = exports.mediana = exports.media = exports.min = exports.max = void 0;
@@ -1280,7 +1280,7 @@ class AvaliadorSintaticoBase {
 }
 exports.AvaliadorSintaticoBase = AvaliadorSintaticoBase;
 
-},{"../construtos":48,"../declaracoes":69,"../tipos-de-simbolos/comum":119,"./erro-avaliador-sintatico":29}],20:[function(require,module,exports){
+},{"../construtos":50,"../declaracoes":71,"../tipos-de-simbolos/comum":124,"./erro-avaliador-sintatico":30}],20:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1293,7 +1293,7 @@ const construtos_1 = require("../construtos");
 const erro_avaliador_sintatico_1 = require("./erro-avaliador-sintatico");
 const declaracoes_1 = require("../declaracoes");
 /**
- * O avaliador sintático (Parser) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
+ * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
@@ -1578,7 +1578,7 @@ class AvaliadorSintatico {
     }
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir() {
         const expressao = this.ou();
@@ -1606,7 +1606,7 @@ class AvaliadorSintatico {
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -2082,7 +2082,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":48,"../declaracoes":69,"../tipos-de-simbolos/delegua":120,"./erro-avaliador-sintatico":29,"browser-process-hrtime":132}],21:[function(require,module,exports){
+},{"../construtos":50,"../declaracoes":71,"../tipos-de-simbolos/delegua":125,"./erro-avaliador-sintatico":30,"browser-process-hrtime":139}],21:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2140,9 +2140,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
     }
     primario() {
         const simboloAtual = this.simbolos[this.atual];
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.NEGATIVO))
+        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.SUBTRACAO))
             return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false);
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.POSITIVO))
+        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.ADICAO))
             return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), true);
         if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IDENTIFICADOR)) {
             return new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
@@ -2174,7 +2174,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -2219,19 +2219,15 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
         const condicao = this.declaracao(); // condição de parada
         this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `;` após a condição do `PARA`.');
-        const incremento = [];
-        while (!this.verificarSeSimboloAtualEIgualA(birl_1.default.PARENTESE_DIREITO)) {
-            incremento.push(this.simbolos[this.atual]);
-            this.avancarEDevolverAnterior();
-        }
+        const incremento = this.declaracao();
+        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição do `PARA`.');
+        this.consumir(birl_1.default.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a condição do `PARA`.');
         const declaracoes = [];
         while (!this.verificarSeSimboloAtualEIgualA(birl_1.default.BIRL)) {
             declaracoes.push(this.declaracao());
         }
-        const incrementoValor = this.tratarSimbolos(incremento);
-        const incrementoConstruto = new construtos_1.Literal(this.hashArquivo, Number(primeiroSimbolo.linha) + 1, incrementoValor);
-        const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(primeiroSimbolo.linha) + 1, declaracoes.filter((d) => d));
-        return new declaracoes_1.Para(this.hashArquivo, Number(primeiroSimbolo.linha), declaracaoInicial, condicao, incrementoConstruto, corpo);
+        const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha) + 1, declaracoes.filter((d) => d));
+        return new declaracoes_1.Para(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaracaoInicial, condicao, incremento, corpo);
     }
     declaracaoEscolha() {
         throw new Error('Método não implementado.');
@@ -2259,7 +2255,6 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         const inicializacoes = [];
         do {
             const identificador = this.consumir(birl_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'FRANGO'.");
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto'));
             // Inicialização de variáveis que podem ter valor definido;
             let valorInicializacao;
             if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
@@ -2267,8 +2262,11 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 const literalInicializacao = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado literal de FRANGO após símbolo de igual em declaração de variável.');
                 this.consumir(birl_1.default.TEXTO, "Esperado ' para terminar o texto.");
                 valorInicializacao = String(literalInicializacao.literal);
+                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao), 'texto'));
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao), 'texto'));
+            else {
+                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto'));
+            }
         } while (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -2506,6 +2504,17 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
     declaracao() {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case birl_1.default.INCREMENTAR:
+            case birl_1.default.DECREMENTAR:
+                let adicionaOuSubtrai;
+                if ([birl_1.default.INCREMENTAR, birl_1.default.DECREMENTAR].includes(simboloAtual.tipo)) {
+                    adicionaOuSubtrai = this.consumir(birl_1.default[simboloAtual.tipo], 'Esperado expressão `INCREMENTAR` ou `DECREMENTAR`.');
+                }
+                if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
+                    const identificador = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado expressão `IDENTIFICADOR`.');
+                    return new construtos_1.Unario(this.hashArquivo, adicionaOuSubtrai, new construtos_1.Variavel(this.hashArquivo, identificador), 'ANTES');
+                }
+                return;
             case birl_1.default.BORA:
                 return this.declaracaoRetorna();
             case birl_1.default.SAI:
@@ -2539,6 +2548,17 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             case birl_1.default.QUEBRA_LINHA:
                 this.avancarEDevolverAnterior();
                 return null;
+            case birl_1.default.IDENTIFICADOR:
+                const simboloIdentificador = this.simbolos[this.atual];
+                if (this.simbolos[this.atual + 1] &&
+                    [birl_1.default.DECREMENTAR, birl_1.default.INCREMENTAR].includes(this.simbolos[this.atual + 1].tipo)) {
+                    this.avancarEDevolverAnterior();
+                    const simboloIncrementoDecremento = this.avancarEDevolverAnterior();
+                    return new construtos_1.Unario(this.hashArquivo, simboloIncrementoDecremento, new construtos_1.Variavel(this.hashArquivo, simboloIdentificador), 'DEPOIS');
+                }
+                else {
+                    return this.expressao();
+                }
             default:
                 return this.expressao();
         }
@@ -2562,7 +2582,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
 }
 exports.AvaliadorSintaticoBirl = AvaliadorSintaticoBirl;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../tipos-de-simbolos/birl":118,"../avaliador-sintatico-base":19}],22:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/birl":123,"../avaliador-sintatico-base":19}],22:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2872,7 +2892,7 @@ class AvaliadorSintaticoEguaClassico {
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -3204,7 +3224,7 @@ class AvaliadorSintaticoEguaClassico {
 }
 exports.AvaliadorSintaticoEguaClassico = AvaliadorSintaticoEguaClassico;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../tipos-de-simbolos/egua-classico":121,"../erro-avaliador-sintatico":29}],23:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/egua-classico":126,"../erro-avaliador-sintatico":30}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3515,7 +3535,7 @@ class AvaliadorSintaticoEguaP {
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(igual, 'Tarefa de atribuição inválida');
         }
@@ -3920,7 +3940,7 @@ class AvaliadorSintaticoEguaP {
 }
 exports.AvaliadorSintaticoEguaP = AvaliadorSintaticoEguaP;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../lexador":111,"../../tipos-de-simbolos/eguap":122,"../erro-avaliador-sintatico":29,"browser-process-hrtime":132}],24:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../lexador":115,"../../tipos-de-simbolos/eguap":127,"../erro-avaliador-sintatico":30,"browser-process-hrtime":139}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4070,7 +4090,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
     }
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir() {
         const expressao = this.ou();
@@ -4082,7 +4102,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
                 return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
@@ -4096,9 +4116,9 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
     blocoEscopo() {
         const declaracoes = [];
         // while (![
-        //         tiposDeSimbolos.FIM_FUNCAO, 
+        //         tiposDeSimbolos.FIM_FUNCAO,
         //         tiposDeSimbolos.FIM_PROCEDIMENTO
-        //     ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal()) 
+        //     ].includes(this.simbolos[this.atual].tipo) && !this.estaNoFinal())
         // {
         //     declaracoes.push(this.declaracao());
         // }
@@ -4303,7 +4323,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
     //         }
     //         // Consumir parêntese direito
     //         this.consumir(
-    //             tiposDeSimbolos.PARENTESE_DIREITO, 
+    //             tiposDeSimbolos.PARENTESE_DIREITO,
     //             "Esperado parêntese direito para finalização da leitura de parâmetros."
     //         )
     //     }
@@ -4314,7 +4334,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
      */
     // declaracaoProcedimento() {
     //     const simboloProcedimento: SimboloInterface = this.avancarEDevolverAnterior();
-    //     const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR, 
+    //     const nomeProcedimento = this.consumir(tiposDeSimbolos.IDENTIFICADOR,
     //         "Esperado nome do procedimento após palavra-chave `procedimento`.");
     //     // Parâmetros
     //     const parametros = this.logicaComumParametros();
@@ -4323,9 +4343,9 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
     //     const corpo = this.blocoEscopo();
     //     return new FuncaoDeclaracao(
     //         nomeProcedimento, new FuncaoConstruto(
-    //             this.hashArquivo, 
-    //             Number(simboloProcedimento.linha), 
-    //             parametros, 
+    //             this.hashArquivo,
+    //             Number(simboloProcedimento.linha),
+    //             parametros,
     //             corpo.filter(d => d)
     //         )
     //     );
@@ -4407,7 +4427,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
 }
 exports.AvaliadorSintaticoMapler = AvaliadorSintaticoMapler;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../tipos-de-simbolos/mapler":124,"../avaliador-sintatico-base":19}],25:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/mapler":129,"../avaliador-sintatico-base":19}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4448,7 +4468,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
                 return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
@@ -4578,7 +4598,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
 }
 exports.AvaliadorSintaticoPortugolIpt = AvaliadorSintaticoPortugolIpt;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../tipos-de-simbolos/portugol-ipt":125,"../avaliador-sintatico-base":19}],26:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/portugol-ipt":131,"../avaliador-sintatico-base":19}],26:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4663,7 +4683,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
                 return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
@@ -4999,7 +5019,104 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
 }
 exports.AvaliadorSintaticoPortugolStudio = AvaliadorSintaticoPortugolStudio;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../tipos-de-simbolos/portugol-studio":126,"../avaliador-sintatico-base":19}],27:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/portugol-studio":132,"../avaliador-sintatico-base":19}],27:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AvaliadorSintaticoPotigol = void 0;
+const construtos_1 = require("../../construtos");
+const declaracoes_1 = require("../../declaracoes");
+const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
+const potigol_1 = __importDefault(require("../../tipos-de-simbolos/potigol"));
+class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
+    primario() {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
+            case potigol_1.default.INTEIRO:
+            case potigol_1.default.REAL:
+            case potigol_1.default.TEXTO:
+                const simboloNumeroTexto = this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(this.hashArquivo, Number(simboloNumeroTexto.linha), simboloNumeroTexto.literal);
+            default:
+                const simboloIdentificador = this.avancarEDevolverAnterior();
+                return new construtos_1.Variavel(this.hashArquivo, simboloIdentificador);
+        }
+    }
+    chamar() {
+        return this.primario();
+    }
+    declaracaoEscreva() {
+        const simboloAtual = this.avancarEDevolverAnterior();
+        const argumentos = [];
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
+        return new declaracoes_1.Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+    }
+    declaracaoImprima() {
+        const simboloAtual = this.avancarEDevolverAnterior();
+        const argumentos = [];
+        do {
+            argumentos.push(this.expressao());
+        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
+        return new declaracoes_1.EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+    }
+    blocoEscopo() {
+        throw new Error("Método não implementado.");
+    }
+    declaracaoSe() {
+        throw new Error("Método não implementado.");
+    }
+    declaracaoEnquanto() {
+        throw new Error("Método não implementado.");
+    }
+    declaracaoPara() {
+        throw new Error("Método não implementado.");
+    }
+    declaracaoEscolha() {
+        throw new Error("Método não implementado.");
+    }
+    declaracaoFazer() {
+        throw new Error("Método não implementado.");
+    }
+    corpoDaFuncao(tipo) {
+        throw new Error("Método não implementado.");
+    }
+    declaracao() {
+        const simboloAtual = this.simbolos[this.atual];
+        switch (simboloAtual.tipo) {
+            case potigol_1.default.ESCREVA:
+                return this.declaracaoEscreva();
+            case potigol_1.default.IMPRIMA:
+                return this.declaracaoImprima();
+            default:
+                return this.expressao();
+        }
+    }
+    atribuir() {
+        return this.ou();
+    }
+    analisar(retornoLexador, hashArquivo) {
+        this.erros = [];
+        this.atual = 0;
+        this.blocos = 0;
+        this.hashArquivo = hashArquivo || 0;
+        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
+        const declaracoes = [];
+        while (!this.estaNoFinal()) {
+            declaracoes.push(this.declaracao());
+        }
+        return {
+            declaracoes: declaracoes,
+            erros: this.erros,
+        };
+    }
+}
+exports.AvaliadorSintaticoPotigol = AvaliadorSintaticoPotigol;
+
+},{"../../construtos":50,"../../declaracoes":71,"../../tipos-de-simbolos/potigol":133,"../avaliador-sintatico-base":19}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5193,7 +5310,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
     }
     /**
      * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoSobrescrita`.
+     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
      */
     atribuir() {
         const expressao = this.ou();
@@ -5205,7 +5322,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
                 return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
             }
             else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoSobrescrita(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
+                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
         }
@@ -5428,7 +5545,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         let operadorCondicaoIncremento = new lexador_1.Simbolo(visualg_1.default.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo);
         // Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
         // dependendo dos operandos de início e fim, que só são possíveis de determinar
-        // em tempo de execução. 
+        // em tempo de execução.
         // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
         // passo são considerados indefinidos aqui.
         let passo;
@@ -5629,7 +5746,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
 }
 exports.AvaliadorSintaticoVisuAlg = AvaliadorSintaticoVisuAlg;
 
-},{"../../construtos":48,"../../declaracoes":69,"../../lexador":111,"../../tipos-de-simbolos/visualg":127,"../avaliador-sintatico-base":19}],28:[function(require,module,exports){
+},{"../../construtos":50,"../../declaracoes":71,"../../lexador":115,"../../tipos-de-simbolos/visualg":134,"../avaliador-sintatico-base":19}],29:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -5650,11 +5767,12 @@ __exportStar(require("./avaliador-sintatico-birl"), exports);
 __exportStar(require("./avaliador-sintatico-egua-classico"), exports);
 __exportStar(require("./avaliador-sintatico-eguap"), exports);
 __exportStar(require("./avaliador-sintatico-mapler"), exports);
+__exportStar(require("./avaliador-sintatico-potigol"), exports);
 __exportStar(require("./avaliador-sintatico-portugol-ipt"), exports);
 __exportStar(require("./avaliador-sintatico-portugol-studio"), exports);
 __exportStar(require("./avaliador-sintatico-visualg"), exports);
 
-},{"./avaliador-sintatico-birl":21,"./avaliador-sintatico-egua-classico":22,"./avaliador-sintatico-eguap":23,"./avaliador-sintatico-mapler":24,"./avaliador-sintatico-portugol-ipt":25,"./avaliador-sintatico-portugol-studio":26,"./avaliador-sintatico-visualg":27}],29:[function(require,module,exports){
+},{"./avaliador-sintatico-birl":21,"./avaliador-sintatico-egua-classico":22,"./avaliador-sintatico-eguap":23,"./avaliador-sintatico-mapler":24,"./avaliador-sintatico-portugol-ipt":25,"./avaliador-sintatico-portugol-studio":26,"./avaliador-sintatico-potigol":27,"./avaliador-sintatico-visualg":28}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -5667,7 +5785,7 @@ class ErroAvaliadorSintatico extends Error {
 }
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -5686,8 +5804,296 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./avaliador-sintatico"), exports);
 __exportStar(require("./erro-avaliador-sintatico"), exports);
+__exportStar(require("./micro-avaliador-sintatico"), exports);
 
-},{"./avaliador-sintatico":20,"./erro-avaliador-sintatico":29}],31:[function(require,module,exports){
+},{"./avaliador-sintatico":20,"./erro-avaliador-sintatico":30,"./micro-avaliador-sintatico":32}],32:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MicroAvaliadorSintatico = void 0;
+const construtos_1 = require("../construtos");
+const erro_avaliador_sintatico_1 = require("./erro-avaliador-sintatico");
+const delegua_1 = __importDefault(require("../tipos-de-simbolos/microgramaticas/delegua"));
+/**
+ * O MicroAvaliadorSintatico funciona apenas dentro de interpolações de texto.
+ */
+class MicroAvaliadorSintatico {
+    avancarEDevolverAnterior() {
+        if (this.atual < this.simbolos.length)
+            this.atual += 1;
+        return this.simbolos[this.atual - 1];
+    }
+    verificarTipoSimboloAtual(tipo) {
+        if (this.atual === this.simbolos.length)
+            return false;
+        return this.simbolos[this.atual].tipo === tipo;
+    }
+    verificarSeSimboloAtualEIgualA(...argumentos) {
+        for (let i = 0; i < argumentos.length; i++) {
+            const tipoAtual = argumentos[i];
+            if (this.verificarTipoSimboloAtual(tipoAtual)) {
+                this.avancarEDevolverAnterior();
+                return true;
+            }
+        }
+        return false;
+    }
+    erro(simbolo, mensagemDeErro) {
+        const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+        this.erros.push(excecao);
+        return excecao;
+    }
+    consumir(tipo, mensagemDeErro) {
+        if (this.verificarTipoSimboloAtual(tipo))
+            return this.avancarEDevolverAnterior();
+        throw this.erro(this.simbolos[this.atual], mensagemDeErro);
+    }
+    primario() {
+        const simboloAtual = this.simbolos[this.atual];
+        let valores = [];
+        switch (simboloAtual.tipo) {
+            // TODO: Verificar se vamos usar isso.
+            /* case tiposDeSimbolos.CHAVE_ESQUERDA:
+                this.avancarEDevolverAnterior();
+                const chaves = [];
+                valores = [];
+
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
+                    return new Dicionario(-1, Number(this.linha), [], []);
+                }
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_DIREITA)) {
+                    const chave = this.atribuir();
+                    this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+                    const valor = this.atribuir();
+
+                    chaves.push(chave);
+                    valores.push(valor);
+
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.CHAVE_DIREITA) {
+                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    }
+                }
+
+                return new Dicionario(-1, Number(this.linha), chaves, valores); */
+            // TODO: Verificar se vamos usar isso.
+            /* case tiposDeSimbolos.COLCHETE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                valores = [];
+
+                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    return new Vetor(-1, Number(this.linha), []);
+                }
+
+                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
+                    const valor = this.atribuir();
+                    valores.push(valor);
+                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
+                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    }
+                }
+
+                return new Vetor(-1, Number(this.linha), valores);
+            */
+            case delegua_1.default.FALSO:
+                this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(-1, Number(this.linha), false);
+            case delegua_1.default.IDENTIFICADOR:
+                const simboloIdentificador = this.avancarEDevolverAnterior();
+                // Se o próximo símbolo é um incremento ou um decremento,
+                // aqui deve retornar um unário correspondente.
+                // Caso contrário, apenas retornar um construto de variável.
+                if (this.simbolos[this.atual] &&
+                    [delegua_1.default.INCREMENTAR, delegua_1.default.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
+                    const simboloIncrementoDecremento = this.avancarEDevolverAnterior();
+                    return new construtos_1.Unario(-1, simboloIncrementoDecremento, new construtos_1.Variavel(-1, simboloIdentificador), 'DEPOIS');
+                }
+                return new construtos_1.Variavel(-1, simboloIdentificador);
+            case delegua_1.default.NULO:
+                this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(-1, Number(this.linha), null);
+            case delegua_1.default.NUMERO:
+            case delegua_1.default.TEXTO:
+                const simboloNumeroTexto = this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(-1, Number(this.linha), simboloNumeroTexto.literal);
+            case delegua_1.default.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.ou();
+                this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                return new construtos_1.Agrupamento(-1, Number(this.linha), expressao);
+            case delegua_1.default.VERDADEIRO:
+                this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(-1, Number(this.linha), true);
+        }
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
+    }
+    finalizarChamada(entidadeChamada) {
+        const argumentos = [];
+        if (!this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_DIREITO)) {
+            do {
+                if (argumentos.length >= 255) {
+                    throw this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 argumentos.');
+                }
+                argumentos.push(this.ou());
+            } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
+        }
+        const parenteseDireito = this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os argumentos.");
+        return new construtos_1.Chamada(-1, entidadeChamada, parenteseDireito, argumentos);
+    }
+    chamar() {
+        let expressao = this.primario();
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PARENTESE_ESQUERDO)) {
+                expressao = this.finalizarChamada(expressao);
+            }
+            else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO)) {
+                const nome = this.consumir(delegua_1.default.IDENTIFICADOR, "Esperado nome do método após '.'.");
+                expressao = new construtos_1.AcessoMetodo(-1, expressao, nome);
+            }
+            else if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_ESQUERDO)) {
+                const indice = this.ou();
+                const simboloFechamento = this.consumir(delegua_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
+                expressao = new construtos_1.AcessoIndiceVariavel(-1, expressao, indice, simboloFechamento);
+            }
+            else {
+                break;
+            }
+        }
+        return expressao;
+    }
+    unario() {
+        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.NEGACAO, delegua_1.default.SUBTRACAO, delegua_1.default.BIT_NOT, delegua_1.default.INCREMENTAR, delegua_1.default.DECREMENTAR)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            return new construtos_1.Unario(-1, operador, direito, 'ANTES');
+        }
+        return this.chamar();
+    }
+    exponenciacao() {
+        let expressao = this.unario();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.EXPONENCIACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.unario();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    multiplicar() {
+        let expressao = this.exponenciacao();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DIVISAO, delegua_1.default.DIVISAO_INTEIRA, delegua_1.default.MODULO, delegua_1.default.MULTIPLICACAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.exponenciacao();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    adicaoOuSubtracao() {
+        let expressao = this.multiplicar();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.SUBTRACAO, delegua_1.default.ADICAO)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.multiplicar();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    bitShift() {
+        let expressao = this.adicaoOuSubtracao();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.MENOR_MENOR, delegua_1.default.MAIOR_MAIOR)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.adicaoOuSubtracao();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    bitE() {
+        let expressao = this.bitShift();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.BIT_AND)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.bitShift();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    bitOu() {
+        let expressao = this.bitE();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.BIT_OR, delegua_1.default.BIT_XOR)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.bitE();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    comparar() {
+        let expressao = this.bitOu();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.MAIOR, delegua_1.default.MAIOR_IGUAL, delegua_1.default.MENOR, delegua_1.default.MENOR_IGUAL)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.bitOu();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    comparacaoIgualdade() {
+        let expressao = this.comparar();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DIFERENTE, delegua_1.default.IGUAL_IGUAL)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparar();
+            expressao = new construtos_1.Binario(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    em() {
+        let expressao = this.comparacaoIgualdade();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.EM)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.comparacaoIgualdade();
+            expressao = new construtos_1.Logico(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    e() {
+        let expressao = this.em();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.E)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.em();
+            expressao = new construtos_1.Logico(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    ou() {
+        let expressao = this.e();
+        while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.OU)) {
+            const operador = this.simbolos[this.atual - 1];
+            const direito = this.e();
+            expressao = new construtos_1.Logico(-1, expressao, operador, direito);
+        }
+        return expressao;
+    }
+    declaracao() {
+        /* switch (this.simbolos[this.atual].tipo) {
+
+        } */
+        return this.ou();
+    }
+    analisar(retornoLexador, linha) {
+        this.erros = [];
+        this.atual = 0;
+        this.linha = linha;
+        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
+        const declaracoes = [];
+        while (this.atual < this.simbolos.length) {
+            declaracoes.push(this.declaracao());
+        }
+        return {
+            declaracoes: declaracoes,
+            erros: this.erros,
+        };
+    }
+}
+exports.MicroAvaliadorSintatico = MicroAvaliadorSintatico;
+
+},{"../construtos":50,"../tipos-de-simbolos/microgramaticas/delegua":130,"./erro-avaliador-sintatico":30}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const excecoes_1 = require("../excecoes");
@@ -6006,71 +6412,86 @@ function default_1(interpretador, pilhaEscoposExecucao) {
 }
 exports.default = default_1;
 
-},{"../estruturas":84,"../estruturas/delegua-classe":81,"../estruturas/funcao-padrao":83,"../estruturas/objeto-delegua-classe":87,"../excecoes":90}],32:[function(require,module,exports){
+},{"../estruturas":86,"../estruturas/delegua-classe":83,"../estruturas/funcao-padrao":85,"../estruturas/objeto-delegua-classe":89,"../excecoes":92}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    aparar: (texto) => texto.trim(),
-    apararFim: (texto) => texto.trimEnd(),
-    apararInicio: (texto) => texto.trimStart(),
-    concatenar: (...texto) => "".concat(...texto),
-    dividir: (texto, divisor, limite) => texto.split(divisor || ' ', limite),
-    fatiar: (texto, inicio, fim) => texto.slice(inicio, fim),
-    inclui: (texto, elemento) => texto.includes(elemento),
-    maiusculo: (texto) => texto.toUpperCase(),
-    minusculo: (texto) => texto.toLowerCase(),
-    substituir: (texto, elemento, substituto) => texto.replace(elemento, substituto),
-    subtexto: (texto, inicio, fim) => texto.slice(inicio, fim),
-    tamanho: (texto) => texto.length,
+    aparar: (interpretador, texto) => Promise.resolve(texto.trim()),
+    apararFim: (interpretador, texto) => Promise.resolve(texto.trimEnd()),
+    apararInicio: (interpretador, texto) => Promise.resolve(texto.trimStart()),
+    concatenar: (interpretador, ...texto) => Promise.resolve("".concat(...texto)),
+    dividir: (interpretador, texto, divisor, limite) => Promise.resolve(texto.split(divisor || ' ', limite)),
+    fatiar: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+    inclui: (interpretador, texto, elemento) => Promise.resolve(texto.includes(elemento)),
+    maiusculo: (interpretador, texto) => Promise.resolve(texto.toUpperCase()),
+    minusculo: (interpretador, texto) => Promise.resolve(texto.toLowerCase()),
+    substituir: (interpretador, texto, elemento, substituto) => Promise.resolve(texto.replace(elemento, substituto)),
+    subtexto: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+    tamanho: (interpretador, texto) => Promise.resolve(texto.length),
 };
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
-    adicionar: (vetor, elemento) => {
+    adicionar: (interpretador, vetor, elemento) => {
         vetor.push(elemento);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    concatenar: (vetor, outroVetor) => {
-        return vetor.concat(outroVetor);
+    concatenar: (interpretador, vetor, outroVetor) => {
+        return Promise.resolve(vetor.concat(outroVetor));
     },
-    empilhar: (vetor, elemento) => {
+    empilhar: (interpretador, vetor, elemento) => {
         vetor.push(elemento);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    encaixar: (vetor, posicaoInicio, excluirQuantidade, elemento = null, obterElementosExcluidos = false) => {
-        let elementosExcluidos = elemento ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
+    encaixar: (interpretador, vetor, posicaoInicio, excluirQuantidade, elemento = null, obterElementosExcluidos = false) => {
+        let elementosExcluidos = elemento
+            ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
             : vetor.splice(posicaoInicio, excluirQuantidade);
         if (obterElementosExcluidos) {
-            return elementosExcluidos;
+            return Promise.resolve(elementosExcluidos);
         }
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    fatiar: (vetor, inicio, fim) => vetor.slice(inicio, fim),
-    inclui: (vetor, elemento) => vetor.includes(elemento),
-    inverter: (vetor) => vetor.reverse(),
-    juntar: (vetor, separador) => vetor.join(separador),
-    ordenar: (vetor) => vetor.sort(),
-    remover: (vetor, elemento) => {
+    fatiar: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
+    inclui: (interpretador, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
+    inverter: (interpretador, vetor) => Promise.resolve(vetor.reverse()),
+    juntar: (interpretador, vetor, separador) => Promise.resolve(vetor.join(separador)),
+    ordenar: async (interpretador, vetor, funcaoOrdenacao) => {
+        if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
+            for (let i = 0; i < vetor.length - 1; i++) {
+                for (let j = 1; j < vetor.length; j++) {
+                    if (await funcaoOrdenacao.chamar(interpretador, [vetor[j - 1], vetor[j]]) > 0) {
+                        const aux = vetor[j];
+                        vetor[j] = vetor[j - 1];
+                        vetor[j - 1] = aux;
+                    }
+                }
+            }
+            return vetor;
+        }
+        return vetor.sort();
+    },
+    remover: (interpretador, vetor, elemento) => {
         const index = vetor.indexOf(elemento);
         if (index !== -1)
             vetor.splice(index, 1);
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    removerPrimeiro: (vetor) => {
+    removerPrimeiro: (interpretador, vetor) => {
         vetor.shift();
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    removerUltimo: (vetor) => {
+    removerUltimo: (interpretador, vetor) => {
         vetor.pop();
-        return vetor;
+        return Promise.resolve(vetor);
     },
-    somar: (vetor) => vetor.reduce((a, b) => a + b),
-    tamanho: (vetor) => vetor.length,
+    somar: (interpretador, vetor) => Promise.resolve(vetor.reduce((a, b) => a + b)),
+    tamanho: (interpretador, vetor) => Promise.resolve(vetor.length),
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -6092,7 +6513,7 @@ class AcessoIndiceVariavel {
 }
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodo = void 0;
@@ -6113,7 +6534,7 @@ class AcessoMetodo {
 }
 exports.AcessoMetodo = AcessoMetodo;
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
@@ -6134,11 +6555,11 @@ class Agrupamento {
 }
 exports.Agrupamento = Agrupamento;
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AtribuicaoSobrescrita = void 0;
-class AtribuicaoSobrescrita {
+exports.AtribuicaoPorIndice = void 0;
+class AtribuicaoPorIndice {
     constructor(hashArquivo, linha, objeto, indice, valor) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
@@ -6147,12 +6568,12 @@ class AtribuicaoSobrescrita {
         this.valor = valor;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoAtribuicaoSobrescrita(this);
+        return await visitante.visitarExpressaoAtribuicaoPorIndice(this);
     }
 }
-exports.AtribuicaoSobrescrita = AtribuicaoSobrescrita;
+exports.AtribuicaoPorIndice = AtribuicaoPorIndice;
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
@@ -6169,7 +6590,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
@@ -6198,7 +6619,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
@@ -6221,7 +6642,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":91}],41:[function(require,module,exports){
+},{"../geracao-identificadores":93}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constante = void 0;
@@ -6237,11 +6658,11 @@ class Constante {
 }
 exports.Constante = Constante;
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
@@ -6259,7 +6680,7 @@ class DefinirValor {
 }
 exports.DefinirValor = DefinirValor;
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
@@ -6276,7 +6697,7 @@ class Dicionario {
 }
 exports.Dicionario = Dicionario;
 
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FimPara = void 0;
@@ -6304,7 +6725,7 @@ class FimPara {
 }
 exports.FimPara = FimPara;
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatacaoEscrita = void 0;
@@ -6327,7 +6748,7 @@ class FormatacaoEscrita {
 }
 exports.FormatacaoEscrita = FormatacaoEscrita;
 
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
@@ -6344,7 +6765,7 @@ class FuncaoConstruto {
 }
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6361,7 +6782,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./atribuicao-sobrescrita"), exports);
+__exportStar(require("./atribuicao-por-indice"), exports);
 __exportStar(require("./atribuir"), exports);
 __exportStar(require("./binario"), exports);
 __exportStar(require("./chamada"), exports);
@@ -6383,7 +6804,7 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./acesso-indice-variavel":34,"./acesso-metodo":35,"./agrupamento":36,"./atribuicao-sobrescrita":37,"./atribuir":38,"./binario":39,"./chamada":40,"./constante":41,"./construto":42,"./definir-valor":43,"./dicionario":44,"./fim-para":45,"./formatacao-escrita":46,"./funcao":47,"./isto":49,"./literal":50,"./logico":51,"./super":52,"./unario":53,"./variavel":54,"./vetor":55}],49:[function(require,module,exports){
+},{"./acesso-indice-variavel":36,"./acesso-metodo":37,"./agrupamento":38,"./atribuicao-por-indice":39,"./atribuir":40,"./binario":41,"./chamada":42,"./constante":43,"./construto":44,"./definir-valor":45,"./dicionario":46,"./fim-para":47,"./formatacao-escrita":48,"./funcao":49,"./isto":51,"./literal":52,"./logico":53,"./super":54,"./unario":55,"./variavel":56,"./vetor":57}],51:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -6399,7 +6820,7 @@ class Isto {
 }
 exports.Isto = Isto;
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
@@ -6410,12 +6831,12 @@ class Literal {
         this.valor = valor;
     }
     async aceitar(visitante) {
-        return Promise.resolve(visitante.visitarExpressaoLiteral(this));
+        return await visitante.visitarExpressaoLiteral(this);
     }
 }
 exports.Literal = Literal;
 
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
@@ -6433,7 +6854,7 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],52:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
@@ -6450,7 +6871,7 @@ class Super {
 }
 exports.Super = Super;
 
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
@@ -6468,7 +6889,7 @@ class Unario {
 }
 exports.Unario = Unario;
 
-},{}],54:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
@@ -6484,7 +6905,7 @@ class Variavel {
 }
 exports.Variavel = Variavel;
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
@@ -6500,7 +6921,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{}],56:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
@@ -6516,7 +6937,7 @@ class Bloco extends declaracao_1.Declaracao {
 }
 exports.Bloco = Bloco;
 
-},{"./declaracao":60}],57:[function(require,module,exports){
+},{"./declaracao":62}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
@@ -6534,7 +6955,7 @@ class Classe extends declaracao_1.Declaracao {
 }
 exports.Classe = Classe;
 
-},{"./declaracao":60}],58:[function(require,module,exports){
+},{"./declaracao":62}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Const = void 0;
@@ -6555,7 +6976,7 @@ class Const extends declaracao_1.Declaracao {
 }
 exports.Const = Const;
 
-},{"./declaracao":60}],59:[function(require,module,exports){
+},{"./declaracao":62}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
@@ -6570,7 +6991,7 @@ class Continua extends declaracao_1.Declaracao {
 }
 exports.Continua = Continua;
 
-},{"./declaracao":60}],60:[function(require,module,exports){
+},{"./declaracao":62}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
@@ -6589,7 +7010,7 @@ class Declaracao {
 }
 exports.Declaracao = Declaracao;
 
-},{}],61:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
@@ -6606,7 +7027,7 @@ class Enquanto extends declaracao_1.Declaracao {
 }
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":60}],62:[function(require,module,exports){
+},{"./declaracao":62}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
@@ -6627,7 +7048,7 @@ class Escolha extends declaracao_1.Declaracao {
 }
 exports.Escolha = Escolha;
 
-},{"./declaracao":60}],63:[function(require,module,exports){
+},{"./declaracao":62}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscrevaMesmaLinha = void 0;
@@ -6643,7 +7064,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
 
-},{"./declaracao":60}],64:[function(require,module,exports){
+},{"./declaracao":62}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
@@ -6659,7 +7080,7 @@ class Escreva extends declaracao_1.Declaracao {
 }
 exports.Escreva = Escreva;
 
-},{"./declaracao":60}],65:[function(require,module,exports){
+},{"./declaracao":62}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
@@ -6675,7 +7096,7 @@ class Expressao extends declaracao_1.Declaracao {
 }
 exports.Expressao = Expressao;
 
-},{"./declaracao":60}],66:[function(require,module,exports){
+},{"./declaracao":62}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
@@ -6692,7 +7113,7 @@ class Fazer extends declaracao_1.Declaracao {
 }
 exports.Fazer = Fazer;
 
-},{"./declaracao":60}],67:[function(require,module,exports){
+},{"./declaracao":62}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
@@ -6710,7 +7131,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"./declaracao":60}],68:[function(require,module,exports){
+},{"./declaracao":62}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
@@ -6727,7 +7148,7 @@ class Importar extends declaracao_1.Declaracao {
 }
 exports.Importar = Importar;
 
-},{"./declaracao":60}],69:[function(require,module,exports){
+},{"./declaracao":62}],71:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6766,7 +7187,7 @@ __exportStar(require("./se"), exports);
 __exportStar(require("./tente"), exports);
 __exportStar(require("./var"), exports);
 
-},{"./bloco":56,"./classe":57,"./const":58,"./continua":59,"./declaracao":60,"./enquanto":61,"./escolha":62,"./escreva":64,"./escreva-mesma-linha":63,"./expressao":65,"./fazer":66,"./funcao":67,"./importar":68,"./leia":70,"./para":72,"./para-cada":71,"./retorna":73,"./se":74,"./sustar":75,"./tente":76,"./var":77}],70:[function(require,module,exports){
+},{"./bloco":58,"./classe":59,"./const":60,"./continua":61,"./declaracao":62,"./enquanto":63,"./escolha":64,"./escreva":66,"./escreva-mesma-linha":65,"./expressao":67,"./fazer":68,"./funcao":69,"./importar":70,"./leia":72,"./para":74,"./para-cada":73,"./retorna":75,"./se":76,"./sustar":77,"./tente":78,"./var":79}],72:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -6788,7 +7209,7 @@ class Leia extends declaracao_1.Declaracao {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":91,"./declaracao":60}],71:[function(require,module,exports){
+},{"../geracao-identificadores":93,"./declaracao":62}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
@@ -6807,7 +7228,7 @@ class ParaCada extends declaracao_1.Declaracao {
 }
 exports.ParaCada = ParaCada;
 
-},{"./declaracao":60}],72:[function(require,module,exports){
+},{"./declaracao":62}],74:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
@@ -6833,7 +7254,7 @@ class Para extends declaracao_1.Declaracao {
 }
 exports.Para = Para;
 
-},{"./declaracao":60}],73:[function(require,module,exports){
+},{"./declaracao":62}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
@@ -6850,7 +7271,7 @@ class Retorna extends declaracao_1.Declaracao {
 }
 exports.Retorna = Retorna;
 
-},{"./declaracao":60}],74:[function(require,module,exports){
+},{"./declaracao":62}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
@@ -6869,7 +7290,7 @@ class Se extends declaracao_1.Declaracao {
 }
 exports.Se = Se;
 
-},{"./declaracao":60}],75:[function(require,module,exports){
+},{"./declaracao":62}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
@@ -6884,7 +7305,7 @@ class Sustar extends declaracao_1.Declaracao {
 }
 exports.Sustar = Sustar;
 
-},{"./declaracao":60}],76:[function(require,module,exports){
+},{"./declaracao":62}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
@@ -6906,7 +7327,7 @@ class Tente extends declaracao_1.Declaracao {
 }
 exports.Tente = Tente;
 
-},{"./declaracao":60}],77:[function(require,module,exports){
+},{"./declaracao":62}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
@@ -6927,7 +7348,7 @@ class Var extends declaracao_1.Declaracao {
 }
 exports.Var = Var;
 
-},{"./declaracao":60}],78:[function(require,module,exports){
+},{"./declaracao":62}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
@@ -6948,7 +7369,7 @@ class EspacoVariaveis {
 }
 exports.EspacoVariaveis = EspacoVariaveis;
 
-},{}],79:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -6962,7 +7383,7 @@ class Chamavel {
 }
 exports.Chamavel = Chamavel;
 
-},{}],80:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
@@ -6992,7 +7413,7 @@ class ClassePadrao extends chamavel_1.Chamavel {
 }
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":79}],81:[function(require,module,exports){
+},{"./chamavel":81}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaClasse = void 0;
@@ -7032,7 +7453,7 @@ class DeleguaClasse extends chamavel_1.Chamavel {
 }
 exports.DeleguaClasse = DeleguaClasse;
 
-},{"./chamavel":79,"./objeto-delegua-classe":87}],82:[function(require,module,exports){
+},{"./chamavel":81,"./objeto-delegua-classe":89}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
@@ -7098,7 +7519,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
 }
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../espaco-variaveis":78,"../quebras":117,"./chamavel":79}],83:[function(require,module,exports){
+},{"../espaco-variaveis":80,"../quebras":122,"./chamavel":81}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -7122,7 +7543,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
 }
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":79}],84:[function(require,module,exports){
+},{"./chamavel":81}],86:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7149,7 +7570,7 @@ __exportStar(require("./modulo"), exports);
 __exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./objeto-padrao"), exports);
 
-},{"./chamavel":79,"./classe-padrao":80,"./delegua-classe":81,"./delegua-funcao":82,"./funcao-padrao":83,"./metodo-primitiva":85,"./modulo":86,"./objeto-delegua-classe":87,"./objeto-padrao":88}],85:[function(require,module,exports){
+},{"./chamavel":81,"./classe-padrao":82,"./delegua-classe":83,"./delegua-funcao":84,"./funcao-padrao":85,"./metodo-primitiva":87,"./modulo":88,"./objeto-delegua-classe":89,"./objeto-padrao":90}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
@@ -7165,19 +7586,19 @@ const chamavel_1 = require("./chamavel");
  * primeiro parâmetro é sempre a referência para a primitiva.
  */
 class MetodoPrimitiva extends chamavel_1.Chamavel {
-    constructor(primitiva, metodo) {
+    constructor(primitiva, metodo, requerInterpretador = false) {
         super();
         this.primitiva = primitiva;
         this.metodo = metodo;
         this.valorAridade = metodo.length - 1;
     }
-    chamar(argumentos = []) {
-        return this.metodo(this.primitiva, ...argumentos);
+    async chamar(interpretador, argumentos = []) {
+        return await this.metodo(interpretador, this.primitiva, ...argumentos);
     }
 }
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":79}],86:[function(require,module,exports){
+},{"./chamavel":81}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -7192,7 +7613,7 @@ class DeleguaModulo {
 }
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],87:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -7220,7 +7641,7 @@ class ObjetoDeleguaClasse {
 }
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../excecoes":90}],88:[function(require,module,exports){
+},{"../excecoes":92}],90:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -7243,7 +7664,7 @@ class ObjetoPadrao {
 }
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],89:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
@@ -7258,7 +7679,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7277,7 +7698,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":89}],91:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":91}],93:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uuidv4 = void 0;
@@ -7302,7 +7723,7 @@ function uuidv4() {
 }
 exports.uuidv4 = uuidv4;
 
-},{}],92:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
@@ -7335,7 +7756,7 @@ function inferirTipoVariavel(variavel) {
 }
 exports.inferirTipoVariavel = inferirTipoVariavel;
 
-},{}],93:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -7346,6 +7767,8 @@ exports.InterpretadorBase = void 0;
 const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
 const espaco_variaveis_1 = require("../espaco-variaveis");
 const biblioteca_global_1 = __importDefault(require("../bibliotecas/biblioteca-global"));
+const micro_lexador_1 = require("./../../fontes/lexador/micro-lexador");
+const micro_avaliador_sintatico_1 = require("./../../fontes/avaliador-sintatico/micro-avaliador-sintatico");
 const excecoes_1 = require("../excecoes");
 const estruturas_1 = require("../estruturas");
 const construtos_1 = require("../construtos");
@@ -7370,7 +7793,9 @@ class InterpretadorBase {
         this.interfaceDeEntrada = null; // Originalmente é `readline.Interface`
         this.resultadoInterpretador = [];
         this.interfaceEntradaSaida = null;
-        this.regexInterpolacao = /\$\{([a-z_][\w]*)\}/gi;
+        this.microLexador = new micro_lexador_1.MicroLexador();
+        this.microAvaliadorSintatico = new micro_avaliador_sintatico_1.MicroAvaliadorSintatico();
+        this.regexInterpolacao = /\$\{([a-z_0-9][\w \.\,\+\-\(\)\*\/\^]*)\}/gi;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -7419,17 +7844,10 @@ class InterpretadorBase {
      * @param {any[]} variaveis A lista de variaveis interpoladas
      * @returns O texto com o valor das variaveis.
      */
-    retirarInterpolacao(texto, variaveis) {
-        const valoresVariaveis = variaveis.map((v) => ({
-            valorResolvido: this.pilhaEscoposExecucao.obterVariavelPorNome(v.variavel),
-            variavel: v.variavel,
-        }));
+    async retirarInterpolacao(texto, variaveis) {
         let textoFinal = texto;
-        valoresVariaveis.forEach((elemento) => {
-            const valorFinal = elemento.valorResolvido.hasOwnProperty('valor')
-                ? elemento.valorResolvido.valor
-                : elemento.valorResolvido;
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', valorFinal);
+        variaveis.forEach((elemento) => {
+            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento.valor);
         });
         return textoFinal;
     }
@@ -7438,19 +7856,31 @@ class InterpretadorBase {
      * @param {texto} textoOriginal O texto original com as variáveis interpoladas.
      * @returns Uma lista de variáveis interpoladas.
      */
-    buscarVariaveisInterpolacao(textoOriginal) {
+    async buscarVariaveisInterpolacao(textoOriginal, linha) {
         const variaveis = textoOriginal.match(this.regexInterpolacao);
-        return variaveis.map((s) => {
-            const nomeVariavel = s.replace(/[\$\{\}]*/g, '');
+        let resultadosAvaliacaoSintatica = variaveis.map((s) => {
+            const nomeVariavel = s.replace(/[\$\{\}]*/gm, '');
+            let microLexador = this.microLexador.mapear(nomeVariavel);
+            const resultadoMicroAvaliadorSintatico = this.microAvaliadorSintatico.analisar(microLexador, linha);
             return {
-                variavel: nomeVariavel,
-                valor: this.pilhaEscoposExecucao.obterVariavelPorNome(nomeVariavel),
+                nomeVariavel,
+                resultadoMicroAvaliadorSintatico
+            };
+        });
+        //TODO verificar erros do resultadosAvaliacaoSintatica
+        const resolucoesPromises = await Promise.all(resultadosAvaliacaoSintatica.flatMap(r => r.resultadoMicroAvaliadorSintatico.declaracoes).map(d => {
+            return this.avaliar(d);
+        }));
+        return resolucoesPromises.map((item, indice) => {
+            return {
+                variavel: resultadosAvaliacaoSintatica[indice].nomeVariavel,
+                valor: item,
             };
         });
     }
-    visitarExpressaoLiteral(expressao) {
+    async visitarExpressaoLiteral(expressao) {
         if (this.regexInterpolacao.test(expressao.valor)) {
-            const variaveis = this.buscarVariaveisInterpolacao(expressao.valor);
+            const variaveis = await this.buscarVariaveisInterpolacao(expressao.valor, expressao.linha);
             return this.retirarInterpolacao(expressao.valor, variaveis);
         }
         return expressao.valor;
@@ -7675,7 +8105,7 @@ class InterpretadorBase {
                     const valorResolvido = await this.avaliar(argumento);
                     argumentosResolvidos.push((valorResolvido === null || valorResolvido === void 0 ? void 0 : valorResolvido.hasOwnProperty('valor')) ? valorResolvido.valor : valorResolvido);
                 }
-                return entidadeChamada.chamar(argumentosResolvidos);
+                return await entidadeChamada.chamar(this, argumentosResolvidos);
             }
             let parametros;
             if (entidadeChamada instanceof estruturas_1.DeleguaFuncao) {
@@ -8130,7 +8560,7 @@ class InterpretadorBase {
     visitarExpressaoDeleguaFuncao(declaracao) {
         return new estruturas_1.DeleguaFuncao(null, declaracao);
     }
-    async visitarExpressaoAtribuicaoSobrescrita(expressao) {
+    async visitarExpressaoAtribuicaoPorIndice(expressao) {
         const promises = await Promise.all([
             this.avaliar(expressao.objeto),
             this.avaliar(expressao.indice),
@@ -8464,7 +8894,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../bibliotecas/biblioteca-global":31,"../bibliotecas/primitivas-texto":32,"../bibliotecas/primitivas-vetor":33,"../construtos":48,"../espaco-variaveis":78,"../estruturas":84,"../estruturas/metodo-primitiva":85,"../excecoes":90,"../quebras":117,"../tipos-de-simbolos/delegua":120,"./inferenciador":92,"./pilha-escopos-execucao":94,"_process":134,"browser-process-hrtime":132}],94:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":33,"../bibliotecas/primitivas-texto":34,"../bibliotecas/primitivas-vetor":35,"../construtos":50,"../espaco-variaveis":80,"../estruturas":86,"../estruturas/metodo-primitiva":87,"../excecoes":92,"../quebras":122,"../tipos-de-simbolos/delegua":125,"./../../fontes/avaliador-sintatico/micro-avaliador-sintatico":32,"./../../fontes/lexador/micro-lexador":119,"./inferenciador":94,"./pilha-escopos-execucao":96,"_process":141,"browser-process-hrtime":139}],96:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -8655,7 +9085,7 @@ class PilhaEscoposExecucao {
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":84,"../excecoes":90,"../lexador":111,"./inferenciador":92}],95:[function(require,module,exports){
+},{"../estruturas":86,"../excecoes":92,"../lexador":115,"./inferenciador":94}],97:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8677,11 +9107,12 @@ __exportStar(require("./lexador-egua-classico"), exports);
 __exportStar(require("./lexador-eguap"), exports);
 __exportStar(require("./lexador-guarani"), exports);
 __exportStar(require("./lexador-mapler"), exports);
+__exportStar(require("./lexador-potigol"), exports);
 __exportStar(require("./lexador-portugol-ipt"), exports);
 __exportStar(require("./lexador-portugol-studio"), exports);
 __exportStar(require("./lexador-visualg"), exports);
 
-},{"./lexador-birl":96,"./lexador-egua-classico":97,"./lexador-eguap":98,"./lexador-guarani":99,"./lexador-mapler":100,"./lexador-portugol-ipt":101,"./lexador-portugol-studio":102,"./lexador-visualg":103}],96:[function(require,module,exports){
+},{"./lexador-birl":98,"./lexador-egua-classico":99,"./lexador-eguap":100,"./lexador-guarani":101,"./lexador-mapler":102,"./lexador-portugol-ipt":103,"./lexador-portugol-studio":104,"./lexador-potigol":105,"./lexador-visualg":106}],98:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8691,7 +9122,7 @@ exports.LexadorBirl = void 0;
 const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
 const simbolo_1 = require("../simbolo");
 const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
-const birl_2 = __importDefault(require("./palavras-reservadas/birl"));
+const birl_2 = require("./palavras-reservadas/birl");
 class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
     adicionarSimbolo(tipo, lexema = '', literal = null) {
         this.simbolos.push(new simbolo_1.Simbolo(tipo, lexema, literal, this.linha, -1));
@@ -8740,7 +9171,7 @@ class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
         }
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
         const codigoMinusculo = codigo.toLowerCase();
-        const tipo = codigoMinusculo in birl_2.default ? birl_2.default[codigoMinusculo] : birl_1.default.IDENTIFICADOR;
+        const tipo = codigoMinusculo in birl_2.palavrasReservadas ? birl_2.palavrasReservadas[codigoMinusculo] : birl_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo, codigo, codigo);
     }
     analisarToken() {
@@ -8794,10 +9225,22 @@ class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
                 this.avancar();
                 break;
             case '+':
+                if (this.proximoSimbolo() === '+') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(birl_1.default.INCREMENTAR);
+                    break;
+                }
                 this.adicionarSimbolo(birl_1.default.ADICAO);
                 this.avancar();
                 break;
             case '-':
+                if (this.proximoSimbolo() === '-') {
+                    this.avancar();
+                    this.avancar();
+                    this.adicionarSimbolo(birl_1.default.DECREMENTAR);
+                    break;
+                }
                 this.adicionarSimbolo(birl_1.default.SUBTRACAO);
                 this.avancar();
                 break;
@@ -8894,7 +9337,7 @@ class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorBirl = LexadorBirl;
 
-},{"../../tipos-de-simbolos/birl":118,"../lexador-base-linha-unica":112,"../simbolo":116,"./palavras-reservadas/birl":104}],97:[function(require,module,exports){
+},{"../../tipos-de-simbolos/birl":123,"../lexador-base-linha-unica":116,"../simbolo":121,"./palavras-reservadas/birl":107}],99:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8902,7 +9345,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorEguaClassico = void 0;
 const simbolo_1 = require("../simbolo");
-const egua_classico_1 = __importDefault(require("./palavras-reservadas/egua-classico"));
+const egua_classico_1 = require("./palavras-reservadas/egua-classico");
 const egua_classico_2 = __importDefault(require("../../tipos-de-simbolos/egua-classico"));
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -9030,7 +9473,7 @@ class LexadorEguaClassico {
             this.avancar();
         }
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in egua_classico_1.default ? egua_classico_1.default[codigo] : egua_classico_2.default.IDENTIFICADOR;
+        const tipo = codigo in egua_classico_1.palavrasReservadas ? egua_classico_1.palavrasReservadas[codigo] : egua_classico_2.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
     analisarToken() {
@@ -9182,7 +9625,7 @@ class LexadorEguaClassico {
 }
 exports.LexadorEguaClassico = LexadorEguaClassico;
 
-},{"../../tipos-de-simbolos/egua-classico":121,"../simbolo":116,"./palavras-reservadas/egua-classico":105}],98:[function(require,module,exports){
+},{"../../tipos-de-simbolos/egua-classico":126,"../simbolo":121,"./palavras-reservadas/egua-classico":108}],100:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9192,7 +9635,7 @@ exports.LexadorEguaP = void 0;
 const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
 const eguap_1 = __importDefault(require("../../tipos-de-simbolos/eguap"));
 const simbolo_1 = require("../simbolo");
-const palavras_reservadas_1 = __importDefault(require("../palavras-reservadas"));
+const palavras_reservadas_1 = require("../palavras-reservadas");
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
  * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
@@ -9345,8 +9788,8 @@ class LexadorEguaP {
         else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
-        const tipo = textoPalavraChave in palavras_reservadas_1.default
-            ? palavras_reservadas_1.default[textoPalavraChave]
+        const tipo = textoPalavraChave in palavras_reservadas_1.palavrasReservadas
+            ? palavras_reservadas_1.palavrasReservadas[textoPalavraChave]
             : eguap_1.default.IDENTIFICADOR;
         this.simbolos.push(new simbolo_1.Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
@@ -9582,7 +10025,7 @@ class LexadorEguaP {
 }
 exports.LexadorEguaP = LexadorEguaP;
 
-},{"../../tipos-de-simbolos/eguap":122,"../palavras-reservadas":115,"../simbolo":116,"browser-process-hrtime":132}],99:[function(require,module,exports){
+},{"../../tipos-de-simbolos/eguap":127,"../palavras-reservadas":120,"../simbolo":121,"browser-process-hrtime":139}],101:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9591,7 +10034,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorGuarani = void 0;
 const lexador_base_1 = require("../lexador-base");
 const guarani_1 = __importDefault(require("../../tipos-de-simbolos/guarani"));
-const guarani_2 = __importDefault(require("./palavras-reservadas/guarani"));
+const guarani_2 = require("./palavras-reservadas/guarani");
 class LexadorGuarani extends lexador_base_1.LexadorBase {
     analisarTexto(delimitador) {
         while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
@@ -9626,7 +10069,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
             this.avancar();
         }
         const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual).toLowerCase();
-        const tipo = codigo in guarani_2.default ? guarani_2.default[codigo] : guarani_1.default.IDENTIFICADOR;
+        const tipo = codigo in guarani_2.palavrasReservadas ? guarani_2.palavrasReservadas[codigo] : guarani_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
     analisarToken() {
@@ -9697,7 +10140,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
 }
 exports.LexadorGuarani = LexadorGuarani;
 
-},{"../../tipos-de-simbolos/guarani":123,"../lexador-base":113,"./palavras-reservadas/guarani":106}],100:[function(require,module,exports){
+},{"../../tipos-de-simbolos/guarani":128,"../lexador-base":117,"./palavras-reservadas/guarani":109}],102:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9706,7 +10149,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorMapler = void 0;
 const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
 const mapler_1 = __importDefault(require("../../tipos-de-simbolos/mapler"));
-const mapler_2 = __importDefault(require("./palavras-reservadas/mapler"));
+const mapler_2 = require("./palavras-reservadas/mapler");
 class LexadorMapler extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
     analisarNumero() {
         while (this.eDigito(this.simboloAtual())) {
@@ -9741,8 +10184,8 @@ class LexadorMapler extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
             this.avancar();
         }
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
-        if (codigo in mapler_2.default) {
-            this.adicionarSimbolo(mapler_2.default[codigo], codigo);
+        if (codigo in mapler_2.palavrasReservadas) {
+            this.adicionarSimbolo(mapler_2.palavrasReservadas[codigo], codigo);
         }
         else {
             this.adicionarSimbolo(mapler_1.default.IDENTIFICADOR, codigo);
@@ -9903,7 +10346,7 @@ class LexadorMapler extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorMapler = LexadorMapler;
 
-},{"../../tipos-de-simbolos/mapler":124,"../lexador-base-linha-unica":112,"./palavras-reservadas/mapler":107}],101:[function(require,module,exports){
+},{"../../tipos-de-simbolos/mapler":129,"../lexador-base-linha-unica":116,"./palavras-reservadas/mapler":110}],103:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9911,7 +10354,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorPortugolIpt = void 0;
 const simbolo_1 = require("../simbolo");
-const portugol_ipt_1 = __importDefault(require("./palavras-reservadas/portugol-ipt"));
+const portugol_ipt_1 = require("./palavras-reservadas/portugol-ipt");
 const portugol_ipt_2 = __importDefault(require("../../tipos-de-simbolos/portugol-ipt"));
 class LexadorPortugolIpt {
     eDigito(caractere) {
@@ -10045,8 +10488,8 @@ class LexadorPortugolIpt {
         else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
-        const tipo = textoPalavraChave in portugol_ipt_1.default
-            ? portugol_ipt_1.default[textoPalavraChave]
+        const tipo = textoPalavraChave in portugol_ipt_1.palavrasReservadas
+            ? portugol_ipt_1.palavrasReservadas[textoPalavraChave]
             : portugol_ipt_2.default.IDENTIFICADOR;
         this.simbolos.push(new simbolo_1.Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
@@ -10143,7 +10586,7 @@ class LexadorPortugolIpt {
 }
 exports.LexadorPortugolIpt = LexadorPortugolIpt;
 
-},{"../../tipos-de-simbolos/portugol-ipt":125,"../simbolo":116,"./palavras-reservadas/portugol-ipt":108}],102:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-ipt":131,"../simbolo":121,"./palavras-reservadas/portugol-ipt":111}],104:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10151,7 +10594,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorPortugolStudio = void 0;
 const lexador_base_1 = require("../lexador-base");
-const portugol_studio_1 = __importDefault(require("./palavras-reservadas/portugol-studio"));
+const portugol_studio_1 = require("./palavras-reservadas/portugol-studio");
 const portugol_studio_2 = __importDefault(require("../../tipos-de-simbolos/portugol-studio"));
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -10207,7 +10650,7 @@ class LexadorPortugolStudio extends lexador_base_1.LexadorBase {
             this.avancar();
         }
         const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in portugol_studio_1.default ? portugol_studio_1.default[codigo] : portugol_studio_2.default.IDENTIFICADOR;
+        const tipo = codigo in portugol_studio_1.palavrasReservadas ? portugol_studio_1.palavrasReservadas[codigo] : portugol_studio_2.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
     analisarToken() {
@@ -10259,6 +10702,7 @@ class LexadorPortugolStudio extends lexador_base_1.LexadorBase {
                 else {
                     this.adicionarSimbolo(portugol_studio_2.default.SUBTRACAO);
                 }
+                break;
             case '+':
                 this.inicioSimbolo = this.atual;
                 this.avancar();
@@ -10425,7 +10869,262 @@ class LexadorPortugolStudio extends lexador_base_1.LexadorBase {
 }
 exports.LexadorPortugolStudio = LexadorPortugolStudio;
 
-},{"../../tipos-de-simbolos/portugol-studio":126,"../lexador-base":113,"./palavras-reservadas/portugol-studio":109}],103:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-studio":132,"../lexador-base":117,"./palavras-reservadas/portugol-studio":112}],105:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LexadorPotigol = void 0;
+const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
+const potigol_1 = __importDefault(require("../../tipos-de-simbolos/potigol"));
+const potigol_2 = require("./palavras-reservadas/potigol");
+class LexadorPotigol extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
+    logicaComumCaracteres(delimitador) {
+        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+            this.avancar();
+        }
+        if (this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Cadeia de caracteres não finalizada.',
+            });
+            return;
+        }
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        return valor;
+    }
+    analisarCaracter() {
+        const valor = this.logicaComumCaracteres("'");
+        this.adicionarSimbolo(potigol_1.default.CARACTERE, valor);
+    }
+    analisarTexto() {
+        const valor = this.logicaComumCaracteres('"');
+        this.adicionarSimbolo(potigol_1.default.TEXTO, valor);
+    }
+    analisarNumero() {
+        let real = false;
+        while (this.eDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+            real = true;
+            this.avancar();
+            while (this.eDigito(this.simboloAtual())) {
+                this.avancar();
+            }
+        }
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.adicionarSimbolo(real ? potigol_1.default.REAL : potigol_1.default.INTEIRO, parseFloat(numeroCompleto));
+    }
+    identificarPalavraChave() {
+        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
+        const tipo = codigo in potigol_2.palavrasReservadas ? potigol_2.palavrasReservadas[codigo] : potigol_1.default.IDENTIFICADOR;
+        this.adicionarSimbolo(tipo);
+    }
+    analisarToken() {
+        const caractere = this.simboloAtual();
+        switch (caractere) {
+            case '[':
+                this.adicionarSimbolo(potigol_1.default.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(potigol_1.default.COLCHETE_DIREITO);
+                this.avancar();
+                break;
+            case '(':
+                this.adicionarSimbolo(potigol_1.default.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(potigol_1.default.PARENTESE_DIREITO);
+                this.avancar();
+                break;
+            /* case '{':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_ESQUERDA);
+                this.avancar();
+                break;
+            case '}':
+                this.adicionarSimbolo(tiposDeSimbolos.CHAVE_DIREITA);
+                this.avancar();
+                break; */
+            case ',':
+                this.adicionarSimbolo(potigol_1.default.VIRGULA);
+                this.avancar();
+                break;
+            case '.':
+                this.adicionarSimbolo(potigol_1.default.PONTO);
+                this.avancar();
+                break;
+            case '-':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(potigol_1.default.SUBTRACAO);
+                /* if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MENOS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '-') {
+                    this.adicionarSimbolo(tiposDeSimbolos.DECREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.SUBTRACAO);
+                } */
+                break;
+            case '+':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(potigol_1.default.ADICAO);
+                /* if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.MAIS_IGUAL);
+                    this.avancar();
+                } else if (this.simboloAtual() === '+') {
+                    this.adicionarSimbolo(tiposDeSimbolos.INCREMENTAR);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.ADICAO);
+                } */
+                break;
+            case '*':
+                this.inicioSimbolo = this.atual;
+                this.avancar();
+                this.adicionarSimbolo(potigol_1.default.MULTIPLICACAO);
+                /* switch (this.simboloAtual()) {
+                    case '=':
+                        this.avancar();
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO_IGUAL);
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.MULTIPLICACAO);
+                        break;
+                } */
+                break;
+            case '=':
+                this.avancar();
+                this.adicionarSimbolo(potigol_1.default.IGUAL);
+                /* if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL_IGUAL);
+                    this.avancar();
+                } else {
+                    this.adicionarSimbolo(tiposDeSimbolos.IGUAL);
+                } */
+                break;
+            /* case '&':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
+                this.avancar();
+                break;
+
+            case '~':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
+                this.avancar();
+                break;
+
+            case '|':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
+                this.avancar();
+                break;
+
+            case '^':
+                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
+                this.avancar();
+                break; */
+            case '<':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(potigol_1.default.MENOR_IGUAL);
+                    this.avancar();
+                }
+                else {
+                    this.adicionarSimbolo(potigol_1.default.MENOR);
+                }
+                break;
+            case '>':
+                this.avancar();
+                if (this.simboloAtual() === '=') {
+                    this.adicionarSimbolo(potigol_1.default.MAIOR_IGUAL);
+                    this.avancar();
+                }
+                else {
+                    this.adicionarSimbolo(potigol_1.default.MAIOR);
+                }
+                break;
+            case '/':
+                this.avancar();
+                /* switch (this.simboloAtual()) {
+                    case '/':
+                        this.avancarParaProximaLinha();
+                        break;
+                    case '*':
+                        this.encontrarFimComentarioAsterisco();
+                        break;
+                    case '=':
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO_IGUAL);
+                        this.avancar();s
+                        break;
+                    default:
+                        this.adicionarSimbolo(tiposDeSimbolos.DIVISAO);
+                        break;
+                } */
+                break;
+            // Esta sessão ignora espaços em branco na tokenização.
+            // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
+            case ' ':
+            case '\0':
+            case '\r':
+            case '\t':
+            case ';':
+                this.avancar();
+                break;
+            case '"':
+                this.avancar();
+                this.analisarTexto();
+                this.avancar();
+                break;
+            case "'":
+                this.avancar();
+                this.analisarCaracter();
+                this.avancar();
+                break;
+            default:
+                if (this.eDigito(caractere))
+                    this.analisarNumero();
+                else if (this.eAlfabeto(caractere))
+                    this.identificarPalavraChave();
+                else {
+                    this.erros.push({
+                        linha: this.linha + 1,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.',
+                    });
+                    this.avancar();
+                }
+        }
+    }
+    mapear(codigo, hashArquivo) {
+        this.erros = [];
+        this.simbolos = [];
+        this.inicioSimbolo = 0;
+        this.atual = 0;
+        this.linha = 0;
+        this.codigo = codigo.join('\n') || '';
+        this.hashArquivo = hashArquivo;
+        while (!this.eFinalDoCodigo()) {
+            this.inicioSimbolo = this.atual;
+            this.analisarToken();
+        }
+        return {
+            simbolos: this.simbolos,
+            erros: this.erros,
+        };
+    }
+}
+exports.LexadorPotigol = LexadorPotigol;
+
+},{"../../tipos-de-simbolos/potigol":133,"../lexador-base-linha-unica":116,"./palavras-reservadas/potigol":113}],106:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10434,7 +11133,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorVisuAlg = void 0;
 const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
 const visualg_1 = __importDefault(require("../../tipos-de-simbolos/visualg"));
-const visualg_2 = __importDefault(require("./palavras-reservadas/visualg"));
+const visualg_2 = require("./palavras-reservadas/visualg");
 const dicionarioBibliotecaGlobal = {
     int: 'inteiro',
 };
@@ -10481,8 +11180,8 @@ class LexadorVisuAlg extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
             this.avancar();
         }
         const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
-        if (codigo in visualg_2.default) {
-            this.adicionarSimbolo(visualg_2.default[codigo], dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo);
+        if (codigo in visualg_2.palavrasReservadas) {
+            this.adicionarSimbolo(visualg_2.palavrasReservadas[codigo], dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo);
         }
         else {
             this.adicionarSimbolo(visualg_1.default.IDENTIFICADOR, codigo);
@@ -10645,14 +11344,15 @@ class LexadorVisuAlg extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorVisuAlg = LexadorVisuAlg;
 
-},{"../../tipos-de-simbolos/visualg":127,"../lexador-base-linha-unica":112,"./palavras-reservadas/visualg":110}],104:[function(require,module,exports){
+},{"../../tipos-de-simbolos/visualg":134,"../lexador-base-linha-unica":116,"./palavras-reservadas/visualg":114}],107:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const birl_1 = __importDefault(require("../../../tipos-de-simbolos/birl"));
-exports.default = {
+exports.palavrasReservadas = {
     // HORA_DO_SHOW: tiposDeSimbolos.HORA_DO_SHOW,
     // BIRL: tiposDeSimbolos.BIRL,
     // QUE_QUE_CE_QUER_MONSTRAO: tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO,
@@ -10710,14 +11410,15 @@ exports.default = {
     trapezio: birl_1.default.TRAPEZIO,
 };
 
-},{"../../../tipos-de-simbolos/birl":118}],105:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/birl":123}],108:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const egua_classico_1 = __importDefault(require("../../../tipos-de-simbolos/egua-classico"));
-exports.default = {
+exports.palavrasReservadas = {
     e: egua_classico_1.default.E,
     em: egua_classico_1.default.EM,
     caso: egua_classico_1.default.CASO,
@@ -10753,25 +11454,27 @@ exports.default = {
     verdadeiro: egua_classico_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/egua-classico":121}],106:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/egua-classico":126}],109:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const guarani_1 = __importDefault(require("../../../tipos-de-simbolos/guarani"));
-exports.default = {
+exports.palavrasReservadas = {
     hai: guarani_1.default.HAI
 };
 
-},{"../../../tipos-de-simbolos/guarani":123}],107:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/guarani":128}],110:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const mapler_1 = __importDefault(require("../../../tipos-de-simbolos/mapler"));
-exports.default = {
+exports.palavrasReservadas = {
     ate: mapler_1.default.ATE,
     cadeia: mapler_1.default.CADEIA,
     caractere: mapler_1.default.CARACTERE,
@@ -10802,14 +11505,15 @@ exports.default = {
     vetor: mapler_1.default.VETOR,
 };
 
-},{"../../../tipos-de-simbolos/mapler":124}],108:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/mapler":129}],111:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const portugol_ipt_1 = __importDefault(require("../../../tipos-de-simbolos/portugol-ipt"));
-exports.default = {
+exports.palavrasReservadas = {
     entao: portugol_ipt_1.default.ENTAO,
     então: portugol_ipt_1.default.ENTAO,
     escrever: portugol_ipt_1.default.ESCREVER,
@@ -10823,14 +11527,15 @@ exports.default = {
     senão: portugol_ipt_1.default.SENAO
 };
 
-},{"../../../tipos-de-simbolos/portugol-ipt":125}],109:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-ipt":131}],112:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const portugol_studio_1 = __importDefault(require("../../../tipos-de-simbolos/portugol-studio"));
-exports.default = {
+exports.palavrasReservadas = {
     cadeia: portugol_studio_1.default.CADEIA,
     caracter: portugol_studio_1.default.CARACTER,
     const: portugol_studio_1.default.CONSTANTE,
@@ -10853,14 +11558,34 @@ exports.default = {
     verdadeiro: portugol_studio_1.default.VERDADEIRO
 };
 
-},{"../../../tipos-de-simbolos/portugol-studio":126}],110:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-studio":132}],113:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
+const potigol_1 = __importDefault(require("../../../tipos-de-simbolos/potigol"));
+exports.palavrasReservadas = {
+    caractere: potigol_1.default.CARACTERE,
+    escreva: potigol_1.default.ESCREVA,
+    imprima: potigol_1.default.IMPRIMA,
+    inteiro: potigol_1.default.INTEIRO,
+    logico: potigol_1.default.LOGICO,
+    não: potigol_1.default.NAO,
+    real: potigol_1.default.REAL,
+    texto: potigol_1.default.TEXTO
+};
+
+},{"../../../tipos-de-simbolos/potigol":133}],114:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadas = void 0;
 const visualg_1 = __importDefault(require("../../../tipos-de-simbolos/visualg"));
-exports.default = {
+exports.palavrasReservadas = {
     abs: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
     algoritmo: visualg_1.default.ALGORITMO,
     arccos: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
@@ -10925,7 +11650,7 @@ exports.default = {
     xou: visualg_1.default.XOU
 };
 
-},{"../../../tipos-de-simbolos/visualg":127}],111:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/visualg":134}],115:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10943,9 +11668,10 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./lexador"), exports);
+__exportStar(require("./micro-lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":114,"./simbolo":116}],112:[function(require,module,exports){
+},{"./lexador":118,"./micro-lexador":119,"./simbolo":121}],116:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBaseLinhaUnica = void 0;
@@ -11029,7 +11755,7 @@ class LexadorBaseLinhaUnica {
 }
 exports.LexadorBaseLinhaUnica = LexadorBaseLinhaUnica;
 
-},{"./simbolo":116}],113:[function(require,module,exports){
+},{"./simbolo":121}],117:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBase = void 0;
@@ -11143,7 +11869,7 @@ class LexadorBase {
 }
 exports.LexadorBase = LexadorBase;
 
-},{"./simbolo":116}],114:[function(require,module,exports){
+},{"./simbolo":121}],118:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11152,7 +11878,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Lexador = void 0;
 const browser_process_hrtime_1 = __importDefault(require("browser-process-hrtime"));
 const simbolo_1 = require("./simbolo");
-const palavras_reservadas_1 = __importDefault(require("./palavras-reservadas"));
+const palavras_reservadas_1 = require("./palavras-reservadas");
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
@@ -11284,7 +12010,7 @@ class Lexador {
             this.avancar();
         }
         const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in palavras_reservadas_1.default ? palavras_reservadas_1.default[codigo] : delegua_1.default.IDENTIFICADOR;
+        const tipo = codigo in palavras_reservadas_1.palavrasReservadas ? palavras_reservadas_1.palavrasReservadas[codigo] : delegua_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
     encontrarFimComentarioAsterisco() {
@@ -11557,14 +12283,224 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":120,"./palavras-reservadas":115,"./simbolo":116,"browser-process-hrtime":132}],115:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":125,"./palavras-reservadas":120,"./simbolo":121,"browser-process-hrtime":139}],119:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MicroLexador = void 0;
+const palavras_reservadas_1 = require("./palavras-reservadas");
+const simbolo_1 = require("./simbolo");
+const delegua_1 = __importDefault(require("../tipos-de-simbolos/microgramaticas/delegua"));
+/**
+ * O MicroLexador funciona apenas dentro de interpolações de texto.
+ * Portanto, seus tipos de símbolos e palavras reservadas são
+ * bastante reduzidos em relação ao lexador normal.
+ */
+class MicroLexador {
+    eDigito(caractere) {
+        return caractere >= '0' && caractere <= '9';
+    }
+    eAlfabeto(caractere) {
+        const acentuacoes = [
+            'á',
+            'Á',
+            'ã',
+            'Ã',
+            'â',
+            'Â',
+            'à',
+            'À',
+            'é',
+            'É',
+            'ê',
+            'Ê',
+            'í',
+            'Í',
+            'ó',
+            'Ó',
+            'õ',
+            'Õ',
+            'ô',
+            'Ô',
+            'ú',
+            'Ú',
+            'ç',
+            'Ç',
+            '_',
+        ];
+        return ((caractere >= 'a' && caractere <= 'z') ||
+            (caractere >= 'A' && caractere <= 'Z') ||
+            acentuacoes.includes(caractere));
+    }
+    eAlfabetoOuDigito(caractere) {
+        return this.eDigito(caractere) || this.eAlfabeto(caractere);
+    }
+    eFinalDoCodigo() {
+        return this.codigo.length <= this.atual;
+    }
+    adicionarSimbolo(tipo, literal = null) {
+        const texto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.simbolos.push(new simbolo_1.Simbolo(tipo, literal || texto, literal, 1, -1));
+    }
+    analisarTexto(delimitador = '"') {
+        while (this.codigo[this.atual] !== delimitador && !this.eFinalDoCodigo()) {
+            this.atual++;
+        }
+        if (this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: 1,
+                caractere: this.codigo[this.atual - 1],
+                mensagem: 'Texto não finalizado.',
+            });
+            return;
+        }
+        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
+        this.adicionarSimbolo(delegua_1.default.TEXTO, valor);
+    }
+    analisarNumero() {
+        while (this.eDigito(this.codigo[this.atual])) {
+            this.atual++;
+        }
+        if (this.codigo[this.atual] == '.' && this.eDigito(this.codigo[this.atual + 1])) {
+            this.atual++;
+            while (this.eDigito(this.codigo[this.atual])) {
+                this.atual++;
+            }
+        }
+        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
+        this.adicionarSimbolo(delegua_1.default.NUMERO, parseFloat(numeroCompleto));
+    }
+    identificarPalavraChave() {
+        while (this.eAlfabetoOuDigito(this.codigo[this.atual])) {
+            this.atual++;
+        }
+        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
+        const tipo = codigo in palavras_reservadas_1.palavrasReservadasMicroGramatica ? palavras_reservadas_1.palavrasReservadasMicroGramatica[codigo] : delegua_1.default.IDENTIFICADOR;
+        this.adicionarSimbolo(tipo);
+    }
+    analisarToken() {
+        const caractere = this.codigo[this.atual];
+        switch (caractere) {
+            case '(':
+                this.adicionarSimbolo(delegua_1.default.PARENTESE_ESQUERDO);
+                this.atual++;
+                break;
+            case ')':
+                this.adicionarSimbolo(delegua_1.default.PARENTESE_DIREITO);
+                this.atual++;
+                break;
+            case ',':
+                this.adicionarSimbolo(delegua_1.default.VIRGULA);
+                this.atual++;
+                break;
+            case '+':
+                this.atual++;
+                if (this.codigo[this.atual] === '+') {
+                    this.adicionarSimbolo(delegua_1.default.INCREMENTAR);
+                    this.atual++;
+                }
+                else {
+                    this.adicionarSimbolo(delegua_1.default.ADICAO);
+                }
+                break;
+            case '-':
+                this.atual++;
+                if (this.codigo[this.atual] === '-') {
+                    this.adicionarSimbolo(delegua_1.default.DECREMENTAR);
+                    this.atual++;
+                }
+                else {
+                    this.adicionarSimbolo(delegua_1.default.SUBTRACAO);
+                }
+                break;
+            case '*':
+                this.atual++;
+                switch (this.codigo[this.atual]) {
+                    case '*':
+                        this.atual++;
+                        this.adicionarSimbolo(delegua_1.default.EXPONENCIACAO);
+                        break;
+                    default:
+                        this.adicionarSimbolo(delegua_1.default.MULTIPLICACAO);
+                        break;
+                }
+                break;
+            case '/':
+                this.atual++;
+                this.adicionarSimbolo(delegua_1.default.DIVISAO);
+                break;
+            case '%':
+                this.atual++;
+                this.adicionarSimbolo(delegua_1.default.MODULO);
+                break;
+            case '\\':
+                this.atual++;
+                this.adicionarSimbolo(delegua_1.default.DIVISAO_INTEIRA);
+                break;
+            case ' ':
+            case '\0':
+            case '\r':
+            case '\t':
+                this.atual++;
+                break;
+            case '"':
+                this.atual++;
+                this.analisarTexto('"');
+                this.atual++;
+                break;
+            case "'":
+                this.atual++;
+                this.analisarTexto("'");
+                this.atual++;
+                break;
+            default:
+                if (this.eDigito(caractere))
+                    this.analisarNumero();
+                else if (this.eAlfabeto(caractere))
+                    this.identificarPalavraChave();
+                else {
+                    this.erros.push({
+                        linha: 1,
+                        caractere: caractere,
+                        mensagem: 'Caractere inesperado.',
+                    });
+                    this.atual++;
+                }
+        }
+    }
+    /**
+     * Lê apenas uma linha de código e a transforma em símbolos.
+     * @param codigo O código
+     */
+    mapear(codigo) {
+        this.codigo = codigo;
+        this.erros = [];
+        this.simbolos = [];
+        this.atual = 0;
+        this.inicioSimbolo = 0;
+        while (!this.eFinalDoCodigo()) {
+            this.inicioSimbolo = this.atual;
+            this.analisarToken();
+        }
+        return {
+            simbolos: this.simbolos,
+            erros: this.erros,
+        };
+    }
+}
+exports.MicroLexador = MicroLexador;
+
+},{"../tipos-de-simbolos/microgramaticas/delegua":130,"./palavras-reservadas":120,"./simbolo":121}],120:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.palavrasReservadasMicroGramatica = exports.palavrasReservadas = void 0;
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
-exports.default = {
+exports.palavrasReservadas = {
     cada: delegua_1.default.CADA,
     caso: delegua_1.default.CASO,
     classe: delegua_1.default.CLASSE,
@@ -11606,8 +12542,16 @@ exports.default = {
     variável: delegua_1.default.VARIAVEL,
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
+exports.palavrasReservadasMicroGramatica = {
+    e: delegua_1.default.E,
+    em: delegua_1.default.EM,
+    falso: delegua_1.default.FALSO,
+    nulo: delegua_1.default.NULO,
+    ou: delegua_1.default.OU,
+    verdadeiro: delegua_1.default.VERDADEIRO
+};
 
-},{"../tipos-de-simbolos/delegua":120}],116:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":125}],121:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -11625,7 +12569,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],117:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -11646,7 +12590,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],118:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -11658,15 +12602,25 @@ exports.default = {
     BIRL: 'BIRL',
     BORA: 'BORA',
     BICEPS: 'BICEPS',
+    BIT_AND: 'BIT_AND',
+    BIT_XOR: 'BIT_XOR',
+    BIT_NOT: 'BIT_NOT',
+    BIT_OR: 'BIT_OR',
     CE: 'CE',
     CUMPADE: 'CUMPADE',
     DA: 'DA',
     DAR: 'DAR',
     DO: 'DO',
     DOENTE: 'DOENTE',
+    DIVISAO_IGUAL: 'DIVISAO_IGUAL',
+    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
+    DIFERENTE: 'DIFERENTE',
+    DIVISAO_INTEIRA_IGUAL: 'DIVISAO_INTEIRA_IGUAL',
     DESCENDENTE: 'DESCENDENTE',
+    DECREMENTAR: 'DECREMENTAR',
     ELE: 'ELE',
     ESSA: 'ESSA',
+    EXPONENCIACAO: 'EXPONENCIACAO',
     FRANGAO: 'FRANGAO',
     FRANGÃO: 'FRANGÃO',
     FRANGO: 'FRANGO',
@@ -11674,20 +12628,26 @@ exports.default = {
     GENTE: 'GENTE',
     HOME: 'HOME',
     HORA: 'HORA',
+    INCREMENTAR: 'INCREMENTAR',
     MAIS: 'MAIS',
     MALUCO: 'MALUCO',
+    MENOR_MENOR: 'MENOR_MENOR',
+    MAIOR_MAIOR: 'MAIOR_MAIOR',
+    MENOS_IGUAL: 'MENOS_IGUAL',
+    MAIS_IGUAL: 'MAIS_IGUAL',
     MONSTRAO: 'MONSTRAO',
     MONSTRO: 'MONSTRO',
+    MODULO_IGUAL: 'MODULO_IGUAL',
+    MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
     MONSTRINHO: 'MONSTRINHO',
     TRAPEZIO: 'TRAPEZIO',
     NAO: 'NAO',
     NEGATIVA: 'NEGATIVA',
-    NEGATIVO: 'NEGATIVO',
+    NEGACAO: 'NEGACAO',
     O: 'O',
     OH: 'OH',
     PO: 'PO',
     PORRA: 'PORRA',
-    POSITIVO: 'POSITIVO',
     PUTA: 'PUTA',
     QUE: 'QUE',
     QUER: 'QUER',
@@ -11726,7 +12686,7 @@ exports.default = {
     PONTEIRO: 'PONTEIRO',
 };
 
-},{}],119:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -11751,7 +12711,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],120:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -11837,7 +12797,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],121:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -11917,7 +12877,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],122:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -11993,7 +12953,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],123:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -12010,7 +12970,7 @@ exports.default = {
     VIRGULA: 'VIRGULA'
 };
 
-},{}],124:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -12068,7 +13028,56 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],125:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    ADICAO: 'ADICAO',
+    BIT_AND: 'BIT_AND',
+    BIT_OR: 'BIT_OR',
+    BIT_XOR: 'BIT_XOR',
+    BIT_NOT: 'BIT_NOT',
+    CHAVE_DIREITA: 'CHAVE_DIREITA',
+    CHAVE_ESQUERDA: 'CHAVE_ESQUERDA',
+    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
+    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    DECREMENTAR: 'DECREMENTAR',
+    DIFERENTE: 'DIFERENTE',
+    DIVISAO: 'DIVISAO',
+    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
+    DOIS_PONTOS: 'DOIS_PONTOS',
+    E: 'E',
+    EM: 'EM',
+    EOF: 'EOF',
+    EXPONENCIACAO: 'EXPONENCIACAO',
+    FALSO: 'FALSO',
+    IDENTIFICADOR: 'IDENTIFICADOR',
+    IGUAL: 'IGUAL',
+    IGUAL_IGUAL: 'IGUAL_IGUAL',
+    INCREMENTAR: 'INCREMENTAR',
+    MAIOR: 'MAIOR',
+    MAIOR_IGUAL: 'MAIOR_IGUAL',
+    MAIOR_MAIOR: 'MAIOR_MAIOR',
+    MENOR: 'MENOR',
+    MENOR_IGUAL: 'MENOR_IGUAL',
+    MENOR_MENOR: 'MENOR_MENOR',
+    MODULO: 'MODULO',
+    MULTIPLICACAO: 'MULTIPLICACAO',
+    NEGACAO: 'NEGACAO',
+    NULO: 'NULO',
+    NUMERO: 'NUMERO',
+    OU: 'OU',
+    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
+    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
+    PONTO: 'PONTO',
+    SUBTRACAO: 'SUBTRACAO',
+    TEXTO: 'TEXTO',
+    VARIAVEL: 'VARIAVEL',
+    VERDADEIRO: 'VERDADEIRO',
+    VIRGULA: 'VIRGULA',
+};
+
+},{}],131:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -12107,7 +13116,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],126:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -12163,7 +13172,37 @@ exports.default = {
     VERDADEIRO: 'VERDADEIRO'
 };
 
-},{}],127:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    ADICAO: 'ADICAO',
+    CARACTERE: 'CARACTERE',
+    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
+    DIVISAO: 'DIVISAO',
+    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
+    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
+    ESCREVA: 'ESCREVA',
+    IDENTIFICADOR: 'IDENTIFICADOR',
+    IGUAL: 'IGUAL',
+    IMPRIMA: 'IMPRIMA',
+    INTEIRO: 'INTEIRO',
+    LOGICO: 'LOGICO',
+    MAIOR: 'MAIOR',
+    MAIOR_IGUAL: 'MAIOR_IGUAL',
+    MENOR: 'MENOR',
+    MENOR_IGUAL: 'MENOR_IGUAL',
+    MULTIPLICACAO: 'MULTIPLICACAO',
+    NAO: 'NAO',
+    PONTO: 'PONTO',
+    REAL: 'REAL',
+    SUBTRACAO: 'SUBTRACAO',
+    TEXTO: 'TEXTO',
+    VIRGULA: 'VIRGULA'
+};
+
+},{}],134:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -12237,7 +13276,7 @@ exports.default = {
     XOU: 'XOU'
 };
 
-},{}],128:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12258,7 +13297,7 @@ __exportStar(require("./tradutor-javascript"), exports);
 __exportStar(require("./tradutor-reverso-javascript"), exports);
 __exportStar(require("./tradutor-visualg"), exports);
 
-},{"./tradutor-javascript":129,"./tradutor-reverso-javascript":130,"./tradutor-visualg":131}],129:[function(require,module,exports){
+},{"./tradutor-javascript":136,"./tradutor-reverso-javascript":137,"./tradutor-visualg":138}],136:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12280,7 +13319,7 @@ class TradutorJavaScript {
             AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
             AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
             Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-            AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
+            AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
             Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             Chamada: this.traduzirConstrutoChamada.bind(this),
@@ -12736,19 +13775,19 @@ class TradutorJavaScript {
         let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
         return `${direita} ${operador} ${esquerda}`;
     }
-    traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita) {
+    traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice) {
         var _a, _b;
         let resultado = '';
-        resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+        resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
         resultado +=
-            this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+            this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
                 ']';
         resultado += ' = ';
-        if ((_b = (_a = atribuicaoSobrescrita === null || atribuicaoSobrescrita === void 0 ? void 0 : atribuicaoSobrescrita.valor) === null || _a === void 0 ? void 0 : _a.simbolo) === null || _b === void 0 ? void 0 : _b.lexema) {
-            resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+        if ((_b = (_a = AtribuicaoPorIndice === null || AtribuicaoPorIndice === void 0 ? void 0 : AtribuicaoPorIndice.valor) === null || _a === void 0 ? void 0 : _a.simbolo) === null || _b === void 0 ? void 0 : _b.lexema) {
+            resultado += `${AtribuicaoPorIndice.valor.simbolo.lexema}`;
         }
         else {
-            resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](atribuicaoSobrescrita.valor);
+            resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](AtribuicaoPorIndice.valor);
         }
         return resultado;
     }
@@ -12796,7 +13835,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":48,"../declaracoes":69,"../tipos-de-simbolos/delegua":120}],130:[function(require,module,exports){
+},{"../construtos":50,"../declaracoes":71,"../tipos-de-simbolos/delegua":125}],137:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -13183,7 +14222,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{"esprima":133}],131:[function(require,module,exports){
+},{"esprima":140}],138:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13199,18 +14238,18 @@ const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 class TradutorVisualg {
     constructor() {
         this.indentacao = 0;
-        // traduzirConstrutoAtribuicaoSobrescrita(atribuicaoSobrescrita: AtribuicaoSobrescrita): string {
+        // traduzirConstrutoAtribuicaoPorIndice(AtribuicaoPorIndice: AtribuicaoPorIndice): string {
         //     let resultado = '';
-        //     resultado += atribuicaoSobrescrita.objeto.simbolo.lexema + '[';
+        //     resultado += AtribuicaoPorIndice.objeto.simbolo.lexema + '[';
         //     resultado +=
-        //         this.dicionarioConstrutos[atribuicaoSobrescrita.indice.constructor.name](atribuicaoSobrescrita.indice) +
+        //         this.dicionarioConstrutos[AtribuicaoPorIndice.indice.constructor.name](AtribuicaoPorIndice.indice) +
         //         ']';
         //     resultado += ' = ';
-        //     if (atribuicaoSobrescrita?.valor?.simbolo?.lexema) {
-        //         resultado += `${atribuicaoSobrescrita.valor.simbolo.lexema}`;
+        //     if (AtribuicaoPorIndice?.valor?.simbolo?.lexema) {
+        //         resultado += `${AtribuicaoPorIndice.valor.simbolo.lexema}`;
         //     } else {
-        //         resultado += this.dicionarioConstrutos[atribuicaoSobrescrita.valor.constructor.name](
-        //             atribuicaoSobrescrita.valor
+        //         resultado += this.dicionarioConstrutos[AtribuicaoPorIndice.valor.constructor.name](
+        //             AtribuicaoPorIndice.valor
         //         );
         //     }
         //     return resultado;
@@ -13249,7 +14288,7 @@ class TradutorVisualg {
             // AcessoIndiceVariavel: this.traduzirAcessoIndiceVariavel.bind(this),
             // AcessoMetodo: this.trazudirConstrutoAcessoMetodo.bind(this),
             Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-            // AtribuicaoSobrescrita: this.traduzirConstrutoAtribuicaoSobrescrita.bind(this),
+            // AtribuicaoPorIndice: this.traduzirConstrutoAtribuicaoPorIndice.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             // Chamada: this.traduzirConstrutoChamada.bind(this),
             FimPara: this.traduzirConstrutoFimPara.bind(this),
@@ -13619,7 +14658,7 @@ class TradutorVisualg {
 }
 exports.TradutorVisualg = TradutorVisualg;
 
-},{"../../fontes/avaliador-sintatico/dialetos":28,"../../fontes/lexador/dialetos":95,"../tipos-de-simbolos/delegua":120}],132:[function(require,module,exports){
+},{"../../fontes/avaliador-sintatico/dialetos":29,"../../fontes/lexador/dialetos":97,"../tipos-de-simbolos/delegua":125}],139:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -13650,7 +14689,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":134}],133:[function(require,module,exports){
+},{"_process":141}],140:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 /* istanbul ignore next */
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -20360,7 +21399,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
-},{}],134:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
