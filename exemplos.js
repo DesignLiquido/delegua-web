@@ -59,6 +59,7 @@ function definirLinguagemDelegua() {
             'senao',
             'sustar',
             'tente',
+            'tipo',
             'var',
             'variavel',
             'variável',
