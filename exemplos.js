@@ -35,6 +35,7 @@ function definirLinguagemDelegua() {
             'em',
             'enquanto',
             'escolha',
+            'falhar',
             'falso',
             'fazer',
             'finalmente',
