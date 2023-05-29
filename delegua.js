@@ -25670,6 +25670,7 @@ class TradutorJavaScript {
             Isto: () => 'this',
             Literal: this.traduzirConstrutoLiteral.bind(this),
             Logico: this.traduzirConstrutoLogico.bind(this),
+            TipoDe: this.traduzirConstrutoTipoDe.bind(this),
             Unario: this.traduzirConstrutoUnario.bind(this),
             Variavel: this.traduzirConstrutoVariavel.bind(this),
             Vetor: this.traduzirConstrutoVetor.bind(this),
@@ -25684,6 +25685,7 @@ class TradutorJavaScript {
             Escreva: this.traduzirDeclaracaoEscreva.bind(this),
             Expressao: this.traduzirDeclaracaoExpressao.bind(this),
             Fazer: this.traduzirDeclaracaoFazer.bind(this),
+            Falhar: this.traduzirDeclaracaoFalhar.bind(this),
             FuncaoDeclaracao: this.traduzirDeclaracaoFuncao.bind(this),
             Importar: this.traduzirDeclaracaoImportar.bind(this),
             Leia: this.traduzirDeclaracaoLeia.bind(this),
@@ -25981,9 +25983,14 @@ class TradutorJavaScript {
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'for (';
-        resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0]) +
-                ' ';
+        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+            resultado +=
+                this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0]) +
+                    ' ';
+        }
+        else {
+            resultado += this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) + ' ';
+        }
         resultado += !resultado.includes(';') ? ';' : '';
         resultado +=
             this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
@@ -26152,6 +26159,19 @@ class TradutorJavaScript {
         }
         resultado += ']';
         return resultado;
+    }
+    traduzirConstrutoTipoDe(tipoDe) {
+        let resultado = 'typeof ';
+        if (typeof tipoDe.valor === 'string')
+            resultado += `'${tipoDe.valor}'`;
+        else if (tipoDe.valor instanceof construtos_1.Vetor)
+            resultado += this.traduzirConstrutoVetor(tipoDe.valor);
+        else
+            resultado += tipoDe.valor;
+        return resultado;
+    }
+    traduzirDeclaracaoFalhar(falhar) {
+        return `throw '${falhar.explicacao}'`;
     }
     traduzirConstrutoUnario(unario) {
         var _a, _b;
@@ -26489,6 +26509,12 @@ class TradutorPython {
             resultado = resultado.slice(0, -2);
         }
         resultado += '):\n';
+        if (metodoClasse.funcao.corpo.length === 0) {
+            resultado += ' '.repeat(this.indentacao + 4);
+            resultado += 'pass\n';
+            this.indentacao -= 4;
+            return resultado;
+        }
         resultado += this.logicaComumBlocoEscopo(metodoClasse.funcao.corpo);
         resultado += ' '.repeat(this.indentacao) + '\n';
         this.indentacao -= 4;
@@ -26497,9 +26523,11 @@ class TradutorPython {
     traduzirDeclaracaoClasse(declaracaoClasse) {
         let resultado = 'class ';
         if (declaracaoClasse.superClasse)
-            resultado += `${declaracaoClasse.simbolo.lexema} extends ${declaracaoClasse.superClasse.simbolo.lexema} {\n`;
+            resultado += `${declaracaoClasse.simbolo.lexema}(${declaracaoClasse.superClasse.simbolo.lexema}):\n`;
         else
             resultado += declaracaoClasse.simbolo.lexema + ':\n';
+        if (declaracaoClasse.metodos.length === 0)
+            return resultado += '    pass\n';
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
         }
