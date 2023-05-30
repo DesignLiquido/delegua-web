@@ -26267,6 +26267,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorPython = void 0;
 const construtos_1 = require("../construtos");
+const declaracoes_1 = require("../declaracoes");
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 class TradutorPython {
     constructor() {
@@ -26467,8 +26468,14 @@ class TradutorPython {
         resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
         return resultado;
     }
-    traduzirDeclaracaoSe(declaracaoSe) {
-        let resultado = 'if ';
+    traduzirDeclaracaoSe(declaracaoSe, iniciarComIf = true) {
+        let resultado = '';
+        if (iniciarComIf) {
+            resultado += 'if ';
+        }
+        else {
+            resultado += 'elif ';
+        }
         const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
         resultado += condicao;
         resultado += ':\n';
@@ -26478,19 +26485,24 @@ class TradutorPython {
             const se = declaracaoSe === null || declaracaoSe === void 0 ? void 0 : declaracaoSe.caminhoSenao;
             if (se === null || se === void 0 ? void 0 : se.caminhoEntao) {
                 resultado += 'elif ';
-                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao);
+                resultado += this.dicionarioConstrutos[se.condicao.constructor.name](se.condicao, false);
                 resultado += ':\n';
                 resultado += this.dicionarioDeclaracoes[se.caminhoEntao.constructor.name](se.caminhoEntao);
                 resultado += ' '.repeat(this.indentacao);
                 if (se === null || se === void 0 ? void 0 : se.caminhoSenao) {
-                    resultado += 'else:\n';
-                    resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao);
-                    return resultado;
+                    if (se.caminhoSenao instanceof declaracoes_1.Bloco) {
+                        resultado += 'else:\n';
+                        resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao, false);
+                        return resultado;
+                    }
+                    else {
+                        resultado += this.dicionarioDeclaracoes[se.caminhoSenao.constructor.name](se.caminhoSenao, false);
+                        return resultado;
+                    }
                 }
             }
-            else {
-                resultado += 'else:\n';
-            }
+            resultado += 'else:\n';
+            resultado += ' '.repeat(this.indentacao);
             resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](declaracaoSe.caminhoSenao);
         }
         return resultado;
@@ -26644,7 +26656,7 @@ class TradutorPython {
 }
 exports.TradutorPython = TradutorPython;
 
-},{"../construtos":50,"../tipos-de-simbolos/delegua":127}],143:[function(require,module,exports){
+},{"../construtos":50,"../declaracoes":73,"../tipos-de-simbolos/delegua":127}],143:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
