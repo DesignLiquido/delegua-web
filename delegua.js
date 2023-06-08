@@ -1115,6 +1115,11 @@ class AvaliadorSintaticoBase {
             this.atual += 1;
         return this.simbolos[this.atual - 1];
     }
+    regredirEDevolverAtual() {
+        if (this.atual > 0)
+            this.atual -= 1;
+        return this.simbolos[this.atual];
+    }
     verificarSeSimboloAtualEIgualA(...argumentos) {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
@@ -2156,6 +2161,21 @@ const declaracoes_1 = require("../../declaracoes");
 const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
 class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
+    validarEscopoPrograma() {
+        let declaracoes = [];
+        this.validarSegmentoHoraDoShow();
+        while (!this.estaNoFinal()) {
+            const declaracaoVetor = this.declaracao();
+            if (Array.isArray(declaracaoVetor)) {
+                declaracoes = declaracoes.concat(declaracaoVetor);
+            }
+            else {
+                declaracoes.push(declaracaoVetor);
+            }
+        }
+        this.validarSegmentoBirlFinal();
+        return declaracoes;
+    }
     tratarSimbolos(simbolos) {
         let identificador = 0, adicao = 0, subtracao = 0;
         for (const simbolo of simbolos) {
@@ -2197,6 +2217,12 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.blocos += 1;
     }
     validarSegmentoBirlFinal() {
+        this.regredirEDevolverAtual();
+        while (!this.verificarTipoSimboloAtual(birl_1.default.BIRL)) {
+            this.consumir(birl_1.default.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a declaração de variáveis');
+            this.regredirEDevolverAtual();
+            this.regredirEDevolverAtual();
+        }
         this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` para fechamento do programa');
         this.blocos -= 1;
     }
@@ -2276,7 +2302,13 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             declaracaoInicial = new declaracoes_1.Var(this.simbolos[this.atual], new construtos_1.Literal(this.simbolos[this.atual].linha, this.hashArquivo, valor.literal), 'numero');
         }
         else {
-            declaracaoInicial = this.declaracao(); // inicialização da variável de controle
+            const declaracaoVetor = this.declaracao(); // inicialização da variável de controle
+            if (Array.isArray(declaracaoVetor)) {
+                declaracaoInicial = declaracaoVetor[0];
+            }
+            else {
+                declaracaoInicial = declaracaoVetor;
+            }
         }
         this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
         const condicao = this.declaracao(); // condição de parada
@@ -2315,14 +2347,17 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         }
         const simboloCaractere = this.consumir(birl_1.default.FRANGO, '');
         const inicializacoes = [];
+        let eLiteral = true;
         do {
             const identificador = this.consumir(birl_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'FRANGO'.");
             let valorInicializacao;
             if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.TEXTO)) {
@@ -2332,10 +2367,12 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 else {
                     throw new Error('Erro ao declarar variável do tipo texto. Verifique se esta atribuindo um valor do tipo texto.');
                 }
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao), 'texto'));
+                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
+                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao)
+                    : valorInicializacao, 'texto'));
             }
             else {
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), 0), 'texto'));
+                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), ''), 'texto'));
             }
         } while (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA));
         return inicializacoes;
@@ -2356,15 +2393,18 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
     }
     declaracaoInteiros() {
         let simboloInteiro = this.validarTipoDeclaracaoInteiro();
+        let eLiteral = true;
         const inicializacoes = [];
         do {
             const identificador = this.consumir(birl_1.default.IDENTIFICADOR, `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`);
             let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.NUMERO)) {
@@ -2374,7 +2414,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 else {
                     throw new Error(`Simbolo passado para inicialização de variável do tipo ${simboloInteiro.lexema} não é válido.`);
                 }
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao), 'numero'));
+                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
+                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)
+                    : valorInicializacao, 'numero'));
             }
             else {
                 inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), 0), 'numero'));
@@ -2387,15 +2429,18 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         if (this.verificarTipoSimboloAtual(birl_1.default.DESCENDENTE)) {
             this.consumir(birl_1.default.DESCENDENTE, '');
         }
+        let eLiteral = true;
         const inicializacoes = [];
         do {
             const identificador = this.consumir(birl_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'TRAPEZIO'.");
             let valorInicializacao = 0x00;
             if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
                 if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
+                    eLiteral = false;
                     valorInicializacao = this.declaracao();
                 }
                 else if (this.verificarTipoSimboloAtual(birl_1.default.NUMERO)) {
@@ -2405,7 +2450,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 else {
                     throw new Error(`Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`);
                 }
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao), 'numero'));
+                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
+                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao)
+                    : valorInicializacao, 'numero'));
             }
             else {
                 inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero'));
@@ -2422,6 +2469,27 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         const valor = this.declaracao();
         return new declaracoes_1.Retorna(primeiroSimbolo, valor);
     }
+    validaTipoDeclaracaoLeia(caracteres) {
+        const tipoCaractere = caracteres.charAt(1);
+        const tipos = {
+            d: 'número',
+            i: 'número',
+            u: 'número',
+            f: 'número',
+            F: 'número',
+            e: 'número',
+            E: 'número',
+            g: 'número',
+            G: 'número',
+            x: 'número',
+            X: 'número',
+            o: 'número',
+            c: 'texto',
+            s: 'texto',
+            p: 'texto',
+        };
+        return tipos[tipoCaractere] || 'desconhecido';
+    }
     declaracaoLeia() {
         const primeiroSimbolo = this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` para ler valor.');
         this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` após `QUE` para ler valor.');
@@ -2430,11 +2498,16 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.consumir(birl_1.default.MONSTRAO, 'Esperado expressão `MONSTRAO` após `QUER` para ler valor.');
         this.consumir(birl_1.default.INTERROGACAO, 'Esperado interrogação após `MONSTRAO` para ler valor.');
         this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para ler valor.');
-        const simbolo = this.consumir(birl_1.default.TEXTO, 'Esperado texto após parêntese esquerdo para ler valor.');
-        const ponteiro = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado identificador após texto para ler valor.');
+        const textoOuSimbolo = this.consumir(birl_1.default.TEXTO, 'Esperado texto após parêntese esquerdo para ler valor.');
+        this.consumir(birl_1.default.VIRGULA, 'Esperado vírgula após texto para ler valor.');
+        this.consumir(birl_1.default.PONTEIRO, 'Esperado expressão `&` após texto para ler valor.');
+        const variavel = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado identificador após `&` para ler valor.');
+        const tipo = this.validaTipoDeclaracaoLeia(textoOuSimbolo.literal);
         this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após identificador para ler valor.');
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após parêntese direito para ler valor.');
-        return new declaracoes_1.Leia(Number(primeiroSimbolo.linha), this.hashArquivo, []);
+        return new declaracoes_1.Leia(Number(primeiroSimbolo.linha), this.hashArquivo, [
+            new construtos_1.Variavel(this.hashArquivo, variavel),
+            new construtos_1.Literal(this.hashArquivo, Number(textoOuSimbolo.linha), tipo),
+        ]);
     }
     declaracaoSe() {
         const simboloSe = this.consumir(birl_1.default.ELE, 'Esperado expressão `ELE` para condição.');
@@ -2509,13 +2582,19 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         const parenteseEsquerdo = this.consumir(birl_1.default.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}`);
         let paramentros = [];
         if (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
-            paramentros.push(this.logicaComumParamentros());
+            paramentros = this.logicaComumParamentros();
         }
         this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
         let corpo = [];
         do {
-            corpo.push(this.declaracao());
+            const declaracaoVetor = this.declaracao();
+            if (Array.isArray(declaracaoVetor)) {
+                corpo = corpo.concat(declaracaoVetor);
+            }
+            else {
+                corpo.push(declaracaoVetor);
+            }
         } while (![birl_1.default.BIRL].includes(this.simbolos[this.atual].tipo));
         return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, corpo.filter((c) => c));
     }
@@ -2635,6 +2714,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 return this.declaracaoEscreva();
             case birl_1.default.PONTO_E_VIRGULA:
             case birl_1.default.QUEBRA_LINHA:
+            case birl_1.default.BIRL:
                 this.avancarEDevolverAnterior();
                 return null;
             case birl_1.default.IDENTIFICADOR:
@@ -2657,12 +2737,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.blocos = 0;
         this.atual = 0;
         this.simbolos = retornoLexador.simbolos;
-        const declaracoes = [];
-        this.validarSegmentoHoraDoShow();
-        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== birl_1.default.BIRL) {
-            declaracoes.push(this.declaracao());
-        }
-        this.validarSegmentoBirlFinal();
+        const declaracoes = this.validarEscopoPrograma();
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
@@ -4735,6 +4810,15 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         const declaracaoInicio = encontrarDeclaracaoInicio[0];
         declaracoes.push(new declaracoes_1.Expressao(new construtos_1.Chamada(declaracaoInicio.hashArquivo, declaracaoInicio.funcao, null, [])));
     }
+    comparacaoIgualdade() {
+        let expressao = this.comparar();
+        while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.DIFERENTE, portugol_studio_1.default.IGUAL_IGUAL)) {
+            const simboloAnterior = this.simbolos[this.atual - 1];
+            const direito = this.comparar();
+            expressao = new construtos_1.Binario(this.hashArquivo, expressao, simboloAnterior, direito);
+        }
+        return expressao;
+    }
     primario() {
         switch (this.simbolos[this.atual].tipo) {
             case portugol_studio_1.default.IDENTIFICADOR:
@@ -4954,18 +5038,44 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PONTO_E_VIRGULA);
         return new declaracoes_1.Expressao(expressao);
     }
+    declaracaoVetorInteiros(simboloInteiro, identificador, posicoes) {
+        let valorInicializacao = new construtos_1.Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
+        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
+            this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperado chave esquerda após sinal de igual em lado direito da atribuição de vetor.");
+            const valores = [];
+            do {
+                valores.push(this.primario());
+            } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
+            this.consumir(portugol_studio_1.default.CHAVE_DIREITA, "Esperado chave direita após valores de vetor em lado direito da atribuição de vetor.");
+            if (posicoes !== valores.length) {
+                throw this.erro(simboloInteiro, `Esperado ${posicoes} números, mas foram fornecidos ${valores.length} valores do lado direito da atribuição.`);
+            }
+            valorInicializacao.valores = valores;
+        }
+        return new declaracoes_1.Var(identificador, valorInicializacao);
+    }
+    declaracaoTrivialInteiro(simboloInteiro, identificador) {
+        // Inicializações de variáveis podem ter valores definidos.
+        let valorInicializacao = new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), 0);
+        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
+            valorInicializacao = this.expressao();
+        }
+        return new declaracoes_1.Var(identificador, valorInicializacao);
+    }
     declaracaoInteiros() {
         const simboloInteiro = this.consumir(portugol_studio_1.default.INTEIRO, '');
         const inicializacoes = [];
         do {
             const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'inteiro'.");
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                const literalInicializacao = this.consumir(portugol_studio_1.default.INTEIRO, 'Esperado literal inteiro após símbolo de igual em declaração de variável.');
-                valorInicializacao = Number(literalInicializacao.literal);
+            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.COLCHETE_ESQUERDO)) {
+                // TODO
+                const numeroPosicoes = this.consumir(portugol_studio_1.default.INTEIRO, "Esperado número inteiro para definir quantas posições terá o vetor.");
+                this.consumir(portugol_studio_1.default.COLCHETE_DIREITO, "Esperado fechamento de identificação de número de posições de uma declaração de vetor.");
+                inicializacoes.push(this.declaracaoVetorInteiros(simboloInteiro, identificador, Number(numeroPosicoes.literal)));
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)));
+            else {
+                inicializacoes.push(this.declaracaoTrivialInteiro(simboloInteiro, identificador));
+            }
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -5103,7 +5213,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             case portugol_studio_1.default.SE:
                 return this.declaracaoSe();
             default:
-                return this.expressao();
+                return this.declaracaoExpressao();
         }
     }
     analisar(retornoLexador, hashArquivo) {
@@ -7234,7 +7344,12 @@ exports.default = {
     apararFim: (interpretador, texto) => Promise.resolve(texto.trimEnd()),
     apararInicio: (interpretador, texto) => Promise.resolve(texto.trimStart()),
     concatenar: (interpretador, ...texto) => Promise.resolve("".concat(...texto)),
-    dividir: (interpretador, texto, divisor, limite) => Promise.resolve(texto.split(divisor || ' ', limite)),
+    dividir: (interpretador, texto, divisor, limite) => {
+        if (limite) {
+            return Promise.resolve(texto.split(divisor, limite));
+        }
+        return Promise.resolve(texto.split(divisor));
+    },
     fatiar: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
     inclui: (interpretador, texto, elemento) => Promise.resolve(texto.includes(elemento)),
     inverter: (interpretador, texto) => Promise.resolve(texto.split('').reduce((texto, caracter) => texto = caracter + texto, '')),
@@ -7270,9 +7385,32 @@ exports.default = {
         return Promise.resolve(vetor);
     },
     fatiar: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
+    filtrarPor: async (interpretador, vetor, funcao) => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método \'filtrarPor\'");
+        }
+        const retorno = [];
+        for (let elemento of vetor) {
+            if (await funcao.chamar(interpretador, [elemento])) {
+                retorno.push(elemento);
+            }
+        }
+        return retorno;
+    },
     inclui: (interpretador, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
     inverter: (interpretador, vetor) => Promise.resolve(vetor.reverse()),
     juntar: (interpretador, vetor, separador) => Promise.resolve(vetor.join(separador)),
+    mapear: async (interpretador, vetor, funcao) => {
+        if (funcao === undefined || funcao === null) {
+            return Promise.reject("É necessário passar uma função para o método \'mapear\'");
+        }
+        const retorno = [];
+        for (let elemento of vetor) {
+            let resultado = await funcao.chamar(interpretador, [elemento]);
+            retorno.push(resultado);
+        }
+        return retorno;
+    },
     ordenar: async (interpretador, vetor, funcaoOrdenacao) => {
         if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
             for (let i = 0; i < vetor.length - 1; i++) {
@@ -9193,14 +9331,22 @@ class InterpretadorBase {
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                     return Math.pow(valorEsquerdo, valorDireito);
                 case delegua_1.default.MAIOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) > Number(valorDireito);
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) > Number(valorDireito);
+                    }
+                    else {
+                        return String(valorEsquerdo) > String(valorDireito);
+                    }
                 case delegua_1.default.MAIOR_IGUAL:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                     return Number(valorEsquerdo) >= Number(valorDireito);
                 case delegua_1.default.MENOR:
-                    this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                    return Number(valorEsquerdo) < Number(valorDireito);
+                    if (tipoEsquerdo === 'número' && tipoDireito === 'número') {
+                        return Number(valorEsquerdo) < Number(valorDireito);
+                    }
+                    else {
+                        return String(valorEsquerdo) < String(valorDireito);
+                    }
                 case delegua_1.default.MENOR_IGUAL:
                     this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                     return Number(valorEsquerdo) <= Number(valorDireito);
@@ -9959,7 +10105,6 @@ class InterpretadorBase {
         }
         return valores;
     }
-    // TODO: Após remoção do Resolvedor, simular casos que usem 'super' e 'isto'.
     visitarExpressaoSuper(expressao) {
         const superClasse = this.pilhaEscoposExecucao.obterVariavelPorNome('super');
         const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
@@ -9967,7 +10112,8 @@ class InterpretadorBase {
         if (metodo === undefined) {
             throw new excecoes_1.ErroEmTempoDeExecucao(expressao.metodo, 'Método chamado indefinido.', expressao.linha);
         }
-        return metodo.definirInstancia(objeto.valor);
+        metodo.instancia = objeto.valor;
+        return metodo;
     }
     paraTexto(objeto) {
         if (objeto === null || objeto === undefined)
@@ -10037,9 +10183,6 @@ class InterpretadorBase {
         finally {
             this.pilhaEscoposExecucao.removerUltimo();
             const escopoAnterior = this.pilhaEscoposExecucao.topoDaPilha();
-            /* if ('isto' in escopoAnterior.ambiente.valores) {
-
-            } */
             if (manterAmbiente) {
                 escopoAnterior.ambiente.valores = Object.assign(escopoAnterior.ambiente.valores, ultimoEscopo.ambiente.valores);
             }
@@ -10147,7 +10290,7 @@ class PilhaEscoposExecucao {
             constante.tipo :
             (0, inferenciador_1.inferirTipoVariavel)(valor);
         let elementoAlvo = {
-            valor,
+            valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
             imutavel: true
@@ -10163,7 +10306,7 @@ class PilhaEscoposExecucao {
             variavel.tipo :
             (0, inferenciador_1.inferirTipoVariavel)(valor);
         let elementoAlvo = {
-            valor,
+            valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
             imutavel: false
@@ -27793,7 +27936,8 @@ class TradutorPython {
         for (const declaracao of declaracoes) {
             resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
         }
-        return resultado;
+        return resultado.replace(/\n{2,}/g, '\n');
+        ;
     }
 }
 exports.TradutorPython = TradutorPython;
