@@ -7424,6 +7424,9 @@ exports.default = {
             }
             return vetor;
         }
+        if (!vetor.every(v => typeof v === 'number')) {
+            return vetor.sort();
+        }
         return vetor.sort((a, b) => a - b);
     },
     remover: (interpretador, vetor, elemento) => {
@@ -9139,9 +9142,10 @@ class InterpretadorBase {
     }
     async visitarExpressaoTipoDe(expressao) {
         let tipoDe = expressao.valor;
-        if (expressao.valor instanceof construtos_1.Variavel
-            || expressao.valor instanceof construtos_1.Binario) {
-            tipoDe = await this.avaliar(expressao.valor);
+        if (tipoDe instanceof construtos_1.Binario
+            || tipoDe instanceof construtos_1.Variavel
+            || tipoDe instanceof construtos_1.TipoDe) {
+            tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || (0, inferenciador_1.inferirTipoVariavel)(tipoDe);
         }
         return (0, inferenciador_1.inferirTipoVariavel)((tipoDe === null || tipoDe === void 0 ? void 0 : tipoDe.valores) || tipoDe);
@@ -9182,7 +9186,8 @@ class InterpretadorBase {
     async retirarInterpolacao(texto, variaveis) {
         let textoFinal = texto;
         variaveis.forEach((elemento) => {
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', elemento.valor);
+            var _a;
+            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', ((_a = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _a === void 0 ? void 0 : _a.valor) || (elemento === null || elemento === void 0 ? void 0 : elemento.valor));
         });
         return textoFinal;
     }
@@ -27988,34 +27993,40 @@ class TradutorReversoJavaScript {
     //TODO: @Samuel
     traduzirFuncoesNativas(metodo) {
         switch (metodo.toLowerCase()) {
-            case 'push':
-                return 'adicionar';
             case 'concat':
                 return 'concatenar';
-            case 'slice':
-                return 'fatiar';
             case 'includes':
                 return 'inclui';
-            case 'reverse':
-                return 'inverter';
             case 'join':
                 return 'juntar';
-            case 'sort':
-                return 'ordenar';
-            case 'shift':
-                return 'removerPrimeiro';
-            case 'pop':
-                return 'removerUltimo';
             case 'length':
                 return 'tamanho()';
             case 'log':
                 return 'escreva';
+            case 'pop':
+                return 'removerUltimo';
+            case 'push':
+                return 'adicionar';
+            case 'replace':
+                return 'substituir';
+            case 'reverse':
+                return 'inverter';
+            case 'sort':
+                return 'ordenar';
+            case 'shift':
+                return 'removerPrimeiro';
+            case 'slice':
+                return 'fatiar';
+            case 'trim':
+                return 'aparar';
+            case 'trimstart':
+                return 'apararInicio';
+            case 'trimend':
+                return 'apararFim';
             case 'touppercase':
                 return 'maiusculo';
             case 'tolowercase':
                 return 'minusculo';
-            case 'replace':
-                return 'substituir';
             default:
                 return metodo;
         }
@@ -28058,6 +28069,9 @@ class TradutorReversoJavaScript {
     traduzirExpressao(expressao) {
         let objeto = this.dicionarioConstrutos[expressao.object.type](expressao.object);
         let propriedade = this.dicionarioConstrutos[expressao.property.type](expressao.property);
+        if (objeto === 'console') {
+            return `${this.traduzirFuncoesNativas(propriedade)}`;
+        }
         return `${objeto}.${this.traduzirFuncoesNativas(propriedade)}`;
     }
     traduzirConstrutoLogico(logico) {
