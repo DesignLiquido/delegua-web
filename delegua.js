@@ -9121,7 +9121,7 @@ class InterpretadorBase {
         this.interfaceEntradaSaida = null;
         this.microLexador = new micro_lexador_1.MicroLexador();
         this.microAvaliadorSintatico = new micro_avaliador_sintatico_1.MicroAvaliadorSintatico();
-        this.regexInterpolacao = /\$\{([a-z_0-9][\w \.\,\+\-\(\)\*\/\^]*)\}/gi;
+        this.regexInterpolacao = /\${(.*?)}/g;
         this.diretorioBase = diretorioBase;
         this.performance = performance;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
@@ -9186,8 +9186,13 @@ class InterpretadorBase {
     async retirarInterpolacao(texto, variaveis) {
         let textoFinal = texto;
         variaveis.forEach((elemento) => {
-            var _a;
-            textoFinal = textoFinal.replace('${' + elemento.variavel + '}', ((_a = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _a === void 0 ? void 0 : _a.valor) || (elemento === null || elemento === void 0 ? void 0 : elemento.valor));
+            var _a, _b, _c;
+            if (((_a = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _a === void 0 ? void 0 : _a.tipo) === 'lógico') {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto((_b = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _b === void 0 ? void 0 : _b.valor));
+            }
+            else {
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', ((_c = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _c === void 0 ? void 0 : _c.valor) || (elemento === null || elemento === void 0 ? void 0 : elemento.valor));
+            }
         });
         return textoFinal;
     }
@@ -9783,7 +9788,7 @@ class InterpretadorBase {
             let valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor')) ? resultadoAvaliacao.valor : resultadoAvaliacao;
             formatoTexto += `${this.paraTexto(valor)} `;
         }
-        return formatoTexto;
+        return formatoTexto.trimEnd();
     }
     /**
      * Execução de uma escrita na saída padrão, sem quebras de linha.
