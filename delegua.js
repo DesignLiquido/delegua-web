@@ -2334,9 +2334,16 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.consumir(birl_1.default.PORRA, 'Esperado expressão `PORRA` após `ESSA` para escrever mensagem.');
         this.consumir(birl_1.default.INTERROGACAO, 'Esperado interrogação após `PORRA` para escrever mensagem.');
         this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para escrever mensagem.');
-        const argumento = this.declaracao();
+        const argumentos = [];
+        argumentos.push(this.declaracao());
+        while (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
+            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA)) {
+                const variavelParaEscrita = this.declaracao();
+                argumentos.push(variavelParaEscrita);
+            }
+        }
         this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após argumento para escrever mensagem.');
-        return new declaracoes_1.Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, [argumento]);
+        return new declaracoes_1.Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, argumentos);
     }
     declaracaoFazer() {
         throw new Error('Método não implementado.');
@@ -7375,14 +7382,9 @@ exports.default = {
         vetor.push(elemento);
         return Promise.resolve(vetor);
     },
-    encaixar: (interpretador, vetor, posicaoInicio, excluirQuantidade, elemento = null, obterElementosExcluidos = false) => {
-        let elementosExcluidos = elemento
-            ? vetor.splice(posicaoInicio, excluirQuantidade, elemento)
-            : vetor.splice(posicaoInicio, excluirQuantidade);
-        if (obterElementosExcluidos) {
-            return Promise.resolve(elementosExcluidos);
-        }
-        return Promise.resolve(vetor);
+    encaixar: (interpretador, vetor, inicio, excluirQuantidade, ...items) => {
+        const elementos = !items.length ? vetor.splice(inicio, excluirQuantidade) : vetor.splice(inicio, excluirQuantidade, ...items);
+        return Promise.resolve(elementos);
     },
     fatiar: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
     filtrarPor: async (interpretador, vetor, funcao) => {
