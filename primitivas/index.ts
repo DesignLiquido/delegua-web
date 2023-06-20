@@ -16,5 +16,6 @@ const ordenarPrimitivaPorNome = (a: IPrimitiva, b: IPrimitiva) => {
 const primitivas = [
     ...primitivasNumero, 
     ...primitivasTexto, 
-    ...primitivasVetor
+    ...primitivasVetor,
+    ...metodosBibliotecaGlobal
 ].sort(ordenarPrimitivaPorNome);
