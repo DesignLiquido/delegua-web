@@ -1,6 +1,6 @@
 const Exemplos = {
-OlaMundo: 'escreva("Olá, mundo!");',
-OperacoesBasicas: `var a = 10;
+  OlaMundo: 'escreva("Olá, mundo!");',
+  OperacoesBasicas: `var a = 10;
 var b = 4;
 
 escreva("Valor de A: " + texto(a));
@@ -16,7 +16,7 @@ escreva("A soma dos números é igual a: " + texto(soma));	    // Exibe o result
 escreva("A subtração dos números é igual a: " + texto(sub));	    // Exibe o resultado da subtração
 escreva("A multiplicação dos números é igual a: " + texto(mult));   // Exibe o resultado da multiplicação
 escreva("A divisão dos números é igual a: " + texto(div));          // Exibe o resultado da divisão`,
-Condicional: `var letra = leia('Digite uma letra:');
+  Condicional: `var letra = leia('Digite uma letra:');
 // É necessário verificar letras minúsculas e maiúsculas
 se
   (
@@ -28,7 +28,7 @@ se
 senão {
   escreva("A letra " + letra + " não é uma vogal!");
 }`,
-Classe: `classe Animal {
+  Classe: `classe Animal {
   correr() {
     escreva("Correndo Loucamente");
   }
@@ -41,7 +41,7 @@ classe Cachorro herda Animal {
 var nomeDoCachorro = Cachorro();
 nomeDoCachorro.correr();
 nomeDoCachorro.latir();`,
-MergeSort: `var vetor1 = [8, 2, 9, 5];
+  MergeSort: `var vetor1 = [8, 2, 9, 5];
 var a = 0;
 var aux = 0;
 var i = 0;
@@ -89,7 +89,7 @@ se (vetor2[0] < vetor3[0] e vetor2[1] < vetor3[1]) {
 para (a = 0; a < 4; a = a + 1) {
   escreva ("vetor4(" + texto(vetor4[a]) + ")");
 }`,
-Bhaskara: `funcao bhaskara(a,b,c) {
+  Bhaskara: `funcao bhaskara(a,b,c) {
   // A variável "d" vai simbolizar o Delta.
   // "a", "b", e "c" irão representar os coeficientes da equação.
   var d = b ** 2;
@@ -128,7 +128,7 @@ var b = -1;
 // Insira o valor do coeficiente B:
 var c = -30;
 bhaskara(a,b,c);`,
-Fibonacci: `// Recursão para o cálculo da sequência de Fibonacci
+  Fibonacci: `// Recursão para o cálculo da sequência de Fibonacci
 funcao fibonacci(n) {
   se (n == 0) {
     retorna(0);
@@ -155,7 +155,7 @@ a = fibonacci(4);
 escreva(a);
 a = fibonacci(5);
 escreva(a);`,
-Perceptron: `var pesoInicial1 = 0.3;
+  Perceptron: `var pesoInicial1 = 0.3;
 var pesoInicial2 = 0.4;
 var entrada1 = 1;
 var entrada2 = 1;
@@ -193,7 +193,7 @@ enquanto (erro != 0) {
   escreva("erro: " + texto(erro));
 }`,
 
-FilaEstatica: `funcao enfileirar (valorEntrada) {
+  FilaEstatica: `funcao enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos) {
     escreva("Fila Cheia");
   } senao {
@@ -254,7 +254,7 @@ function definirLinguagemDelegua() {
   return {
     defaultToken: 'invalid',
     tokenPostfix: '.delegua',
-        
+
     keywords: [
       // Should match the keys of textToKeywordObj in
       // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
@@ -344,7 +344,7 @@ function definirLinguagemDelegua() {
       'todos',
       'todosEmCondicao',
     ],
-        
+
     operators: [
       'e',
       'ou',
@@ -374,7 +374,7 @@ function definirLinguagemDelegua() {
       '/=',
       '%=',
     ],
-        
+
     // we include these common regular expressions
     symbols: /[=><!~?:&|+\-*\/\^%]+/,
     escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
@@ -382,149 +382,149 @@ function definirLinguagemDelegua() {
     octaldigits: /[0-7]+(_+[0-7]+)*/,
     binarydigits: /[0-1]+(_+[0-1]+)*/,
     hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
-        
+
     regexpctl: /[(){}\[\]\$\^|\-*+?\.]/,
     regexpesc: /\\(?:[bBdDfnrstvwWn0\\\/]|@regexpctl|c[A-Z]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})/,
 
     // The main tokenizer for our languages
     tokenizer: {
-    root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
+      root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
 
-        common: [
-          // identifiers and keywords
-          [
-            /[a-z_$][çã\w$]*/,
-            {
-              cases: {
-                '@keywords': 'keyword',
-                '@default': 'identifier'
-              }
+      common: [
+        // identifiers and keywords
+        [
+          /[a-z_$][çã\w$]*/,
+          {
+            cases: {
+              '@keywords': 'keyword',
+              '@default': 'identifier'
             }
-          ],
-          [/[A-Z][\w\$]*/, 'type.identifier'], // to show class names nicely
-          // [/[A-Z][\w\$]*/, 'identifier'],
-    
-          // whitespace
-          { include: '@whitespace' },
-    
-          // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
-          [
-            /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
-            { token: 'regexp', bracket: '@open', next: '@regexp' }
-          ],
-    
-          // delimiters and operators
-          [/[()\[\]]/, '@brackets'],
-          [/[<>](?!@symbols)/, '@brackets'],
-          [/!(?=([^=]|$))/, 'delimiter'],
-          [
-            /@symbols/,
-            {
-              cases: {
-                '@operators': 'delimiter',
-                '@default': ''
-              }
+          }
+        ],
+        [/[A-Z][\w\$]*/, 'type.identifier'], // to show class names nicely
+        // [/[A-Z][\w\$]*/, 'identifier'],
+
+        // whitespace
+        { include: '@whitespace' },
+
+        // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
+        [
+          /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
+          { token: 'regexp', bracket: '@open', next: '@regexp' }
+        ],
+
+        // delimiters and operators
+        [/[()\[\]]/, '@brackets'],
+        [/[<>](?!@symbols)/, '@brackets'],
+        [/!(?=([^=]|$))/, 'delimiter'],
+        [
+          /@symbols/,
+          {
+            cases: {
+              '@operators': 'delimiter',
+              '@default': ''
             }
-          ],
-    
-          // numbers
-          [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
-          [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
-          [/0[xX](@hexdigits)n?/, 'number.hex'],
-          [/0[oO]?(@octaldigits)n?/, 'number.octal'],
-          [/0[bB](@binarydigits)n?/, 'number.binary'],
-          [/(@digits)n?/, 'number'],
-    
-          // delimiter: after number because of .\d floats
-          [/[;,.]/, 'delimiter'],
-    
-          // strings
-          [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
-          [/'([^'\\]|\\.)*$/, 'string.invalid'], // non-teminated string
-          [/"/, 'string', '@string_double'],
-          [/'/, 'string', '@string_single'],
-          [/`/, 'string', '@string_backtick']
+          }
         ],
-          
-        whitespace: [
-          [/[ \t\r\n]+/, ''],
-          [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
-          [/\/\*/, 'comment', '@comment'],
-          [/\/\/.*$/, 'comment']
+
+        // numbers
+        [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
+        [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
+        [/0[xX](@hexdigits)n?/, 'number.hex'],
+        [/0[oO]?(@octaldigits)n?/, 'number.octal'],
+        [/0[bB](@binarydigits)n?/, 'number.binary'],
+        [/(@digits)n?/, 'number'],
+
+        // delimiter: after number because of .\d floats
+        [/[;,.]/, 'delimiter'],
+
+        // strings
+        [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+        [/'([^'\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+        [/"/, 'string', '@string_double'],
+        [/'/, 'string', '@string_single'],
+        [/`/, 'string', '@string_backtick']
+      ],
+
+      whitespace: [
+        [/[ \t\r\n]+/, ''],
+        [/\/\*\*(?!\/)/, 'comment.doc', '@jsdoc'],
+        [/\/\*/, 'comment', '@comment'],
+        [/\/\/.*$/, 'comment']
+      ],
+
+      comment: [
+        [/[^\/*]+/, 'comment'],
+        [/\*\//, 'comment', '@pop'],
+        [/[\/*]/, 'comment']
+      ],
+
+      jsdoc: [
+        [/[^\/*]+/, 'comment.doc'],
+        [/\*\//, 'comment.doc', '@pop'],
+        [/[\/*]/, 'comment.doc']
+      ],
+
+      // We match regular expression quite precisely
+      regexp: [
+        [
+          /(\{)(\d+(?:,\d*)?)(\})/,
+          ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']
         ],
-          
-        comment: [
-          [/[^\/*]+/, 'comment'],
-          [/\*\//, 'comment', '@pop'],
-          [/[\/*]/, 'comment']
+        [
+          /(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/,
+          ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]
         ],
-          
-        jsdoc: [
-          [/[^\/*]+/, 'comment.doc'],
-          [/\*\//, 'comment.doc', '@pop'],
-          [/[\/*]/, 'comment.doc']
-        ],
-    
-        // We match regular expression quite precisely
-        regexp: [
-          [
-            /(\{)(\d+(?:,\d*)?)(\})/,
-            ['regexp.escape.control', 'regexp.escape.control', 'regexp.escape.control']
-          ],
-          [
-            /(\[)(\^?)(?=(?:[^\]\\\/]|\\.)+)/,
-            ['regexp.escape.control', { token: 'regexp.escape.control', next: '@regexrange' }]
-          ],
-          [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
-          [/[()]/, 'regexp.escape.control'],
-          [/@regexpctl/, 'regexp.escape.control'],
-          [/[^\\\/]/, 'regexp'],
-          [/@regexpesc/, 'regexp.escape'],
-          [/\\\./, 'regexp.invalid'],
-          [/(\/)([dgimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']]
-        ],
-          
-        regexrange: [
-          [/-/, 'regexp.escape.control'],
-          [/\^/, 'regexp.invalid'],
-          [/@regexpesc/, 'regexp.escape'],
-          [/[^\]]/, 'regexp'],
-          [
-            /\]/,
-            {
-              token: 'regexp.escape.control',
-              next: '@pop',
-              bracket: '@close'
-            }
-          ]
-        ],
-          
-        string_double: [
-          [/[^\\"]+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/"/, 'string', '@pop']
-        ],
-          
-        string_single: [
-          [/[^\\']+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/'/, 'string', '@pop']
-        ],
-          
-        string_backtick: [
-          [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
-          [/[^\\`$]+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/`/, 'string', '@pop']
-        ],
-          
-        bracketCounting: [
-          [/\{/, 'delimiter.bracket', '@bracketCounting'],
-          [/\}/, 'delimiter.bracket', '@pop'],
-          { include: 'common' }
+        [/(\()(\?:|\?=|\?!)/, ['regexp.escape.control', 'regexp.escape.control']],
+        [/[()]/, 'regexp.escape.control'],
+        [/@regexpctl/, 'regexp.escape.control'],
+        [/[^\\\/]/, 'regexp'],
+        [/@regexpesc/, 'regexp.escape'],
+        [/\\\./, 'regexp.invalid'],
+        [/(\/)([dgimsuy]*)/, [{ token: 'regexp', bracket: '@close', next: '@pop' }, 'keyword.other']]
+      ],
+
+      regexrange: [
+        [/-/, 'regexp.escape.control'],
+        [/\^/, 'regexp.invalid'],
+        [/@regexpesc/, 'regexp.escape'],
+        [/[^\]]/, 'regexp'],
+        [
+          /\]/,
+          {
+            token: 'regexp.escape.control',
+            next: '@pop',
+            bracket: '@close'
+          }
+        ]
+      ],
+
+      string_double: [
+        [/[^\\"]+/, 'string'],
+        [/@escapes/, 'string.escape'],
+        [/\\./, 'string.escape.invalid'],
+        [/"/, 'string', '@pop']
+      ],
+
+      string_single: [
+        [/[^\\']+/, 'string'],
+        [/@escapes/, 'string.escape'],
+        [/\\./, 'string.escape.invalid'],
+        [/'/, 'string', '@pop']
+      ],
+
+      string_backtick: [
+        [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
+        [/[^\\`$]+/, 'string'],
+        [/@escapes/, 'string.escape'],
+        [/\\./, 'string.escape.invalid'],
+        [/`/, 'string', '@pop']
+      ],
+
+      bracketCounting: [
+        [/\{/, 'delimiter.bracket', '@bracketCounting'],
+        [/\}/, 'delimiter.bracket', '@pop'],
+        { include: 'common' }
       ]
     }
   };
@@ -566,20 +566,21 @@ window.onload = function () {
           insertTextRules: 4 // InsertAsSnippet
         }
       })
-      const sugestoes = [...formatoPrimitivas,...formatoSnippets]
+      const sugestoes = [...formatoPrimitivas, ...formatoSnippets]
       return { suggestions: sugestoes };
     }
   });
 
   this.Monaco?.languages?.registerHoverProvider('delegua', {
-    provideHover: function(model, position) { 
+    provideHover: function (model, position) {
       const palavra = model.getWordAtPosition(position);
       const primitiva = primitivas.find(p => p.nome === palavra?.word)
-      if(primitiva){
+      if (primitiva) {
         return {
           contents: [
             { value: `**${primitiva.nome}**` },
             { value: primitiva.documentacao },
+            { value: `    ${primitiva.exemplo}    ` }
           ]
         }
       }
@@ -643,8 +644,8 @@ window.onload = function () {
     value: Exemplos[exemploId],
     language: 'delegua'
   });
-  
-  if(exemploId){
+
+  if (exemploId) {
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
 }
