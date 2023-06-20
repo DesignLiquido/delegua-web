@@ -16,5 +16,5 @@ var ordenarPrimitivaPorNome = function (a, b) {
         return -1;
     return 0;
 };
-var primitivas = __spreadArray(__spreadArray(__spreadArray([], primitivasNumero, true), primitivasTexto, true), primitivasVetor, true).sort(ordenarPrimitivaPorNome);
+var primitivas = __spreadArray(__spreadArray(__spreadArray(__spreadArray([], primitivasNumero, true), primitivasTexto, true), primitivasVetor, true), metodosBibliotecaGlobal, true).sort(ordenarPrimitivaPorNome);
 //# sourceMappingURL=index.js.map

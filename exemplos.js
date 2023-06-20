@@ -322,6 +322,7 @@ window.onload = function () {
                     contents: [
                         { value: "**".concat(primitiva.nome, "**") },
                         { value: primitiva.documentacao },
+                        { value: "    ".concat(primitiva.exemplo, "    ") }
                     ]
                 };
             }
