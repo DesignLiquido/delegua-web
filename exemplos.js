@@ -52,6 +52,7 @@ function definirLinguagemDelegua() {
             'para',
             'para',
             'pegue',
+            'qualquer',
             'retorna',
             'se',
             'senão se',
@@ -65,6 +66,7 @@ function definirLinguagemDelegua() {
             'variavel',
             'variável',
             'verdadeiro',
+            'vazio',
             /* keywords delégua funções nativas texto*/
             'dividir',
             'fatiar',
