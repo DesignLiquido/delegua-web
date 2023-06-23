@@ -1968,8 +1968,15 @@ class AvaliadorSintatico {
         const identificadores = [];
         let retorno = [];
         do {
-            identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome de variável.'));
+            identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
+        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
+            const tipos = ['inteiro', 'real', 'texto'];
+            if (!tipos.includes(this.simboloAtual().lexema)) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            }
+            this.avancarEDevolverAnterior();
+        }
         if (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
             for (let [indice, identificador] of identificadores.entries()) {
                 retorno.push(new declaracoes_1.Var(identificador, null));
@@ -1998,9 +2005,16 @@ class AvaliadorSintatico {
     declaracaoDeConstantes() {
         const identificadores = [];
         do {
-            identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome de variável.'));
+            identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
-        this.consumir(delegua_1.default.IGUAL, "Esperado '=' após identificador em instrução 'var'.");
+        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
+            const tipos = ['inteiro', 'real', 'texto'];
+            if (!tipos.includes(this.simboloAtual().lexema)) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            }
+            this.avancarEDevolverAnterior();
+        }
+        this.consumir(delegua_1.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
         const inicializadores = [];
         do {
             inicializadores.push(this.expressao());
@@ -2100,7 +2114,9 @@ class AvaliadorSintatico {
                 }
             }
             else {
-                this.erro(this.simboloAtual(), `Esperado um tipo de retorno válido dentro da função.`);
+                if (tipoRetorno !== 'vazio') {
+                    this.erro(this.simboloAtual(), `Esperado retorno do tipo '${tipoRetorno}' dentro da função.`);
+                }
             }
         }
         return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
