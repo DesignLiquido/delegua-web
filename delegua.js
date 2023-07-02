@@ -1338,8 +1338,26 @@ class AvaliadorSintatico {
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
     verificarDefinicaoTipoAtual() {
-        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio'];
-        const contemTipo = tipos.find(tipo => tipo === this.simboloAtual().lexema.toLowerCase());
+        const tipos = [
+            'inteiro',
+            'qualquer',
+            'real',
+            'texto',
+            'vazio',
+            'vetor'
+        ];
+        const lexema = this.simboloAtual().lexema.toLowerCase();
+        const contemTipo = tipos.find(tipo => tipo === lexema);
+        if (contemTipo && this.verificarTipoProximoSimbolo(delegua_1.default.COLCHETE_ESQUERDO)) {
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]'];
+            this.avancarEDevolverAnterior();
+            if (!this.verificarTipoProximoSimbolo(delegua_1.default.COLCHETE_DIREITO)) {
+                throw this.erro(this.simbolos[this.atual], 'Esperado símbolo de fechamento do vetor \']\'.');
+            }
+            const contemTipoVetor = tiposVetores.find(tipo => tipo === `${lexema}[]`);
+            this.avancarEDevolverAnterior();
+            return contemTipoVetor;
+        }
         return contemTipo;
     }
     simboloAtual() {
@@ -1960,6 +1978,45 @@ class AvaliadorSintatico {
         }
         return this.declaracaoExpressao();
     }
+    verificarTipoAtribuido(tipo, inicializador) {
+        if (tipo) {
+            if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(tipo)) {
+                if (inicializador instanceof construtos_1.Vetor) {
+                    const vetor = inicializador;
+                    if (tipo === 'inteiro[]') {
+                        for (let elemento of vetor.valores) {
+                            if (typeof elemento.valor !== 'number') {
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de \'inteiros\' ou \'real\'.");
+                            }
+                        }
+                    }
+                    if (tipo === 'texto[]') {
+                        for (let elemento of vetor.valores) {
+                            if (typeof elemento.valor !== 'string') {
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de texto.");
+                            }
+                        }
+                    }
+                }
+                else {
+                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de elementos.");
+                }
+            }
+            if (inicializador instanceof construtos_1.Literal) {
+                const literal = inicializador;
+                if (tipo === 'texto') {
+                    if (typeof literal.valor !== 'string') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um texto.");
+                    }
+                }
+                if (['inteiro', 'real'].includes(tipo)) {
+                    if (typeof literal.valor !== 'number') {
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um número.");
+                    }
+                }
+            }
+        }
+    }
     /**
      * Caso símbolo atual seja `var`, devolve uma declaração de variável.
      * @returns Um Construto do tipo Var.
@@ -1967,19 +2024,21 @@ class AvaliadorSintatico {
     declaracaoDeVariaveis() {
         const identificadores = [];
         let retorno = [];
+        let tipo = null;
         do {
             identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto'];
-            if (!tipos.includes(this.simboloAtual().lexema)) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            const tipoVariavel = this.verificarDefinicaoTipoAtual();
+            if (!tipoVariavel) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na variável não é válido.");
             }
+            tipo = tipoVariavel;
             this.avancarEDevolverAnterior();
         }
         if (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
             for (let [indice, identificador] of identificadores.entries()) {
-                retorno.push(new declaracoes_1.Var(identificador, null));
+                retorno.push(new declaracoes_1.Var(identificador, null, tipo));
             }
             this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
             return retorno;
@@ -1993,7 +2052,9 @@ class AvaliadorSintatico {
             throw this.erro(this.simboloAtual(), "Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.");
         }
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new declaracoes_1.Var(identificador, inicializadores[indice]));
+            const inicializador = inicializadores[indice];
+            this.verificarTipoAtribuido(tipo, inicializador);
+            retorno.push(new declaracoes_1.Var(identificador, inicializador, tipo));
         }
         this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
         return retorno;
@@ -2004,14 +2065,16 @@ class AvaliadorSintatico {
      */
     declaracaoDeConstantes() {
         const identificadores = [];
+        let tipo = null;
         do {
             identificadores.push(this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
-            const tipos = ['inteiro', 'real', 'texto'];
-            if (!tipos.includes(this.simboloAtual().lexema)) {
-                throw this.erro(this.simboloAtual(), "Tipo definido na variável é inválido.");
+            const tipoConstante = this.verificarDefinicaoTipoAtual();
+            if (!tipoConstante) {
+                throw this.erro(this.simboloAtual(), "Tipo definido na constante não é válido.");
             }
+            tipo = tipoConstante;
             this.avancarEDevolverAnterior();
         }
         this.consumir(delegua_1.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
@@ -2024,7 +2087,9 @@ class AvaliadorSintatico {
         }
         let retorno = [];
         for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice]));
+            const inicializador = inicializadores[indice];
+            this.verificarTipoAtribuido(tipo, inicializador);
+            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice], tipo));
         }
         this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
         return retorno;
@@ -2097,7 +2162,7 @@ class AvaliadorSintatico {
             let funcaoContemRetorno = corpo.find(c => c instanceof declaracoes_1.Retorna);
             if (funcaoContemRetorno) {
                 if (tipoRetorno === 'vazio') {
-                    this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`);
+                    throw this.erro(this.simboloAtual(), `A função não pode ter nenhum tipo de retorno.`);
                 }
                 const tipoValor = typeof funcaoContemRetorno.valor.valor;
                 if (!['qualquer'].includes(tipoRetorno)) {
