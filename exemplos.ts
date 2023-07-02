@@ -300,6 +300,7 @@ function definirLinguagemDelegua() {
       'variável',
       'verdadeiro',
       'vazio',
+      'vetor',
 
       /* keywords delégua funções nativas texto*/
       'dividir',
