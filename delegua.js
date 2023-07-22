@@ -1986,32 +1986,32 @@ class AvaliadorSintatico {
                     if (tipo === 'inteiro[]') {
                         for (let elemento of vetor.valores) {
                             if (typeof elemento.valor !== 'number') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de \'inteiros\' ou \'real\'.");
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'inteiros\' ou \'real\'.");
                             }
                         }
                     }
                     if (tipo === 'texto[]') {
                         for (let elemento of vetor.valores) {
                             if (typeof elemento.valor !== 'string') {
-                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de texto.");
+                                throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de \'texto\'.");
                             }
                         }
                     }
                 }
                 else {
-                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um vetor de elementos.");
+                    throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um vetor de elementos.");
                 }
             }
             if (inicializador instanceof construtos_1.Literal) {
                 const literal = inicializador;
                 if (tipo === 'texto') {
                     if (typeof literal.valor !== 'string') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um texto.");
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'texto\'.");
                     }
                 }
                 if (['inteiro', 'real'].includes(tipo)) {
                     if (typeof literal.valor !== 'number') {
-                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é espero um número.");
+                        throw this.erro(this.simboloAtual(), "Atribuição inválida, é esperado um \'número\'.");
                     }
                 }
             }
@@ -2124,18 +2124,19 @@ class AvaliadorSintatico {
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
                 parametro.valorPadrao = this.primario();
             }
-            parametros.push(parametro);
             if (parametro.abrangencia === 'multiplo')
                 break;
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
-                let comtemDefinicaoTipo = this.verificarDefinicaoTipoAtual();
-                if (!comtemDefinicaoTipo) {
+                let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
+                if (!tipoDadoParametro) {
                     this.erro(this.simboloAtual(), `O tipo '${this.simboloAtual().lexema}' não é válido.`);
                 }
                 else {
+                    parametro.tipo = tipoDadoParametro;
                     this.avancarEDevolverAnterior();
                 }
             }
+            parametros.push(parametro);
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         return parametros;
     }
@@ -2184,7 +2185,7 @@ class AvaliadorSintatico {
                 }
             }
         }
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
+        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo, tipoRetorno);
     }
     declaracaoDeClasse() {
         const simbolo = this.consumir(delegua_1.default.IDENTIFICADOR, 'Esperado nome da classe.');
@@ -5881,6 +5882,10 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         let resolverIncrementoEmExecucao = false;
         if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PASSO)) {
             passo = this.unario();
+            if (passo.hasOwnProperty('operador') && passo.operador.tipo === visualg_1.default.SUBTRACAO) {
+                operadorCondicao = new lexador_1.Simbolo(visualg_1.default.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
+                operadorCondicaoIncremento = new lexador_1.Simbolo(visualg_1.default.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
+            }
         }
         else {
             if (literalOuVariavelInicio instanceof construtos_1.Literal && literalOuVariavelFim instanceof construtos_1.Literal) {
@@ -5912,7 +5917,13 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         this.consumir(visualg_1.default.FIM_PARA, '');
         this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'fimpara'.");
         const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(simboloPara.linha) + 1, declaracoesBlocoPara.filter((d) => d));
-        const para = new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, literalOuVariavelInicio), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicao, literalOuVariavelFim), new construtos_1.FimPara(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicaoIncremento, literalOuVariavelFim), new declaracoes_1.Expressao(new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), new lexador_1.Simbolo(visualg_1.default.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo), passo)))), corpo);
+        const para = new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), 
+        // Inicialização.
+        new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, literalOuVariavelInicio), 
+        // Condição.
+        new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicao, literalOuVariavelFim), 
+        // Incremento, feito em construto especial `FimPara`.
+        new construtos_1.FimPara(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicaoIncremento, literalOuVariavelFim), new declaracoes_1.Expressao(new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), new lexador_1.Simbolo(visualg_1.default.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo), passo)))), corpo);
         para.blocoPosExecucao = corpo;
         para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
         return para;
@@ -7944,10 +7955,11 @@ exports.FormatacaoEscrita = FormatacaoEscrita;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
 class FuncaoConstruto {
-    constructor(hashArquivo, linha, parametros, corpo) {
+    constructor(hashArquivo, linha, parametros, corpo, tipoRetorno) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.parametros = parametros;
+        this.tipoRetorno = tipoRetorno;
         this.corpo = corpo;
     }
     async aceitar(visitante) {
