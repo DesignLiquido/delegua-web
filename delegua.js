@@ -2288,6 +2288,9 @@ const construtos_1 = require("../../construtos");
 const declaracoes_1 = require("../../declaracoes");
 const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
+/**
+ * Avaliador Sintático de BIRL
+ */
 class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
     validarEscopoPrograma() {
         let declaracoes = [];
@@ -2360,6 +2363,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false);
         if (this.verificarSeSimboloAtualEIgualA(birl_1.default.ADICAO))
             return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), true);
+        // Simplesmente avança o símbolo por enquanto.
+        // O `if` de baixo irá tratar a referência.
+        this.verificarSeSimboloAtualEIgualA(birl_1.default.PONTEIRO);
         if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IDENTIFICADOR)) {
             return new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
         }
@@ -2372,9 +2378,19 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
             return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
+        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
     chamar() {
-        return this.primario();
+        let expressao = this.primario();
+        while (true) {
+            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.PARENTESE_ESQUERDO)) {
+                expressao = this.finalizarChamada(expressao);
+            }
+            else {
+                break;
+            }
+        }
+        return expressao;
     }
     atribuir() {
         const expressao = this.ou();
@@ -2467,11 +2483,10 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para escrever mensagem.');
         const argumentos = [];
         argumentos.push(this.declaracao());
-        while (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
-            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA)) {
-                const variavelParaEscrita = this.declaracao();
-                argumentos.push(variavelParaEscrita);
-            }
+        while (this.verificarTipoSimboloAtual(birl_1.default.VIRGULA)) {
+            this.avancarEDevolverAnterior(); // Vírgula
+            const variavelParaEscrita = this.declaracao();
+            argumentos.push(variavelParaEscrita);
         }
         this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após argumento para escrever mensagem.');
         return new declaracoes_1.Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, argumentos);
@@ -2671,6 +2686,8 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         this.consumir(birl_1.default.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
         this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
         const condicaoSe = this.declaracao();
+        // @TODO: Verificar se é possível consumir os dois símbolos juntos.
+        // Consumindo n == 1 || n == 2 separado.
         this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
         return {
             simboloSe,
@@ -2724,6 +2741,9 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                 declaraçõesSenao.push(this.declaracao());
             }
             caminhoSenao = new declaracoes_1.Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
+        }
+        if (this.verificarTipoSimboloAtual(birl_1.default.BIRL)) {
+            this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` após `SE`.');
         }
         return new declaracoes_1.Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
     }
@@ -2909,9 +2929,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
                     const simboloIncrementoDecremento = this.avancarEDevolverAnterior();
                     return new construtos_1.Unario(this.hashArquivo, simboloIncrementoDecremento, new construtos_1.Variavel(this.hashArquivo, simboloIdentificador), 'DEPOIS');
                 }
-                else {
-                    return this.expressao();
-                }
+                return this.expressao();
             default:
                 return this.expressao();
         }
@@ -7277,7 +7295,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
     // Mínimo(inclusivo) - Máximo(exclusivo)
     pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(1, async function (minimo, maximo) {
         // eslint-disable-next-line prefer-rest-params
-        if (!arguments[0]) {
+        if (arguments.length <= 0) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'A função recebe ao menos um parâmetro.'));
         }
         const valorMinimo = minimo.hasOwnProperty('valor') ? minimo.valor : minimo;
@@ -10794,35 +10812,44 @@ class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
                 }
                 break;
             case '&':
-                if (this.proximoSimbolo() === '&') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '&') {
                     this.avancar();
                     this.adicionarSimbolo(birl_1.default.E);
-                    break;
                 }
-                // Ler o simbolo porem não é tratado.
-                this.adicionarSimbolo(birl_1.default.PONTEIRO);
-                this.avancar();
+                else {
+                    this.adicionarSimbolo(birl_1.default.PONTEIRO);
+                }
                 break;
             case '+':
-                if (this.proximoSimbolo() === '+') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '+') {
                     this.avancar();
                     this.adicionarSimbolo(birl_1.default.INCREMENTAR);
-                    break;
                 }
-                this.adicionarSimbolo(birl_1.default.ADICAO);
-                this.avancar();
+                else {
+                    this.adicionarSimbolo(birl_1.default.ADICAO);
+                }
                 break;
             case '-':
-                if (this.proximoSimbolo() === '-') {
-                    this.avancar();
+                this.avancar();
+                if (this.simboloAtual() === '-') {
                     this.avancar();
                     this.adicionarSimbolo(birl_1.default.DECREMENTAR);
-                    break;
                 }
-                this.adicionarSimbolo(birl_1.default.SUBTRACAO);
+                else {
+                    this.adicionarSimbolo(birl_1.default.SUBTRACAO);
+                }
+                break;
+            case '|':
                 this.avancar();
+                if (this.simboloAtual() === '|') {
+                    this.avancar();
+                    this.adicionarSimbolo(birl_1.default.OU);
+                }
+                else {
+                    this.adicionarSimbolo(birl_1.default.OU);
+                }
                 break;
             case '*':
                 this.adicionarSimbolo(birl_1.default.MULTIPLICACAO);
