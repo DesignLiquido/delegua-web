@@ -15,6 +15,7 @@ import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
+import { Declaracao } from "@designliquido/delegua/fontes/declaracoes";
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -25,8 +26,8 @@ export class DeleguaWeb {
     dialeto: string = "delegua";
     arquivosAbertos: any;
     interpretador: InterpretadorBase;
-    lexador: LexadorInterface;
-    avaliadorSintatico: AvaliadorSintaticoInterface;
+    lexador: LexadorInterface<SimboloInterface>;
+    avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
     funcaoDeRetorno: Function;
     iniciarDelegua: any;
     carregarArquivo: any;
