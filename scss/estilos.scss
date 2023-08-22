@@ -22,7 +22,9 @@ nav {
     }
 
     .navbar-direita {
-        width: 50px;
+        display: flex;
+        width: 300px;
+        justify-content: space-around;
     }
 
     .icone-burger {
