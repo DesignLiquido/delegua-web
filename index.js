@@ -81,6 +81,8 @@ var DeleguaWeb = /** @class */ (function () {
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
+        this.tradutorPython = new tradutores_1.TradutorPython();
+        this.tradutorAssemblyScript = new tradutores_1.TradutorAssemblyScript();
         this.nomeArquivo = nomeArquivo;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.lexador = new lexador_1.Lexador();

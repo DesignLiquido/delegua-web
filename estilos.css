@@ -18,7 +18,9 @@ nav .navbar-esquerda {
   cursor: pointer;
 }
 nav .navbar-direita {
-  width: 50px;
+  display: flex;
+  width: 300px;
+  justify-content: space-around;
 }
 nav .icone-burger {
   width: 30px;

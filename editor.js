@@ -75,14 +75,22 @@ var mapearErros = function (erros) {
 var executarTradutor = function () {
     var delegua = new Delegua.DeleguaWeb("");
     var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+    //ts-ignore
+    var linguagem = document.querySelector("#linguagem").value.toLowerCase();
+    var funcoes = {
+        "python": { tradutor: delegua.tradutorPython, linguagem: "python" },
+        "javascript": { tradutor: delegua.tradutorJavascript, linguagem: "javascript" },
+        "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
+    };
     if (codigo[0]) {
         var retornoLexador = delegua.lexador.mapear(codigo, -1);
         var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-        var retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes);
+        var funcao = funcoes[linguagem];
+        var retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         if (retornoTradutor) {
             Monaco.editor.create(document.getElementById("resultadoEditor"), {
                 value: retornoTradutor,
-                language: "javascript"
+                language: funcao.linguagem
             });
         }
     }
