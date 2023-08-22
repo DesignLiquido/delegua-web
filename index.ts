@@ -9,7 +9,7 @@ import {
     SimboloInterface,
 } from "@designliquido/delegua/fontes/interfaces/index";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
-import { TradutorJavaScript } from "@designliquido/delegua/fontes/tradutores";
+import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/fontes/tradutores";
 
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
@@ -34,6 +34,8 @@ export class DeleguaWeb {
     conteudoArquivosAbertos: any;
     executarUmaLinha: any;
     tradutorJavascript = new TradutorJavaScript();
+    tradutorPython = new TradutorPython();
+    tradutorAssemblyScript = new TradutorAssemblyScript();
 
     constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
         this.nomeArquivo = nomeArquivo;
