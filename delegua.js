@@ -1931,6 +1931,9 @@ class AvaliadorSintatico {
             case delegua_1.default.CHAVE_ESQUERDA:
                 const simboloInicioBloco = this.avancarEDevolverAnterior();
                 return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case delegua_1.default.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
             case delegua_1.default.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
@@ -1965,6 +1968,9 @@ class AvaliadorSintatico {
             case delegua_1.default.TENTE:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoTente();
+            case delegua_1.default.VARIAVEL:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeVariaveis();
         }
         const simboloAtual = this.simbolos[this.atual];
         if (simboloAtual.tipo === delegua_1.default.IDENTIFICADOR) {
@@ -2212,10 +2218,6 @@ class AvaliadorSintatico {
                 this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
-            if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VARIAVEL))
-                return this.declaracaoDeVariaveis();
-            if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CONSTANTE))
-                return this.declaracaoDeConstantes();
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.CLASSE))
                 return this.declaracaoDeClasse();
             return this.resolverDeclaracao();
@@ -4611,29 +4613,7 @@ class AvaliadorSintaticoPitugues {
     }
     declaracaoSe() {
         const condicao = this.expressao();
-        // this.consumir(tiposDeSimbolos.DOIS_PONTOS, "Esperado ':' após condição de declaração 'se'.");
         const caminhoEntao = this.resolverDeclaracao();
-        // const caminhoEntao = this.blocoEscopo();
-        // TODO: `senãose` não existe na língua portuguesa, e a forma separada, `senão se`,
-        // funciona do jeito que deveria.
-        // Marcando este código para ser removido em versões futuras.
-        /* while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SENAOSE, tiposDeSimbolos.SENÃOSE)) {
-            this.consumir(tiposDeSimbolos.PARENTESE_ESQUERDO, "Esperado '(' após 'senaose' ou 'senãose'.");
-            const condicaoSeSenao = this.expressao();
-            this.consumir(tiposDeSimbolos.PARENTESE_DIREITO, "Esperado ')' após codição do 'senaose' ou 'senãose'.");
-
-            const caminho = this.resolverDeclaracao();
-
-            caminhosSeSenao.push({
-                condicao: condicaoSeSenao,
-                caminho: caminho,
-            });
-        } */
-        // Se há algum escopo aberto, conferir antes do senão se símbolo
-        // atual é um espaço de indentação
-        /* if (this.escopos.length > 0) {
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESPACO_INDENTACAO);
-        } */
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.SENAO, pitugues_1.default.SENÃO)) {
             caminhoSenao = this.resolverDeclaracao();
@@ -4701,31 +4681,70 @@ class AvaliadorSintaticoPitugues {
         }
     }
     resolverDeclaracao() {
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.FAZER))
-            return this.declaracaoFazer();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.TENTE))
-            return this.declaracaoTente();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.ESCOLHA))
-            return this.declaracaoEscolha();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.RETORNA))
-            return this.declaracaoRetorna();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.CONTINUA))
-            return this.declaracaoContinua();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.SUSTAR) ||
-            this.verificarSeSimboloAtualEIgualA(pitugues_1.default.PAUSA))
-            return this.declaracaoSustar();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.PARA))
-            return this.declaracaoPara();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.ENQUANTO))
-            return this.declaracaoEnquanto();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.SE))
-            return this.declaracaoSe();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.ESCREVA))
-            return this.declaracaoEscreva();
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.DOIS_PONTOS)) {
-            const simboloInicioBloco = this.simboloAnterior();
-            return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+        switch (this.simbolos[this.atual].tipo) {
+            case pitugues_1.default.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
+            case pitugues_1.default.CONTINUA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoContinua();
+            case pitugues_1.default.DOIS_PONTOS:
+                this.avancarEDevolverAnterior();
+                const simboloInicioBloco = this.simboloAnterior();
+                return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case pitugues_1.default.ENQUANTO:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEnquanto();
+            case pitugues_1.default.ESCOLHA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscolha();
+            case pitugues_1.default.ESCREVA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
+            case pitugues_1.default.FALHAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFalhar();
+            case pitugues_1.default.FAZER:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoFazer();
+            case pitugues_1.default.PARA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoPara();
+            case pitugues_1.default.PAUSA:
+            case pitugues_1.default.SUSTAR:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSustar();
+            case pitugues_1.default.SE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoSe();
+            case pitugues_1.default.RETORNA:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoRetorna();
+            case pitugues_1.default.TENTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoTente();
+            case pitugues_1.default.VARIAVEL:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeVariaveis();
         }
+        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
+        if (
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUSTAR) ||
+            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)
+        )
+            return this.declaracaoSustar();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoEscreva();
+        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
+            const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
+            return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+        } */
         return this.declaracaoExpressao();
     }
     funcao(tipo, construtor) {
@@ -4784,6 +4803,11 @@ class AvaliadorSintaticoPitugues {
         }
         return new declaracoes_1.Classe(simbolo, superClasse, metodos);
     }
+    declaracaoFalhar() {
+        const simboloFalha = this.simbolos[this.atual - 1];
+        const textoFalha = this.consumir(pitugues_1.default.TEXTO, "Esperado texto para explicar falha.");
+        return new declaracoes_1.Falhar(simboloFalha, textoFalha.literal);
+    }
     /**
      * Consome o símbolo atual, verificando se é uma declaração de função, variável, classe
      * ou uma expressão.
@@ -4797,8 +4821,6 @@ class AvaliadorSintaticoPitugues {
                 this.avancarEDevolverAnterior();
                 return this.funcao('funcao');
             }
-            if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.VARIAVEL))
-                return this.declaracaoDeVariaveis();
             if (this.verificarSeSimboloAtualEIgualA(pitugues_1.default.CLASSE))
                 return this.declaracaoDeClasse();
             return this.resolverDeclaracao();
@@ -14719,6 +14741,7 @@ exports.default = {
     CLASSE: 'CLASSE',
     COLCHETE_DIREITO: 'COLCHETE_DIREITO',
     COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    CONSTANTE: 'CONSTANTE',
     CONSTRUTOR: 'CONSTRUTOR',
     CONTINUA: 'CONTINUA',
     DIFERENTE: 'DIFERENTE',
@@ -14732,6 +14755,7 @@ exports.default = {
     ESCOLHA: 'ESCOLHA',
     ESCREVA: 'ESCREVA',
     EXPONENCIACAO: 'EXPONENCIACAO',
+    FALHAR: 'FALHAR',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
     FALSO: 'FALSO',
