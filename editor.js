@@ -58,7 +58,6 @@ var limparResultadoEditor = function () {
 limparResultadoEditor();
 var mapearErros = function (erros) {
     var editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
-    console.log(erros);
     var _erros = erros.map(function (item) {
         var _a;
         return {
@@ -66,7 +65,7 @@ var mapearErros = function (erros) {
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: (item === null || item === void 0 ? void 0 : item.mensagem) || item.erroInterno,
+            message: item === null || item === void 0 ? void 0 : item.mensagem,
             severity: MarkerSeverity.Error
         };
     });
@@ -97,7 +96,7 @@ var executarTradutor = function () {
 };
 var executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function () {
-        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, retorno;
+        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, analisadorSemantico, erros;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -105,10 +104,15 @@ var executarCodigo = function () {
                     codigo = Monaco.editor.getModels()[0].getValue().split("\n");
                     retornoLexador = delegua.lexador.mapear(codigo, -1);
                     retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                    erros = analisadorSemantico.erros;
+                    if (!!erros.length) return [3 /*break*/, 2];
                     return [4 /*yield*/, delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico })];
                 case 1:
-                    retorno = _a.sent();
-                    mapearErros(retorno.erros);
+                    _a.sent();
+                    _a.label = 2;
+                case 2:
+                    mapearErros(analisadorSemantico.erros);
                     return [2 /*return*/];
             }
         });

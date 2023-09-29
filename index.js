@@ -65,6 +65,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaWeb = void 0;
 var lexador_1 = require("@designliquido/delegua/fontes/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
+var analisador_semantico_1 = require("@designliquido/delegua/fontes/analisador-semantico");
 var interpretador_base_1 = require("@designliquido/delegua/fontes/interpretador/interpretador-base");
 var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
 var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
@@ -87,6 +88,7 @@ var DeleguaWeb = /** @class */ (function () {
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
+        this.analisadorSemantico = new analisador_semantico_1.AnalisadorSemantico();
         this.interpretador = new interpretador_base_1.InterpretadorBase("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: function (mensagem, callback) {
