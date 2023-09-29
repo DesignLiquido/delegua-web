@@ -1,5 +1,6 @@
 import { Lexador } from "@designliquido/delegua/fontes/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
+import { AnalisadorSemantico } from "@designliquido/delegua/fontes/analisador-semantico";
 import { InterpretadorBase } from "@designliquido/delegua/fontes/interpretador/interpretador-base";
 import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
 import {
@@ -28,6 +29,7 @@ export class DeleguaWeb {
     interpretador: InterpretadorBase;
     lexador: LexadorInterface<SimboloInterface>;
     avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
+    analisadorSemantico: AnalisadorSemantico
     funcaoDeRetorno: Function;
     iniciarDelegua: any;
     carregarArquivo: any;
@@ -43,6 +45,7 @@ export class DeleguaWeb {
 
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
+        this.analisadorSemantico = new AnalisadorSemantico();
         this.interpretador = new InterpretadorBase(
             "",
             false,

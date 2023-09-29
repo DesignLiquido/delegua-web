@@ -28,14 +28,13 @@ limparResultadoEditor();
 const mapearErros = function (erros: any[]) {
     const editor = Monaco?.editor.getEditors()[0];
 
-    console.log(erros)
     const _erros = erros.map(item => {
         return {
             startLineNumber: item?.simbolo?.linha || item.linha,
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: item?.mensagem || item.erroInterno,
+            message: item?.mensagem,
             severity: MarkerSeverity.Error
         }
     })
@@ -81,10 +80,14 @@ const executarCodigo = async function () {
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico =
         delegua.avaliadorSintatico.analisar(retornoLexador);
+    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const erros = analisadorSemantico.erros;
 
-    const retorno = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+    if(!erros.length) {
+        await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+    }
 
-    mapearErros(retorno.erros);
+    mapearErros(analisadorSemantico.erros);
 };
 
 botaoTraduzir.addEventListener("click", function () {
