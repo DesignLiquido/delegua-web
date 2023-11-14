@@ -83,11 +83,9 @@ const executarCodigo = async function () {
     const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const erros = analisadorSemantico.erros;
 
-    if(!erros.length) {
-        await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
-    }
+    if (erros?.length) return mapearErros(erros);
 
-    mapearErros(analisadorSemantico.erros);
+    await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
 };
 
 botaoTraduzir.addEventListener("click", function () {
