@@ -8,7 +8,7 @@
       "dom"
     ],
     "moduleResolution": "node",
-    "sourceMap": true,
+    "sourceMap": false,
     "outDir": "dist",
     "esModuleInterop": true,
     "allowJs": true,
