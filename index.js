@@ -188,4 +188,3 @@ var DeleguaWeb = /** @class */ (function () {
     return DeleguaWeb;
 }());
 exports.DeleguaWeb = DeleguaWeb;
-//# sourceMappingURL=index.js.map

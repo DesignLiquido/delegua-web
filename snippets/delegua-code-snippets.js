@@ -107,4 +107,3 @@ var deleguaCodeSnippets = [
         description: "Declaração \"tente-pegue-finalmente\""
     },
 ];
-//# sourceMappingURL=delegua-code-snippets.js.map

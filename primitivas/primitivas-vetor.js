@@ -154,4 +154,3 @@ var primitivasVetor = [
         exemplo: 'vetor.juntar(separador)'
     },
 ];
-//# sourceMappingURL=primitivas-vetor.js.map

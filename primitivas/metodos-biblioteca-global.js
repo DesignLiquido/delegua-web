@@ -73,4 +73,3 @@ var metodosBibliotecaGlobal = [
         exemplo: 'real(texto)'
     },
 ];
-//# sourceMappingURL=metodos-biblioteca-global.js.map

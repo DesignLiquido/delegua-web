@@ -126,4 +126,3 @@ var primitivasTexto = [
         exemplo: 'texto.tamanho()'
     },
 ];
-//# sourceMappingURL=primitivas-texto.js.map

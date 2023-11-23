@@ -393,4 +393,3 @@ window.onload = function () {
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
     }
 };
-//# sourceMappingURL=exemplos.js.map
