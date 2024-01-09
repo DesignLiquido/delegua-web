@@ -73,19 +73,24 @@ const executarTradutor = function () {
 }
 
 const executarCodigo = async function () {
-    const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
+    try {
+        const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 
-    const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
+        const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico =
-        delegua.avaliadorSintatico.analisar(retornoLexador);
-    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    const erros = analisadorSemantico.erros;
+        const retornoLexador = delegua.lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico =
+            delegua.avaliadorSintatico.analisar(retornoLexador);
+        const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+        const erros = analisadorSemantico.erros;
 
-    if (erros?.length) return mapearErros(erros);
+        if (erros?.length) return mapearErros(erros);
 
-    await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+        await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+    } catch (error) {
+        const ERRO = "Erro: " + error
+        mostrarResultadoExecutar(ERRO)
+    }
 };
 
 botaoTraduzir.addEventListener("click", function () {
