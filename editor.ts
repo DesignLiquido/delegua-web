@@ -89,12 +89,12 @@ const executarCodigo = async function () {
 
         delegua.executar({ retornoLexador, retornoAvaliadorSintatico })
             .then(function (response) {
-                var ERROS = response.erros;
-                if (ERROS) {
-                    ERROS.forEach((erro) => {
+                const erros = response.erros;
+                if (erros) {
+                    erros.forEach((erro) => {
                         if (erro.linha > 0) {
-                            const MENSAGEM_ERRO = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
-                            mostrarResultadoExecutar(MENSAGEM_ERRO);
+                            const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
+                            mostrarResultadoExecutar(mensagemErro);
                         }
                     });
                 }
@@ -103,8 +103,8 @@ const executarCodigo = async function () {
                 mostrarResultadoExecutar(erro);
             });
     } catch (error) {
-        const ERRO = "Erro: " + error
-        mostrarResultadoExecutar(ERRO)
+        const erro = "Erro: " + error
+        mostrarResultadoExecutar(erro)
     }
 };
 
