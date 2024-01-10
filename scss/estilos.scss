@@ -25,6 +25,11 @@ nav {
         display: flex;
         width: 300px;
         justify-content: space-around;
+
+        div{
+            display: flex;
+            gap: 80px;
+        }
     }
 
     .icone-burger {
@@ -119,6 +124,28 @@ textarea {
     box-shadow: none;
 
     resize: none;
+}
+
+@media only screen and (max-width: 562px) {
+    nav {
+        justify-content: space-around;
+        font-size: 14px;
+        flex-wrap: wrap;
+    }
+
+    .navbar-direita{
+        margin-left: auto;
+
+        #linguagem{
+            order: 2;
+            width: 151px;
+        }
+
+        div{
+            order: 1;
+            gap: 64px;
+        }
+    }
 }
 
 @media only screen and (max-width: 768px) {
