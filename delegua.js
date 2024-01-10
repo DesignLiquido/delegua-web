@@ -1437,7 +1437,7 @@ class AnalisadorSemantico {
         }
         return Promise.resolve();
     }
-    visitarExpressaoEscrevaMesmaLinha(declaracao) {
+    visitarDeclaracaoEscrevaMesmaLinha(declaracao) {
         return Promise.resolve();
     }
     visitarExpressaoBloco(declaracao) {
@@ -9409,7 +9409,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
         this.argumentos = argumentos;
     }
     async aceitar(visitante) {
-        return await visitante.visitarExpressaoEscrevaMesmaLinha(this);
+        return await visitante.visitarDeclaracaoEscrevaMesmaLinha(this);
     }
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
@@ -10562,6 +10562,11 @@ class InterpretadorBase {
         }
         return null;
     }
+    /**
+     * Formata uma saída de acordo com o número e espaços e casas decimais solicitados.
+     * @param declaracao A declaração de formatação de escrita.
+     * @returns {string} A saída formatada como texto e os respectivos parâmetros aplicados.
+     */
     async visitarExpressaoFormatacaoEscrita(declaracao) {
         let resultado = '';
         const conteudo = await this.avaliar(declaracao.expressao);
@@ -11063,7 +11068,7 @@ class InterpretadorBase {
      * @param declaracao A declaração.
      * @returns Sempre nulo, por convenção de visita.
      */
-    async visitarExpressaoEscrevaMesmaLinha(declaracao) {
+    async visitarDeclaracaoEscrevaMesmaLinha(declaracao) {
         try {
             const formatoTexto = await this.avaliarArgumentosEscreva(declaracao.argumentos);
             this.funcaoDeRetornoMesmaLinha(formatoTexto);

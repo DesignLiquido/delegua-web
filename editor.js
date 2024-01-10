@@ -69,6 +69,7 @@ var mapearErros = function (erros) {
             severity: MarkerSeverity.Error
         };
     });
+    console.log(_erros);
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros);
 };
 var executarTradutor = function () {
@@ -96,23 +97,38 @@ var executarTradutor = function () {
 };
 var executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function () {
-        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, analisadorSemantico, erros;
+        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, analisadorSemantico, erros, erro;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
-                    codigo = Monaco.editor.getModels()[0].getValue().split("\n");
-                    retornoLexador = delegua.lexador.mapear(codigo, -1);
-                    retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
-                    analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-                    erros = analisadorSemantico.erros;
-                    if (erros === null || erros === void 0 ? void 0 : erros.length)
-                        return [2 /*return*/, mapearErros(erros)];
-                    return [4 /*yield*/, delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
+            try {
+                delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
+                codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+                retornoLexador = delegua.lexador.mapear(codigo, -1);
+                retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+                erros = analisadorSemantico.erros;
+                if (erros === null || erros === void 0 ? void 0 : erros.length)
+                    return [2 /*return*/, mapearErros(erros)];
+                delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico })
+                    .then(function (response) {
+                    var erros = response.erros;
+                    if (erros) {
+                        erros.forEach(function (erro) {
+                            if (erro.linha > 0) {
+                                var mensagemErro = "Erro na linha ".concat(erro.linha, ":  ").concat(erro.erroInterno.message);
+                                mostrarResultadoExecutar(mensagemErro);
+                            }
+                        });
+                    }
+                })
+                    .catch(function (erro) {
+                    mostrarResultadoExecutar(erro);
+                });
             }
+            catch (error) {
+                erro = "Erro: " + error;
+                mostrarResultadoExecutar(erro);
+            }
+            return [2 /*return*/];
         });
     });
 };
