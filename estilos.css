@@ -22,6 +22,10 @@ nav .navbar-direita {
   width: 300px;
   justify-content: space-around;
 }
+nav .navbar-direita div {
+  display: flex;
+  gap: 80px;
+}
 nav .icone-burger {
   width: 30px;
   height: 3px;
@@ -110,6 +114,24 @@ textarea {
   resize: none;
 }
 
+@media only screen and (max-width: 562px) {
+  nav {
+    justify-content: space-around;
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+  .navbar-direita {
+    margin-left: auto;
+  }
+  .navbar-direita #linguagem {
+    order: 2;
+    width: 151px;
+  }
+  .navbar-direita div {
+    order: 1;
+    gap: 64px;
+  }
+}
 @media only screen and (max-width: 768px) {
   #editor {
     width: 100% !important;
