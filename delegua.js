@@ -2730,8 +2730,6 @@ class AvaliadorSintatico {
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.IGUAL)) {
                 parametro.valorPadrao = this.primario();
             }
-            if (parametro.abrangencia === 'multiplo')
-                break;
             if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.DOIS_PONTOS)) {
                 let tipoDadoParametro = this.verificarDefinicaoTipoAtual();
                 parametro.tipoDado = {
@@ -2742,6 +2740,8 @@ class AvaliadorSintatico {
                 this.avancarEDevolverAnterior();
             }
             parametros.push(parametro);
+            if (parametro.abrangencia === 'multiplo')
+                break;
         } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
         return parametros;
     }
@@ -9956,11 +9956,22 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
         for (let i = 0; i < parametros.length; i++) {
             const parametro = parametros[i];
             const nome = parametro['nome'].lexema;
-            let argumento = argumentos[i];
-            if (argumentos[i] === null) {
-                argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
+            if (parametro.abrangencia === 'multiplo') {
+                const argumentosResolvidos = [];
+                for (let indiceArgumentoAtual = i; indiceArgumentoAtual < argumentos.length; indiceArgumentoAtual++) {
+                    const argumentoAtual = argumentos[indiceArgumentoAtual];
+                    argumentosResolvidos.push(argumentoAtual && argumentoAtual.hasOwnProperty('valor') ? argumentoAtual.valor : argumentoAtual);
+                }
+                // TODO: Verificar se `imutavel` é `true` aqui mesmo.
+                ambiente.valores[nome] = { tipo: 'vetor', valor: argumentosResolvidos, imutavel: true };
             }
-            ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+            else {
+                let argumento = argumentos[i];
+                if (argumentos[i] === null) {
+                    argumento = parametro['padrao'] ? parametro['padrao'].valor : null;
+                }
+                ambiente.valores[nome] = argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+            }
         }
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
@@ -10755,6 +10766,9 @@ class InterpretadorBase {
                 }
             }
             else {
+                // TODO: Aparentemente isso aqui nunca funcionou. 
+                // Avaliar de simplesmente apagar este código, e usar o que foi 
+                // implementado em `DeleguaFuncao.chamar`.
                 if (parametros &&
                     parametros.length > 0 &&
                     parametros[parametros.length - 1].abrangencia === 'multiplo') {
