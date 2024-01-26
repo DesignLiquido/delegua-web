@@ -190,7 +190,7 @@ var DeleguaWeb = /** @class */ (function () {
 }());
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/fontes/analisador-semantico":20,"@designliquido/delegua/fontes/avaliador-sintatico":35,"@designliquido/delegua/fontes/estruturas":114,"@designliquido/delegua/fontes/interpretador/interpretador-base":125,"@designliquido/delegua/fontes/lexador":145,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":157,"@designliquido/delegua/fontes/tradutores":167}],2:[function(require,module,exports){
+},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/fontes/analisador-semantico":20,"@designliquido/delegua/fontes/avaliador-sintatico":35,"@designliquido/delegua/fontes/estruturas":115,"@designliquido/delegua/fontes/interpretador/interpretador-base":126,"@designliquido/delegua/fontes/lexador":146,"@designliquido/delegua/fontes/tipos-de-simbolos/delegua":158,"@designliquido/delegua/fontes/tradutores":168}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.moda = exports.mediana = exports.media = exports.min = exports.max = void 0;
@@ -1083,6 +1083,9 @@ class AnalisadorSemantico {
         this.atual = 0;
         this.diagnosticos = [];
     }
+    visitarDeclaracaoAleatorio(declaracao) {
+        return Promise.resolve();
+    }
     visitarExpressaoAcessoElementoMatriz(expressao) {
         return Promise.resolve();
     }
@@ -1224,7 +1227,7 @@ class AnalisadorSemantico {
         }
         return Promise.resolve();
     }
-    visitarDeclaracaoDeAtribuicao(expressao) {
+    visitarExpressaoDeAtribuicao(expressao) {
         let valor = this.variaveis[expressao.simbolo.lexema];
         if (!valor) {
             this.erro(expressao.simbolo, `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`);
@@ -1381,7 +1384,7 @@ class AnalisadorSemantico {
         return Promise.resolve();
     }
     verificarOperadorBinario(binario) {
-        var _a, _b;
+        var _a, _b, _c;
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             if (binario.direita instanceof construtos_1.Variavel && binario.esquerda instanceof construtos_1.Variavel) {
@@ -1392,13 +1395,16 @@ class AnalisadorSemantico {
                 }
             }
         }
-        // TODO: Repensar essa avaliação. Nem sempre o lado
-        // direito é um literal.
-        /* if (binario.operador.tipo === 'DIVISAO') {
-            if (this.variaveis[binario.direita.simbolo.lexema]?.valor === 0) {
-                this.erro(binario.operador, `Divisão por zero.`);
+        if (binario.operador.tipo === 'DIVISAO') {
+            switch (binario.direita.constructor.name) {
+                case 'Variavel':
+                    const operadorDireitoLiteral = binario.direita;
+                    if (((_c = this.variaveis[operadorDireitoLiteral.simbolo.lexema]) === null || _c === void 0 ? void 0 : _c.valor) === 0) {
+                        this.erro(binario.operador, `Divisão por zero.`);
+                    }
+                    break;
             }
-        } */
+        }
     }
     verificarLadoBinario(lado) {
         if (lado instanceof construtos_1.Variavel && !this.variaveis[lado.simbolo.lexema]) {
@@ -1601,7 +1607,7 @@ class AnalisadorSemantico {
 }
 exports.AnalisadorSemantico = AnalisadorSemantico;
 
-},{"../construtos":60,"../declaracoes":96,"../interfaces/erros":123,"./pilha-variaveis":21}],20:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../interfaces/erros":124,"./pilha-variaveis":21}],20:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1813,7 +1819,7 @@ class AvaliadorSintaticoBase {
     expressao() {
         return this.atribuir();
     }
-    declaracaoExpressao() {
+    declaracaoExpressao(simboloAnterior) {
         throw new Error('Método não implementado.');
     }
     declaracaoSustar() {
@@ -1872,7 +1878,7 @@ class AvaliadorSintaticoBase {
 }
 exports.AvaliadorSintaticoBase = AvaliadorSintaticoBase;
 
-},{"../construtos":60,"../declaracoes":96,"../tipos-de-simbolos/comum":156,"./erro-avaliador-sintatico":34}],23:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../tipos-de-simbolos/comum":157,"./erro-avaliador-sintatico":34}],23:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2891,7 +2897,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":60,"../declaracoes":96,"../lexador":145,"../tipos-de-simbolos/delegua":157,"./erro-avaliador-sintatico":34,"browser-process-hrtime":338}],24:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../lexador":146,"../tipos-de-simbolos/delegua":158,"./erro-avaliador-sintatico":34,"browser-process-hrtime":339}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3030,7 +3036,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
         throw new Error('Método não implementado.');
     }
     declaracaoEnquanto() {
-        this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
+        const simboloNegatica = this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
         this.consumir(birl_1.default.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
         this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `BAMBAM` para iniciar o bloco `ENQUANTO`.');
         const codicao = this.expressao();
@@ -3040,7 +3046,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
             declaracoes.push(this.resolverDeclaracaoForaDeBloco());
         }
         this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `ENQUANTO`.');
-        return new declaracoes_1.Enquanto(codicao, declaracoes);
+        return new declaracoes_1.Enquanto(codicao, new declaracoes_1.Bloco(this.hashArquivo, simboloNegatica.linha, declaracoes));
     }
     declaracaoExpressao() {
         const expressao = this.expressao();
@@ -3566,7 +3572,7 @@ class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintati
 }
 exports.AvaliadorSintaticoBirl = AvaliadorSintaticoBirl;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../tipos-de-simbolos/birl":155,"../avaliador-sintatico-base":22}],25:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../tipos-de-simbolos/birl":156,"../avaliador-sintatico-base":22}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4216,7 +4222,7 @@ class AvaliadorSintaticoEguaClassico {
 }
 exports.AvaliadorSintaticoEguaClassico = AvaliadorSintaticoEguaClassico;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../tipos-de-simbolos/egua-classico":158,"../erro-avaliador-sintatico":34}],26:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../tipos-de-simbolos/egua-classico":159,"../erro-avaliador-sintatico":34}],26:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4703,7 +4709,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
 }
 exports.AvaliadorSintaticoMapler = AvaliadorSintaticoMapler;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../tipos-de-simbolos/mapler":160,"../avaliador-sintatico-base":22}],27:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../tipos-de-simbolos/mapler":161,"../avaliador-sintatico-base":22}],27:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5475,7 +5481,7 @@ class AvaliadorSintaticoPitugues {
 }
 exports.AvaliadorSintaticoPitugues = AvaliadorSintaticoPitugues;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../lexador":145,"../../tipos-de-simbolos/pitugues":162,"../erro-avaliador-sintatico":34,"browser-process-hrtime":338}],28:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../lexador":146,"../../tipos-de-simbolos/pitugues":163,"../erro-avaliador-sintatico":34,"browser-process-hrtime":339}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5645,7 +5651,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
 }
 exports.AvaliadorSintaticoPortugolIpt = AvaliadorSintaticoPortugolIpt;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../tipos-de-simbolos/portugol-ipt":163,"../avaliador-sintatico-base":22}],29:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../tipos-de-simbolos/portugol-ipt":164,"../avaliador-sintatico-base":22}],29:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5656,12 +5662,16 @@ const construtos_1 = require("../../construtos");
 const declaracoes_1 = require("../../declaracoes");
 const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 const portugol_studio_1 = __importDefault(require("../../tipos-de-simbolos/portugol-studio"));
+const erro_avaliador_sintatico_1 = require("../erro-avaliador-sintatico");
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
 class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
+    declaracaoEscreva() {
+        throw new Error('Método não implementado.');
+    }
     validarEscopoPrograma(declaracoes) {
         this.consumir(portugol_studio_1.default.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
         this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
@@ -5752,7 +5762,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         }
         return expressao;
     }
-    declaracaoEscreva() {
+    declaracaoEscrevaMesmaLinha() {
         const simboloAtual = this.avancarEDevolverAnterior();
         this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
         const argumentos = [];
@@ -5760,7 +5770,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-        return new declaracoes_1.Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
+        return new declaracoes_1.EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
     }
     blocoEscopo() {
         this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperado '}' antes do bloco.");
@@ -5908,10 +5918,13 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
-    declaracaoExpressao() {
+    declaracaoExpressao(simboloAnterior) {
         const expressao = this.expressao();
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PONTO_E_VIRGULA);
+        if (!expressao) {
+            throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simboloAnterior, 'Esperado expressão.');
+        }
         return new declaracoes_1.Expressao(expressao);
     }
     declaracaoVetorInteiros(simboloInteiro, identificador, posicoes) {
@@ -5975,7 +5988,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         do {
             const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'logico'.");
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = false;
             if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
                 if (![portugol_studio_1.default.VERDADEIRO, portugol_studio_1.default.FALSO].includes(this.simbolos[this.atual].tipo)) {
                     throw this.erro(this.simbolos[this.atual], 'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.');
@@ -5983,7 +5996,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
                 const literalInicializacao = this.avancarEDevolverAnterior();
                 valorInicializacao = Number(literalInicializacao.literal);
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloLogico.linha), 0)));
+            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -6068,7 +6081,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             case portugol_studio_1.default.ENQUANTO:
                 return this.declaracaoEnquanto();
             case portugol_studio_1.default.ESCREVA:
-                return this.declaracaoEscreva();
+                return this.declaracaoEscrevaMesmaLinha();
             case portugol_studio_1.default.FACA:
                 return this.declaracaoFazer();
             case portugol_studio_1.default.FUNCAO:
@@ -6090,7 +6103,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             case portugol_studio_1.default.SE:
                 return this.declaracaoSe();
             default:
-                return this.declaracaoExpressao();
+                return this.declaracaoExpressao(simboloAtual);
         }
     }
     analisar(retornoLexador, hashArquivo) {
@@ -6109,7 +6122,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
 }
 exports.AvaliadorSintaticoPortugolStudio = AvaliadorSintaticoPortugolStudio;
 
-},{"../../construtos":60,"../../declaracoes":96,"../../tipos-de-simbolos/portugol-studio":164,"../avaliador-sintatico-base":22}],30:[function(require,module,exports){
+},{"../../construtos":60,"../../declaracoes":97,"../../tipos-de-simbolos/portugol-studio":165,"../avaliador-sintatico-base":22,"../erro-avaliador-sintatico":34}],30:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6200,7 +6213,7 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
      */
     declaracaoFuncaoPotigolIniciadaPorIgual(simboloPrimario, parenteseEsquerdo, parametros, tipoRetorno) {
         const corpo = new construtos_1.FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
-            this.expressao(),
+            new declaracoes_1.Expressao(this.expressao()),
         ]);
         return new declaracoes_1.FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
     }
@@ -6696,9 +6709,7 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
         ].includes(this.simbolos[this.atual].tipo)) {
             throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
         }
-        const tipoVariavel = this.avancarEDevolverAnterior();
-        const valorAtribuicaoConstante = this.ou();
-        return new declaracoes_1.Const(expressao.simbolo, valorAtribuicaoConstante, this.tiposPotigolParaDelegua[tipoVariavel.lexema]);
+        return this.avancarEDevolverAnterior();
     }
     declaracaoFazer() {
         throw new Error('Método não implementado.');
@@ -6754,17 +6765,19 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
     atribuir() {
         const expressao = this.ou();
         if (!this.estaNoFinal() && expressao instanceof construtos_1.Constante) {
+            let tipoVariavelOuConstante;
             // Atribuição constante.
+            if (this.simbolos[this.atual].tipo === potigol_1.default.DOIS_PONTOS) {
+                tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
+            }
             switch (this.simbolos[this.atual].tipo) {
-                case potigol_1.default.DOIS_PONTOS:
-                    return this.logicaAtribuicaoComDicaDeTipo(expressao);
                 case potigol_1.default.VIRGULA:
                     this.atual--;
                     return this.declaracaoDeConstantes();
                 case potigol_1.default.IGUAL:
                     this.avancarEDevolverAnterior();
                     const valorAtribuicao = this.ou();
-                    return new declaracoes_1.Const(expressao.simbolo, valorAtribuicao);
+                    return new declaracoes_1.Const(expressao.simbolo, valorAtribuicao, tipoVariavelOuConstante ? this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema] : undefined);
             }
         }
         return expressao;
@@ -6843,7 +6856,7 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
 }
 exports.AvaliadorSintaticoPotigol = AvaliadorSintaticoPotigol;
 
-},{"../../../construtos":60,"../../../construtos/tuplas":69,"../../../declaracoes":96,"../../../lexador":145,"../../../tipos-de-simbolos/potigol":165,"../../avaliador-sintatico-base":22,"../../erro-avaliador-sintatico":34,"./micro-avaliador-sintatico-potigol":32}],32:[function(require,module,exports){
+},{"../../../construtos":60,"../../../construtos/tuplas":69,"../../../declaracoes":97,"../../../lexador":146,"../../../tipos-de-simbolos/potigol":166,"../../avaliador-sintatico-base":22,"../../erro-avaliador-sintatico":34,"./micro-avaliador-sintatico-potigol":32}],32:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6917,7 +6930,7 @@ class MicroAvaliadorSintaticoPotigol extends micro_avaliador_sintatico_base_1.Mi
 }
 exports.MicroAvaliadorSintaticoPotigol = MicroAvaliadorSintaticoPotigol;
 
-},{"../../../construtos":60,"../../../construtos/tuplas":69,"../../../tipos-de-simbolos/potigol":165,"../../micro-avaliador-sintatico-base":36}],33:[function(require,module,exports){
+},{"../../../construtos":60,"../../../construtos/tuplas":69,"../../../tipos-de-simbolos/potigol":166,"../../micro-avaliador-sintatico-base":36}],33:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6929,6 +6942,8 @@ const declaracoes_1 = require("../../../declaracoes");
 const construtos_1 = require("../../../construtos");
 const lexador_1 = require("../../../lexador");
 const visualg_1 = __importDefault(require("../../../tipos-de-simbolos/visualg"));
+const aleatorio_1 = require("../../../declaracoes/aleatorio");
+const erro_avaliador_sintatico_1 = require("../../erro-avaliador-sintatico");
 class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
     constructor() {
         super();
@@ -7050,17 +7065,18 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
                     }
                     else {
                         for (let identificador of dadosVariaveis.identificadores) {
+                            const tipo = dadosVariaveis.tipo;
                             switch (dadosVariaveis.tipo) {
                                 case visualg_1.default.CARACTER:
                                 case visualg_1.default.CARACTERE:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), '')));
+                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''), tipo));
                                     break;
                                 case visualg_1.default.INTEIRO:
                                 case visualg_1.default.REAL:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0)));
+                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0), tipo));
                                     break;
                                 case visualg_1.default.LOGICO:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false)));
+                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false), tipo));
                                     break;
                             }
                         }
@@ -7109,7 +7125,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
             this.consumir(visualg_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
             return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
         }
-        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
+        throw this.erro(this.simbolos[this.atual], "Esperado expressão.");
     }
     comparacaoIgualdade() {
         let expressao = this.comparar();
@@ -7193,20 +7209,41 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         }
         return expressao;
     }
+    simboloAtual() {
+        return this.simbolos[this.atual - 2];
+    }
+    verificarDefinicaoTipoAtual() {
+        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor', 'caracter'];
+        const lexema = this.simboloAtual().lexema.toLowerCase();
+        const contemTipo = tipos.find((tipo) => tipo === lexema);
+        if (contemTipo && this.verificarTipoProximoSimbolo(visualg_1.default.COLCHETE_ESQUERDO)) {
+            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]', 'caracter[]'];
+            this.avancarEDevolverAnterior();
+            if (!this.verificarTipoProximoSimbolo(visualg_1.default.COLCHETE_DIREITO)) {
+                throw this.erro(this.simbolos[this.atual - 1], "Esperado símbolo de fechamento do vetor ']'.");
+            }
+            const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
+            this.avancarEDevolverAnterior();
+            return contemTipoVetor;
+        }
+        return contemTipo;
+    }
     corpoDaFuncao(tipo) {
         const simboloAnterior = this.simbolos[this.atual - 1];
         // Parâmetros
         const parametros = this.logicaComumParametros();
         this.consumir(visualg_1.default.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
         // Tipo retornado pela função.
+        let tipoRetorno = null;
         if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.INTEIRO, visualg_1.default.CARACTER, visualg_1.default.CARACTERE, visualg_1.default.REAL, visualg_1.default.LOGICO)) {
             throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
         }
         this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
+        tipoRetorno = this.verificarDefinicaoTipoAtual();
         const inicializacoes = this.validarSegmentoVar();
         this.validarSegmentoInicio('função');
         const corpo = inicializacoes.concat(this.blocoEscopo());
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(simboloAnterior.linha), parametros, corpo.filter((d) => d));
+        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(simboloAnterior.linha), parametros, corpo.filter((d) => d), tipoRetorno);
     }
     declaracaoEnquanto() {
         const simboloAtual = this.avancarEDevolverAnterior();
@@ -7289,7 +7326,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
             ];
         }
         do {
-            const valor = this.resolverDeclaracaoForaDeBloco();
+            const valor = this.expressao();
             let espacos = 0;
             let casasDecimais = 0;
             if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.DOIS_PONTOS)) {
@@ -7358,7 +7395,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         this.consumir(visualg_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
         const argumentos = [];
         do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
+            argumentos.push(this.expressao());
         } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
         this.consumir(visualg_1.default.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
         this.consumir(visualg_1.default.QUEBRA_LINHA, 'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.');
@@ -7437,11 +7474,17 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_ESQUERDO)) {
             while (!this.verificarTipoSimboloAtual(visualg_1.default.PARENTESE_DIREITO)) {
                 const dadosParametros = this.logicaComumParametroVisuAlg();
+                const tipoDadoParametro = {
+                    nome: dadosParametros.simbolo.lexema,
+                    tipo: dadosParametros.tipo,
+                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null
+                };
                 for (let parametro of dadosParametros.identificadores) {
                     parametros.push({
                         abrangencia: 'padrao',
                         nome: parametro,
                         referencia: dadosParametros.referencia,
+                        tipoDado: tipoDadoParametro,
                     });
                 }
             }
@@ -7504,9 +7547,40 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
         this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimse'.");
         return new declaracoes_1.Se(condicao, new declaracoes_1.Bloco(this.hashArquivo, Number(simboloSe.linha), declaracoes.filter((d) => d)), [], caminhoSenao);
     }
+    declaracaoAleatorio() {
+        const simboloAleatorio = this.avancarEDevolverAnterior();
+        let argumentos = {
+            min: 0,
+            max: 0
+        };
+        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.NUMERO)) {
+            this.consumir(visualg_1.default.VIRGULA, "Esperado ',' após declaração do primeiro número.");
+            argumentos.min = Number(this.simboloAtual().literal);
+            this.consumir(visualg_1.default.NUMERO, "Esperado um número após ','.");
+            argumentos.max = Number(this.simbolos[this.atual - 1].literal);
+        }
+        else if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.ON)) {
+            this.consumir(simboloAleatorio.tipo, "Esperado palavra reservada 'ON'ou 'on' ou combinação de número'(min, max)' após declaração 'aleatorio'");
+            argumentos = null;
+        }
+        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após declaração do último número.");
+        const decoracoes = [];
+        do {
+            const decoracao = this.resolverDeclaracaoForaDeBloco();
+            if (decoracao instanceof declaracoes_1.Leia)
+                decoracao.eParaInterromper = true;
+            decoracoes.push(decoracao);
+        } while (![visualg_1.default.ALEATORIO, visualg_1.default.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo));
+        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.ALEATORIO)) {
+            this.consumir(visualg_1.default.OFF, "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'.");
+        }
+        return new aleatorio_1.Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo, new declaracoes_1.Bloco(simboloAleatorio.hashArquivo, Number(simboloAleatorio.linha), decoracoes.filter((d) => d)), argumentos);
+    }
     resolverDeclaracaoForaDeBloco() {
         const simboloAtual = this.simbolos[this.atual];
         switch (simboloAtual.tipo) {
+            case visualg_1.default.ALEATORIO:
+                return this.declaracaoAleatorio();
             case visualg_1.default.ENQUANTO:
                 return this.declaracaoEnquanto();
             case visualg_1.default.ESCOLHA:
@@ -7545,7 +7619,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
                 }
                 return this.validarSegmentoVar();
             default:
-                return this.expressao();
+                return new declaracoes_1.Expressao(this.expressao());
         }
     }
     /**
@@ -7584,6 +7658,10 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
                 declaracoes.push(declaracao);
             }
         }
+        const ultimoSimbolo = this.simbolos[this.simbolos.length - 1];
+        if (ultimoSimbolo.tipo !== visualg_1.default.FIM_ALGORITMO) {
+            throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(ultimoSimbolo, `Programa não termina com 'fimalgoritmo'. Último símbolo: '${ultimoSimbolo.lexema || ultimoSimbolo.literal}'.`);
+        }
         return {
             declaracoes: declaracoes.filter((d) => d),
             erros: this.erros,
@@ -7592,7 +7670,7 @@ class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSint
 }
 exports.AvaliadorSintaticoVisuAlg = AvaliadorSintaticoVisuAlg;
 
-},{"../../../construtos":60,"../../../declaracoes":96,"../../../lexador":145,"../../../tipos-de-simbolos/visualg":166,"../../avaliador-sintatico-base":22}],34:[function(require,module,exports){
+},{"../../../construtos":60,"../../../declaracoes":97,"../../../declaracoes/aleatorio":81,"../../../lexador":146,"../../../tipos-de-simbolos/visualg":167,"../../avaliador-sintatico-base":22,"../../erro-avaliador-sintatico":34}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -7744,7 +7822,7 @@ class MicroAvaliadorSintaticoBase {
 }
 exports.MicroAvaliadorSintaticoBase = MicroAvaliadorSintaticoBase;
 
-},{"../construtos":60,"../tipos-de-simbolos/comum":156,"./erro-avaliador-sintatico":34}],37:[function(require,module,exports){
+},{"../construtos":60,"../tipos-de-simbolos/comum":157,"./erro-avaliador-sintatico":34}],37:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8033,7 +8111,7 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
 }
 exports.MicroAvaliadorSintatico = MicroAvaliadorSintatico;
 
-},{"../construtos":60,"../tipos-de-simbolos/microgramaticas/delegua":161,"./erro-avaliador-sintatico":34,"./micro-avaliador-sintatico-base":36}],38:[function(require,module,exports){
+},{"../construtos":60,"../tipos-de-simbolos/microgramaticas/delegua":162,"./erro-avaliador-sintatico":34,"./micro-avaliador-sintatico-base":36}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const excecoes_1 = require("../excecoes");
@@ -8353,7 +8431,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
 }
 exports.default = default_1;
 
-},{"../estruturas":114,"../estruturas/delegua-classe":111,"../estruturas/funcao-padrao":113,"../estruturas/objeto-delegua-classe":117,"../excecoes":120}],39:[function(require,module,exports){
+},{"../estruturas":115,"../estruturas/delegua-classe":112,"../estruturas/funcao-padrao":114,"../estruturas/objeto-delegua-classe":118,"../excecoes":121}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -8593,7 +8671,7 @@ class Atribuir {
         this.valor = valor;
     }
     async aceitar(visitante) {
-        return await visitante.visitarDeclaracaoDeAtribuicao(this);
+        return await visitante.visitarExpressaoDeAtribuicao(this);
     }
 }
 exports.Atribuir = Atribuir;
@@ -8650,7 +8728,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":121}],50:[function(require,module,exports){
+},{"../geracao-identificadores":122}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstanteOuVariavel = void 0;
@@ -9306,6 +9384,23 @@ exports.Vetor = Vetor;
 },{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Aleatorio = void 0;
+const declaracao_1 = require("./declaracao");
+class Aleatorio extends declaracao_1.Declaracao {
+    constructor(linha, hashArquivo, corpo, argumentos) {
+        super(linha, hashArquivo);
+        this.corpo = corpo;
+        this.argumentos = argumentos;
+    }
+    async aceitar(visitante) {
+        return await visitante.visitarDeclaracaoAleatorio(this);
+    }
+}
+exports.Aleatorio = Aleatorio;
+
+},{"./declaracao":87}],82:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
 const declaracao_1 = require("./declaracao");
 class Bloco extends declaracao_1.Declaracao {
@@ -9319,7 +9414,7 @@ class Bloco extends declaracao_1.Declaracao {
 }
 exports.Bloco = Bloco;
 
-},{"./declaracao":86}],82:[function(require,module,exports){
+},{"./declaracao":87}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
@@ -9339,7 +9434,7 @@ class Classe extends declaracao_1.Declaracao {
 }
 exports.Classe = Classe;
 
-},{"./declaracao":86}],83:[function(require,module,exports){
+},{"./declaracao":87}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstMultiplo = void 0;
@@ -9360,7 +9455,7 @@ class ConstMultiplo extends declaracao_1.Declaracao {
 }
 exports.ConstMultiplo = ConstMultiplo;
 
-},{"./declaracao":86}],84:[function(require,module,exports){
+},{"./declaracao":87}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Const = void 0;
@@ -9381,7 +9476,7 @@ class Const extends declaracao_1.Declaracao {
 }
 exports.Const = Const;
 
-},{"./declaracao":86}],85:[function(require,module,exports){
+},{"./declaracao":87}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
@@ -9396,7 +9491,7 @@ class Continua extends declaracao_1.Declaracao {
 }
 exports.Continua = Continua;
 
-},{"./declaracao":86}],86:[function(require,module,exports){
+},{"./declaracao":87}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
@@ -9415,7 +9510,7 @@ class Declaracao {
 }
 exports.Declaracao = Declaracao;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
@@ -9432,7 +9527,7 @@ class Enquanto extends declaracao_1.Declaracao {
 }
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":86}],88:[function(require,module,exports){
+},{"./declaracao":87}],89:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
@@ -9453,7 +9548,7 @@ class Escolha extends declaracao_1.Declaracao {
 }
 exports.Escolha = Escolha;
 
-},{"./declaracao":86}],89:[function(require,module,exports){
+},{"./declaracao":87}],90:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscrevaMesmaLinha = void 0;
@@ -9469,7 +9564,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
 
-},{"./declaracao":86}],90:[function(require,module,exports){
+},{"./declaracao":87}],91:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
@@ -9485,7 +9580,7 @@ class Escreva extends declaracao_1.Declaracao {
 }
 exports.Escreva = Escreva;
 
-},{"./declaracao":86}],91:[function(require,module,exports){
+},{"./declaracao":87}],92:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
@@ -9501,7 +9596,7 @@ class Expressao extends declaracao_1.Declaracao {
 }
 exports.Expressao = Expressao;
 
-},{"./declaracao":86}],92:[function(require,module,exports){
+},{"./declaracao":87}],93:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Falhar = void 0;
@@ -9518,7 +9613,7 @@ class Falhar extends declaracao_1.Declaracao {
 }
 exports.Falhar = Falhar;
 
-},{"./declaracao":86}],93:[function(require,module,exports){
+},{"./declaracao":87}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
@@ -9535,7 +9630,7 @@ class Fazer extends declaracao_1.Declaracao {
 }
 exports.Fazer = Fazer;
 
-},{"./declaracao":86}],94:[function(require,module,exports){
+},{"./declaracao":87}],95:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
@@ -9554,7 +9649,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"./declaracao":86}],95:[function(require,module,exports){
+},{"./declaracao":87}],96:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
@@ -9571,7 +9666,7 @@ class Importar extends declaracao_1.Declaracao {
 }
 exports.Importar = Importar;
 
-},{"./declaracao":86}],96:[function(require,module,exports){
+},{"./declaracao":87}],97:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9614,8 +9709,9 @@ __exportStar(require("./se"), exports);
 __exportStar(require("./tente"), exports);
 __exportStar(require("./var"), exports);
 __exportStar(require("./var-multiplo"), exports);
+__exportStar(require("./aleatorio"), exports);
 
-},{"./bloco":81,"./classe":82,"./const":84,"./const-multiplo":83,"./continua":85,"./declaracao":86,"./enquanto":87,"./escolha":88,"./escreva":90,"./escreva-mesma-linha":89,"./expressao":91,"./falhar":92,"./fazer":93,"./funcao":94,"./importar":95,"./leia":98,"./leia-multiplo":97,"./para":100,"./para-cada":99,"./propriedade-classe":101,"./retorna":102,"./se":103,"./sustar":104,"./tente":105,"./var":107,"./var-multiplo":106}],97:[function(require,module,exports){
+},{"./aleatorio":81,"./bloco":82,"./classe":83,"./const":85,"./const-multiplo":84,"./continua":86,"./declaracao":87,"./enquanto":88,"./escolha":89,"./escreva":91,"./escreva-mesma-linha":90,"./expressao":92,"./falhar":93,"./fazer":94,"./funcao":95,"./importar":96,"./leia":99,"./leia-multiplo":98,"./para":101,"./para-cada":100,"./propriedade-classe":102,"./retorna":103,"./se":104,"./sustar":105,"./tente":106,"./var":108,"./var-multiplo":107}],98:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeiaMultiplo = void 0;
@@ -9638,7 +9734,7 @@ class LeiaMultiplo extends declaracao_1.Declaracao {
 }
 exports.LeiaMultiplo = LeiaMultiplo;
 
-},{"../geracao-identificadores":121,"./declaracao":86}],98:[function(require,module,exports){
+},{"../geracao-identificadores":122,"./declaracao":87}],99:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -9661,7 +9757,7 @@ class Leia extends declaracao_1.Declaracao {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":121,"./declaracao":86}],99:[function(require,module,exports){
+},{"../geracao-identificadores":122,"./declaracao":87}],100:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
@@ -9680,7 +9776,7 @@ class ParaCada extends declaracao_1.Declaracao {
 }
 exports.ParaCada = ParaCada;
 
-},{"./declaracao":86}],100:[function(require,module,exports){
+},{"./declaracao":87}],101:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
@@ -9706,7 +9802,7 @@ class Para extends declaracao_1.Declaracao {
 }
 exports.Para = Para;
 
-},{"./declaracao":86}],101:[function(require,module,exports){
+},{"./declaracao":87}],102:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropriedadeClasse = void 0;
@@ -9723,7 +9819,7 @@ class PropriedadeClasse extends declaracao_1.Declaracao {
 }
 exports.PropriedadeClasse = PropriedadeClasse;
 
-},{"./declaracao":86}],102:[function(require,module,exports){
+},{"./declaracao":87}],103:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
@@ -9740,7 +9836,7 @@ class Retorna extends declaracao_1.Declaracao {
 }
 exports.Retorna = Retorna;
 
-},{"./declaracao":86}],103:[function(require,module,exports){
+},{"./declaracao":87}],104:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
@@ -9759,7 +9855,7 @@ class Se extends declaracao_1.Declaracao {
 }
 exports.Se = Se;
 
-},{"./declaracao":86}],104:[function(require,module,exports){
+},{"./declaracao":87}],105:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
@@ -9774,7 +9870,7 @@ class Sustar extends declaracao_1.Declaracao {
 }
 exports.Sustar = Sustar;
 
-},{"./declaracao":86}],105:[function(require,module,exports){
+},{"./declaracao":87}],106:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
@@ -9796,7 +9892,7 @@ class Tente extends declaracao_1.Declaracao {
 }
 exports.Tente = Tente;
 
-},{"./declaracao":86}],106:[function(require,module,exports){
+},{"./declaracao":87}],107:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarMultiplo = void 0;
@@ -9818,7 +9914,7 @@ class VarMultiplo extends declaracao_1.Declaracao {
 }
 exports.VarMultiplo = VarMultiplo;
 
-},{"./declaracao":86}],107:[function(require,module,exports){
+},{"./declaracao":87}],108:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
@@ -9841,7 +9937,7 @@ class Var extends declaracao_1.Declaracao {
 }
 exports.Var = Var;
 
-},{"./declaracao":86}],108:[function(require,module,exports){
+},{"./declaracao":87}],109:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
@@ -9862,7 +9958,7 @@ class EspacoVariaveis {
 }
 exports.EspacoVariaveis = EspacoVariaveis;
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -9876,7 +9972,7 @@ class Chamavel {
 }
 exports.Chamavel = Chamavel;
 
-},{}],110:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
@@ -9906,7 +10002,7 @@ class ClassePadrao extends chamavel_1.Chamavel {
 }
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":109}],111:[function(require,module,exports){
+},{"./chamavel":110}],112:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaClasse = void 0;
@@ -9977,7 +10073,7 @@ class DeleguaClasse extends chamavel_1.Chamavel {
 }
 exports.DeleguaClasse = DeleguaClasse;
 
-},{"../excecoes":120,"./chamavel":109,"./objeto-delegua-classe":117}],112:[function(require,module,exports){
+},{"../excecoes":121,"./chamavel":110,"./objeto-delegua-classe":118}],113:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
@@ -10079,7 +10175,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
 }
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../espaco-variaveis":108,"../interpretador/inferenciador":124,"../quebras":152,"./chamavel":109}],113:[function(require,module,exports){
+},{"../espaco-variaveis":109,"../interpretador/inferenciador":125,"../quebras":153,"./chamavel":110}],114:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -10103,7 +10199,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
 }
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":109}],114:[function(require,module,exports){
+},{"./chamavel":110}],115:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10130,7 +10226,7 @@ __exportStar(require("./modulo"), exports);
 __exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./objeto-padrao"), exports);
 
-},{"./chamavel":109,"./classe-padrao":110,"./delegua-classe":111,"./delegua-funcao":112,"./funcao-padrao":113,"./metodo-primitiva":115,"./modulo":116,"./objeto-delegua-classe":117,"./objeto-padrao":118}],115:[function(require,module,exports){
+},{"./chamavel":110,"./classe-padrao":111,"./delegua-classe":112,"./delegua-funcao":113,"./funcao-padrao":114,"./metodo-primitiva":116,"./modulo":117,"./objeto-delegua-classe":118,"./objeto-padrao":119}],116:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
@@ -10158,7 +10254,7 @@ class MetodoPrimitiva extends chamavel_1.Chamavel {
 }
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":109}],116:[function(require,module,exports){
+},{"./chamavel":110}],117:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -10173,7 +10269,7 @@ class DeleguaModulo {
 }
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -10217,7 +10313,7 @@ class ObjetoDeleguaClasse {
 }
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../excecoes":120}],118:[function(require,module,exports){
+},{"../excecoes":121}],119:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -10240,7 +10336,7 @@ class ObjetoPadrao {
 }
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
@@ -10255,7 +10351,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10274,7 +10370,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":119}],121:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":120}],122:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uuidv4 = void 0;
@@ -10299,7 +10395,7 @@ function uuidv4() {
 }
 exports.uuidv4 = uuidv4;
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagnosticoSeveridade = void 0;
@@ -10311,7 +10407,7 @@ var DiagnosticoSeveridade;
     DiagnosticoSeveridade[DiagnosticoSeveridade["SUGESTAO"] = 3] = "SUGESTAO";
 })(DiagnosticoSeveridade = exports.DiagnosticoSeveridade || (exports.DiagnosticoSeveridade = {}));
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10330,7 +10426,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./diagnostico-analisador-semantico"), exports);
 
-},{"./diagnostico-analisador-semantico":122}],124:[function(require,module,exports){
+},{"./diagnostico-analisador-semantico":123}],125:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
@@ -10367,7 +10463,7 @@ function inferirTipoVariavel(variavel) {
 }
 exports.inferirTipoVariavel = inferirTipoVariavel;
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -10720,7 +10816,7 @@ class InterpretadorBase {
                     return Number(valorEsquerdo) + Number(valorDireito);
                 }
                 else {
-                    return String(valorEsquerdo) + String(valorDireito);
+                    return this.paraTexto(valorEsquerdo) + this.paraTexto(valorDireito);
                 }
             case delegua_1.default.DIVISAO:
             case delegua_1.default.DIVISAO_IGUAL:
@@ -10827,8 +10923,8 @@ class InterpretadorBase {
                 }
             }
             else {
-                // TODO: Aparentemente isso aqui nunca funcionou. 
-                // Avaliar de simplesmente apagar este código, e usar o que foi 
+                // TODO: Aparentemente isso aqui nunca funcionou.
+                // Avaliar de simplesmente apagar este código, e usar o que foi
                 // implementado em `DeleguaFuncao.chamar`.
                 if (parametros &&
                     parametros.length > 0 &&
@@ -10878,7 +10974,7 @@ class InterpretadorBase {
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
-    async visitarDeclaracaoDeAtribuicao(expressao) {
+    async visitarExpressaoDeAtribuicao(expressao) {
         const valor = await this.avaliar(expressao.valor);
         const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
         this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido);
@@ -11451,6 +11547,9 @@ class InterpretadorBase {
     visitarExpressaoIsto(expressao) {
         return this.procurarVariavel(expressao.palavraChave);
     }
+    visitarDeclaracaoAleatorio(declaracao) {
+        throw new Error('Método não implementado.');
+    }
     async visitarExpressaoDicionario(expressao) {
         const dicionario = {};
         for (let i = 0; i < expressao.chaves.length; i++) {
@@ -11538,6 +11637,7 @@ class InterpretadorBase {
      */
     async executar(declaracao, mostrarResultado = false) {
         const resultado = await declaracao.aceitar(this);
+        /* console.log("Resultado aceitar: " + resultado, this); */
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
@@ -11635,7 +11735,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../bibliotecas/biblioteca-global":38,"../bibliotecas/primitivas-texto":39,"../bibliotecas/primitivas-vetor":40,"../construtos":60,"../espaco-variaveis":108,"../estruturas":114,"../estruturas/metodo-primitiva":115,"../excecoes":120,"../quebras":152,"../tipos-de-dados/delegua":153,"../tipos-de-dados/primitivos":154,"../tipos-de-simbolos/delegua":157,"./../../fontes/avaliador-sintatico/micro-avaliador-sintatico":37,"./../../fontes/lexador/micro-lexador":149,"./inferenciador":124,"./pilha-escopos-execucao":126,"_process":357,"browser-process-hrtime":338}],126:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":38,"../bibliotecas/primitivas-texto":39,"../bibliotecas/primitivas-vetor":40,"../construtos":60,"../espaco-variaveis":109,"../estruturas":115,"../estruturas/metodo-primitiva":116,"../excecoes":121,"../quebras":153,"../tipos-de-dados/delegua":154,"../tipos-de-dados/primitivos":155,"../tipos-de-simbolos/delegua":158,"./../../fontes/avaliador-sintatico/micro-avaliador-sintatico":37,"./../../fontes/lexador/micro-lexador":150,"./inferenciador":125,"./pilha-escopos-execucao":127,"_process":358,"browser-process-hrtime":339}],127:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscoposExecucao = void 0;
@@ -11834,7 +11934,7 @@ class PilhaEscoposExecucao {
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":114,"../excecoes":120,"../lexador":145,"./inferenciador":124}],127:[function(require,module,exports){
+},{"../estruturas":115,"../excecoes":121,"../lexador":146,"./inferenciador":125}],128:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -11861,7 +11961,7 @@ __exportStar(require("./lexador-portugol-ipt"), exports);
 __exportStar(require("./lexador-portugol-studio"), exports);
 __exportStar(require("./lexador-visualg"), exports);
 
-},{"./lexador-birl":128,"./lexador-egua-classico":129,"./lexador-guarani":130,"./lexador-mapler":131,"./lexador-pitugues":132,"./lexador-portugol-ipt":133,"./lexador-portugol-studio":134,"./lexador-potigol":135,"./lexador-visualg":136}],128:[function(require,module,exports){
+},{"./lexador-birl":129,"./lexador-egua-classico":130,"./lexador-guarani":131,"./lexador-mapler":132,"./lexador-pitugues":133,"./lexador-portugol-ipt":134,"./lexador-portugol-studio":135,"./lexador-potigol":136,"./lexador-visualg":137}],129:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12102,7 +12202,7 @@ class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorBirl = LexadorBirl;
 
-},{"../../tipos-de-simbolos/birl":155,"../lexador-base-linha-unica":146,"../simbolo":151,"./palavras-reservadas/birl":137}],129:[function(require,module,exports){
+},{"../../tipos-de-simbolos/birl":156,"../lexador-base-linha-unica":147,"../simbolo":152,"./palavras-reservadas/birl":138}],130:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12390,7 +12490,7 @@ class LexadorEguaClassico {
 }
 exports.LexadorEguaClassico = LexadorEguaClassico;
 
-},{"../../tipos-de-simbolos/egua-classico":158,"../simbolo":151,"./palavras-reservadas/egua-classico":138}],130:[function(require,module,exports){
+},{"../../tipos-de-simbolos/egua-classico":159,"../simbolo":152,"./palavras-reservadas/egua-classico":139}],131:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12505,7 +12605,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
 }
 exports.LexadorGuarani = LexadorGuarani;
 
-},{"../../tipos-de-simbolos/guarani":159,"../lexador-base":147,"./palavras-reservadas/guarani":139}],131:[function(require,module,exports){
+},{"../../tipos-de-simbolos/guarani":160,"../lexador-base":148,"./palavras-reservadas/guarani":140}],132:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12711,7 +12811,7 @@ class LexadorMapler extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorMapler = LexadorMapler;
 
-},{"../../tipos-de-simbolos/mapler":160,"../lexador-base-linha-unica":146,"./palavras-reservadas/mapler":140}],132:[function(require,module,exports){
+},{"../../tipos-de-simbolos/mapler":161,"../lexador-base-linha-unica":147,"./palavras-reservadas/mapler":141}],133:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13111,7 +13211,7 @@ class LexadorPitugues {
 }
 exports.LexadorPitugues = LexadorPitugues;
 
-},{"../../tipos-de-simbolos/pitugues":162,"../palavras-reservadas":150,"../simbolo":151,"browser-process-hrtime":338}],133:[function(require,module,exports){
+},{"../../tipos-de-simbolos/pitugues":163,"../palavras-reservadas":151,"../simbolo":152,"browser-process-hrtime":339}],134:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13350,7 +13450,7 @@ class LexadorPortugolIpt {
 }
 exports.LexadorPortugolIpt = LexadorPortugolIpt;
 
-},{"../../tipos-de-simbolos/portugol-ipt":163,"../simbolo":151,"./palavras-reservadas/portugol-ipt":141}],134:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-ipt":164,"../simbolo":152,"./palavras-reservadas/portugol-ipt":142}],135:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13633,7 +13733,7 @@ class LexadorPortugolStudio extends lexador_base_1.LexadorBase {
 }
 exports.LexadorPortugolStudio = LexadorPortugolStudio;
 
-},{"../../tipos-de-simbolos/portugol-studio":164,"../lexador-base":147,"./palavras-reservadas/portugol-studio":142}],135:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-studio":165,"../lexador-base":148,"./palavras-reservadas/portugol-studio":143}],136:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13929,7 +14029,7 @@ class LexadorPotigol extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorPotigol = LexadorPotigol;
 
-},{"../../tipos-de-simbolos/potigol":165,"../lexador-base-linha-unica":146,"./palavras-reservadas/potigol":143}],136:[function(require,module,exports){
+},{"../../tipos-de-simbolos/potigol":166,"../lexador-base-linha-unica":147,"./palavras-reservadas/potigol":144}],137:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14156,7 +14256,7 @@ class LexadorVisuAlg extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorVisuAlg = LexadorVisuAlg;
 
-},{"../../tipos-de-simbolos/visualg":166,"../lexador-base-linha-unica":146,"./palavras-reservadas/visualg":144}],137:[function(require,module,exports){
+},{"../../tipos-de-simbolos/visualg":167,"../lexador-base-linha-unica":147,"./palavras-reservadas/visualg":145}],138:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14222,7 +14322,7 @@ exports.palavrasReservadas = {
     trapezio: birl_1.default.TRAPEZIO,
 };
 
-},{"../../../tipos-de-simbolos/birl":155}],138:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/birl":156}],139:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14263,7 +14363,7 @@ exports.palavrasReservadas = {
     verdadeiro: egua_classico_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/egua-classico":158}],139:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/egua-classico":159}],140:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14275,7 +14375,7 @@ exports.palavrasReservadas = {
     hai: guarani_1.default.HAI,
 };
 
-},{"../../../tipos-de-simbolos/guarani":159}],140:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/guarani":160}],141:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14314,7 +14414,7 @@ exports.palavrasReservadas = {
     vetor: mapler_1.default.VETOR,
 };
 
-},{"../../../tipos-de-simbolos/mapler":160}],141:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/mapler":161}],142:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14336,7 +14436,7 @@ exports.palavrasReservadas = {
     senão: portugol_ipt_1.default.SENAO,
 };
 
-},{"../../../tipos-de-simbolos/portugol-ipt":163}],142:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-ipt":164}],143:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14357,6 +14457,7 @@ exports.palavrasReservadas = {
     inteiro: portugol_studio_1.default.INTEIRO,
     leia: portugol_studio_1.default.LEIA,
     logico: portugol_studio_1.default.LOGICO,
+    nao: portugol_studio_1.default.NEGACAO,
     ou: portugol_studio_1.default.OU,
     para: portugol_studio_1.default.PARA,
     programa: portugol_studio_1.default.PROGRAMA,
@@ -14367,7 +14468,7 @@ exports.palavrasReservadas = {
     verdadeiro: portugol_studio_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/portugol-studio":164}],143:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-studio":165}],144:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14420,7 +14521,7 @@ exports.palavrasReservadas = {
     qual_tipo: potigol_1.default.QUAL_TIPO,
 };
 
-},{"../../../tipos-de-simbolos/potigol":165}],144:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/potigol":166}],145:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14431,6 +14532,7 @@ const visualg_1 = __importDefault(require("../../../tipos-de-simbolos/visualg"))
 exports.palavrasReservadas = {
     abs: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
     algoritmo: visualg_1.default.ALGORITMO,
+    aleatorio: visualg_1.default.ALEATORIO,
     arccos: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
     arcsen: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
     arctan: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
@@ -14475,6 +14577,8 @@ exports.palavrasReservadas = {
     logn: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
     logico: visualg_1.default.LOGICO,
     nao: visualg_1.default.NEGACAO,
+    on: visualg_1.default.ON,
+    off: visualg_1.default.OFF,
     ou: visualg_1.default.OU,
     outrocaso: visualg_1.default.OUTRO_CASO,
     para: visualg_1.default.PARA,
@@ -14500,7 +14604,7 @@ exports.palavrasReservadas = {
     xou: visualg_1.default.XOU,
 };
 
-},{"../../../tipos-de-simbolos/visualg":166}],145:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/visualg":167}],146:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -14521,7 +14625,7 @@ __exportStar(require("./lexador"), exports);
 __exportStar(require("./micro-lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":148,"./micro-lexador":149,"./simbolo":151}],146:[function(require,module,exports){
+},{"./lexador":149,"./micro-lexador":150,"./simbolo":152}],147:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBaseLinhaUnica = void 0;
@@ -14605,7 +14709,7 @@ class LexadorBaseLinhaUnica {
 }
 exports.LexadorBaseLinhaUnica = LexadorBaseLinhaUnica;
 
-},{"./simbolo":151}],147:[function(require,module,exports){
+},{"./simbolo":152}],148:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBase = void 0;
@@ -14719,7 +14823,7 @@ class LexadorBase {
 }
 exports.LexadorBase = LexadorBase;
 
-},{"./simbolo":151}],148:[function(require,module,exports){
+},{"./simbolo":152}],149:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15143,7 +15247,7 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":157,"./palavras-reservadas":150,"./simbolo":151,"browser-process-hrtime":338}],149:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":158,"./palavras-reservadas":151,"./simbolo":152,"browser-process-hrtime":339}],150:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15352,7 +15456,7 @@ class MicroLexador {
 }
 exports.MicroLexador = MicroLexador;
 
-},{"../tipos-de-simbolos/microgramaticas/delegua":161,"./palavras-reservadas":150,"./simbolo":151}],150:[function(require,module,exports){
+},{"../tipos-de-simbolos/microgramaticas/delegua":162,"./palavras-reservadas":151,"./simbolo":152}],151:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15413,7 +15517,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
-},{"../tipos-de-simbolos/delegua":157}],151:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":158}],152:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -15431,7 +15535,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],152:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -15452,7 +15556,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],153:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15463,7 +15567,7 @@ exports.default = {
     TEXTO: 'texto',
 };
 
-},{}],154:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15482,7 +15586,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],155:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15581,7 +15685,7 @@ exports.default = {
     PONTEIRO: 'PONTEIRO',
 };
 
-},{}],156:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15607,7 +15711,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],157:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15697,7 +15801,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],158:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15775,7 +15879,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],159:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15792,7 +15896,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],160:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15850,7 +15954,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],161:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15899,7 +16003,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],162:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -15977,7 +16081,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],163:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16016,7 +16120,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],164:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16072,7 +16176,7 @@ exports.default = {
     VERDADEIRO: 'VERDADEIRO',
 };
 
-},{}],165:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16139,12 +16243,13 @@ exports.default = {
     QUAL_TIPO: 'QUAL_TIPO',
 };
 
-},{}],166:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     ADICAO: 'ADICAO',
     ALGORITMO: 'ALGORITMO',
+    ALEATORIO: 'ALEATORIO',
     ATE: 'ATE',
     ATÉ: 'ATÉ',
     CARACTER: 'CARACTER',
@@ -16195,6 +16300,8 @@ exports.default = {
     MULTIPLICACAO: 'MULTIPLICACAO',
     NEGACAO: 'NEGACAO',
     NUMERO: 'NUMERO',
+    ON: 'ON',
+    OFF: 'OFF',
     OU: 'OU',
     OUTRO_CASO: 'OUTRO_CASO',
     PARA: 'PARA',
@@ -16219,7 +16326,7 @@ exports.default = {
     XOU: 'XOU',
 };
 
-},{}],167:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -16244,7 +16351,7 @@ __exportStar(require("./tradutor-reverso-javascript"), exports);
 __exportStar(require("./tradutor-reverso-python"), exports);
 __exportStar(require("./tradutor-reverso-visualg"), exports);
 
-},{"./tradutor-assemblyscript":170,"./tradutor-javascript":171,"./tradutor-portugol-ipt":172,"./tradutor-python":173,"./tradutor-reverso-javascript":174,"./tradutor-reverso-python":175,"./tradutor-reverso-visualg":176}],168:[function(require,module,exports){
+},{"./tradutor-assemblyscript":171,"./tradutor-javascript":172,"./tradutor-portugol-ipt":173,"./tradutor-python":174,"./tradutor-reverso-javascript":175,"./tradutor-reverso-python":176,"./tradutor-reverso-visualg":177}],169:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -17473,7 +17580,7 @@ __decorate([
 ], Python3Lexer.prototype, "nextToken", null);
 exports.Python3Lexer = Python3Lexer;
 
-},{"./python3-parser":169,"antlr4ts/CommonToken":186,"antlr4ts/Decorators":190,"antlr4ts/Lexer":198,"antlr4ts/Token":215,"antlr4ts/VocabularyImpl":221,"antlr4ts/atn/ATNDeserializer":227,"antlr4ts/atn/LexerATNSimulator":248,"antlr4ts/misc/Utils":309}],169:[function(require,module,exports){
+},{"./python3-parser":170,"antlr4ts/CommonToken":187,"antlr4ts/Decorators":191,"antlr4ts/Lexer":199,"antlr4ts/Token":216,"antlr4ts/VocabularyImpl":222,"antlr4ts/atn/ATNDeserializer":228,"antlr4ts/atn/LexerATNSimulator":249,"antlr4ts/misc/Utils":310}],170:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -28701,7 +28808,7 @@ class Yield_argContext extends ParserRuleContext_1.ParserRuleContext {
 }
 exports.Yield_argContext = Yield_argContext;
 
-},{"antlr4ts/FailedPredicateException":194,"antlr4ts/NoViableAltException":202,"antlr4ts/Parser":203,"antlr4ts/ParserRuleContext":206,"antlr4ts/RecognitionException":209,"antlr4ts/Token":215,"antlr4ts/VocabularyImpl":221,"antlr4ts/atn/ATN":223,"antlr4ts/atn/ATNDeserializer":227,"antlr4ts/atn/ParserATNSimulator":264,"antlr4ts/misc/Utils":309}],170:[function(require,module,exports){
+},{"antlr4ts/FailedPredicateException":195,"antlr4ts/NoViableAltException":203,"antlr4ts/Parser":204,"antlr4ts/ParserRuleContext":207,"antlr4ts/RecognitionException":210,"antlr4ts/Token":216,"antlr4ts/VocabularyImpl":222,"antlr4ts/atn/ATN":224,"antlr4ts/atn/ATNDeserializer":228,"antlr4ts/atn/ParserATNSimulator":265,"antlr4ts/misc/Utils":310}],171:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -29277,7 +29384,7 @@ class TradutorAssemblyScript {
 }
 exports.TradutorAssemblyScript = TradutorAssemblyScript;
 
-},{"../construtos":60,"../declaracoes":96,"../tipos-de-simbolos/delegua":157}],171:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../tipos-de-simbolos/delegua":158}],172:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -29836,7 +29943,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":60,"../declaracoes":96,"../tipos-de-simbolos/delegua":157}],172:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../tipos-de-simbolos/delegua":158}],173:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorPortugolIpt = void 0;
@@ -29898,7 +30005,7 @@ class TradutorPortugolIpt {
 }
 exports.TradutorPortugolIpt = TradutorPortugolIpt;
 
-},{"../avaliador-sintatico/dialetos":30,"../lexador/dialetos":127}],173:[function(require,module,exports){
+},{"../avaliador-sintatico/dialetos":30,"../lexador/dialetos":128}],174:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30345,7 +30452,7 @@ class TradutorPython {
 }
 exports.TradutorPython = TradutorPython;
 
-},{"../construtos":60,"../declaracoes":96,"../tipos-de-simbolos/delegua":157}],174:[function(require,module,exports){
+},{"../construtos":60,"../declaracoes":97,"../tipos-de-simbolos/delegua":158}],175:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -30739,7 +30846,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{}],175:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoPython = void 0;
@@ -30812,7 +30919,7 @@ class TradutorReversoPython {
 }
 exports.TradutorReversoPython = TradutorReversoPython;
 
-},{"./python/python3-lexer":168,"./python/python3-parser":169,"antlr4ts":292,"antlr4ts/tree/ParseTreeWalker":311}],176:[function(require,module,exports){
+},{"./python/python3-lexer":169,"./python/python3-parser":170,"antlr4ts":293,"antlr4ts/tree/ParseTreeWalker":312}],177:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30828,6 +30935,7 @@ class TradutorReversoVisuAlg {
         this.indentacao = 0;
         this.dicionarioConstrutos = {
             Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
+            Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             FimPara: this.traduzirConstrutoFimPara.bind(this),
             Literal: this.traduzirConstrutoLiteral.bind(this),
@@ -30835,11 +30943,12 @@ class TradutorReversoVisuAlg {
             Variavel: this.traduzirConstrutoVariavel.bind(this),
         };
         this.dicionarioDeclaracoes = {
-            Atribuir: this.traduzirDeclaracaoAtribuir.bind(this),
             Bloco: this.traduzirDeclaracaoBloco.bind(this),
             EscrevaMesmaLinha: this.tradzirDeclaracaoEscrevaMesmaLinha.bind(this),
             Escolha: this.traduzirDeclaracaoEscolha.bind(this),
             Escreva: this.traduzirDeclaracaoEscreva.bind(this),
+            Expressao: this.traduzirDeclaracaoExpressao.bind(this),
+            FimPara: this.traduzirDeclaracaoFimPara.bind(this),
             Leia: this.traduzirDeclaracaoLeia.bind(this),
             Para: this.traduzirDeclaracaoPara.bind(this),
             Se: this.traduzirDeclaracaoSe.bind(this),
@@ -30891,7 +31000,7 @@ class TradutorReversoVisuAlg {
     traduzirConstrutoAgrupamento(agrupamento) {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
-    traduzirDeclaracaoAtribuir(atribuir) {
+    traduzirConstrutoAtribuir(atribuir) {
         let resultado = atribuir.simbolo.lexema;
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
@@ -30996,6 +31105,12 @@ class TradutorReversoVisuAlg {
         resultado += ')';
         return resultado;
     }
+    traduzirDeclaracaoExpressao(declaracaoExpressao) {
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+    }
+    traduzirDeclaracaoFimPara(declaracaoFimPara) {
+        return this.dicionarioDeclaracoes[declaracaoFimPara.incremento.constructor.name](declaracaoFimPara.incremento);
+    }
     traduzirDeclaracaoLeia(declaracaoLeia) {
         let resultado = '';
         for (const parametro of declaracaoLeia.argumentos) {
@@ -31006,7 +31121,7 @@ class TradutorReversoVisuAlg {
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'para (';
         resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
+            this.dicionarioConstrutos[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
                 ' ';
         resultado += !resultado.includes(';') ? ';' : '';
         resultado +=
@@ -31067,15 +31182,7 @@ class TradutorReversoVisuAlg {
 }
 exports.TradutorReversoVisuAlg = TradutorReversoVisuAlg;
 
-},{"../tipos-de-simbolos/delegua":157}],177:[function(require,module,exports){
-"use strict";
-/*!
- * Copyright 2016 The ANTLR Project. All rights reserved.
- * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],178:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":158}],178:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31084,6 +31191,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],179:[function(require,module,exports){
+"use strict";
+/*!
+ * Copyright 2016 The ANTLR Project. All rights reserved.
+ * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],180:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31245,7 +31360,7 @@ __decorate([
 ], ANTLRInputStream.prototype, "toString", null);
 exports.ANTLRInputStream = ANTLRInputStream;
 
-},{"./Decorators":190,"./IntStream":196,"assert":333}],180:[function(require,module,exports){
+},{"./Decorators":191,"./IntStream":197,"assert":334}],181:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31328,7 +31443,7 @@ __decorate([
 ], BailErrorStrategy.prototype, "sync", null);
 exports.BailErrorStrategy = BailErrorStrategy;
 
-},{"./Decorators":190,"./DefaultErrorStrategy":191,"./InputMismatchException":195,"./misc/ParseCancellationException":307}],181:[function(require,module,exports){
+},{"./Decorators":191,"./DefaultErrorStrategy":192,"./InputMismatchException":196,"./misc/ParseCancellationException":308}],182:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31818,7 +31933,7 @@ BufferedTokenStream = __decorate([
 ], BufferedTokenStream);
 exports.BufferedTokenStream = BufferedTokenStream;
 
-},{"./CommonToken":186,"./Decorators":190,"./Lexer":198,"./Token":215,"./misc/Interval":302,"assert":333}],182:[function(require,module,exports){
+},{"./CommonToken":187,"./Decorators":191,"./Lexer":199,"./Token":216,"./misc/Interval":303,"assert":334}],183:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31826,7 +31941,7 @@ exports.BufferedTokenStream = BufferedTokenStream;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],183:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31960,7 +32075,7 @@ var CharStreams;
     // }
 })(CharStreams = exports.CharStreams || (exports.CharStreams = {}));
 
-},{"./CodePointBuffer":184,"./CodePointCharStream":185,"./IntStream":196}],184:[function(require,module,exports){
+},{"./CodePointBuffer":185,"./CodePointCharStream":186,"./IntStream":197}],185:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32195,7 +32310,7 @@ exports.CodePointBuffer = CodePointBuffer;
     CodePointBuffer.Builder = Builder;
 })(CodePointBuffer = exports.CodePointBuffer || (exports.CodePointBuffer = {}));
 
-},{"./misc/Character":298,"assert":333}],185:[function(require,module,exports){
+},{"./misc/Character":299,"assert":334}],186:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32345,7 +32460,7 @@ __decorate([
 ], CodePointCharStream.prototype, "getText", null);
 exports.CodePointCharStream = CodePointCharStream;
 
-},{"./Decorators":190,"./IntStream":196,"./misc/Interval":302,"assert":333}],186:[function(require,module,exports){
+},{"./Decorators":191,"./IntStream":197,"./misc/Interval":303,"assert":334}],187:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32575,7 +32690,7 @@ CommonToken = __decorate([
 ], CommonToken);
 exports.CommonToken = CommonToken;
 
-},{"./Decorators":190,"./Token":215,"./misc/Interval":302}],187:[function(require,module,exports){
+},{"./Decorators":191,"./Token":216,"./misc/Interval":303}],188:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32639,7 +32754,7 @@ exports.CommonTokenFactory = CommonTokenFactory;
     CommonTokenFactory.DEFAULT = new CommonTokenFactory();
 })(CommonTokenFactory = exports.CommonTokenFactory || (exports.CommonTokenFactory = {}));
 
-},{"./CommonToken":186,"./Decorators":190,"./misc/Interval":302}],188:[function(require,module,exports){
+},{"./CommonToken":187,"./Decorators":191,"./misc/Interval":303}],189:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32766,7 +32881,7 @@ CommonTokenStream = __decorate([
 ], CommonTokenStream);
 exports.CommonTokenStream = CommonTokenStream;
 
-},{"./BufferedTokenStream":181,"./Decorators":190,"./Token":215}],189:[function(require,module,exports){
+},{"./BufferedTokenStream":182,"./Decorators":191,"./Token":216}],190:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32800,7 +32915,7 @@ exports.ConsoleErrorListener = ConsoleErrorListener;
  */
 ConsoleErrorListener.INSTANCE = new ConsoleErrorListener();
 
-},{}],190:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32827,7 +32942,7 @@ function SuppressWarnings(options) {
 }
 exports.SuppressWarnings = SuppressWarnings;
 
-},{}],191:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33641,7 +33756,7 @@ __decorate([
 ], DefaultErrorStrategy.prototype, "consumeUntil", null);
 exports.DefaultErrorStrategy = DefaultErrorStrategy;
 
-},{"./Decorators":190,"./FailedPredicateException":194,"./InputMismatchException":195,"./NoViableAltException":202,"./Token":215,"./atn/ATNState":229,"./atn/ATNStateType":230,"./atn/PredictionContext":270,"./misc/IntervalSet":303}],192:[function(require,module,exports){
+},{"./Decorators":191,"./FailedPredicateException":195,"./InputMismatchException":196,"./NoViableAltException":203,"./Token":216,"./atn/ATNState":230,"./atn/ATNStateType":231,"./atn/PredictionContext":271,"./misc/IntervalSet":304}],193:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33717,7 +33832,7 @@ var Dependents;
     Dependents[Dependents["FOLLOWING"] = 9] = "FOLLOWING";
 })(Dependents = exports.Dependents || (exports.Dependents = {}));
 
-},{}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33865,7 +33980,7 @@ __decorate([
 ], DiagnosticErrorListener.prototype, "getConflictingAlts", null);
 exports.DiagnosticErrorListener = DiagnosticErrorListener;
 
-},{"./Decorators":190,"./misc/BitSet":297,"./misc/Interval":302}],194:[function(require,module,exports){
+},{"./Decorators":191,"./misc/BitSet":298,"./misc/Interval":303}],195:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33930,7 +34045,7 @@ FailedPredicateException = __decorate([
 ], FailedPredicateException);
 exports.FailedPredicateException = FailedPredicateException;
 
-},{"./Decorators":190,"./RecognitionException":209,"./atn/PredicateTransition":269}],195:[function(require,module,exports){
+},{"./Decorators":191,"./RecognitionException":210,"./atn/PredicateTransition":270}],196:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33970,7 +34085,7 @@ InputMismatchException = __decorate([
 ], InputMismatchException);
 exports.InputMismatchException = InputMismatchException;
 
-},{"./Decorators":190,"./RecognitionException":209}],196:[function(require,module,exports){
+},{"./Decorators":191,"./RecognitionException":210}],197:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33993,7 +34108,7 @@ var IntStream;
     IntStream.UNKNOWN_SOURCE_NAME = "<unknown>";
 })(IntStream = exports.IntStream || (exports.IntStream = {}));
 
-},{}],197:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34040,7 +34155,7 @@ __decorate([
 ], InterpreterRuleContext.prototype, "ruleIndex", null);
 exports.InterpreterRuleContext = InterpreterRuleContext;
 
-},{"./Decorators":190,"./ParserRuleContext":206}],198:[function(require,module,exports){
+},{"./Decorators":191,"./ParserRuleContext":207}],199:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34376,7 +34491,7 @@ __decorate([
 ], Lexer.prototype, "charPositionInLine", null);
 exports.Lexer = Lexer;
 
-},{"./CommonTokenFactory":187,"./Decorators":190,"./IntStream":196,"./LexerNoViableAltException":200,"./Recognizer":210,"./Token":215,"./atn/LexerATNSimulator":248,"./misc/IntegerStack":301,"./misc/Interval":302}],199:[function(require,module,exports){
+},{"./CommonTokenFactory":188,"./Decorators":191,"./IntStream":197,"./LexerNoViableAltException":201,"./Recognizer":211,"./Token":216,"./atn/LexerATNSimulator":249,"./misc/IntegerStack":302,"./misc/Interval":303}],200:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34456,7 +34571,7 @@ LexerInterpreter = __decorate([
 ], LexerInterpreter);
 exports.LexerInterpreter = LexerInterpreter;
 
-},{"./Decorators":190,"./Lexer":198,"./atn/LexerATNSimulator":248}],200:[function(require,module,exports){
+},{"./Decorators":191,"./Lexer":199,"./atn/LexerATNSimulator":249}],201:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34513,7 +34628,7 @@ LexerNoViableAltException = __decorate([
 ], LexerNoViableAltException);
 exports.LexerNoViableAltException = LexerNoViableAltException;
 
-},{"./Decorators":190,"./RecognitionException":209,"./misc/Interval":302,"./misc/Utils":309}],201:[function(require,module,exports){
+},{"./Decorators":191,"./RecognitionException":210,"./misc/Interval":303,"./misc/Utils":310}],202:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34723,7 +34838,7 @@ ListTokenSource = __decorate([
 ], ListTokenSource);
 exports.ListTokenSource = ListTokenSource;
 
-},{"./CommonTokenFactory":187,"./Decorators":190,"./Token":215}],202:[function(require,module,exports){
+},{"./CommonTokenFactory":188,"./Decorators":191,"./Token":216}],203:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34778,7 +34893,7 @@ __decorate([
 ], NoViableAltException.prototype, "_startToken", void 0);
 exports.NoViableAltException = NoViableAltException;
 
-},{"./Decorators":190,"./Parser":203,"./RecognitionException":209}],203:[function(require,module,exports){
+},{"./Decorators":191,"./Parser":204,"./RecognitionException":210}],204:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -35624,7 +35739,7 @@ __decorate([
 exports.Parser = Parser;
 
 }).call(this)}).call(this,require('_process'))
-},{"./Decorators":190,"./DefaultErrorStrategy":191,"./Lexer":198,"./ProxyParserErrorListener":208,"./Recognizer":210,"./Token":215,"./atn/ATNDeserializationOptions":226,"./atn/ATNDeserializer":227,"./atn/ParseInfo":263,"./atn/ParserATNSimulator":264,"./atn/ProfilingATNSimulator":273,"./misc/IntegerStack":301,"./misc/Utils":309,"./tree/ErrorNode":310,"./tree/TerminalNode":313,"./tree/pattern/ParseTreePatternMatcher":318,"_process":357}],204:[function(require,module,exports){
+},{"./Decorators":191,"./DefaultErrorStrategy":192,"./Lexer":199,"./ProxyParserErrorListener":209,"./Recognizer":211,"./Token":216,"./atn/ATNDeserializationOptions":227,"./atn/ATNDeserializer":228,"./atn/ParseInfo":264,"./atn/ParserATNSimulator":265,"./atn/ProfilingATNSimulator":274,"./misc/IntegerStack":302,"./misc/Utils":310,"./tree/ErrorNode":311,"./tree/TerminalNode":314,"./tree/pattern/ParseTreePatternMatcher":319,"_process":358}],205:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35632,7 +35747,7 @@ exports.Parser = Parser;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],205:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36040,7 +36155,7 @@ ParserInterpreter = __decorate([
 ], ParserInterpreter);
 exports.ParserInterpreter = ParserInterpreter;
 
-},{"./Decorators":190,"./FailedPredicateException":194,"./InputMismatchException":195,"./InterpreterRuleContext":197,"./Parser":203,"./RecognitionException":209,"./Token":215,"./atn/ATNState":229,"./atn/ATNStateType":230,"./atn/LoopEndState":260,"./atn/ParserATNSimulator":264,"./atn/StarLoopEntryState":282,"./misc/BitSet":297}],206:[function(require,module,exports){
+},{"./Decorators":191,"./FailedPredicateException":195,"./InputMismatchException":196,"./InterpreterRuleContext":198,"./Parser":204,"./RecognitionException":210,"./Token":216,"./atn/ATNState":230,"./atn/ATNStateType":231,"./atn/LoopEndState":261,"./atn/ParserATNSimulator":265,"./atn/StarLoopEntryState":283,"./misc/BitSet":298}],207:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36341,7 +36456,7 @@ __decorate([
 ], ParserRuleContext.prototype, "sourceInterval", null);
 exports.ParserRuleContext = ParserRuleContext;
 
-},{"./Decorators":190,"./RuleContext":211,"./misc/Interval":302,"./tree/ErrorNode":310,"./tree/TerminalNode":313}],207:[function(require,module,exports){
+},{"./Decorators":191,"./RuleContext":212,"./misc/Interval":303,"./tree/ErrorNode":311,"./tree/TerminalNode":314}],208:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36391,7 +36506,7 @@ __decorate([
 ], ProxyErrorListener.prototype, "syntaxError", null);
 exports.ProxyErrorListener = ProxyErrorListener;
 
-},{"./Decorators":190}],208:[function(require,module,exports){
+},{"./Decorators":191}],209:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36450,7 +36565,7 @@ __decorate([
 ], ProxyParserErrorListener.prototype, "reportContextSensitivity", null);
 exports.ProxyParserErrorListener = ProxyParserErrorListener;
 
-},{"./Decorators":190,"./ProxyErrorListener":207}],209:[function(require,module,exports){
+},{"./Decorators":191,"./ProxyErrorListener":208}],210:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36555,7 +36670,7 @@ class RecognitionException extends Error {
 }
 exports.RecognitionException = RecognitionException;
 
-},{}],210:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36774,7 +36889,7 @@ __decorate([
 ], Recognizer.prototype, "getErrorListeners", null);
 exports.Recognizer = Recognizer;
 
-},{"./ConsoleErrorListener":189,"./Decorators":190,"./ProxyErrorListener":207,"./Token":215,"./misc/Utils":309}],211:[function(require,module,exports){
+},{"./ConsoleErrorListener":190,"./Decorators":191,"./ProxyErrorListener":208,"./Token":216,"./misc/Utils":310}],212:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36991,7 +37106,7 @@ __decorate([
 ], RuleContext.prototype, "toStringTree", null);
 exports.RuleContext = RuleContext;
 
-},{"./Decorators":190,"./ParserRuleContext":206,"./Recognizer":210,"./atn/ATN":223,"./misc/Interval":302,"./tree/RuleNode":312,"./tree/Trees":314}],212:[function(require,module,exports){
+},{"./Decorators":191,"./ParserRuleContext":207,"./Recognizer":211,"./atn/ATN":224,"./misc/Interval":303,"./tree/RuleNode":313,"./tree/Trees":315}],213:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37042,7 +37157,7 @@ __decorate([
 ], RuleContextWithAltNum.prototype, "altNumber", null);
 exports.RuleContextWithAltNum = RuleContextWithAltNum;
 
-},{"./Decorators":190,"./ParserRuleContext":206,"./atn/ATN":223}],213:[function(require,module,exports){
+},{"./Decorators":191,"./ParserRuleContext":207,"./atn/ATN":224}],214:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37065,7 +37180,7 @@ function RuleDependency(dependency) {
 }
 exports.RuleDependency = RuleDependency;
 
-},{}],214:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37084,7 +37199,7 @@ function RuleVersion(version) {
 }
 exports.RuleVersion = RuleVersion;
 
-},{}],215:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37124,15 +37239,7 @@ var Token;
     Token.MIN_USER_CHANNEL_VALUE = 2;
 })(Token = exports.Token || (exports.Token = {}));
 
-},{"./IntStream":196}],216:[function(require,module,exports){
-"use strict";
-/*!
- * Copyright 2016 The ANTLR Project. All rights reserved.
- * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],217:[function(require,module,exports){
+},{"./IntStream":197}],217:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37149,6 +37256,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],219:[function(require,module,exports){
+"use strict";
+/*!
+ * Copyright 2016 The ANTLR Project. All rights reserved.
+ * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],220:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37656,7 +37771,7 @@ __decorate([
     Decorators_1.Override
 ], ReplaceOp.prototype, "toString", null);
 
-},{"./Decorators":190,"./Token":215,"./misc/Interval":302}],220:[function(require,module,exports){
+},{"./Decorators":191,"./Token":216,"./misc/Interval":303}],221:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37664,7 +37779,7 @@ __decorate([
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],221:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37784,7 +37899,7 @@ __decorate([
 ], VocabularyImpl, "EMPTY_VOCABULARY", void 0);
 exports.VocabularyImpl = VocabularyImpl;
 
-},{"./Decorators":190,"./Token":215}],222:[function(require,module,exports){
+},{"./Decorators":191,"./Token":216}],223:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37792,7 +37907,7 @@ exports.VocabularyImpl = VocabularyImpl;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],223:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38014,7 +38129,7 @@ exports.ATN = ATN;
 })(ATN = exports.ATN || (exports.ATN = {}));
 exports.ATN = ATN;
 
-},{"../Decorators":190,"../Token":215,"../dfa/DFA":288,"../misc/Array2DHashMap":293,"../misc/IntervalSet":303,"../misc/ObjectEqualityComparator":306,"./InvalidState":246,"./LL1Analyzer":247,"./PredictionContext":270,"assert":333}],224:[function(require,module,exports){
+},{"../Decorators":191,"../Token":216,"../dfa/DFA":289,"../misc/Array2DHashMap":294,"../misc/IntervalSet":304,"../misc/ObjectEqualityComparator":307,"./InvalidState":247,"./LL1Analyzer":248,"./PredictionContext":271,"assert":334}],225:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38539,7 +38654,7 @@ ActionSemanticContextATNConfig = __decorate([
     __param(1, Decorators_1.NotNull), __param(2, Decorators_1.NotNull)
 ], ActionSemanticContextATNConfig);
 
-},{"../Decorators":190,"../misc/Array2DHashMap":293,"../misc/MurmurHash":305,"../misc/ObjectEqualityComparator":306,"./DecisionState":243,"./PredictionContext":270,"./SemanticContext":278,"assert":333}],225:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashMap":294,"../misc/MurmurHash":306,"../misc/ObjectEqualityComparator":307,"./DecisionState":244,"./PredictionContext":271,"./SemanticContext":279,"assert":334}],226:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38986,7 +39101,7 @@ __decorate([
 ], ATNConfigSet.prototype, "hashCode", null);
 exports.ATNConfigSet = ATNConfigSet;
 
-},{"../Decorators":190,"../misc/Array2DHashMap":293,"../misc/Array2DHashSet":294,"../misc/ArrayEqualityComparator":295,"../misc/BitSet":297,"../misc/ObjectEqualityComparator":306,"../misc/Utils":309,"./ATN":223,"./ATNConfig":224,"./PredictionContext":270,"./PredictionContextCache":271,"./SemanticContext":278,"assert":333}],226:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashMap":294,"../misc/Array2DHashSet":295,"../misc/ArrayEqualityComparator":296,"../misc/BitSet":298,"../misc/ObjectEqualityComparator":307,"../misc/Utils":310,"./ATN":224,"./ATNConfig":225,"./PredictionContext":271,"./PredictionContextCache":272,"./SemanticContext":279,"assert":334}],227:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -39065,7 +39180,7 @@ __decorate([
 ], ATNDeserializationOptions, "defaultOptions", null);
 exports.ATNDeserializationOptions = ATNDeserializationOptions;
 
-},{"../Decorators":190}],227:[function(require,module,exports){
+},{"../Decorators":191}],228:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40152,7 +40267,7 @@ __decorate([
 ], ATNDeserializer.prototype, "edgeFactory", null);
 exports.ATNDeserializer = ATNDeserializer;
 
-},{"../Decorators":190,"../Token":215,"../dfa/DFA":288,"../misc/Array2DHashSet":294,"../misc/BitSet":297,"../misc/IntervalSet":303,"../misc/UUID":308,"./ATN":223,"./ATNDeserializationOptions":226,"./ATNStateType":230,"./ActionTransition":232,"./AtomTransition":234,"./BasicBlockStartState":235,"./BasicState":236,"./BlockEndState":237,"./BlockStartState":238,"./DecisionState":243,"./EpsilonTransition":244,"./InvalidState":246,"./LexerChannelAction":250,"./LexerCustomAction":251,"./LexerModeAction":253,"./LexerMoreAction":254,"./LexerPopModeAction":255,"./LexerPushModeAction":256,"./LexerSkipAction":257,"./LexerTypeAction":258,"./LoopEndState":260,"./NotSetTransition":261,"./ParserATNSimulator":264,"./PlusBlockStartState":265,"./PlusLoopbackState":266,"./PrecedencePredicateTransition":267,"./PredicateTransition":269,"./RangeTransition":274,"./RuleStartState":275,"./RuleStopState":276,"./RuleTransition":277,"./SetTransition":279,"./StarBlockStartState":281,"./StarLoopEntryState":282,"./StarLoopbackState":283,"./TokensStartState":284,"./WildcardTransition":286}],228:[function(require,module,exports){
+},{"../Decorators":191,"../Token":216,"../dfa/DFA":289,"../misc/Array2DHashSet":295,"../misc/BitSet":298,"../misc/IntervalSet":304,"../misc/UUID":309,"./ATN":224,"./ATNDeserializationOptions":227,"./ATNStateType":231,"./ActionTransition":233,"./AtomTransition":235,"./BasicBlockStartState":236,"./BasicState":237,"./BlockEndState":238,"./BlockStartState":239,"./DecisionState":244,"./EpsilonTransition":245,"./InvalidState":247,"./LexerChannelAction":251,"./LexerCustomAction":252,"./LexerModeAction":254,"./LexerMoreAction":255,"./LexerPopModeAction":256,"./LexerPushModeAction":257,"./LexerSkipAction":258,"./LexerTypeAction":259,"./LoopEndState":261,"./NotSetTransition":262,"./ParserATNSimulator":265,"./PlusBlockStartState":266,"./PlusLoopbackState":267,"./PrecedencePredicateTransition":268,"./PredicateTransition":270,"./RangeTransition":275,"./RuleStartState":276,"./RuleStopState":277,"./RuleTransition":278,"./SetTransition":280,"./StarBlockStartState":282,"./StarLoopEntryState":283,"./StarLoopbackState":284,"./TokensStartState":285,"./WildcardTransition":287}],229:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40216,7 +40331,7 @@ exports.ATNSimulator = ATNSimulator;
 })(ATNSimulator = exports.ATNSimulator || (exports.ATNSimulator = {}));
 exports.ATNSimulator = ATNSimulator;
 
-},{"../Decorators":190,"../dfa/DFAState":290,"./ATNConfigSet":225,"./PredictionContext":270}],229:[function(require,module,exports){
+},{"../Decorators":191,"../dfa/DFAState":291,"./ATNConfigSet":226,"./PredictionContext":271}],230:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40403,7 +40518,7 @@ exports.ATNState = ATNState;
     ATNState.INVALID_STATE_NUMBER = -1;
 })(ATNState = exports.ATNState || (exports.ATNState = {}));
 
-},{"../Decorators":190}],230:[function(require,module,exports){
+},{"../Decorators":191}],231:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40429,7 +40544,7 @@ var ATNStateType;
     ATNStateType[ATNStateType["LOOP_END"] = 12] = "LOOP_END";
 })(ATNStateType = exports.ATNStateType || (exports.ATNStateType = {}));
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40449,7 +40564,7 @@ class AbstractPredicateTransition extends Transition_1.Transition {
 }
 exports.AbstractPredicateTransition = AbstractPredicateTransition;
 
-},{"./Transition":285}],232:[function(require,module,exports){
+},{"./Transition":286}],233:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40505,7 +40620,7 @@ ActionTransition = __decorate([
 ], ActionTransition);
 exports.ActionTransition = ActionTransition;
 
-},{"../Decorators":190,"./Transition":285}],233:[function(require,module,exports){
+},{"../Decorators":191,"./Transition":286}],234:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40592,7 +40707,7 @@ AmbiguityInfo = __decorate([
 ], AmbiguityInfo);
 exports.AmbiguityInfo = AmbiguityInfo;
 
-},{"../Decorators":190,"./DecisionEventInfo":241}],234:[function(require,module,exports){
+},{"../Decorators":191,"./DecisionEventInfo":242}],235:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40650,7 +40765,7 @@ AtomTransition = __decorate([
 ], AtomTransition);
 exports.AtomTransition = AtomTransition;
 
-},{"../Decorators":190,"../misc/IntervalSet":303,"./Transition":285}],235:[function(require,module,exports){
+},{"../Decorators":191,"../misc/IntervalSet":304,"./Transition":286}],236:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40682,7 +40797,7 @@ __decorate([
 ], BasicBlockStartState.prototype, "stateType", null);
 exports.BasicBlockStartState = BasicBlockStartState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./BlockStartState":238}],236:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./BlockStartState":239}],237:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40714,7 +40829,7 @@ __decorate([
 ], BasicState.prototype, "stateType", null);
 exports.BasicState = BasicState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],237:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],238:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40743,7 +40858,7 @@ __decorate([
 ], BlockEndState.prototype, "stateType", null);
 exports.BlockEndState = BlockEndState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],238:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],239:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40757,7 +40872,7 @@ class BlockStartState extends DecisionState_1.DecisionState {
 }
 exports.BlockStartState = BlockStartState;
 
-},{"./DecisionState":243}],239:[function(require,module,exports){
+},{"./DecisionState":244}],240:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40827,7 +40942,7 @@ __decorate([
 ], ConflictInfo.prototype, "hashCode", null);
 exports.ConflictInfo = ConflictInfo;
 
-},{"../Decorators":190,"../misc/Utils":309}],240:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Utils":310}],241:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40887,7 +41002,7 @@ ContextSensitivityInfo = __decorate([
 ], ContextSensitivityInfo);
 exports.ContextSensitivityInfo = ContextSensitivityInfo;
 
-},{"../Decorators":190,"./DecisionEventInfo":241}],241:[function(require,module,exports){
+},{"../Decorators":191,"./DecisionEventInfo":242}],242:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40939,7 +41054,7 @@ DecisionEventInfo = __decorate([
 ], DecisionEventInfo);
 exports.DecisionEventInfo = DecisionEventInfo;
 
-},{"../Decorators":190}],242:[function(require,module,exports){
+},{"../Decorators":191}],243:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41152,7 +41267,7 @@ __decorate([
 ], DecisionInfo.prototype, "toString", null);
 exports.DecisionInfo = DecisionInfo;
 
-},{"../Decorators":190}],243:[function(require,module,exports){
+},{"../Decorators":191}],244:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41172,7 +41287,7 @@ class DecisionState extends ATNState_1.ATNState {
 }
 exports.DecisionState = DecisionState;
 
-},{"./ATNState":229}],244:[function(require,module,exports){
+},{"./ATNState":230}],245:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41238,7 +41353,7 @@ EpsilonTransition = __decorate([
 ], EpsilonTransition);
 exports.EpsilonTransition = EpsilonTransition;
 
-},{"../Decorators":190,"./Transition":285}],245:[function(require,module,exports){
+},{"../Decorators":191,"./Transition":286}],246:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41291,7 +41406,7 @@ ErrorInfo = __decorate([
 ], ErrorInfo);
 exports.ErrorInfo = ErrorInfo;
 
-},{"../Decorators":190,"./DecisionEventInfo":241}],246:[function(require,module,exports){
+},{"../Decorators":191,"./DecisionEventInfo":242}],247:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41322,7 +41437,7 @@ __decorate([
 ], InvalidState.prototype, "stateType", null);
 exports.InvalidState = InvalidState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./BasicState":236}],247:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./BasicState":237}],248:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41544,7 +41659,7 @@ LL1Analyzer = __decorate([
 ], LL1Analyzer);
 exports.LL1Analyzer = LL1Analyzer;
 
-},{"../Decorators":190,"../Token":215,"../misc/Array2DHashSet":294,"../misc/BitSet":297,"../misc/IntervalSet":303,"../misc/ObjectEqualityComparator":306,"./ATNConfig":224,"./AbstractPredicateTransition":231,"./NotSetTransition":261,"./PredictionContext":270,"./RuleStopState":276,"./RuleTransition":277,"./WildcardTransition":286}],248:[function(require,module,exports){
+},{"../Decorators":191,"../Token":216,"../misc/Array2DHashSet":295,"../misc/BitSet":298,"../misc/IntervalSet":304,"../misc/ObjectEqualityComparator":307,"./ATNConfig":225,"./AbstractPredicateTransition":232,"./NotSetTransition":262,"./PredictionContext":271,"./RuleStopState":277,"./RuleTransition":278,"./WildcardTransition":287}],249:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42261,7 +42376,7 @@ exports.LexerATNSimulator = LexerATNSimulator;
 })(LexerATNSimulator = exports.LexerATNSimulator || (exports.LexerATNSimulator = {}));
 exports.LexerATNSimulator = LexerATNSimulator;
 
-},{"../Decorators":190,"../IntStream":196,"../Lexer":198,"../LexerNoViableAltException":200,"../Token":215,"../dfa/AcceptStateInfo":287,"../dfa/DFAState":290,"../misc/Interval":302,"./ATN":223,"./ATNConfig":224,"./ATNConfigSet":225,"./ATNSimulator":228,"./LexerActionExecutor":249,"./OrderedATNConfigSet":262,"./PredictionContext":270,"./RuleStopState":276,"assert":333}],249:[function(require,module,exports){
+},{"../Decorators":191,"../IntStream":197,"../Lexer":199,"../LexerNoViableAltException":201,"../Token":216,"../dfa/AcceptStateInfo":288,"../dfa/DFAState":291,"../misc/Interval":303,"./ATN":224,"./ATNConfig":225,"./ATNConfigSet":226,"./ATNSimulator":229,"./LexerActionExecutor":250,"./OrderedATNConfigSet":263,"./PredictionContext":271,"./RuleStopState":277,"assert":334}],250:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42462,7 +42577,7 @@ LexerActionExecutor = __decorate([
 ], LexerActionExecutor);
 exports.LexerActionExecutor = LexerActionExecutor;
 
-},{"../Decorators":190,"../misc/ArrayEqualityComparator":295,"../misc/MurmurHash":305,"./LexerIndexedCustomAction":252}],250:[function(require,module,exports){
+},{"../Decorators":191,"../misc/ArrayEqualityComparator":296,"../misc/MurmurHash":306,"./LexerIndexedCustomAction":253}],251:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42567,7 +42682,7 @@ __decorate([
 ], LexerChannelAction.prototype, "toString", null);
 exports.LexerChannelAction = LexerChannelAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],251:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],252:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42696,7 +42811,7 @@ __decorate([
 ], LexerCustomAction.prototype, "equals", null);
 exports.LexerCustomAction = LexerCustomAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],252:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],253:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42831,7 +42946,7 @@ LexerIndexedCustomAction = __decorate([
 ], LexerIndexedCustomAction);
 exports.LexerIndexedCustomAction = LexerIndexedCustomAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],253:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],254:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42936,7 +43051,7 @@ __decorate([
 ], LexerModeAction.prototype, "toString", null);
 exports.LexerModeAction = LexerModeAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],254:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],255:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43032,7 +43147,7 @@ exports.LexerMoreAction = LexerMoreAction;
     LexerMoreAction.INSTANCE = new LexerMoreAction();
 })(LexerMoreAction = exports.LexerMoreAction || (exports.LexerMoreAction = {}));
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],255:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],256:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43128,7 +43243,7 @@ exports.LexerPopModeAction = LexerPopModeAction;
     LexerPopModeAction.INSTANCE = new LexerPopModeAction();
 })(LexerPopModeAction = exports.LexerPopModeAction || (exports.LexerPopModeAction = {}));
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],256:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],257:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43233,7 +43348,7 @@ __decorate([
 ], LexerPushModeAction.prototype, "toString", null);
 exports.LexerPushModeAction = LexerPushModeAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],257:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],258:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43329,7 +43444,7 @@ exports.LexerSkipAction = LexerSkipAction;
     LexerSkipAction.INSTANCE = new LexerSkipAction();
 })(LexerSkipAction = exports.LexerSkipAction || (exports.LexerSkipAction = {}));
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],258:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],259:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43433,7 +43548,7 @@ __decorate([
 ], LexerTypeAction.prototype, "toString", null);
 exports.LexerTypeAction = LexerTypeAction;
 
-},{"../Decorators":190,"../misc/MurmurHash":305}],259:[function(require,module,exports){
+},{"../Decorators":191,"../misc/MurmurHash":306}],260:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43485,7 +43600,7 @@ LookaheadEventInfo = __decorate([
 ], LookaheadEventInfo);
 exports.LookaheadEventInfo = LookaheadEventInfo;
 
-},{"../Decorators":190,"./DecisionEventInfo":241}],260:[function(require,module,exports){
+},{"../Decorators":191,"./DecisionEventInfo":242}],261:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43514,7 +43629,7 @@ __decorate([
 ], LoopEndState.prototype, "stateType", null);
 exports.LoopEndState = LoopEndState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],261:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],262:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43563,7 +43678,7 @@ NotSetTransition = __decorate([
 ], NotSetTransition);
 exports.NotSetTransition = NotSetTransition;
 
-},{"../Decorators":190,"./SetTransition":279}],262:[function(require,module,exports){
+},{"../Decorators":191,"./SetTransition":280}],263:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43618,7 +43733,7 @@ __decorate([
 ], OrderedATNConfigSet.prototype, "canMerge", null);
 exports.OrderedATNConfigSet = OrderedATNConfigSet;
 
-},{"../Decorators":190,"./ATNConfigSet":225}],263:[function(require,module,exports){
+},{"../Decorators":191,"./ATNConfigSet":226}],264:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43780,7 +43895,7 @@ ParseInfo = __decorate([
 ], ParseInfo);
 exports.ParseInfo = ParseInfo;
 
-},{"../Decorators":190}],264:[function(require,module,exports){
+},{"../Decorators":191}],265:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46053,7 +46168,7 @@ ParserATNSimulator = __decorate([
 ], ParserATNSimulator);
 exports.ParserATNSimulator = ParserATNSimulator;
 
-},{"../Decorators":190,"../IntStream":196,"../NoViableAltException":202,"../ParserRuleContext":206,"../Token":215,"../VocabularyImpl":221,"../dfa/AcceptStateInfo":287,"../dfa/DFAState":290,"../misc/Array2DHashSet":294,"../misc/Arrays":296,"../misc/BitSet":297,"../misc/IntegerList":300,"../misc/Interval":302,"../misc/ObjectEqualityComparator":306,"./ATN":223,"./ATNConfig":224,"./ATNConfigSet":225,"./ATNSimulator":228,"./ATNStateType":230,"./ActionTransition":232,"./AtomTransition":234,"./ConflictInfo":239,"./DecisionState":243,"./NotSetTransition":261,"./PredictionContext":270,"./PredictionContextCache":271,"./PredictionMode":272,"./RuleStopState":276,"./RuleTransition":277,"./SemanticContext":278,"./SetTransition":279,"./SimulatorState":280,"assert":333}],265:[function(require,module,exports){
+},{"../Decorators":191,"../IntStream":197,"../NoViableAltException":203,"../ParserRuleContext":207,"../Token":216,"../VocabularyImpl":222,"../dfa/AcceptStateInfo":288,"../dfa/DFAState":291,"../misc/Array2DHashSet":295,"../misc/Arrays":297,"../misc/BitSet":298,"../misc/IntegerList":301,"../misc/Interval":303,"../misc/ObjectEqualityComparator":307,"./ATN":224,"./ATNConfig":225,"./ATNConfigSet":226,"./ATNSimulator":229,"./ATNStateType":231,"./ActionTransition":233,"./AtomTransition":235,"./ConflictInfo":240,"./DecisionState":244,"./NotSetTransition":262,"./PredictionContext":271,"./PredictionContextCache":272,"./PredictionMode":273,"./RuleStopState":277,"./RuleTransition":278,"./SemanticContext":279,"./SetTransition":280,"./SimulatorState":281,"assert":334}],266:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46086,7 +46201,7 @@ __decorate([
 ], PlusBlockStartState.prototype, "stateType", null);
 exports.PlusBlockStartState = PlusBlockStartState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./BlockStartState":238}],266:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./BlockStartState":239}],267:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46117,7 +46232,7 @@ __decorate([
 ], PlusLoopbackState.prototype, "stateType", null);
 exports.PlusLoopbackState = PlusLoopbackState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./DecisionState":243}],267:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./DecisionState":244}],268:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46180,7 +46295,7 @@ PrecedencePredicateTransition = __decorate([
 ], PrecedencePredicateTransition);
 exports.PrecedencePredicateTransition = PrecedencePredicateTransition;
 
-},{"../Decorators":190,"./AbstractPredicateTransition":231,"./SemanticContext":278}],268:[function(require,module,exports){
+},{"../Decorators":191,"./AbstractPredicateTransition":232,"./SemanticContext":279}],269:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46243,7 +46358,7 @@ PredicateEvalInfo = __decorate([
 ], PredicateEvalInfo);
 exports.PredicateEvalInfo = PredicateEvalInfo;
 
-},{"../Decorators":190,"./DecisionEventInfo":241}],269:[function(require,module,exports){
+},{"../Decorators":191,"./DecisionEventInfo":242}],270:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46309,7 +46424,7 @@ PredicateTransition = __decorate([
 ], PredicateTransition);
 exports.PredicateTransition = PredicateTransition;
 
-},{"../Decorators":190,"./AbstractPredicateTransition":231,"./SemanticContext":278}],270:[function(require,module,exports){
+},{"../Decorators":191,"./AbstractPredicateTransition":232,"./SemanticContext":279}],271:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47000,7 +47115,7 @@ exports.SingletonPredictionContext = SingletonPredictionContext;
     PredictionContext.IdentityEqualityComparator = IdentityEqualityComparator;
 })(PredictionContext = exports.PredictionContext || (exports.PredictionContext = {}));
 
-},{"../Decorators":190,"../misc/Array2DHashMap":293,"../misc/Array2DHashSet":294,"../misc/Arrays":296,"../misc/MurmurHash":305,"./PredictionContextCache":271,"assert":333}],271:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashMap":294,"../misc/Array2DHashSet":295,"../misc/Arrays":297,"../misc/MurmurHash":306,"./PredictionContextCache":272,"assert":334}],272:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47141,7 +47256,7 @@ PredictionContextCache.UNCACHED = new PredictionContextCache(false);
     PredictionContextCache.IdentityCommutativePredictionContextOperands = IdentityCommutativePredictionContextOperands;
 })(PredictionContextCache = exports.PredictionContextCache || (exports.PredictionContextCache = {}));
 
-},{"../Decorators":190,"../misc/Array2DHashMap":293,"../misc/ObjectEqualityComparator":306,"./PredictionContext":270,"assert":333}],272:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashMap":294,"../misc/ObjectEqualityComparator":307,"./PredictionContext":271,"assert":334}],273:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47302,7 +47417,7 @@ var PredictionMode;
     PredictionMode.allConfigsInRuleStopStates = allConfigsInRuleStopStates;
 })(PredictionMode = exports.PredictionMode || (exports.PredictionMode = {}));
 
-},{"../Decorators":190,"../misc/Array2DHashMap":293,"../misc/MurmurHash":305,"./RuleStopState":276}],273:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashMap":294,"../misc/MurmurHash":306,"./RuleStopState":277}],274:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -47571,7 +47686,7 @@ __decorate([
 exports.ProfilingATNSimulator = ProfilingATNSimulator;
 
 }).call(this)}).call(this,require('_process'))
-},{"../Decorators":190,"./ATN":223,"./ATNSimulator":228,"./AmbiguityInfo":233,"./ContextSensitivityInfo":240,"./DecisionInfo":242,"./ErrorInfo":245,"./LookaheadEventInfo":259,"./ParserATNSimulator":264,"./PredicateEvalInfo":268,"./SemanticContext":278,"./SimulatorState":280,"_process":357}],274:[function(require,module,exports){
+},{"../Decorators":191,"./ATN":224,"./ATNSimulator":229,"./AmbiguityInfo":234,"./ContextSensitivityInfo":241,"./DecisionInfo":243,"./ErrorInfo":246,"./LookaheadEventInfo":260,"./ParserATNSimulator":265,"./PredicateEvalInfo":269,"./SemanticContext":279,"./SimulatorState":281,"_process":358}],275:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47629,7 +47744,7 @@ RangeTransition = __decorate([
 ], RangeTransition);
 exports.RangeTransition = RangeTransition;
 
-},{"../Decorators":190,"../misc/IntervalSet":303,"./Transition":285}],275:[function(require,module,exports){
+},{"../Decorators":191,"../misc/IntervalSet":304,"./Transition":286}],276:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47662,7 +47777,7 @@ __decorate([
 ], RuleStartState.prototype, "stateType", null);
 exports.RuleStartState = RuleStartState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],276:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],277:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47701,7 +47816,7 @@ __decorate([
 ], RuleStopState.prototype, "stateType", null);
 exports.RuleStopState = RuleStopState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],277:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],278:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47757,7 +47872,7 @@ RuleTransition = __decorate([
 ], RuleTransition);
 exports.RuleTransition = RuleTransition;
 
-},{"../Decorators":190,"./Transition":285}],278:[function(require,module,exports){
+},{"../Decorators":191,"./Transition":286}],279:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48237,7 +48352,7 @@ exports.SemanticContext = SemanticContext;
     SemanticContext.OR = OR;
 })(SemanticContext = exports.SemanticContext || (exports.SemanticContext = {}));
 
-},{"../Decorators":190,"../misc/Array2DHashSet":294,"../misc/ArrayEqualityComparator":295,"../misc/MurmurHash":305,"../misc/ObjectEqualityComparator":306,"../misc/Utils":309}],279:[function(require,module,exports){
+},{"../Decorators":191,"../misc/Array2DHashSet":295,"../misc/ArrayEqualityComparator":296,"../misc/MurmurHash":306,"../misc/ObjectEqualityComparator":307,"../misc/Utils":310}],280:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48303,7 +48418,7 @@ SetTransition = __decorate([
 ], SetTransition);
 exports.SetTransition = SetTransition;
 
-},{"../Decorators":190,"../Token":215,"../misc/IntervalSet":303,"./Transition":285}],280:[function(require,module,exports){
+},{"../Decorators":191,"../Token":216,"../misc/IntervalSet":304,"./Transition":286}],281:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48339,7 +48454,7 @@ SimulatorState = __decorate([
 ], SimulatorState);
 exports.SimulatorState = SimulatorState;
 
-},{"../Decorators":190,"../ParserRuleContext":206}],281:[function(require,module,exports){
+},{"../Decorators":191,"../ParserRuleContext":207}],282:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48367,7 +48482,7 @@ __decorate([
 ], StarBlockStartState.prototype, "stateType", null);
 exports.StarBlockStartState = StarBlockStartState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./BlockStartState":238}],282:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./BlockStartState":239}],283:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48424,7 +48539,7 @@ __decorate([
 ], StarLoopEntryState.prototype, "stateType", null);
 exports.StarLoopEntryState = StarLoopEntryState;
 
-},{"../Decorators":190,"../misc/BitSet":297,"./ATNStateType":230,"./DecisionState":243}],283:[function(require,module,exports){
+},{"../Decorators":191,"../misc/BitSet":298,"./ATNStateType":231,"./DecisionState":244}],284:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48455,7 +48570,7 @@ __decorate([
 ], StarLoopbackState.prototype, "stateType", null);
 exports.StarLoopbackState = StarLoopbackState;
 
-},{"../Decorators":190,"./ATNState":229,"./ATNStateType":230}],284:[function(require,module,exports){
+},{"../Decorators":191,"./ATNState":230,"./ATNStateType":231}],285:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48484,7 +48599,7 @@ __decorate([
 ], TokensStartState.prototype, "stateType", null);
 exports.TokensStartState = TokensStartState;
 
-},{"../Decorators":190,"./ATNStateType":230,"./DecisionState":243}],285:[function(require,module,exports){
+},{"../Decorators":191,"./ATNStateType":231,"./DecisionState":244}],286:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48558,7 +48673,7 @@ Transition = __decorate([
 ], Transition);
 exports.Transition = Transition;
 
-},{"../Decorators":190}],286:[function(require,module,exports){
+},{"../Decorators":191}],287:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48606,7 +48721,7 @@ WildcardTransition = __decorate([
 ], WildcardTransition);
 exports.WildcardTransition = WildcardTransition;
 
-},{"../Decorators":190,"./Transition":285}],287:[function(require,module,exports){
+},{"../Decorators":191,"./Transition":286}],288:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48648,7 +48763,7 @@ class AcceptStateInfo {
 }
 exports.AcceptStateInfo = AcceptStateInfo;
 
-},{}],288:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48823,7 +48938,7 @@ DFA = __decorate([
 ], DFA);
 exports.DFA = DFA;
 
-},{"../Decorators":190,"../VocabularyImpl":221,"../atn/ATNConfigSet":225,"../atn/StarLoopEntryState":282,"../misc/Array2DHashSet":294,"../misc/ObjectEqualityComparator":306,"./DFASerializer":289,"./DFAState":290,"./LexerDFASerializer":291}],289:[function(require,module,exports){
+},{"../Decorators":191,"../VocabularyImpl":222,"../atn/ATNConfigSet":226,"../atn/StarLoopEntryState":283,"../misc/Array2DHashSet":295,"../misc/ObjectEqualityComparator":307,"./DFASerializer":290,"./DFAState":291,"./LexerDFASerializer":292}],290:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48965,7 +49080,7 @@ __decorate([
 ], DFASerializer.prototype, "toString", null);
 exports.DFASerializer = DFASerializer;
 
-},{"../Decorators":190,"../Recognizer":210,"../VocabularyImpl":221,"../atn/ATNSimulator":228,"../atn/PredictionContext":270}],290:[function(require,module,exports){
+},{"../Decorators":191,"../Recognizer":211,"../VocabularyImpl":222,"../atn/ATNSimulator":229,"../atn/PredictionContext":271}],291:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49196,7 +49311,7 @@ exports.DFAState = DFAState;
     DFAState.PredPrediction = PredPrediction;
 })(DFAState = exports.DFAState || (exports.DFAState = {}));
 
-},{"../Decorators":190,"../atn/ATN":223,"../atn/PredictionContext":270,"../misc/BitSet":297,"../misc/MurmurHash":305,"assert":333}],291:[function(require,module,exports){
+},{"../Decorators":191,"../atn/ATN":224,"../atn/PredictionContext":271,"../misc/BitSet":298,"../misc/MurmurHash":306,"assert":334}],292:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49233,7 +49348,7 @@ LexerDFASerializer = __decorate([
 ], LexerDFASerializer);
 exports.LexerDFASerializer = LexerDFASerializer;
 
-},{"../Decorators":190,"../VocabularyImpl":221,"./DFASerializer":289}],292:[function(require,module,exports){
+},{"../Decorators":191,"../VocabularyImpl":222,"./DFASerializer":290}],293:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49299,7 +49414,7 @@ __exportStar(require("./Vocabulary"), exports);
 __exportStar(require("./VocabularyImpl"), exports);
 __exportStar(require("./WritableToken"), exports);
 
-},{"./ANTLRErrorListener":177,"./ANTLRErrorStrategy":178,"./ANTLRInputStream":179,"./BailErrorStrategy":180,"./BufferedTokenStream":181,"./CharStream":182,"./CharStreams":183,"./CodePointBuffer":184,"./CodePointCharStream":185,"./CommonToken":186,"./CommonTokenFactory":187,"./CommonTokenStream":188,"./ConsoleErrorListener":189,"./DefaultErrorStrategy":191,"./Dependents":192,"./DiagnosticErrorListener":193,"./FailedPredicateException":194,"./InputMismatchException":195,"./IntStream":196,"./InterpreterRuleContext":197,"./Lexer":198,"./LexerInterpreter":199,"./LexerNoViableAltException":200,"./ListTokenSource":201,"./NoViableAltException":202,"./Parser":203,"./ParserErrorListener":204,"./ParserInterpreter":205,"./ParserRuleContext":206,"./ProxyErrorListener":207,"./ProxyParserErrorListener":208,"./RecognitionException":209,"./Recognizer":210,"./RuleContext":211,"./RuleContextWithAltNum":212,"./RuleDependency":213,"./RuleVersion":214,"./Token":215,"./TokenFactory":216,"./TokenSource":217,"./TokenStream":218,"./TokenStreamRewriter":219,"./Vocabulary":220,"./VocabularyImpl":221,"./WritableToken":222}],293:[function(require,module,exports){
+},{"./ANTLRErrorListener":178,"./ANTLRErrorStrategy":179,"./ANTLRInputStream":180,"./BailErrorStrategy":181,"./BufferedTokenStream":182,"./CharStream":183,"./CharStreams":184,"./CodePointBuffer":185,"./CodePointCharStream":186,"./CommonToken":187,"./CommonTokenFactory":188,"./CommonTokenStream":189,"./ConsoleErrorListener":190,"./DefaultErrorStrategy":192,"./Dependents":193,"./DiagnosticErrorListener":194,"./FailedPredicateException":195,"./InputMismatchException":196,"./IntStream":197,"./InterpreterRuleContext":198,"./Lexer":199,"./LexerInterpreter":200,"./LexerNoViableAltException":201,"./ListTokenSource":202,"./NoViableAltException":203,"./Parser":204,"./ParserErrorListener":205,"./ParserInterpreter":206,"./ParserRuleContext":207,"./ProxyErrorListener":208,"./ProxyParserErrorListener":209,"./RecognitionException":210,"./Recognizer":211,"./RuleContext":212,"./RuleContextWithAltNum":213,"./RuleDependency":214,"./RuleVersion":215,"./Token":216,"./TokenFactory":217,"./TokenSource":218,"./TokenStream":219,"./TokenStreamRewriter":220,"./Vocabulary":221,"./VocabularyImpl":222,"./WritableToken":223}],294:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49382,7 +49497,7 @@ class Array2DHashMap {
 }
 exports.Array2DHashMap = Array2DHashMap;
 
-},{"./Array2DHashSet":294}],294:[function(require,module,exports){
+},{"./Array2DHashSet":295}],295:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49749,7 +49864,7 @@ __decorate([
 ], Array2DHashSet.prototype, "createBuckets", null);
 exports.Array2DHashSet = Array2DHashSet;
 
-},{"../Decorators":190,"./DefaultEqualityComparator":299,"./MurmurHash":305,"assert":333}],295:[function(require,module,exports){
+},{"../Decorators":191,"./DefaultEqualityComparator":300,"./MurmurHash":306,"assert":334}],296:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49821,7 +49936,7 @@ __decorate([
 ], ArrayEqualityComparator.prototype, "equals", null);
 exports.ArrayEqualityComparator = ArrayEqualityComparator;
 
-},{"../Decorators":190,"./MurmurHash":305,"./ObjectEqualityComparator":306}],296:[function(require,module,exports){
+},{"../Decorators":191,"./MurmurHash":306,"./ObjectEqualityComparator":307}],297:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49891,7 +50006,7 @@ var Arrays;
     Arrays.toString = toString;
 })(Arrays = exports.Arrays || (exports.Arrays = {}));
 
-},{}],297:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50563,7 +50678,7 @@ class BitSetIterator {
     [Symbol.iterator]() { return this; }
 }
 
-},{"./MurmurHash":305,"util":360}],298:[function(require,module,exports){
+},{"./MurmurHash":306,"util":361}],299:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50584,7 +50699,7 @@ function isSupplementaryCodePoint(ch) {
 }
 exports.isSupplementaryCodePoint = isSupplementaryCodePoint;
 
-},{}],299:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50655,7 +50770,7 @@ __decorate([
 ], DefaultEqualityComparator.prototype, "equals", null);
 exports.DefaultEqualityComparator = DefaultEqualityComparator;
 
-},{"../Decorators":190,"./MurmurHash":305,"./ObjectEqualityComparator":306}],300:[function(require,module,exports){
+},{"../Decorators":191,"./MurmurHash":306,"./ObjectEqualityComparator":307}],301:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50949,7 +51064,7 @@ __decorate([
 ], IntegerList.prototype, "toString", null);
 exports.IntegerList = IntegerList;
 
-},{"../Decorators":190,"./Arrays":296}],301:[function(require,module,exports){
+},{"../Decorators":191,"./Arrays":297}],302:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50979,7 +51094,7 @@ class IntegerStack extends IntegerList_1.IntegerList {
 }
 exports.IntegerStack = IntegerStack;
 
-},{"./IntegerList":300}],302:[function(require,module,exports){
+},{"./IntegerList":301}],303:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51122,7 +51237,7 @@ __decorate([
 ], Interval.prototype, "toString", null);
 exports.Interval = Interval;
 
-},{"../Decorators":190}],303:[function(require,module,exports){
+},{"../Decorators":191}],304:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51768,7 +51883,7 @@ __decorate([
 ], IntervalSet, "subtract", null);
 exports.IntervalSet = IntervalSet;
 
-},{"../Decorators":190,"../Lexer":198,"../Token":215,"./ArrayEqualityComparator":295,"./IntegerList":300,"./Interval":302,"./MurmurHash":305}],304:[function(require,module,exports){
+},{"../Decorators":191,"../Lexer":199,"../Token":216,"./ArrayEqualityComparator":296,"./IntegerList":301,"./Interval":303,"./MurmurHash":306}],305:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51801,7 +51916,7 @@ class MultiMap extends Map {
 }
 exports.MultiMap = MultiMap;
 
-},{}],305:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51916,7 +52031,7 @@ var MurmurHash;
     }
 })(MurmurHash = exports.MurmurHash || (exports.MurmurHash = {}));
 
-},{}],306:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51975,7 +52090,7 @@ __decorate([
 ], ObjectEqualityComparator.prototype, "equals", null);
 exports.ObjectEqualityComparator = ObjectEqualityComparator;
 
-},{"../Decorators":190}],307:[function(require,module,exports){
+},{"../Decorators":191}],308:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52004,7 +52119,7 @@ class ParseCancellationException extends Error {
 }
 exports.ParseCancellationException = ParseCancellationException;
 
-},{}],308:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52058,7 +52173,7 @@ class UUID {
 }
 exports.UUID = UUID;
 
-},{"./MurmurHash":305}],309:[function(require,module,exports){
+},{"./MurmurHash":306}],310:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52233,7 +52348,7 @@ exports.toCharArray = toCharArray;
 // 	return s;
 // }
 
-},{}],310:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52269,7 +52384,7 @@ __decorate([
 ], ErrorNode.prototype, "accept", null);
 exports.ErrorNode = ErrorNode;
 
-},{"../Decorators":190,"./TerminalNode":313}],311:[function(require,module,exports){
+},{"../Decorators":191,"./TerminalNode":314}],312:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52374,7 +52489,7 @@ exports.ParseTreeWalker = ParseTreeWalker;
     ParseTreeWalker.DEFAULT = new ParseTreeWalker();
 })(ParseTreeWalker = exports.ParseTreeWalker || (exports.ParseTreeWalker = {}));
 
-},{"./ErrorNode":310,"./RuleNode":312,"./TerminalNode":313}],312:[function(require,module,exports){
+},{"./ErrorNode":311,"./RuleNode":313,"./TerminalNode":314}],313:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52386,7 +52501,7 @@ class RuleNode {
 }
 exports.RuleNode = RuleNode;
 
-},{}],313:[function(require,module,exports){
+},{}],314:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52478,7 +52593,7 @@ __decorate([
 ], TerminalNode.prototype, "toString", null);
 exports.TerminalNode = TerminalNode;
 
-},{"../Decorators":190,"../Token":215,"../misc/Interval":302}],314:[function(require,module,exports){
+},{"../Decorators":191,"../Token":216,"../misc/Interval":303}],315:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52722,7 +52837,7 @@ __decorate([
 ], Trees, "getRootOfSubtreeEnclosingRegion", null);
 exports.Trees = Trees;
 
-},{"../CommonToken":186,"../Decorators":190,"../Parser":203,"../ParserRuleContext":206,"../Token":215,"../atn/ATN":223,"../misc/Utils":309,"./ErrorNode":310,"./RuleNode":312,"./TerminalNode":313}],315:[function(require,module,exports){
+},{"../CommonToken":187,"../Decorators":191,"../Parser":204,"../ParserRuleContext":207,"../Token":216,"../atn/ATN":224,"../misc/Utils":310,"./ErrorNode":311,"./RuleNode":313,"./TerminalNode":314}],316:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52746,7 +52861,7 @@ class Chunk {
 }
 exports.Chunk = Chunk;
 
-},{}],316:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52926,7 +53041,7 @@ ParseTreeMatch = __decorate([
 ], ParseTreeMatch);
 exports.ParseTreeMatch = ParseTreeMatch;
 
-},{"../../Decorators":190}],317:[function(require,module,exports){
+},{"../../Decorators":191}],318:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53084,7 +53199,7 @@ ParseTreePattern = __decorate([
 ], ParseTreePattern);
 exports.ParseTreePattern = ParseTreePattern;
 
-},{"../../Decorators":190,"../xpath/XPath":323}],318:[function(require,module,exports){
+},{"../../Decorators":191,"../xpath/XPath":324}],319:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53562,7 +53677,7 @@ exports.ParseTreePatternMatcher = ParseTreePatternMatcher;
     ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern = StartRuleDoesNotConsumeFullPattern;
 })(ParseTreePatternMatcher = exports.ParseTreePatternMatcher || (exports.ParseTreePatternMatcher = {}));
 
-},{"../../BailErrorStrategy":180,"../../CharStreams":183,"../../CommonTokenStream":188,"../../Decorators":190,"../../ListTokenSource":201,"../../ParserInterpreter":205,"../../ParserRuleContext":206,"../../RecognitionException":209,"../../Token":215,"../../misc/MultiMap":304,"../../misc/ParseCancellationException":307,"../RuleNode":312,"../TerminalNode":313,"./ParseTreeMatch":316,"./ParseTreePattern":317,"./RuleTagToken":319,"./TagChunk":320,"./TextChunk":321,"./TokenTagToken":322}],319:[function(require,module,exports){
+},{"../../BailErrorStrategy":181,"../../CharStreams":184,"../../CommonTokenStream":189,"../../Decorators":191,"../../ListTokenSource":202,"../../ParserInterpreter":206,"../../ParserRuleContext":207,"../../RecognitionException":210,"../../Token":216,"../../misc/MultiMap":305,"../../misc/ParseCancellationException":308,"../RuleNode":313,"../TerminalNode":314,"./ParseTreeMatch":317,"./ParseTreePattern":318,"./RuleTagToken":320,"./TagChunk":321,"./TextChunk":322,"./TokenTagToken":323}],320:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53760,7 +53875,7 @@ RuleTagToken = __decorate([
 ], RuleTagToken);
 exports.RuleTagToken = RuleTagToken;
 
-},{"../../Decorators":190,"../../Token":215}],320:[function(require,module,exports){
+},{"../../Decorators":191,"../../Token":216}],321:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53847,7 +53962,7 @@ __decorate([
 ], TagChunk.prototype, "toString", null);
 exports.TagChunk = TagChunk;
 
-},{"../../Decorators":190,"./Chunk":315}],321:[function(require,module,exports){
+},{"../../Decorators":191,"./Chunk":316}],322:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53917,7 +54032,7 @@ TextChunk = __decorate([
 ], TextChunk);
 exports.TextChunk = TextChunk;
 
-},{"../../Decorators":190,"./Chunk":315}],322:[function(require,module,exports){
+},{"../../Decorators":191,"./Chunk":316}],323:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54012,7 +54127,7 @@ TokenTagToken = __decorate([
 ], TokenTagToken);
 exports.TokenTagToken = TokenTagToken;
 
-},{"../../CommonToken":186,"../../Decorators":190}],323:[function(require,module,exports){
+},{"../../CommonToken":187,"../../Decorators":191}],324:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54209,7 +54324,7 @@ exports.XPath = XPath;
 XPath.WILDCARD = "*"; // word not operator/separator
 XPath.NOT = "!"; // word for invert operator
 
-},{"../../CharStreams":183,"../../CommonTokenStream":188,"../../LexerNoViableAltException":200,"../../ParserRuleContext":206,"../../Token":215,"./XPathLexer":325,"./XPathLexerErrorListener":326,"./XPathRuleAnywhereElement":327,"./XPathRuleElement":328,"./XPathTokenAnywhereElement":329,"./XPathTokenElement":330,"./XPathWildcardAnywhereElement":331,"./XPathWildcardElement":332}],324:[function(require,module,exports){
+},{"../../CharStreams":184,"../../CommonTokenStream":189,"../../LexerNoViableAltException":201,"../../ParserRuleContext":207,"../../Token":216,"./XPathLexer":326,"./XPathLexerErrorListener":327,"./XPathRuleAnywhereElement":328,"./XPathRuleElement":329,"./XPathTokenAnywhereElement":330,"./XPathTokenElement":331,"./XPathWildcardAnywhereElement":332,"./XPathWildcardElement":333}],325:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54244,7 +54359,7 @@ __decorate([
 ], XPathElement.prototype, "toString", null);
 exports.XPathElement = XPathElement;
 
-},{"../../Decorators":190}],325:[function(require,module,exports){
+},{"../../Decorators":191}],326:[function(require,module,exports){
 "use strict";
 // Generated from XPathLexer.g4 by ANTLR 4.9.0-SNAPSHOT
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -54719,7 +54834,7 @@ XPathLexer._serializedATN = Utils.join([
     XPathLexer._serializedATNSegment1,
 ], "");
 
-},{"../../Lexer":198,"../../VocabularyImpl":221,"../../atn/ATNDeserializer":227,"../../atn/LexerATNSimulator":248,"../../misc/Utils":309}],326:[function(require,module,exports){
+},{"../../Lexer":199,"../../VocabularyImpl":222,"../../atn/ATNDeserializer":228,"../../atn/LexerATNSimulator":249,"../../misc/Utils":310}],327:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54744,7 +54859,7 @@ __decorate([
 ], XPathLexerErrorListener.prototype, "syntaxError", null);
 exports.XPathLexerErrorListener = XPathLexerErrorListener;
 
-},{"../../Decorators":190}],327:[function(require,module,exports){
+},{"../../Decorators":191}],328:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54778,7 +54893,7 @@ __decorate([
 ], XPathRuleAnywhereElement.prototype, "evaluate", null);
 exports.XPathRuleAnywhereElement = XPathRuleAnywhereElement;
 
-},{"../../Decorators":190,"../Trees":314,"./XPathElement":324}],328:[function(require,module,exports){
+},{"../../Decorators":191,"../Trees":315,"./XPathElement":325}],329:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54821,7 +54936,7 @@ __decorate([
 ], XPathRuleElement.prototype, "evaluate", null);
 exports.XPathRuleElement = XPathRuleElement;
 
-},{"../../Decorators":190,"../../ParserRuleContext":206,"../Trees":314,"./XPathElement":324}],329:[function(require,module,exports){
+},{"../../Decorators":191,"../../ParserRuleContext":207,"../Trees":315,"./XPathElement":325}],330:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54853,7 +54968,7 @@ __decorate([
 ], XPathTokenAnywhereElement.prototype, "evaluate", null);
 exports.XPathTokenAnywhereElement = XPathTokenAnywhereElement;
 
-},{"../../Decorators":190,"../Trees":314,"./XPathElement":324}],330:[function(require,module,exports){
+},{"../../Decorators":191,"../Trees":315,"./XPathElement":325}],331:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54896,7 +55011,7 @@ __decorate([
 ], XPathTokenElement.prototype, "evaluate", null);
 exports.XPathTokenElement = XPathTokenElement;
 
-},{"../../Decorators":190,"../TerminalNode":313,"../Trees":314,"./XPathElement":324}],331:[function(require,module,exports){
+},{"../../Decorators":191,"../TerminalNode":314,"../Trees":315,"./XPathElement":325}],332:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54932,7 +55047,7 @@ __decorate([
 ], XPathWildcardAnywhereElement.prototype, "evaluate", null);
 exports.XPathWildcardAnywhereElement = XPathWildcardAnywhereElement;
 
-},{"../../Decorators":190,"../Trees":314,"./XPath":323,"./XPathElement":324}],332:[function(require,module,exports){
+},{"../../Decorators":191,"../Trees":315,"./XPath":324,"./XPathElement":325}],333:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54972,7 +55087,7 @@ __decorate([
 ], XPathWildcardElement.prototype, "evaluate", null);
 exports.XPathWildcardElement = XPathWildcardElement;
 
-},{"../../Decorators":190,"../Trees":314,"./XPath":323,"./XPathElement":324}],333:[function(require,module,exports){
+},{"../../Decorators":191,"../Trees":315,"./XPath":324,"./XPathElement":325}],334:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -55482,7 +55597,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object-assign":356,"util/":336}],334:[function(require,module,exports){
+},{"object-assign":357,"util/":337}],335:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -55507,14 +55622,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],335:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],336:[function(require,module,exports){
+},{}],337:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -56104,7 +56219,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":335,"_process":357,"inherits":334}],337:[function(require,module,exports){
+},{"./support/isBuffer":336,"_process":358,"inherits":335}],338:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -56135,7 +56250,7 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],338:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -56166,7 +56281,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":357}],339:[function(require,module,exports){
+},{"_process":358}],340:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -56183,7 +56298,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"./":340,"get-intrinsic":344}],340:[function(require,module,exports){
+},{"./":341,"get-intrinsic":345}],341:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -56232,7 +56347,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"function-bind":343,"get-intrinsic":344}],341:[function(require,module,exports){
+},{"function-bind":344,"get-intrinsic":345}],342:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -56296,7 +56411,7 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":353}],342:[function(require,module,exports){
+},{"is-callable":354}],343:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -56350,14 +56465,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],343:[function(require,module,exports){
+},{}],344:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":342}],344:[function(require,module,exports){
+},{"./implementation":343}],345:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -56710,7 +56825,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"function-bind":343,"has":350,"has-proto":346,"has-symbols":347}],345:[function(require,module,exports){
+},{"function-bind":344,"has":351,"has-proto":347,"has-symbols":348}],346:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -56728,7 +56843,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"get-intrinsic":344}],346:[function(require,module,exports){
+},{"get-intrinsic":345}],347:[function(require,module,exports){
 'use strict';
 
 var test = {
@@ -56741,7 +56856,7 @@ module.exports = function hasProto() {
 	return { __proto__: test }.foo === test.foo && !({ __proto__: null } instanceof $Object);
 };
 
-},{}],347:[function(require,module,exports){
+},{}],348:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -56756,7 +56871,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":348}],348:[function(require,module,exports){
+},{"./shams":349}],349:[function(require,module,exports){
 'use strict';
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
@@ -56800,7 +56915,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],349:[function(require,module,exports){
+},{}],350:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -56809,14 +56924,14 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":348}],350:[function(require,module,exports){
+},{"has-symbols/shams":349}],351:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":343}],351:[function(require,module,exports){
+},{"function-bind":344}],352:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -56845,7 +56960,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],352:[function(require,module,exports){
+},{}],353:[function(require,module,exports){
 'use strict';
 
 var hasToStringTag = require('has-tostringtag/shams')();
@@ -56880,7 +56995,7 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bind/callBound":339,"has-tostringtag/shams":349}],353:[function(require,module,exports){
+},{"call-bind/callBound":340,"has-tostringtag/shams":350}],354:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -56983,7 +57098,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],354:[function(require,module,exports){
+},{}],355:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -57023,7 +57138,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return getProto(fn) === GeneratorFunction;
 };
 
-},{"has-tostringtag/shams":349}],355:[function(require,module,exports){
+},{"has-tostringtag/shams":350}],356:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -57087,7 +57202,7 @@ module.exports = function isTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":337,"call-bind/callBound":339,"for-each":341,"gopd":345,"has-tostringtag/shams":349}],356:[function(require,module,exports){
+},{"available-typed-arrays":338,"call-bind/callBound":340,"for-each":342,"gopd":346,"has-tostringtag/shams":350}],357:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -57179,7 +57294,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],357:[function(require,module,exports){
+},{}],358:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -57365,9 +57480,9 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],358:[function(require,module,exports){
-arguments[4][335][0].apply(exports,arguments)
-},{"dup":335}],359:[function(require,module,exports){
+},{}],359:[function(require,module,exports){
+arguments[4][336][0].apply(exports,arguments)
+},{"dup":336}],360:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -57703,7 +57818,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":352,"is-generator-function":354,"is-typed-array":355,"which-typed-array":361}],360:[function(require,module,exports){
+},{"is-arguments":353,"is-generator-function":355,"is-typed-array":356,"which-typed-array":362}],361:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -58422,7 +58537,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":358,"./support/types":359,"_process":357,"inherits":351}],361:[function(require,module,exports){
+},{"./support/isBuffer":359,"./support/types":360,"_process":358,"inherits":352}],362:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -58481,5 +58596,5 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":337,"call-bind/callBound":339,"for-each":341,"gopd":345,"has-tostringtag/shams":349,"is-typed-array":355}]},{},[1])(1)
+},{"available-typed-arrays":338,"call-bind/callBound":340,"for-each":342,"gopd":346,"has-tostringtag/shams":350,"is-typed-array":356}]},{},[1])(1)
 });
