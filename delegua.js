@@ -5669,25 +5669,35 @@ const erro_avaliador_sintatico_1 = require("../erro-avaliador-sintatico");
  * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
  */
 class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
+    constructor() {
+        super(...arguments);
+        this.declaracoes = [];
+    }
     declaracaoEscreva() {
         throw new Error('Método não implementado.');
     }
-    validarEscopoPrograma(declaracoes) {
+    validarEscopoPrograma() {
         this.consumir(portugol_studio_1.default.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
         this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
         while (!this.estaNoFinal()) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
+            const declaracaoOuVetor = this.resolverDeclaracaoForaDeBloco();
+            if (Array.isArray(declaracaoOuVetor)) {
+                this.declaracoes = this.declaracoes.concat(declaracaoOuVetor);
+            }
+            else {
+                this.declaracoes.push(declaracaoOuVetor);
+            }
         }
         if (this.simbolos[this.atual - 1].tipo !== portugol_studio_1.default.CHAVE_DIREITA) {
             throw this.erro(this.simbolos[this.atual - 1], 'Esperado chave direita final para término do programa.');
         }
-        const encontrarDeclaracaoInicio = declaracoes.filter((d) => d instanceof declaracoes_1.FuncaoDeclaracao && d.simbolo.lexema === 'inicio');
+        const encontrarDeclaracaoInicio = this.declaracoes.filter((d) => d instanceof declaracoes_1.FuncaoDeclaracao && d.simbolo.lexema === 'inicio');
         if (encontrarDeclaracaoInicio.length <= 0) {
             throw this.erro(this.simbolos[0], "Função 'inicio()' para iniciar o programa não foi definida.");
         }
         // A última declaração do programa deve ser uma chamada a inicio()
         const declaracaoInicio = encontrarDeclaracaoInicio[0];
-        declaracoes.push(new declaracoes_1.Expressao(new construtos_1.Chamada(declaracaoInicio.hashArquivo, declaracaoInicio.funcao, null, [])));
+        this.declaracoes.push(new declaracoes_1.Expressao(new construtos_1.Chamada(declaracaoInicio.hashArquivo, declaracaoInicio.funcao, null, [])));
     }
     comparacaoIgualdade() {
         let expressao = this.comparar();
@@ -5894,12 +5904,12 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         do {
             const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'cadeia'.");
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = '';
             if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
                 const literalInicializacao = this.consumir(portugol_studio_1.default.CADEIA, 'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.');
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.literal;
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCadeia.linha), 0)));
+            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCadeia.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -5909,12 +5919,12 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         do {
             const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'caracter'.");
             // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
+            let valorInicializacao = '';
             if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
                 const literalInicializacao = this.consumir(portugol_studio_1.default.CARACTER, 'Esperado literal de caracter após símbolo de igual em declaração de variável.');
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.literal;
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaracter.linha), 0)));
+            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaracter.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -5994,11 +6004,29 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
                     throw this.erro(this.simbolos[this.atual], 'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.');
                 }
                 const literalInicializacao = this.avancarEDevolverAnterior();
-                valorInicializacao = Number(literalInicializacao.literal);
+                valorInicializacao = literalInicializacao.lexema.toLowerCase() === 'verdadeiro' ? true : false;
             }
             inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
+    }
+    declaracaoRetorne() {
+        this.avancarEDevolverAnterior();
+        const simboloChave = this.simbolos[this.atual];
+        let valor = null;
+        if ([
+            portugol_studio_1.default.CADEIA,
+            portugol_studio_1.default.CARACTER,
+            portugol_studio_1.default.FALSO,
+            portugol_studio_1.default.IDENTIFICADOR,
+            portugol_studio_1.default.INTEIRO,
+            portugol_studio_1.default.NEGACAO,
+            portugol_studio_1.default.REAL,
+            portugol_studio_1.default.VERDADEIRO,
+        ].includes(this.simbolos[this.atual].tipo)) {
+            valor = this.expressao();
+        }
+        return new declaracoes_1.Retorna(simboloChave, valor);
     }
     declaracaoPara() {
         try {
@@ -6043,7 +6071,7 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
                 const literalInicializacao = this.consumir(portugol_studio_1.default.REAL, 'Esperado literal real após símbolo de igual em declaração de variável.');
                 valorInicializacao = Number(literalInicializacao.literal);
             }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloReal.linha), 0)));
+            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloReal.linha), valorInicializacao)));
         } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
         return inicializacoes;
     }
@@ -6065,8 +6093,26 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             // Por enquanto apenas consumimos o símbolo sem ações adicionais.
             this.avancarEDevolverAnterior();
         }
+        this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VAZIO);
         const nomeFuncao = this.consumir(portugol_studio_1.default.IDENTIFICADOR, `Esperado nome ${tipo}.`);
         return new declaracoes_1.FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
+    }
+    declaracaoDeConstantes() {
+        let identificador;
+        let tipo;
+        if ([
+            portugol_studio_1.default.REAL,
+            portugol_studio_1.default.INTEIRO,
+            portugol_studio_1.default.CADEIA,
+            portugol_studio_1.default.CARACTER,
+            portugol_studio_1.default.LOGICO,
+        ].includes(this.simbolos[this.atual].tipo)) {
+            tipo = this.avancarEDevolverAnterior();
+        }
+        identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, 'Esperado nome da constante.');
+        this.consumir(portugol_studio_1.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
+        const inicializador = this.expressao();
+        return new declaracoes_1.Const(identificador, inicializador, tipo.lexema);
     }
     resolverDeclaracaoForaDeBloco() {
         const simboloAtual = this.simbolos[this.atual];
@@ -6078,6 +6124,9 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
             case portugol_studio_1.default.CHAVE_ESQUERDA:
                 const simboloInicioBloco = this.simbolos[this.atual];
                 return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
+            case portugol_studio_1.default.CONSTANTE:
+                this.avancarEDevolverAnterior();
+                return this.declaracaoDeConstantes();
             case portugol_studio_1.default.ENQUANTO:
                 return this.declaracaoEnquanto();
             case portugol_studio_1.default.ESCREVA:
@@ -6100,6 +6149,8 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
                 return null;
             case portugol_studio_1.default.REAL:
                 return this.declaracaoReais();
+            case portugol_studio_1.default.RETORNE:
+                return this.declaracaoRetorne();
             case portugol_studio_1.default.SE:
                 return this.declaracaoSe();
             default:
@@ -6112,10 +6163,10 @@ class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.Avalia
         this.blocos = 0;
         this.hashArquivo = hashArquivo || 0;
         this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        const declaracoes = [];
-        this.validarEscopoPrograma(declaracoes);
+        this.declaracoes = [];
+        this.validarEscopoPrograma();
         return {
-            declaracoes: declaracoes.filter((d) => d),
+            declaracoes: this.declaracoes.filter((d) => d),
             erros: this.erros,
         };
     }
@@ -10556,7 +10607,8 @@ class InterpretadorBase {
             tipoDe instanceof construtos_1.TipoDe ||
             tipoDe instanceof construtos_1.Unario ||
             tipoDe instanceof construtos_1.Variavel ||
-            tipoDe instanceof construtos_1.Agrupamento) {
+            tipoDe instanceof construtos_1.Agrupamento ||
+            tipoDe instanceof construtos_1.Chamada) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || (0, inferenciador_1.inferirTipoVariavel)(tipoDe);
         }
@@ -10635,7 +10687,8 @@ class InterpretadorBase {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto((_b = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _b === void 0 ? void 0 : _b.valor));
             }
             else {
-                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', ((_c = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _c === void 0 ? void 0 : _c.valor) || (elemento === null || elemento === void 0 ? void 0 : elemento.valor));
+                const valor = ((_c = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _c === void 0 ? void 0 : _c.hasOwnProperty('valor')) ? elemento === null || elemento === void 0 ? void 0 : elemento.valor.valor : elemento === null || elemento === void 0 ? void 0 : elemento.valor;
+                textoFinal = textoFinal.replace('${' + elemento.variavel + '}', `${this.paraTexto(valor)}`);
             }
         });
         return textoFinal;
@@ -14462,6 +14515,7 @@ exports.palavrasReservadas = {
     para: portugol_studio_1.default.PARA,
     programa: portugol_studio_1.default.PROGRAMA,
     real: portugol_studio_1.default.REAL,
+    retorne: portugol_studio_1.default.RETORNE,
     se: portugol_studio_1.default.SE,
     senao: portugol_studio_1.default.SENAO,
     vazio: portugol_studio_1.default.VAZIO,
@@ -16167,6 +16221,7 @@ exports.default = {
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
     PROGRAMA: 'PROGRAMA',
+    RETORNE: 'RETORNE',
     REAL: 'REAL',
     SUBTRACAO: 'SUBTRACAO',
     VIRGULA: 'VIRGULA',
