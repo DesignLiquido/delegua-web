@@ -1083,6 +1083,9 @@ class AnalisadorSemantico {
         this.atual = 0;
         this.diagnosticos = [];
     }
+    visitarExpressaoTupla(expressao) {
+        return Promise.resolve();
+    }
     visitarDeclaracaoAleatorio(declaracao) {
         return Promise.resolve();
     }
@@ -1891,6 +1894,7 @@ const construtos_1 = require("../construtos");
 const erro_avaliador_sintatico_1 = require("./erro-avaliador-sintatico");
 const declaracoes_1 = require("../declaracoes");
 const lexador_1 = require("../lexador");
+const tuplas_1 = require("../construtos/tuplas");
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -1991,7 +1995,19 @@ class AvaliadorSintatico {
                     return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
                 }
                 while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                    let valor = null;
+                    if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.PARENTESE_ESQUERDO)) {
+                        const expressao = this.expressao();
+                        const argumentos = [expressao];
+                        while (this.simbolos[this.atual].tipo === delegua_1.default.VIRGULA) {
+                            this.avancarEDevolverAnterior();
+                            argumentos.push(this.expressao());
+                        }
+                        this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                        this.consumir(delegua_1.default.COLCHETE_DIREITO, "Esperado ']' após a expressão.");
+                        return new tuplas_1.SeletorTuplas(...argumentos);
+                    }
+                    valor = this.atribuir();
                     valores.push(valor);
                     if (this.simbolos[this.atual].tipo !== delegua_1.default.COLCHETE_DIREITO) {
                         this.consumir(delegua_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
@@ -2912,7 +2928,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":62,"../declaracoes":99,"../lexador":148,"../tipos-de-simbolos/delegua":160,"./erro-avaliador-sintatico":34,"browser-process-hrtime":341}],24:[function(require,module,exports){
+},{"../construtos":62,"../construtos/tuplas":71,"../declaracoes":99,"../lexador":148,"../tipos-de-simbolos/delegua":160,"./erro-avaliador-sintatico":34,"browser-process-hrtime":341}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9103,12 +9119,13 @@ __exportStar(require("./literal"), exports);
 __exportStar(require("./logico"), exports);
 __exportStar(require("./super"), exports);
 __exportStar(require("./tipo-de"), exports);
+__exportStar(require("./tuplas"), exports);
 __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 __exportStar(require("./qual-tipo"), exports);
 
-},{"./acesso-elemento-matriz":43,"./acesso-indice-variavel":44,"./acesso-metodo-ou-propriedade":45,"./agrupamento":46,"./atribuicao-por-indice":47,"./atribuicao-por-indices-matriz":48,"./atribuir":49,"./binario":50,"./chamada":51,"./constante":53,"./constante-ou-variavel":52,"./construto":54,"./decorador":55,"./definir-valor":56,"./dicionario":57,"./expressao-regular":58,"./fim-para":59,"./formatacao-escrita":60,"./funcao":61,"./isto":63,"./literal":64,"./logico":65,"./qual-tipo":66,"./super":67,"./tipo-de":68,"./unario":80,"./variavel":81,"./vetor":82}],63:[function(require,module,exports){
+},{"./acesso-elemento-matriz":43,"./acesso-indice-variavel":44,"./acesso-metodo-ou-propriedade":45,"./agrupamento":46,"./atribuicao-por-indice":47,"./atribuicao-por-indices-matriz":48,"./atribuir":49,"./binario":50,"./chamada":51,"./constante":53,"./constante-ou-variavel":52,"./construto":54,"./decorador":55,"./definir-valor":56,"./dicionario":57,"./expressao-regular":58,"./fim-para":59,"./formatacao-escrita":60,"./funcao":61,"./isto":63,"./literal":64,"./logico":65,"./qual-tipo":66,"./super":67,"./tipo-de":68,"./tuplas":71,"./unario":80,"./variavel":81,"./vetor":82}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -9476,7 +9493,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tupla = void 0;
 class Tupla {
     async aceitar(visitante) {
-        throw new Error('Método não implementado.');
+        return await visitante.visitarExpressaoTupla(this);
     }
 }
 exports.Tupla = Tupla;
@@ -10684,13 +10701,21 @@ class InterpretadorBase {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         (0, biblioteca_global_1.default)(this, this.pilhaEscoposExecucao);
     }
+    async visitarExpressaoTupla(expressao) {
+        const chaves = Object.keys(expressao);
+        const valores = [];
+        for (let chave of chaves) {
+            const valor = await this.avaliar(expressao[chave]);
+            valores.push(valor);
+        }
+        return valores;
+    }
     visitarExpressaoAtribuicaoPorIndicesMatriz(expressao) {
         throw new Error('Método não implementado.');
     }
     visitarExpressaoAcessoElementoMatriz(expressao) {
         throw new Error('Método não implementado.');
     }
-    //https://stackoverflow.com/a/66751666/9043143
     textoParaRegex(texto) {
         const match = texto.match(/^([\/~@;%#'])(.*?)\1([gimsuy]*)$/);
         return match
@@ -11525,6 +11550,9 @@ class InterpretadorBase {
         let objeto = promises[0];
         let indice = promises[1];
         const valor = promises[2];
+        if (objeto.imutavel) {
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.simbolo.lexema, 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.', expressao.linha));
+        }
         objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
         indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
         if (Array.isArray(objeto)) {
@@ -11756,10 +11784,11 @@ class InterpretadorBase {
     async visitarDeclaracaoVar(declaracao) {
         const valorFinal = await this.avaliacaoDeclaracaoVarOuConst(declaracao);
         let subtipo;
-        if (declaracao.tipo !== undefined) {
+        if (declaracao.tipo !== undefined && declaracao.tipo !== null) {
             subtipo = declaracao.tipo;
         }
-        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo);
+        const eTupla = declaracao.inicializador instanceof construtos_1.Tupla;
+        this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, subtipo, eTupla);
         return null;
     }
     /**
@@ -11976,7 +12005,7 @@ class PilhaEscoposExecucao {
         }
         this.pilha[this.pilha.length - 1].ambiente.valores[nomeConstante] = elementoAlvo;
     }
-    definirVariavel(nomeVariavel, valor, subtipo) {
+    definirVariavel(nomeVariavel, valor, subtipo, imutavel = false) {
         const variavel = this.pilha[this.pilha.length - 1].ambiente.valores[nomeVariavel];
         let tipo = variavel && variavel.hasOwnProperty('tipo') ? variavel.tipo : (0, inferenciador_1.inferirTipoVariavel)(valor);
         // TODO: Dois testes no VisuAlg falham por causa disso.
@@ -11989,7 +12018,7 @@ class PilhaEscoposExecucao {
             valor: this.converterValor(tipo, valor),
             tipo: tipo,
             subtipo: undefined,
-            imutavel: false,
+            imutavel: imutavel,
         };
         if (subtipo !== undefined) {
             elementoAlvo.subtipo = subtipo;
