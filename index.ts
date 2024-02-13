@@ -1,22 +1,22 @@
-import { Lexador } from "@designliquido/delegua/fontes/lexador";
-import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
-import { AnalisadorSemantico } from "@designliquido/delegua/fontes/analisador-semantico";
-import { InterpretadorBase } from "@designliquido/delegua/fontes/interpretador/interpretador-base";
-import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
+import { Lexador } from "@designliquido/delegua/lexador";
+import { AvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico";
+import { AnalisadorSemantico } from "@designliquido/delegua/analisador-semantico";
+import { InterpretadorBase } from "@designliquido/delegua/interpretador/interpretador-base";
+import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 import {
     AvaliadorSintaticoInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
-} from "@designliquido/delegua/fontes/interfaces/index";
-import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
-import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/fontes/tradutores";
+} from "@designliquido/delegua/interfaces/index";
+import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/estruturas";
+import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
+import { Declaracao } from "@designliquido/delegua/declaracoes";
 
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
-import { Declaracao } from "@designliquido/delegua/fontes/declaracoes";
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -31,10 +31,12 @@ export class DeleguaWeb {
     avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
     analisadorSemantico: AnalisadorSemantico
     funcaoDeRetorno: Function;
-    iniciarDelegua: any;
-    carregarArquivo: any;
-    conteudoArquivosAbertos: any;
-    executarUmaLinha: any;
+
+    // TODO: Aparentemente, as propriedades abaixo não são usadas em lugar algum.
+    // iniciarDelegua: any;
+    // carregarArquivo: any;
+    // conteudoArquivosAbertos: any;
+    // executarUmaLinha: any;
     tradutorJavascript = new TradutorJavaScript();
     tradutorPython = new TradutorPython();
     tradutorAssemblyScript = new TradutorAssemblyScript();
