@@ -63,13 +63,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaWeb = void 0;
-var lexador_1 = require("@designliquido/delegua/fontes/lexador");
-var avaliador_sintatico_1 = require("@designliquido/delegua/fontes/avaliador-sintatico");
-var analisador_semantico_1 = require("@designliquido/delegua/fontes/analisador-semantico");
-var interpretador_base_1 = require("@designliquido/delegua/fontes/interpretador/interpretador-base");
-var delegua_1 = __importDefault(require("@designliquido/delegua/fontes/tipos-de-simbolos/delegua"));
-var estruturas_1 = require("@designliquido/delegua/fontes/estruturas");
-var tradutores_1 = require("@designliquido/delegua/fontes/tradutores");
+var lexador_1 = require("@designliquido/delegua/lexador");
+var avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
+var analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
+var interpretador_base_1 = require("@designliquido/delegua/interpretador/interpretador-base");
+var delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
+var estruturas_1 = require("@designliquido/delegua/estruturas");
+var tradutores_1 = require("@designliquido/delegua/tradutores");
 var estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 var fisica = __importStar(require("@designliquido/delegua-fisica"));
 var matematica = __importStar(require("@designliquido/delegua-matematica"));
@@ -81,6 +81,11 @@ var DeleguaWeb = /** @class */ (function () {
         this.teveErroEmTempoDeExecucao = false;
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
+        // TODO: Aparentemente, as propriedades abaixo não são usadas em lugar algum.
+        // iniciarDelegua: any;
+        // carregarArquivo: any;
+        // conteudoArquivosAbertos: any;
+        // executarUmaLinha: any;
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.tradutorPython = new tradutores_1.TradutorPython();
         this.tradutorAssemblyScript = new tradutores_1.TradutorAssemblyScript();
