@@ -2510,6 +2510,7 @@ class AvaliadorSintatico {
             delegua_1.default.SUPER,
             delegua_1.default.TEXTO,
             delegua_1.default.VERDADEIRO,
+            delegua_1.default.CHAVE_ESQUERDA
         ].includes(this.simbolos[this.atual].tipo)) {
             valor = this.expressao();
         }
@@ -8797,9 +8798,17 @@ exports.default = {
         return Promise.resolve(vetor);
     },
     encaixar: (interpretador, vetor, inicio, excluirQuantidade, ...items) => {
-        const elementos = !items.length
-            ? vetor.splice(inicio, excluirQuantidade)
-            : vetor.splice(inicio, excluirQuantidade, ...items);
+        let elementos = [];
+        if (excluirQuantidade || excluirQuantidade === 0) {
+            elementos = !items.length
+                ? vetor.splice(inicio, excluirQuantidade)
+                : vetor.splice(inicio, excluirQuantidade, ...items);
+        }
+        else {
+            elementos = !items.length
+                ? vetor.splice(inicio)
+                : vetor.splice(inicio, ...items);
+        }
         return Promise.resolve(elementos);
     },
     fatiar: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
@@ -11333,7 +11342,7 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Math.pow(valorEsquerdo, valorDireito);
             case delegua_1.default.MAIOR:
-                if (tipoEsquerdo === delegua_2.default.NUMERO && tipoDireito === delegua_2.default.NUMERO) {
+                if ((tipoEsquerdo === delegua_2.default.NUMERO) || (tipoEsquerdo === delegua_2.default.NÚMERO) && (tipoDireito === delegua_2.default.NUMERO) || (tipoDireito === delegua_2.default.NÚMERO)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
                 return String(valorEsquerdo) > String(valorDireito);
@@ -11341,7 +11350,7 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(valorEsquerdo) >= Number(valorDireito);
             case delegua_1.default.MENOR:
-                if (tipoEsquerdo === delegua_2.default.NUMERO && tipoDireito === delegua_2.default.NUMERO) {
+                if ((tipoEsquerdo === delegua_2.default.NUMERO) || (tipoEsquerdo === delegua_2.default.NÚMERO) && (tipoDireito === delegua_2.default.NUMERO) || (tipoDireito === delegua_2.default.NÚMERO)) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 }
                 return String(valorEsquerdo) < String(valorDireito);
@@ -12198,12 +12207,20 @@ class InterpretadorBase {
                         case 'dicionário':
                             return JSON.stringify(objeto.valor);
                         default:
-                            return objeto.valor.paraTexto();
+                            return objeto.valor;
                     }
                 }
         }
-        if (typeof objeto === primitivos_1.default.OBJETO)
+        if (typeof objeto === primitivos_1.default.OBJETO) {
+            for (const obj in objeto) {
+                let valor = objeto[obj];
+                if (typeof valor === primitivos_1.default.BOOLEANO) {
+                    valor = valor ? 'verdadeiro' : 'falso';
+                    objeto[obj] = valor;
+                }
+            }
             return JSON.stringify(objeto);
+        }
         return objeto.toString();
     }
     /**
