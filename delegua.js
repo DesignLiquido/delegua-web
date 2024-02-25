@@ -1556,6 +1556,12 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     }
     visitarDeclaracaoEscreva(declaracao) {
         var _a;
+        if (declaracao.argumentos.length === 0) {
+            const { linha, hashArquivo } = declaracao;
+            const simbolo = { literal: '', tipo: '', lexema: 'escreva', linha, hashArquivo };
+            this.erro(simbolo, `É preciso ter um ou mais parametros para 'escreva(...)'`);
+            return Promise.resolve();
+        }
         const variaveis = declaracao.argumentos.filter((arg) => arg instanceof construtos_1.Variavel);
         for (let variavel of variaveis) {
             if (!this.variaveis[variavel.simbolo.lexema]) {
@@ -2360,9 +2366,11 @@ class AvaliadorSintatico {
         const simboloAtual = this.simbolos[this.atual];
         this.consumir(delegua_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
         const argumentos = [];
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
+        if (!this.verificarTipoSimboloAtual(delegua_1.default.PARENTESE_DIREITO)) {
+            do {
+                argumentos.push(this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.VIRGULA));
+        }
         this.consumir(delegua_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
         // Ponto-e-vírgula é opcional aqui.
         this.verificarSeSimboloAtualEIgualA(delegua_1.default.PONTO_E_VIRGULA);
@@ -2499,6 +2507,7 @@ class AvaliadorSintatico {
         const simboloChave = this.simbolos[this.atual - 1];
         let valor = null;
         if ([
+            delegua_1.default.CHAVE_ESQUERDA,
             delegua_1.default.COLCHETE_ESQUERDO,
             delegua_1.default.FALSO,
             delegua_1.default.IDENTIFICADOR,
@@ -2510,7 +2519,6 @@ class AvaliadorSintatico {
             delegua_1.default.SUPER,
             delegua_1.default.TEXTO,
             delegua_1.default.VERDADEIRO,
-            delegua_1.default.CHAVE_ESQUERDA
         ].includes(this.simbolos[this.atual].tipo)) {
             valor = this.expressao();
         }
@@ -6407,8 +6415,8 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
         super(...arguments);
         this.tiposPotigolParaDelegua = {
             Caractere: 'texto',
-            Inteiro: 'numero',
-            Logico: 'lógico',
+            Inteiro: 'inteiro',
+            Logico: 'logico',
             Lógico: 'lógico',
             Real: 'numero',
             Texto: 'texto',
@@ -6485,7 +6493,7 @@ class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSint
         let tipoRetorno = undefined;
         if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.DOIS_PONTOS)) {
             this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo válido após dois-pontos como retorno de função.');
-            tipoRetorno = this.simbolos[this.atual - 1];
+            tipoRetorno = this.simbolos[this.atual];
         }
         // Se houver símbolo de igual, seja após fechamento de parênteses,
         // seja após a dica de retorno, é uma declaração de função.
@@ -11100,12 +11108,13 @@ class InterpretadorBase {
     }
     async visitarExpressaoTipoDe(expressao) {
         let tipoDe = expressao.valor;
-        if (tipoDe instanceof construtos_1.Binario ||
+        if (tipoDe instanceof construtos_1.Agrupamento ||
+            tipoDe instanceof construtos_1.Binario ||
             tipoDe instanceof construtos_1.Chamada ||
+            tipoDe instanceof construtos_1.Dicionario ||
             tipoDe instanceof construtos_1.TipoDe ||
             tipoDe instanceof construtos_1.Unario ||
-            tipoDe instanceof construtos_1.Variavel ||
-            tipoDe instanceof construtos_1.Agrupamento) {
+            tipoDe instanceof construtos_1.Variavel) {
             tipoDe = await this.avaliar(tipoDe);
             return tipoDe.tipo || (0, inferenciador_1.inferirTipoVariavel)(tipoDe);
         }
@@ -11342,7 +11351,7 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Math.pow(valorEsquerdo, valorDireito);
             case delegua_1.default.MAIOR:
-                if ((tipoEsquerdo === delegua_2.default.NUMERO) || (tipoEsquerdo === delegua_2.default.NÚMERO) && (tipoDireito === delegua_2.default.NUMERO) || (tipoDireito === delegua_2.default.NÚMERO)) {
+                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) > Number(valorDireito);
                 }
                 return String(valorEsquerdo) > String(valorDireito);
@@ -11350,7 +11359,7 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(valorEsquerdo) >= Number(valorDireito);
             case delegua_1.default.MENOR:
-                if ((tipoEsquerdo === delegua_2.default.NUMERO) || (tipoEsquerdo === delegua_2.default.NÚMERO) && (tipoDireito === delegua_2.default.NUMERO) || (tipoDireito === delegua_2.default.NÚMERO)) {
+                if (this.tiposNumericos.includes(tipoEsquerdo) && this.tiposNumericos.includes(tipoDireito)) {
                     return Number(valorEsquerdo) < Number(valorDireito);
                 }
                 return String(valorEsquerdo) < String(valorDireito);
@@ -12192,7 +12201,9 @@ class InterpretadorBase {
             for (let elemento of objeto) {
                 retornoVetor += `${this.paraTexto(elemento)},`;
             }
-            retornoVetor = retornoVetor.slice(0, -1);
+            if (retornoVetor.length > 1) {
+                retornoVetor = retornoVetor.slice(0, -1);
+            }
             retornoVetor += ']';
             return retornoVetor;
         }
@@ -16872,6 +16883,7 @@ exports.default = {
     LEIA_TEXTO: 'LEIA_TEXTO',
     LEIA_TEXTOS: 'LEIA_TEXTOS',
     LOGICO: 'LOGICO',
+    LÓGICO: 'LÓGICO',
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',
