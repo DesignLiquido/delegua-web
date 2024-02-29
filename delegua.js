@@ -8617,9 +8617,9 @@ function default_1(interpretador, pilhaEscoposExecucao) {
         const resultados = [];
         for (let indice = 0; indice < valorVetor.length; ++indice) {
             const deveRetornarValor = await valorFuncaoFiltragem.chamar(interpretador, [valorVetor[indice]]);
-            if (deveRetornarValor) {
-                resultados.push(valorVetor[indice]);
-            }
+            if (deveRetornarValor === false)
+                continue;
+            resultados.push(valorVetor[indice]);
         }
         return resultados;
     }));
@@ -12189,6 +12189,10 @@ class InterpretadorBase {
         if (typeof objeto === primitivos_1.default.BOOLEANO) {
             return objeto ? 'verdadeiro' : 'falso';
         }
+        if (objeto instanceof quebras_1.RetornoQuebra) {
+            if (typeof objeto.valor === 'boolean')
+                return objeto.valor ? 'verdadeiro' : 'falso';
+        }
         if (objeto instanceof Date) {
             const formato = Intl.DateTimeFormat('pt', {
                 dateStyle: 'full',
@@ -12199,10 +12203,10 @@ class InterpretadorBase {
         if (Array.isArray(objeto)) {
             let retornoVetor = '[';
             for (let elemento of objeto) {
-                retornoVetor += `${this.paraTexto(elemento)},`;
+                retornoVetor += typeof elemento === 'string' ? `'${elemento}', ` : `${this.paraTexto(elemento)}, `;
             }
             if (retornoVetor.length > 1) {
-                retornoVetor = retornoVetor.slice(0, -1);
+                retornoVetor = retornoVetor.slice(0, -2);
             }
             retornoVetor += ']';
             return retornoVetor;
