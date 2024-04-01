@@ -195,7 +195,7 @@ var DeleguaWeb = /** @class */ (function () {
 }());
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/analisador-semantico":21,"@designliquido/delegua/avaliador-sintatico":38,"@designliquido/delegua/estruturas":127,"@designliquido/delegua/interpretador/interpretador-base":138,"@designliquido/delegua/lexador":158,"@designliquido/delegua/tipos-de-simbolos/delegua":170,"@designliquido/delegua/tradutores":180}],2:[function(require,module,exports){
+},{"@designliquido/delegua-estatistica":4,"@designliquido/delegua-fisica":6,"@designliquido/delegua-matematica":13,"@designliquido/delegua-tempo":18,"@designliquido/delegua/analisador-semantico":21,"@designliquido/delegua/avaliador-sintatico":31,"@designliquido/delegua/estruturas":120,"@designliquido/delegua/interpretador/interpretador-base":131,"@designliquido/delegua/lexador":145,"@designliquido/delegua/tipos-de-simbolos/delegua":156,"@designliquido/delegua/tradutores":164}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.moda = exports.mediana = exports.media = exports.min = exports.max = void 0;
@@ -1685,7 +1685,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
 }
 exports.AnalisadorSemantico = AnalisadorSemantico;
 
-},{"../construtos":69,"../declaracoes":107,"../interfaces/erros":136,"./analisador-semantico-base":19,"./pilha-variaveis":22}],21:[function(require,module,exports){
+},{"../construtos":62,"../declaracoes":100,"../interfaces/erros":129,"./analisador-semantico-base":19,"./pilha-variaveis":22}],21:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1957,7 +1957,7 @@ class AvaliadorSintaticoBase {
 }
 exports.AvaliadorSintaticoBase = AvaliadorSintaticoBase;
 
-},{"../construtos":69,"../declaracoes":107,"../tipos-de-simbolos/comum":169,"./erro-avaliador-sintatico":37}],24:[function(require,module,exports){
+},{"../construtos":62,"../declaracoes":100,"../tipos-de-simbolos/comum":155,"./erro-avaliador-sintatico":30}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3029,682 +3029,7 @@ class AvaliadorSintatico {
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../construtos":69,"../construtos/tuplas":78,"../declaracoes":107,"../lexador":158,"../tipos-de-dados/delegua":166,"../tipos-de-simbolos/delegua":170,"./erro-avaliador-sintatico":37,"browser-process-hrtime":351}],25:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AvaliadorSintaticoBirl = void 0;
-const construtos_1 = require("../../construtos");
-const declaracoes_1 = require("../../declaracoes");
-const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
-const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
-/**
- * Avaliador Sintático de BIRL
- */
-class AvaliadorSintaticoBirl extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
-    validarEscopoPrograma() {
-        let declaracoes = [];
-        this.validarSegmentoHoraDoShow();
-        while (!this.estaNoFinal()) {
-            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracaoVetor)) {
-                declaracoes = declaracoes.concat(declaracaoVetor);
-            }
-            else {
-                declaracoes.push(declaracaoVetor);
-            }
-        }
-        this.validarSegmentoBirlFinal();
-        return declaracoes;
-    }
-    tratarSimbolos(simbolos) {
-        let identificador = 0, adicao = 0, subtracao = 0;
-        for (const simbolo of simbolos) {
-            if (simbolo.tipo === birl_1.default.IDENTIFICADOR) {
-                identificador++;
-            }
-            else if (simbolo.tipo === birl_1.default.ADICAO) {
-                adicao++;
-            }
-            else if (simbolo.tipo === birl_1.default.SUBTRACAO) {
-                subtracao++;
-            }
-        }
-        if (identificador !== 1 || (adicao > 0 && subtracao > 0)) {
-            this.erros.push({
-                message: 'Erro: Combinação desconhecida de símbolos.',
-                name: 'ErroSintatico',
-                simbolo: simbolos[0],
-            });
-            return;
-        }
-        if (adicao === 2) {
-            return 'ADICAO';
-        }
-        else if (subtracao === 2) {
-            return 'SUBTRACAO';
-        }
-        this.erros.push({
-            message: 'Erro: Combinação desconhecida de símbolos.',
-            name: 'ErroSintatico',
-            simbolo: simbolos[0],
-        });
-        return;
-    }
-    validarSegmentoHoraDoShow() {
-        this.consumir(birl_1.default.HORA, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
-        this.consumir(birl_1.default.DO, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
-        this.consumir(birl_1.default.SHOW, 'Esperado expressão `HORA DO SHOW` para iniciar o programa');
-        this.blocos += 1;
-    }
-    validarSegmentoBirlFinal() {
-        this.regredirEDevolverAtual();
-        while (!this.verificarTipoSimboloAtual(birl_1.default.BIRL)) {
-            this.consumir(birl_1.default.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a declaração de variáveis');
-            this.regredirEDevolverAtual();
-            this.regredirEDevolverAtual();
-        }
-        this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` para fechamento do programa');
-        this.blocos -= 1;
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.SUBTRACAO))
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false);
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.ADICAO))
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), true);
-        // Simplesmente avança o símbolo por enquanto.
-        // O `if` de baixo irá tratar a referência.
-        this.verificarSeSimboloAtualEIgualA(birl_1.default.PONTEIRO);
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IDENTIFICADOR)) {
-            return new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        }
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.NUMERO, birl_1.default.FRANGAO, birl_1.default.FRANGÃO, birl_1.default.FRANGO, birl_1.default.TEXTO)) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
-        }
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.PARENTESE_ESQUERDO)) {
-            const expressao = this.expressao();
-            this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-            return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-        }
-        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
-    }
-    chamar() {
-        let expressao = this.primario();
-        while (true) {
-            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
-            }
-            else {
-                break;
-            }
-        }
-        return expressao;
-    }
-    atribuir() {
-        const expressao = this.ou();
-        if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
-            const igual = this.simboloAnterior();
-            const valor = this.atribuir();
-            if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
-            }
-            else if (expressao instanceof construtos_1.AcessoMetodoOuPropriedade) {
-                const get = expressao;
-                return new construtos_1.DefinirValor(this.hashArquivo, 0, get.objeto, get.simbolo, valor);
-            }
-            else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, 0, expressao.entidadeChamada, expressao.indice, valor);
-            }
-            this.erro(igual, 'Tarefa de atribuição inválida');
-        }
-        return expressao;
-    }
-    blocoEscopo() {
-        throw new Error('Método não implementado.');
-    }
-    declaracaoEnquanto() {
-        const simboloNegatica = this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
-        this.consumir(birl_1.default.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA` para iniciar o bloco `ENQUANTO`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `BAMBAM` para iniciar o bloco `ENQUANTO`.');
-        const codicao = this.expressao();
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição para iniciar o bloco `ENQUANTO`.');
-        const declaracoes = [];
-        while (!this.verificarSeSimboloAtualEIgualA(birl_1.default.BIRL)) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        }
-        this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` para fechar o bloco `ENQUANTO`.');
-        return new declaracoes_1.Enquanto(codicao, new declaracoes_1.Bloco(this.hashArquivo, simboloNegatica.linha, declaracoes));
-    }
-    declaracaoExpressao() {
-        const expressao = this.expressao();
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, "Esperado ';' após expressão.");
-        return new declaracoes_1.Expressao(expressao);
-    }
-    declaracaoPara() {
-        const primeiroSimbolo = this.consumir(birl_1.default.MAIS, 'Esperado expressão `MAIS` para iniciar o bloco `PARA`.');
-        this.consumir(birl_1.default.QUERO, 'Esperado expressão `QUERO` após `MAIS` para iniciar o bloco `PARA`.');
-        this.consumir(birl_1.default.MAIS, 'Esperado expressão `MAIS` após `QUERO` para iniciar o bloco `PARA`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado expressão `(` após `MAIS` para iniciar o bloco `PARA`.');
-        let declaracaoInicial = null;
-        if (this.simbolos[this.atual].tipo === birl_1.default.IDENTIFICADOR) {
-            const variavelLoop = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado expressão `IDENTIFICADOR` após `(` para iniciar o bloco `PARA`.');
-            this.consumir(birl_1.default.IGUAL, 'Esperado expressão `=` após `IDENTIFICADOR` para iniciar o bloco `PARA`.');
-            const valor = this.consumir(birl_1.default.NUMERO, 'Esperado expressão `NUMERO` após `=` para iniciar o bloco `PARA`.');
-            declaracaoInicial = [
-                new construtos_1.Variavel(this.hashArquivo, variavelLoop),
-                new construtos_1.Literal(this.hashArquivo, Number(valor.linha), Number(valor.literal)),
-            ];
-        }
-        else {
-            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco(); // inicialização da variável de controle
-            if (Array.isArray(declaracaoVetor)) {
-                declaracaoInicial = declaracaoVetor[0];
-            }
-            else {
-                declaracaoInicial = declaracaoVetor;
-            }
-        }
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `;` após a inicialização do `PARA`.');
-        const condicao = this.resolverDeclaracaoForaDeBloco(); // condição de parada
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `;` após a condição do `PARA`.');
-        const incremento = this.resolverDeclaracaoForaDeBloco();
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado expressão `)` após a condição do `PARA`.');
-        this.consumir(birl_1.default.QUEBRA_LINHA, 'Esperado expressão `QUEBRA_LINHA` após a condição do `PARA`.');
-        const declaracoes = [];
-        while (!this.verificarSeSimboloAtualEIgualA(birl_1.default.BIRL)) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        }
-        const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha) + 1, declaracoes.filter((d) => d));
-        return new declaracoes_1.Para(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaracaoInicial, condicao, incremento, corpo);
-    }
-    declaracaoEscolha() {
-        throw new Error('Método não implementado.');
-    }
-    declaracaoEscreva() {
-        const primeiroSimbolo = this.consumir(birl_1.default.CE, 'Esperado expressão `CE` para escrever mensagem.');
-        this.consumir(birl_1.default.QUER, 'Esperado expressão `QUER` após `CE` para escrever mensagem.');
-        this.consumir(birl_1.default.VER, 'Esperado expressão `VER` após `QUER` para escrever mensagem.');
-        this.consumir(birl_1.default.ESSA, 'Esperado expressão `ESSA` após `VER` para escrever mensagem.');
-        this.consumir(birl_1.default.PORRA, 'Esperado expressão `PORRA` após `ESSA` para escrever mensagem.');
-        this.consumir(birl_1.default.INTERROGACAO, 'Esperado interrogação após `PORRA` para escrever mensagem.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para escrever mensagem.');
-        const argumentos = [];
-        argumentos.push(this.resolverDeclaracaoForaDeBloco());
-        while (this.verificarTipoSimboloAtual(birl_1.default.VIRGULA)) {
-            this.avancarEDevolverAnterior(); // Vírgula
-            const variavelParaEscrita = this.resolverDeclaracaoForaDeBloco();
-            argumentos.push(variavelParaEscrita);
-        }
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após argumento para escrever mensagem.');
-        return new declaracoes_1.Escreva(Number(primeiroSimbolo.linha), this.hashArquivo, argumentos);
-    }
-    declaracaoFazer() {
-        throw new Error('Método não implementado.');
-    }
-    declaracaoCaracteres() {
-        if (this.verificarTipoSimboloAtual(birl_1.default.BICEPS)) {
-            this.consumir(birl_1.default.BICEPS, '');
-        }
-        const simboloCaractere = this.consumir(birl_1.default.FRANGO, '');
-        const inicializacoes = [];
-        let eLiteral = true;
-        do {
-            const identificador = this.consumir(birl_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'FRANGO'.");
-            let valorInicializacao;
-            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
-                if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.TEXTO)) {
-                    const literalInicializacao = this.consumir(birl_1.default.TEXTO, "Esperado ' para começar o texto.");
-                    valorInicializacao = String(literalInicializacao.literal);
-                }
-                else {
-                    throw new Error('Erro ao declarar variável do tipo texto. Verifique se esta atribuindo um valor do tipo texto.');
-                }
-                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
-                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.linha), valorInicializacao)
-                    : valorInicializacao, 'texto'));
-            }
-            else {
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaractere.hashArquivo), ''), 'texto'));
-            }
-        } while (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    validarTipoDeclaracaoInteiro() {
-        if (this.verificarTipoSimboloAtual(birl_1.default.MONSTRO)) {
-            return this.consumir(birl_1.default.MONSTRO, '');
-        }
-        else if (this.verificarTipoSimboloAtual(birl_1.default.MONSTRINHO)) {
-            return this.consumir(birl_1.default.MONSTRINHO, '');
-        }
-        else if (this.verificarTipoSimboloAtual(birl_1.default.MONSTRAO)) {
-            return this.consumir(birl_1.default.MONSTRAO, '');
-        }
-        else {
-            throw new Error('Simbolo referente a inteiro não especificado.');
-        }
-    }
-    declaracaoInteiros() {
-        let simboloInteiro = this.validarTipoDeclaracaoInteiro();
-        let eLiteral = true;
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(birl_1.default.IDENTIFICADOR, `Esperado identificador após palavra reservada '${simboloInteiro.lexema}'.`);
-            let valorInicializacao = 0x00;
-            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
-                if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.NUMERO)) {
-                    const literalInicializacao = this.consumir(birl_1.default.NUMERO, `Esperado literal de ${simboloInteiro.lexema} após símbolo de igual em declaração de variável.`);
-                    valorInicializacao = Number(literalInicializacao.literal);
-                }
-                else {
-                    throw new Error(`Simbolo passado para inicialização de variável do tipo ${simboloInteiro.lexema} não é válido.`);
-                }
-                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
-                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), valorInicializacao)
-                    : valorInicializacao, 'numero'));
-            }
-            else {
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), 0), 'numero'));
-            }
-        } while (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    declaracaoPontoFlutuante() {
-        const simboloFloat = this.consumir(birl_1.default.TRAPEZIO, '');
-        if (this.verificarTipoSimboloAtual(birl_1.default.DESCENDENTE)) {
-            this.consumir(birl_1.default.DESCENDENTE, '');
-        }
-        let eLiteral = true;
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(birl_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'TRAPEZIO'.");
-            let valorInicializacao = 0x00;
-            if (this.verificarSeSimboloAtualEIgualA(birl_1.default.IGUAL)) {
-                if (this.verificarTipoSimboloAtual(birl_1.default.AJUDA)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
-                    eLiteral = false;
-                    valorInicializacao = this.resolverDeclaracaoForaDeBloco();
-                }
-                else if (this.verificarTipoSimboloAtual(birl_1.default.NUMERO)) {
-                    const literalInicializacao = this.consumir(birl_1.default.NUMERO, "Esperado literal de 'TRAPEZIO' após símbolo de igual em declaração de variável.");
-                    valorInicializacao = parseFloat(literalInicializacao.literal);
-                }
-                else {
-                    throw new Error(`Simbolo passado para inicialização de variável do tipo 'TRAPEZIO' não é válido.`);
-                }
-                inicializacoes.push(new declaracoes_1.Var(identificador, eLiteral
-                    ? new construtos_1.Literal(this.hashArquivo, Number(simboloFloat.linha), valorInicializacao)
-                    : valorInicializacao, 'numero'));
-            }
-            else {
-                inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloFloat.linha), 0), 'numero'));
-            }
-        } while (this.verificarSeSimboloAtualEIgualA(birl_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    declaracaoRetorna() {
-        const primeiroSimbolo = this.consumir(birl_1.default.BORA, 'Esperado expressão `BORA` para retornar valor.');
-        this.consumir(birl_1.default.CUMPADE, 'Esperado expressão `CUMPADE` após `BORA` para retornar valor.');
-        if (this.verificarTipoSimboloAtual(birl_1.default.INTERROGACAO)) {
-            this.consumir(birl_1.default.INTERROGACAO, 'Esperado interrogação após `CUMPADE` para retornar valor.');
-        }
-        const valor = this.resolverDeclaracaoForaDeBloco();
-        return new declaracoes_1.Retorna(primeiroSimbolo, valor);
-    }
-    validaTipoDeclaracaoLeia(caracteres) {
-        const tipoCaractere = caracteres.charAt(1);
-        const tipos = {
-            d: 'número',
-            i: 'número',
-            u: 'número',
-            f: 'número',
-            F: 'número',
-            e: 'número',
-            E: 'número',
-            g: 'número',
-            G: 'número',
-            x: 'número',
-            X: 'número',
-            o: 'número',
-            c: 'texto',
-            s: 'texto',
-            p: 'texto',
-        };
-        return tipos[tipoCaractere] || 'desconhecido';
-    }
-    declaracaoLeia() {
-        const primeiroSimbolo = this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` para ler valor.');
-        this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` após `QUE` para ler valor.');
-        this.consumir(birl_1.default.CE, 'Esperado expressão `CE` após `QUE` para ler valor.');
-        this.consumir(birl_1.default.QUER, 'Esperado expressão `QUER` após `CE` para ler valor.');
-        this.consumir(birl_1.default.MONSTRAO, 'Esperado expressão `MONSTRAO` após `QUER` para ler valor.');
-        this.consumir(birl_1.default.INTERROGACAO, 'Esperado interrogação após `MONSTRAO` para ler valor.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após interrogação para ler valor.');
-        const textoOuSimbolo = this.consumir(birl_1.default.TEXTO, 'Esperado texto após parêntese esquerdo para ler valor.');
-        this.consumir(birl_1.default.VIRGULA, 'Esperado vírgula após texto para ler valor.');
-        this.consumir(birl_1.default.PONTEIRO, 'Esperado expressão `&` após texto para ler valor.');
-        const variavel = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado identificador após `&` para ler valor.');
-        const tipo = this.validaTipoDeclaracaoLeia(textoOuSimbolo.literal);
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após identificador para ler valor.');
-        return new declaracoes_1.Leia(primeiroSimbolo, [
-            new construtos_1.Variavel(this.hashArquivo, variavel),
-            new construtos_1.Literal(this.hashArquivo, Number(textoOuSimbolo.linha), tipo),
-        ]);
-    }
-    consomeSeSenao() {
-        this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` após `SE`.');
-        this.consumir(birl_1.default.NAO, 'Esperado expressão `NAO` após `QUE`.');
-        this.consumir(birl_1.default.VAI, 'Esperado expressão `VAI` após `NAO`.');
-        this.consumir(birl_1.default.DAR, 'Esperado expressão `DAR` após `VAI`.');
-        this.consumir(birl_1.default.O, 'Esperado expressão `O` após `DAR`.');
-        this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` após `O`.');
-        this.consumir(birl_1.default.INTERROGACAO, 'Esperado expressão `?` após `QUE`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
-        const condicaoSeSenao = this.resolverDeclaracaoForaDeBloco();
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
-        return {
-            condicaoSeSenao,
-        };
-    }
-    consomeSe() {
-        const simboloSe = this.consumir(birl_1.default.ELE, 'Esperado expressão `ELE`.');
-        this.consumir(birl_1.default.QUE, 'Esperado expressão `QUE` após `ELE`.');
-        this.consumir(birl_1.default.A, 'Esperado expressão `A` após `QUE`.');
-        this.consumir(birl_1.default.GENTE, 'Esperado expressão `GENTE` após `A`.');
-        this.consumir(birl_1.default.QUER, 'Esperado expressão `QUER` após `GENTE`.');
-        this.consumir(birl_1.default.INTERROGACAO, 'Esperado expressão `?` após `QUER`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `?`.');
-        const condicaoSe = this.resolverDeclaracaoForaDeBloco();
-        // @TODO: Verificar se é possível consumir os dois símbolos juntos.
-        // Consumindo n == 1 || n == 2 separado.
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
-        return {
-            simboloSe,
-            condicaoSe,
-        };
-    }
-    consumeSenao() {
-        this.consumir(birl_1.default.NAO, 'Esperado expressão `NAO` após `SE`.');
-        this.consumir(birl_1.default.VAI, 'Esperado expressão `VAI` após `NAO`.');
-        this.consumir(birl_1.default.DAR, 'Esperado expressão `DAR` após `VAI`.');
-        this.consumir(birl_1.default.NAO, 'Esperado expressão `NAO` após `DAR`.');
-    }
-    resolveCaminhoSe() {
-        let controle = true;
-        const declaracoesEntao = [];
-        while (controle) {
-            switch (this.simbolos[this.atual].tipo) {
-                case birl_1.default.BIRL:
-                case birl_1.default.NAO:
-                    controle = false;
-                    break;
-                case birl_1.default.QUE:
-                    if (this.verificarTipoProximoSimbolo(birl_1.default.NAO)) {
-                        controle = false;
-                        break;
-                    }
-                default:
-                    declaracoesEntao.push(this.resolverDeclaracaoForaDeBloco());
-            }
-        }
-        return new declaracoes_1.Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaracoesEntao.filter((d) => d));
-    }
-    declaracaoSe() {
-        const { condicaoSe, simboloSe } = this.consomeSe();
-        const caminhoEntão = this.resolveCaminhoSe();
-        const caminhoSeSenao = [];
-        while (!this.verificarTipoSimboloAtual(birl_1.default.BIRL) &&
-            !this.verificarTipoSimboloAtual(birl_1.default.NAO)) {
-            const { condicaoSeSenao } = this.consomeSeSenao();
-            const caminho = this.resolveCaminhoSe();
-            caminhoSeSenao.push({
-                condicao: condicaoSeSenao,
-                caminho: caminho,
-            });
-        }
-        let caminhoSenao = null;
-        if (this.verificarTipoSimboloAtual(birl_1.default.NAO)) {
-            this.consumeSenao();
-            const declaraçõesSenao = [];
-            while (!this.verificarTipoSimboloAtual(birl_1.default.BIRL)) {
-                declaraçõesSenao.push(this.resolverDeclaracaoForaDeBloco());
-            }
-            caminhoSenao = new declaracoes_1.Bloco(this.hashArquivo, Number(this.simbolos[this.atual].linha), declaraçõesSenao.filter((d) => d));
-        }
-        if (this.verificarTipoSimboloAtual(birl_1.default.BIRL)) {
-            this.consumir(birl_1.default.BIRL, 'Esperado expressão `BIRL` após `SE`.');
-        }
-        return new declaracoes_1.Se(condicaoSe, caminhoEntão, caminhoSeSenao, caminhoSenao);
-    }
-    resolveSimboloInterfaceParaTiposDadosInterface(simbolo) {
-        switch (simbolo.tipo) {
-            case birl_1.default.TRAPEZIO:
-                this.verificarSeSimboloAtualEIgualA(birl_1.default.DESCENDENTE);
-            case birl_1.default.MONSTRO:
-            case birl_1.default.MONSTRINHO:
-            case birl_1.default.MONSTRAO:
-                return 'numero';
-            case birl_1.default.FRANGO:
-                return 'texto';
-            default:
-                throw new Error('Tipo desconhecido');
-        }
-    }
-    logicaComumParamentros() {
-        const parametros = [];
-        do {
-            if (parametros.length >= 255) {
-                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
-            }
-            const parametro = {
-                abrangencia: 'padrao',
-            };
-            const tipo = this.resolveTipo(this.simbolos[this.atual].tipo);
-            const resolucaoTipo = this.resolveSimboloInterfaceParaTiposDadosInterface(tipo);
-            parametro.tipoDado = {
-                nome: this.simbolos[this.atual].lexema,
-                tipo: resolucaoTipo,
-            };
-            this.avancarEDevolverAnterior();
-            parametro.nome = this.simbolos[this.atual];
-            parametros.push(parametro);
-            this.avancarEDevolverAnterior();
-            if (this.simbolos[this.atual].tipo === birl_1.default.VIRGULA) {
-                this.avancarEDevolverAnterior();
-            }
-        } while (![birl_1.default.PARENTESE_DIREITO].includes(this.simbolos[this.atual].tipo));
-        return parametros;
-    }
-    corpoDaFuncao(tipo) {
-        const parenteseEsquerdo = this.consumir(birl_1.default.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}`);
-        let paramentros = [];
-        if (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
-            paramentros = this.logicaComumParamentros();
-        }
-        this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        this.consumir(birl_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        let corpo = [];
-        do {
-            const declaracaoVetor = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracaoVetor)) {
-                corpo = corpo.concat(declaracaoVetor);
-            }
-            else {
-                corpo.push(declaracaoVetor);
-            }
-        } while (![birl_1.default.BIRL].includes(this.simbolos[this.atual].tipo));
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), paramentros, corpo.filter((c) => c));
-    }
-    declacacaoEnquanto() {
-        const simboloEnquanto = this.consumir(birl_1.default.NEGATIVA, 'Esperado expressão `NEGATIVA`.');
-        this.consumir(birl_1.default.BAMBAM, 'Esperado expressão `BAMBAM` após `NEGATIVA`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `BAMBAM`.');
-        const condicao = this.resolverDeclaracaoForaDeBloco(); // E para ser um binario.
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após expressão de condição.');
-        const declaracoes = [];
-        while (!this.verificarSeSimboloAtualEIgualA(birl_1.default.BIRL)) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        }
-        return new declaracoes_1.Enquanto(condicao, new declaracoes_1.Bloco(simboloEnquanto.hashArquivo, Number(simboloEnquanto.linha), declaracoes.filter((d) => d)));
-    }
-    declaracaoSustar() {
-        this.consumir(birl_1.default.SAI, 'Esperado expressão `SAI`.');
-        this.consumir(birl_1.default.FILHO, 'Esperado expressão `FILHO` após `SAI`.');
-        this.consumir(birl_1.default.DA, 'Esperado expressão `DA` após `FILHO`.');
-        this.consumir(birl_1.default.PUTA, 'Esperado expressão `PUTA` após `DA`.');
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `PONTO_E_VIRGULA` após `PUTA`.');
-        return new declaracoes_1.Sustar(this.simbolos[this.atual - 1]);
-    }
-    declaracaoContinua() {
-        this.consumir(birl_1.default.VAMO, 'Esperado expressão `VAMO`.');
-        this.consumir(birl_1.default.MONSTRO, 'Esperado expressão `MONSTRO` após `VAMO`.');
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado expressão `PONTO_E_VIRGULA` após `MONSTRO`.');
-        return new declaracoes_1.Continua(this.simbolos[this.atual - 1]);
-    }
-    resolveTipo(tipo) {
-        switch (tipo) {
-            case birl_1.default.TRAPEZIO:
-                this.verificarSeSimboloAtualEIgualA(birl_1.default.DESCENDENTE);
-            case birl_1.default.MONSTRAO:
-            case birl_1.default.MONSTRINHO:
-            case birl_1.default.MONSTRO:
-            case birl_1.default.FRANGO:
-            case birl_1.default.BICEPS:
-                return this.simbolos[this.atual];
-            default:
-                throw new Error('Esperado tipo da função');
-        }
-    }
-    funcao(tipo) {
-        this.consumir(birl_1.default.OH, 'Esperado expressão `OH`.');
-        this.consumir(birl_1.default.O, 'Esperado expressão `O` após `OH`.');
-        this.consumir(birl_1.default.HOME, 'Esperado expressão `HOME` após `O`.');
-        this.consumir(birl_1.default.AI, 'Esperado expressão `AI` após `HOME`.');
-        this.consumir(birl_1.default.PO, 'Esperado expressão `PO` após `AI`.');
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `PO`.');
-        let tipoRetorno = this.resolveTipo(this.simbolos[this.atual].tipo);
-        this.avancarEDevolverAnterior();
-        const nomeFuncao = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado nome da função apos a declaração do tipo.');
-        return new declaracoes_1.FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo), tipoRetorno);
-    }
-    declaracaoChamaFuncao() {
-        const declaracaoInicio = this.consumir(birl_1.default.AJUDA, 'Esperado expressão `AJUDA`.');
-        this.consumir(birl_1.default.O, 'Esperado expressão `O` após `AJUDA`.');
-        this.consumir(birl_1.default.MALUCO, 'Esperado expressão `MALUCO` após `O`.');
-        this.consumir(birl_1.default.TA, 'Esperado expressão `TA` após `MALUCO`.');
-        this.consumir(birl_1.default.DOENTE, 'Esperado expressão `DOENTE` após `TA`.');
-        let expressao = this.primario();
-        this.consumir(birl_1.default.PARENTESE_ESQUERDO, 'Esperado parêntese esquerdo após `DOENTE`.');
-        const paramentros = [];
-        while (!this.verificarTipoSimboloAtual(birl_1.default.PARENTESE_DIREITO)) {
-            paramentros.push(this.resolverDeclaracaoForaDeBloco());
-            if (this.verificarTipoSimboloAtual(birl_1.default.VIRGULA)) {
-                this.avancarEDevolverAnterior();
-            }
-        }
-        this.consumir(birl_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito após lista de parâmetros.');
-        this.consumir(birl_1.default.PONTO_E_VIRGULA, 'Esperado ponto e vírgula após a chamada de função.');
-        return new construtos_1.Chamada(declaracaoInicio.hashArquivo, expressao, null, paramentros);
-    }
-    resolverDeclaracaoForaDeBloco() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case birl_1.default.INCREMENTAR:
-            case birl_1.default.DECREMENTAR:
-                let adicionaOuSubtrai;
-                if ([birl_1.default.INCREMENTAR, birl_1.default.DECREMENTAR].includes(simboloAtual.tipo)) {
-                    adicionaOuSubtrai = this.consumir(birl_1.default[simboloAtual.tipo], 'Esperado expressão `INCREMENTAR` ou `DECREMENTAR`.');
-                }
-                if (this.verificarTipoSimboloAtual(birl_1.default.IDENTIFICADOR)) {
-                    const identificador = this.consumir(birl_1.default.IDENTIFICADOR, 'Esperado expressão `IDENTIFICADOR`.');
-                    return new construtos_1.Unario(this.hashArquivo, adicionaOuSubtrai, new construtos_1.Variavel(this.hashArquivo, identificador), 'ANTES');
-                }
-                return;
-            case birl_1.default.BORA:
-                return this.declaracaoRetorna();
-            case birl_1.default.SAI:
-                return this.declaracaoSustar();
-            case birl_1.default.VAMO:
-                return this.declaracaoContinua();
-            case birl_1.default.QUE:
-                return this.declaracaoLeia();
-            case birl_1.default.ELE:
-                return this.declaracaoSe();
-            case birl_1.default.NEGATIVA:
-                return this.declacacaoEnquanto();
-            case birl_1.default.MAIS:
-                return this.declaracaoPara();
-            case birl_1.default.MONSTRO:
-            case birl_1.default.MONSTRINHO:
-            case birl_1.default.MONSTRAO:
-                return this.declaracaoInteiros();
-            case birl_1.default.BICEPS:
-            case birl_1.default.FRANGO:
-                return this.declaracaoCaracteres();
-            case birl_1.default.TRAPEZIO:
-                return this.declaracaoPontoFlutuante();
-            case birl_1.default.OH:
-                return this.funcao('funcao');
-            case birl_1.default.AJUDA:
-                return this.declaracaoChamaFuncao();
-            case birl_1.default.CE:
-                return this.declaracaoEscreva();
-            case birl_1.default.PONTO_E_VIRGULA:
-            case birl_1.default.QUEBRA_LINHA:
-            case birl_1.default.BIRL:
-                this.avancarEDevolverAnterior();
-                return null;
-            case birl_1.default.IDENTIFICADOR:
-                const simboloIdentificador = this.simbolos[this.atual];
-                if (this.simbolos[this.atual + 1] &&
-                    [birl_1.default.DECREMENTAR, birl_1.default.INCREMENTAR].includes(this.simbolos[this.atual + 1].tipo)) {
-                    this.avancarEDevolverAnterior();
-                    const simboloIncrementoDecremento = this.avancarEDevolverAnterior();
-                    return new construtos_1.Unario(this.hashArquivo, simboloIncrementoDecremento, new construtos_1.Variavel(this.hashArquivo, simboloIdentificador), 'DEPOIS');
-                }
-                return this.expressao();
-            default:
-                return this.expressao();
-        }
-    }
-    analisar(retornoLexador, hashArquivo) {
-        this.erros = [];
-        this.blocos = 0;
-        this.atual = 0;
-        this.simbolos = retornoLexador.simbolos;
-        const declaracoes = this.validarEscopoPrograma();
-        return {
-            declaracoes: declaracoes.filter((d) => d),
-            erros: this.erros,
-        };
-    }
-}
-exports.AvaliadorSintaticoBirl = AvaliadorSintaticoBirl;
-
-},{"../../construtos":69,"../../declaracoes":107,"../../tipos-de-simbolos/birl":168,"../avaliador-sintatico-base":23}],26:[function(require,module,exports){
+},{"../construtos":62,"../construtos/tuplas":71,"../declaracoes":100,"../lexador":145,"../tipos-de-dados/delegua":153,"../tipos-de-simbolos/delegua":156,"./erro-avaliador-sintatico":30,"browser-process-hrtime":334}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4354,7 +3679,7 @@ class AvaliadorSintaticoEguaClassico {
 }
 exports.AvaliadorSintaticoEguaClassico = AvaliadorSintaticoEguaClassico;
 
-},{"../../construtos":69,"../../declaracoes":107,"../../tipos-de-simbolos/egua-classico":171,"../erro-avaliador-sintatico":37}],27:[function(require,module,exports){
+},{"../../construtos":62,"../../declaracoes":100,"../../tipos-de-simbolos/egua-classico":157,"../erro-avaliador-sintatico":30}],26:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -4841,7 +4166,7 @@ class AvaliadorSintaticoMapler extends avaliador_sintatico_base_1.AvaliadorSinta
 }
 exports.AvaliadorSintaticoMapler = AvaliadorSintaticoMapler;
 
-},{"../../construtos":69,"../../declaracoes":107,"../../tipos-de-simbolos/mapler":173,"../avaliador-sintatico-base":23}],28:[function(require,module,exports){
+},{"../../construtos":62,"../../declaracoes":100,"../../tipos-de-simbolos/mapler":159,"../avaliador-sintatico-base":23}],27:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5613,7 +4938,7 @@ class AvaliadorSintaticoPitugues {
 }
 exports.AvaliadorSintaticoPitugues = AvaliadorSintaticoPitugues;
 
-},{"../../construtos":69,"../../declaracoes":107,"../../lexador":158,"../../tipos-de-simbolos/pitugues":175,"../erro-avaliador-sintatico":37,"browser-process-hrtime":351}],29:[function(require,module,exports){
+},{"../../construtos":62,"../../declaracoes":100,"../../lexador":145,"../../tipos-de-simbolos/pitugues":161,"../erro-avaliador-sintatico":30,"browser-process-hrtime":334}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5783,589 +5108,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
 }
 exports.AvaliadorSintaticoPortugolIpt = AvaliadorSintaticoPortugolIpt;
 
-},{"../../construtos":69,"../../declaracoes":107,"../../tipos-de-simbolos/portugol-ipt":176,"../avaliador-sintatico-base":23}],30:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AvaliadorSintaticoPortugolStudio = void 0;
-const construtos_1 = require("../../construtos");
-const declaracoes_1 = require("../../declaracoes");
-const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
-const portugol_studio_1 = __importDefault(require("../../tipos-de-simbolos/portugol-studio"));
-const erro_avaliador_sintatico_1 = require("../erro-avaliador-sintatico");
-/**
- * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
- * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
- * Há dois grupos de estruturas de alto nível: Construtos e Declarações.
- */
-class AvaliadorSintaticoPortugolStudio extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
-    constructor() {
-        super(...arguments);
-        this.declaracoes = [];
-    }
-    declaracaoEscreva() {
-        throw new Error('Método não implementado.');
-    }
-    validarEscopoPrograma() {
-        this.consumir(portugol_studio_1.default.PROGRAMA, "Esperada expressão 'programa' para inicializar programa.");
-        this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperada chave esquerda após expressão 'programa' para inicializar programa.");
-        while (!this.estaNoFinal()) {
-            const declaracaoOuVetor = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracaoOuVetor)) {
-                this.declaracoes = this.declaracoes.concat(declaracaoOuVetor);
-            }
-            else {
-                this.declaracoes.push(declaracaoOuVetor);
-            }
-        }
-        if (this.simbolos[this.atual - 1].tipo !== portugol_studio_1.default.CHAVE_DIREITA) {
-            throw this.erro(this.simbolos[this.atual - 1], 'Esperado chave direita final para término do programa.');
-        }
-        const encontrarDeclaracaoInicio = this.declaracoes.filter((d) => d instanceof declaracoes_1.FuncaoDeclaracao && d.simbolo.lexema === 'inicio');
-        if (encontrarDeclaracaoInicio.length <= 0) {
-            throw this.erro(this.simbolos[0], "Função 'inicio()' para iniciar o programa não foi definida.");
-        }
-        // A última declaração do programa deve ser uma chamada a inicio()
-        const declaracaoInicio = encontrarDeclaracaoInicio[0];
-        this.declaracoes.push(new declaracoes_1.Expressao(new construtos_1.Chamada(declaracaoInicio.hashArquivo, declaracaoInicio.funcao, null, [])));
-    }
-    comparacaoIgualdade() {
-        let expressao = this.comparar();
-        while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.DIFERENTE, portugol_studio_1.default.IGUAL_IGUAL)) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, simboloAnterior, direito);
-        }
-        return expressao;
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case portugol_studio_1.default.IDENTIFICADOR:
-                const simboloIdentificador = this.avancarEDevolverAnterior();
-                // Se o próximo símbolo é um incremento ou um decremento,
-                // aqui deve retornar um unário correspondente.
-                // Caso contrário, apenas retornar um construto de variável.
-                if (this.simbolos[this.atual] &&
-                    [portugol_studio_1.default.INCREMENTAR, portugol_studio_1.default.DECREMENTAR].includes(this.simbolos[this.atual].tipo)) {
-                    const simboloIncrementoDecremento = this.avancarEDevolverAnterior();
-                    return new construtos_1.Unario(this.hashArquivo, simboloIncrementoDecremento, new construtos_1.Variavel(this.hashArquivo, simboloIdentificador), 'DEPOIS');
-                }
-                return new construtos_1.Variavel(this.hashArquivo, simboloIdentificador);
-            case portugol_studio_1.default.PARENTESE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
-                this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-            case portugol_studio_1.default.CADEIA:
-            case portugol_studio_1.default.CARACTER:
-            case portugol_studio_1.default.INTEIRO:
-            case portugol_studio_1.default.REAL:
-                const simboloVariavel = this.avancarEDevolverAnterior();
-                return new construtos_1.Literal(this.hashArquivo, Number(simboloVariavel.linha), simboloVariavel.literal);
-        }
-    }
-    chamar() {
-        let expressao = this.primario();
-        while (true) {
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
-            }
-            else if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.COLCHETE_ESQUERDO)) {
-                const indices = [];
-                do {
-                    indices.push(this.expressao());
-                } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-                const indice = indices[0];
-                const simboloFechamento = this.consumir(portugol_studio_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                expressao = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressao, indice, simboloFechamento);
-            }
-            else {
-                break;
-            }
-        }
-        return expressao;
-    }
-    atribuir() {
-        const expressao = this.ou();
-        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-            const setaAtribuicao = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
-            if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
-            }
-            else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
-            }
-            this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
-        }
-        return expressao;
-    }
-    declaracaoEscrevaMesmaLinha() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
-        const argumentos = [];
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-        return new declaracoes_1.EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-    blocoEscopo() {
-        this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperado '}' antes do bloco.");
-        let declaracoes = [];
-        while (!this.verificarTipoSimboloAtual(portugol_studio_1.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
-            const declaracaoOuVetor = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracaoOuVetor)) {
-                declaracoes = declaracoes.concat(declaracaoOuVetor);
-            }
-            else {
-                declaracoes.push(declaracaoOuVetor);
-            }
-        }
-        this.consumir(portugol_studio_1.default.CHAVE_DIREITA, "Esperado '}' após o bloco.");
-        return declaracoes;
-    }
-    declaracaoSe() {
-        this.avancarEDevolverAnterior();
-        this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'se'.");
-        const condicao = this.expressao();
-        this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após condição do se.");
-        const caminhoEntao = this.resolverDeclaracaoForaDeBloco();
-        let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.SENAO)) {
-            caminhoSenao = this.resolverDeclaracaoForaDeBloco();
-        }
-        return new declaracoes_1.Se(condicao, caminhoEntao, [], caminhoSenao);
-    }
-    declaracaoEnquanto() {
-        try {
-            this.avancarEDevolverAnterior();
-            this.blocos += 1;
-            this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'enquanto'.");
-            const condicao = this.expressao();
-            this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após condição.");
-            const corpo = this.resolverDeclaracaoForaDeBloco();
-            return new declaracoes_1.Enquanto(condicao, corpo);
-        }
-        finally {
-            this.blocos -= 1;
-        }
-    }
-    declaracaoEscolha() {
-        try {
-            this.avancarEDevolverAnterior();
-            this.blocos += 1;
-            const condicao = this.expressao();
-            this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, "Esperado '{' antes do escopo do 'escolha'.");
-            const caminhos = [];
-            let caminhoPadrao = null;
-            while (!this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
-                if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.CASO)) {
-                    if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.CONTRARIO)) {
-                        if (caminhoPadrao !== null) {
-                            const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(this.simbolos[this.atual], "Você só pode ter um 'contrario' em cada declaração de 'escolha'.");
-                            this.erros.push(excecao);
-                            throw excecao;
-                        }
-                        this.consumir(portugol_studio_1.default.DOIS_PONTOS, "Esperado ':' após declaração do 'contrario'.");
-                        const declaracoes = [];
-                        do {
-                            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-                            this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PARE);
-                        } while (!this.verificarTipoSimboloAtual(portugol_studio_1.default.CASO) &&
-                            !this.verificarTipoSimboloAtual(portugol_studio_1.default.CONTRARIO) &&
-                            !this.verificarTipoSimboloAtual(portugol_studio_1.default.CHAVE_DIREITA));
-                        caminhoPadrao = {
-                            declaracoes,
-                        };
-                        break;
-                    }
-                    const caminhoCondicoes = [this.expressao()];
-                    this.consumir(portugol_studio_1.default.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
-                    while (this.verificarTipoSimboloAtual(portugol_studio_1.default.CASO)) {
-                        this.consumir(portugol_studio_1.default.CASO, null);
-                        caminhoCondicoes.push(this.expressao());
-                        this.consumir(portugol_studio_1.default.DOIS_PONTOS, "Esperado ':' após declaração do 'caso'.");
-                    }
-                    let declaracoes = [];
-                    do {
-                        const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
-                        if (Array.isArray(retornoDeclaracao)) {
-                            declaracoes = declaracoes.concat(retornoDeclaracao);
-                        }
-                        else {
-                            declaracoes.push(retornoDeclaracao);
-                        }
-                        this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PARE);
-                    } while (!this.verificarTipoSimboloAtual(portugol_studio_1.default.CASO) &&
-                        !this.verificarTipoSimboloAtual(portugol_studio_1.default.CONTRARIO) &&
-                        !this.verificarTipoSimboloAtual(portugol_studio_1.default.CHAVE_DIREITA));
-                    caminhos.push({
-                        condicoes: caminhoCondicoes,
-                        declaracoes,
-                    });
-                }
-            }
-            return new declaracoes_1.Escolha(condicao, caminhos, caminhoPadrao);
-        }
-        finally {
-            this.blocos -= 1;
-        }
-    }
-    /**
-     * No Portugol Studio, a palavra reservada é `faca`, sem acento.
-     */
-    declaracaoFazer() {
-        const simboloFaca = this.avancarEDevolverAnterior();
-        try {
-            this.blocos += 1;
-            const caminhoFazer = this.resolverDeclaracaoForaDeBloco();
-            this.consumir(portugol_studio_1.default.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo do 'fazer'.");
-            this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' após declaração 'enquanto'.");
-            const condicaoEnquanto = this.expressao();
-            this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após declaração do 'enquanto'.");
-            return new declaracoes_1.Fazer(simboloFaca.hashArquivo, Number(simboloFaca.linha), caminhoFazer, condicaoEnquanto);
-        }
-        finally {
-            this.blocos -= 1;
-        }
-    }
-    logicaComumParametros() {
-        const parametros = [];
-        do {
-            if (parametros.length >= 255) {
-                this.erro(this.simbolos[this.atual], 'Não pode haver mais de 255 parâmetros');
-            }
-            const parametro = {
-                abrangencia: 'padrao',
-            };
-            if (!this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.CADEIA, portugol_studio_1.default.REAL, portugol_studio_1.default.INTEIRO)) {
-                throw this.erro(this.simbolos[this.atual], 'Esperado tipo de parâmetro válido para declaração de função.');
-            }
-            parametro.nome = this.consumir(portugol_studio_1.default.IDENTIFICADOR, 'Esperado nome do parâmetro.');
-            // Em Portugol Studio, um parâmetro múltiplo é terminado por abre e fecha colchetes.
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.COLCHETE_ESQUERDO)) {
-                this.consumir(portugol_studio_1.default.COLCHETE_DIREITO, 'Esperado colchete direito após colchete esquerdo ao definir parâmetro múltiplo em função.');
-                parametro.abrangencia = 'multiplo';
-            }
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                parametro.valorPadrao = this.primario();
-            }
-            parametros.push(parametro);
-            if (parametro.abrangencia === 'multiplo')
-                break;
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return parametros;
-    }
-    corpoDaFuncao(tipo) {
-        // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
-        const parenteseEsquerdo = this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, `Esperado '(' após o nome ${tipo}.`);
-        let parametros = [];
-        if (!this.verificarTipoSimboloAtual(portugol_studio_1.default.PARENTESE_DIREITO)) {
-            parametros = this.logicaComumParametros();
-        }
-        this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        const corpo = this.blocoEscopo();
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(parenteseEsquerdo.linha), parametros, corpo);
-    }
-    /**
-     * Declaração de apenas uma variável.
-     * Neste caso, o símbolo que determina o tipo da variável já foi consumido,
-     * e o retorno conta com apenas uma variável retornada.
-     */
-    declaracaoDeVariavel() {
-        switch (this.simboloAnterior().tipo) {
-            case portugol_studio_1.default.INTEIRO:
-                const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'inteiro'.");
-                this.consumir(portugol_studio_1.default.IGUAL, 'Esperado símbolo igual para inicialização de variável.');
-                const literalInicializacao = this.consumir(portugol_studio_1.default.INTEIRO, 'Esperado literal inteiro após símbolo de igual em declaração de variável.');
-                const valorInicializacao = Number(literalInicializacao.literal);
-                return new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(literalInicializacao.linha), valorInicializacao));
-        }
-    }
-    declaracaoCadeiasCaracteres() {
-        const simboloCadeia = this.consumir(portugol_studio_1.default.CADEIA, '');
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'cadeia'.");
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = '';
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                const literalInicializacao = this.consumir(portugol_studio_1.default.CADEIA, 'Esperado literal de cadeia de caracteres após símbolo de igual em declaração de variável.');
-                valorInicializacao = literalInicializacao.literal;
-            }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCadeia.linha), valorInicializacao)));
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    declaracaoCaracteres() {
-        const simboloCaracter = this.consumir(portugol_studio_1.default.CARACTER, '');
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'caracter'.");
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = '';
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                const literalInicializacao = this.consumir(portugol_studio_1.default.CARACTER, 'Esperado literal de caracter após símbolo de igual em declaração de variável.');
-                valorInicializacao = literalInicializacao.literal;
-            }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloCaracter.linha), valorInicializacao)));
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    declaracaoExpressao(simboloAnterior) {
-        const expressao = this.expressao();
-        // Ponto-e-vírgula é opcional aqui.
-        this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PONTO_E_VIRGULA);
-        if (!expressao) {
-            throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simboloAnterior, 'Esperado expressão.');
-        }
-        return new declaracoes_1.Expressao(expressao);
-    }
-    declaracaoVetorInteiros(simboloInteiro, identificador, posicoes) {
-        let valorInicializacao = new construtos_1.Vetor(this.hashArquivo, Number(simboloInteiro.linha), []);
-        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-            this.consumir(portugol_studio_1.default.CHAVE_ESQUERDA, 'Esperado chave esquerda após sinal de igual em lado direito da atribuição de vetor.');
-            const valores = [];
-            do {
-                valores.push(this.primario());
-            } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-            this.consumir(portugol_studio_1.default.CHAVE_DIREITA, 'Esperado chave direita após valores de vetor em lado direito da atribuição de vetor.');
-            if (posicoes !== valores.length) {
-                throw this.erro(simboloInteiro, `Esperado ${posicoes} números, mas foram fornecidos ${valores.length} valores do lado direito da atribuição.`);
-            }
-            valorInicializacao.valores = valores;
-        }
-        return new declaracoes_1.Var(identificador, valorInicializacao);
-    }
-    declaracaoTrivialInteiro(simboloInteiro, identificador) {
-        // Inicializações de variáveis podem ter valores definidos.
-        let valorInicializacao = new construtos_1.Literal(this.hashArquivo, Number(simboloInteiro.linha), 0);
-        if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-            valorInicializacao = this.expressao();
-        }
-        return new declaracoes_1.Var(identificador, valorInicializacao);
-    }
-    declaracaoInteiros() {
-        const simboloInteiro = this.consumir(portugol_studio_1.default.INTEIRO, '');
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'inteiro'.");
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.COLCHETE_ESQUERDO)) {
-                // TODO
-                const numeroPosicoes = this.consumir(portugol_studio_1.default.INTEIRO, 'Esperado número inteiro para definir quantas posições terá o vetor.');
-                this.consumir(portugol_studio_1.default.COLCHETE_DIREITO, 'Esperado fechamento de identificação de número de posições de uma declaração de vetor.');
-                inicializacoes.push(this.declaracaoVetorInteiros(simboloInteiro, identificador, Number(numeroPosicoes.literal)));
-            }
-            else {
-                inicializacoes.push(this.declaracaoTrivialInteiro(simboloInteiro, identificador));
-            }
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    /**
-     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
-     * @returns Uma declaração `Leia`.
-     */
-    declaracaoLeia() {
-        const simboloLeia = this.avancarEDevolverAnterior();
-        this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
-        const argumentos = [];
-        do {
-            argumentos.push(this.resolverDeclaracaoForaDeBloco());
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
-        return new declaracoes_1.Leia(simboloLeia, argumentos);
-    }
-    declaracaoLogicos() {
-        const simboloLogico = this.consumir(portugol_studio_1.default.LOGICO, '');
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'logico'.");
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = false;
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                if (![portugol_studio_1.default.VERDADEIRO, portugol_studio_1.default.FALSO].includes(this.simbolos[this.atual].tipo)) {
-                    throw this.erro(this.simbolos[this.atual], 'Esperado literal verdadeiro ou falso após símbolo de igual em declaração de variável.');
-                }
-                const literalInicializacao = this.avancarEDevolverAnterior();
-                valorInicializacao = literalInicializacao.lexema.toLowerCase() === 'verdadeiro' ? true : false;
-            }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloLogico.linha), valorInicializacao)));
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    declaracaoRetorne() {
-        this.avancarEDevolverAnterior();
-        const simboloChave = this.simbolos[this.atual];
-        let valor = null;
-        if ([
-            portugol_studio_1.default.CADEIA,
-            portugol_studio_1.default.CARACTER,
-            portugol_studio_1.default.FALSO,
-            portugol_studio_1.default.IDENTIFICADOR,
-            portugol_studio_1.default.INTEIRO,
-            portugol_studio_1.default.NEGACAO,
-            portugol_studio_1.default.REAL,
-            portugol_studio_1.default.VERDADEIRO,
-        ].includes(this.simbolos[this.atual].tipo)) {
-            valor = this.expressao();
-        }
-        return new declaracoes_1.Retorna(simboloChave, valor);
-    }
-    declaracaoPara() {
-        try {
-            const simboloPara = this.avancarEDevolverAnterior();
-            this.blocos += 1;
-            this.consumir(portugol_studio_1.default.PARENTESE_ESQUERDO, "Esperado '(' após 'para'.");
-            let inicializador;
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.PONTO_E_VIRGULA)) {
-                inicializador = null;
-            }
-            else if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.INTEIRO)) {
-                inicializador = this.declaracaoDeVariavel();
-            }
-            else {
-                inicializador = this.declaracaoExpressao();
-            }
-            let condicao = null;
-            if (!this.verificarTipoSimboloAtual(portugol_studio_1.default.PONTO_E_VIRGULA)) {
-                condicao = this.expressao();
-            }
-            let incrementar = null;
-            if (!this.verificarTipoSimboloAtual(portugol_studio_1.default.PARENTESE_DIREITO)) {
-                incrementar = this.expressao();
-                this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.INCREMENTAR, portugol_studio_1.default.DECREMENTAR);
-            }
-            this.consumir(portugol_studio_1.default.PARENTESE_DIREITO, "Esperado ')' após cláusulas");
-            const corpo = this.resolverDeclaracaoForaDeBloco();
-            return new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
-        }
-        finally {
-            this.blocos -= 1;
-        }
-    }
-    declaracaoReais() {
-        const simboloReal = this.consumir(portugol_studio_1.default.REAL, '');
-        const inicializacoes = [];
-        do {
-            const identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, "Esperado identificador após palavra reservada 'real'.");
-            // Inicializações de variáveis podem ter valores definidos.
-            let valorInicializacao = 0;
-            if (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.IGUAL)) {
-                const literalInicializacao = this.consumir(portugol_studio_1.default.REAL, 'Esperado literal real após símbolo de igual em declaração de variável.');
-                valorInicializacao = Number(literalInicializacao.literal);
-            }
-            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(simboloReal.linha), valorInicializacao)));
-        } while (this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VIRGULA));
-        return inicializacoes;
-    }
-    expressao() {
-        // if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.LEIA)) return this.declaracaoLeia();
-        return this.atribuir();
-    }
-    funcao(tipo) {
-        const simboloFuncao = this.avancarEDevolverAnterior();
-        // No Portugol Studio, se temos um símbolo de tipo após `função`,
-        // teremos um retorno no corpo da função.
-        if ([
-            portugol_studio_1.default.REAL,
-            portugol_studio_1.default.INTEIRO,
-            portugol_studio_1.default.CADEIA,
-            portugol_studio_1.default.CARACTER,
-            portugol_studio_1.default.LOGICO,
-        ].includes(this.simbolos[this.atual].tipo)) {
-            // Por enquanto apenas consumimos o símbolo sem ações adicionais.
-            this.avancarEDevolverAnterior();
-        }
-        this.verificarSeSimboloAtualEIgualA(portugol_studio_1.default.VAZIO);
-        const nomeFuncao = this.consumir(portugol_studio_1.default.IDENTIFICADOR, `Esperado nome ${tipo}.`);
-        return new declaracoes_1.FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
-    }
-    declaracaoDeConstantes() {
-        let identificador;
-        let tipo;
-        if ([
-            portugol_studio_1.default.REAL,
-            portugol_studio_1.default.INTEIRO,
-            portugol_studio_1.default.CADEIA,
-            portugol_studio_1.default.CARACTER,
-            portugol_studio_1.default.LOGICO,
-        ].includes(this.simbolos[this.atual].tipo)) {
-            tipo = this.avancarEDevolverAnterior();
-        }
-        identificador = this.consumir(portugol_studio_1.default.IDENTIFICADOR, 'Esperado nome da constante.');
-        this.consumir(portugol_studio_1.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
-        const inicializador = this.expressao();
-        return new declaracoes_1.Const(identificador, inicializador, tipo.lexema);
-    }
-    resolverDeclaracaoForaDeBloco() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case portugol_studio_1.default.CADEIA:
-                return this.declaracaoCadeiasCaracteres();
-            case portugol_studio_1.default.CARACTER:
-                return this.declaracaoCaracteres();
-            case portugol_studio_1.default.CHAVE_ESQUERDA:
-                const simboloInicioBloco = this.simbolos[this.atual];
-                return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
-            case portugol_studio_1.default.CONSTANTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
-            case portugol_studio_1.default.ENQUANTO:
-                return this.declaracaoEnquanto();
-            case portugol_studio_1.default.ESCOLHA:
-                return this.declaracaoEscolha();
-            case portugol_studio_1.default.ESCREVA:
-                return this.declaracaoEscrevaMesmaLinha();
-            case portugol_studio_1.default.FACA:
-                return this.declaracaoFazer();
-            case portugol_studio_1.default.FUNCAO:
-                return this.funcao('funcao');
-            case portugol_studio_1.default.INTEIRO:
-                return this.declaracaoInteiros();
-            case portugol_studio_1.default.LEIA:
-                return this.declaracaoLeia();
-            case portugol_studio_1.default.LOGICO:
-                return this.declaracaoLogicos();
-            case portugol_studio_1.default.PARA:
-                return this.declaracaoPara();
-            case portugol_studio_1.default.PROGRAMA:
-            case portugol_studio_1.default.CHAVE_DIREITA:
-                this.avancarEDevolverAnterior();
-                return null;
-            case portugol_studio_1.default.REAL:
-                return this.declaracaoReais();
-            case portugol_studio_1.default.RETORNE:
-                return this.declaracaoRetorne();
-            case portugol_studio_1.default.SE:
-                return this.declaracaoSe();
-            default:
-                return this.declaracaoExpressao(simboloAtual);
-        }
-    }
-    analisar(retornoLexador, hashArquivo) {
-        this.erros = [];
-        this.atual = 0;
-        this.blocos = 0;
-        this.hashArquivo = hashArquivo || 0;
-        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        this.declaracoes = [];
-        this.validarEscopoPrograma();
-        return {
-            declaracoes: this.declaracoes.filter((d) => d),
-            erros: this.erros,
-        };
-    }
-}
-exports.AvaliadorSintaticoPortugolStudio = AvaliadorSintaticoPortugolStudio;
-
-},{"../../construtos":69,"../../declaracoes":107,"../../tipos-de-simbolos/portugol-studio":177,"../avaliador-sintatico-base":23,"../erro-avaliador-sintatico":37}],31:[function(require,module,exports){
+},{"../../construtos":62,"../../declaracoes":100,"../../tipos-de-simbolos/portugol-ipt":162,"../avaliador-sintatico-base":23}],29:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -6382,1570 +5125,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./avaliador-sintatico-birl"), exports);
 __exportStar(require("./avaliador-sintatico-egua-classico"), exports);
 __exportStar(require("./avaliador-sintatico-pitugues"), exports);
 __exportStar(require("./avaliador-sintatico-mapler"), exports);
 __exportStar(require("./avaliador-sintatico-portugol-ipt"), exports);
-__exportStar(require("./avaliador-sintatico-portugol-studio"), exports);
-__exportStar(require("./potigol"), exports);
-__exportStar(require("./visualg"), exports);
 
-},{"./avaliador-sintatico-birl":25,"./avaliador-sintatico-egua-classico":26,"./avaliador-sintatico-mapler":27,"./avaliador-sintatico-pitugues":28,"./avaliador-sintatico-portugol-ipt":29,"./avaliador-sintatico-portugol-studio":30,"./potigol":33,"./visualg":36}],32:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AvaliadorSintaticoPotigol = void 0;
-const construtos_1 = require("../../../construtos");
-const declaracoes_1 = require("../../../declaracoes");
-const avaliador_sintatico_base_1 = require("../../avaliador-sintatico-base");
-const lexador_1 = require("../../../lexador");
-const erro_avaliador_sintatico_1 = require("../../erro-avaliador-sintatico");
-const potigol_1 = __importDefault(require("../../../tipos-de-simbolos/potigol"));
-const tuplas_1 = require("../../../construtos/tuplas");
-const micro_avaliador_sintatico_potigol_1 = require("./micro-avaliador-sintatico-potigol");
-/**
- * TODO: Pensar numa forma de avaliar múltiplas constantes sem
- * transformar o retorno de `primario()` em um vetor.
- */
-class AvaliadorSintaticoPotigol extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
-    constructor() {
-        super(...arguments);
-        this.tiposPotigolParaDelegua = {
-            Caractere: 'texto',
-            Inteiro: 'inteiro',
-            Logico: 'logico',
-            Lógico: 'lógico',
-            Real: 'numero',
-            Texto: 'texto',
-            undefined: undefined,
-        };
-    }
-    /**
-     * Testa se o primeiro parâmetro na lista de símbolos
-     * pertence a uma declaração ou não.
-     * @param simbolos Os símbolos que fazem parte da lista de argumentos
-     * de uma chamada ou declaração de função.
-     * @returns `true` se parâmetros são de declaração. `false` caso contrário.
-     */
-    testePrimeiroParametro(simbolos) {
-        let atual = 0;
-        // Primeiro teste: literal ou identificador
-        if ([potigol_1.default.INTEIRO, potigol_1.default.LOGICO, potigol_1.default.REAL, potigol_1.default.TEXTO].includes(simbolos[atual].tipo)) {
-            return false;
-        }
-        // Segundo teste: vírgula imediatamente após identificador,
-        // ou simplesmente fim da lista de símbolos.
-        atual++;
-        if (atual === simbolos.length || simbolos[atual].tipo === potigol_1.default.VIRGULA) {
-            return false;
-        }
-        // Outros casos: dois-pontos após identificador, etc.
-        return true;
-    }
-    /**
-     * Retorna uma declaração de função iniciada por igual,
-     * ou seja, com apenas uma instrução.
-     * @param simboloPrimario O símbolo que identifica a função (nome).
-     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
-     * @param parametros A lista de parâmetros da função.
-     * @param tipoRetorno O tipo de retorno da função.
-     * @returns Um construto do tipo `FuncaoDeclaracao`.
-     */
-    declaracaoFuncaoPotigolIniciadaPorIgual(simboloPrimario, parenteseEsquerdo, parametros, tipoRetorno) {
-        const corpo = new construtos_1.FuncaoConstruto(simboloPrimario.hashArquivo, simboloPrimario.linha, parametros, [
-            new declaracoes_1.Expressao(this.expressao()),
-        ]);
-        return new declaracoes_1.FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
-    }
-    /**
-     * Retorna uma declaração de função terminada por fim,
-     * ou seja, com mais de uma instrução.
-     * @param simboloPrimario O símbolo que identifica a função (nome).
-     * @param parenteseEsquerdo O parêntese esquerdo, usado para fins de pragma.
-     * @param parametros A lista de parâmetros da função.
-     * @param tipoRetorno O tipo de retorno da função.
-     * @returns Um construto do tipo `FuncaoDeclaracao`.
-     */
-    declaracaoFuncaoPotigolTerminadaPorFim(simboloPrimario, parenteseEsquerdo, parametros, tipoRetorno) {
-        const corpo = this.corpoDaFuncao(simboloPrimario.lexema, parenteseEsquerdo, parametros);
-        return new declaracoes_1.FuncaoDeclaracao(simboloPrimario, corpo, tipoRetorno);
-    }
-    corpoDaFuncao(nomeFuncao, simboloPragma, parametros) {
-        // this.consumir(tiposDeSimbolos.IGUAL, `Esperado '=' antes do escopo da função ${nomeFuncao}.`);
-        const corpo = this.blocoEscopo();
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(simboloPragma.linha), parametros, corpo);
-    }
-    declaracaoDeFuncaoOuMetodo(construtoPrimario) {
-        // O parêntese esquerdo é considerado o símbolo inicial para
-        // fins de pragma.
-        const parenteseEsquerdo = this.avancarEDevolverAnterior();
-        const simbolosEntreParenteses = [];
-        while (!this.verificarTipoSimboloAtual(potigol_1.default.PARENTESE_DIREITO)) {
-            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
-        }
-        const resolucaoParametros = this.logicaComumParametrosPotigol(simbolosEntreParenteses);
-        const parenteseDireito = this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        // Pode haver uma dica do tipo de retorno ou não.
-        // Se houver, é uma declaração de função (verificado mais abaixo).
-        let tipoRetorno = undefined;
-        if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.DOIS_PONTOS)) {
-            this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo válido após dois-pontos como retorno de função.');
-            tipoRetorno = this.simbolos[this.atual];
-        }
-        // Se houver símbolo de igual, seja após fechamento de parênteses,
-        // seja após a dica de retorno, é uma declaração de função.
-        if (this.simbolos[this.atual].tipo === potigol_1.default.IGUAL) {
-            this.avancarEDevolverAnterior();
-            this.declaracoesAnteriores[construtoPrimario.simbolo.lexema] = [];
-            return this.declaracaoFuncaoPotigolIniciadaPorIgual(construtoPrimario.simbolo, parenteseEsquerdo, resolucaoParametros.parametros, tipoRetorno);
-        }
-        return this.declaracaoFuncaoPotigolTerminadaPorFim(construtoPrimario.simbolo, parenteseEsquerdo, resolucaoParametros.parametros, tipoRetorno);
-    }
-    finalizarChamada(entidadeChamada) {
-        // Parêntese esquerdo
-        // this.avancarEDevolverAnterior();
-        const simbolosEntreParenteses = [];
-        while (!this.verificarTipoSimboloAtual(potigol_1.default.PARENTESE_DIREITO)) {
-            simbolosEntreParenteses.push(this.avancarEDevolverAnterior());
-        }
-        const parenteseDireito = this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros.");
-        const argumentos = this.microAvaliadorSintatico.analisar({ simbolos: simbolosEntreParenteses }, entidadeChamada.linha);
-        return new construtos_1.Chamada(this.hashArquivo, entidadeChamada, parenteseDireito, argumentos.declaracoes.filter((d) => d));
-    }
-    /**
-     * Verificação comum de tipos.
-     * Avança o símbolo se não houver erros.
-     * @param simbolo O símbolo sendo analisado.
-     * @param mensagemErro A mensagem de erro caso o símbolo atual não seja de tipo.
-     */
-    verificacaoTipo(simbolo, mensagemErro) {
-        if (![potigol_1.default.INTEIRO, potigol_1.default.LOGICO, potigol_1.default.REAL, potigol_1.default.TEXTO].includes(simbolo.tipo)) {
-            throw this.erro(simbolo, mensagemErro);
-        }
-    }
-    logicaComumParametrosPotigol(simbolos) {
-        const parametros = [];
-        let indice = 0;
-        let tipagemDefinida = false;
-        while (indice < simbolos.length) {
-            if (parametros.length >= 255) {
-                this.erro(simbolos[indice], 'Não pode haver mais de 255 parâmetros');
-            }
-            const parametro = {};
-            // TODO: verificar se Potigol trabalha com número variável de parâmetros.
-            /* if (this.simbolos[this.atual].tipo === tiposDeSimbolos.MULTIPLICACAO) {
-                this.consumir(tiposDeSimbolos.MULTIPLICACAO, null);
-                parametro.abrangencia = 'multiplo';
-            } else {
-                parametro.abrangencia = 'padrao';
-            } */
-            parametro.abrangencia = 'padrao';
-            if (simbolos[indice].tipo !== potigol_1.default.IDENTIFICADOR) {
-                throw this.erro(simbolos[indice], 'Esperado nome do parâmetro.');
-            }
-            parametro.nome = simbolos[indice];
-            indice++;
-            if (simbolos[indice].tipo === potigol_1.default.DOIS_PONTOS) {
-                // throw this.erro(simbolos[indice], 'Esperado dois-pontos após nome de argumento para função.');
-                indice++;
-                this.verificacaoTipo(simbolos[indice], 'Esperado tipo do argumento após dois-pontos, em definição de função.');
-                const tipoParametro = simbolos[indice];
-                const resolucaoTipo = this.tiposPotigolParaDelegua[tipoParametro.lexema];
-                parametro.tipoDado = {
-                    nome: simbolos[indice - 2].lexema,
-                    tipo: resolucaoTipo,
-                };
-                tipagemDefinida = true;
-            }
-            // TODO: Verificar se Potigol trabalha com valores padrão em argumentos.
-            /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.IGUAL)) {
-                parametro.valorPadrao = this.primario();
-            } */
-            parametros.push(parametro);
-            // if (parametro.abrangencia === 'multiplo') break;
-            indice++;
-            if (indice < simbolos.length && simbolos[indice].tipo !== potigol_1.default.VIRGULA) {
-                throw this.erro(simbolos[indice], 'Esperado vírgula entre parâmetros de função.');
-            }
-            indice++;
-        }
-        return {
-            parametros,
-            tipagemDefinida,
-        };
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case potigol_1.default.PARENTESE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                const expressao = this.expressao();
-                switch (this.simbolos[this.atual].tipo) {
-                    case potigol_1.default.VIRGULA:
-                        // Tupla
-                        const argumentos = [expressao];
-                        while (this.simbolos[this.atual].tipo === potigol_1.default.VIRGULA) {
-                            this.avancarEDevolverAnterior();
-                            argumentos.push(this.expressao());
-                        }
-                        this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        return new tuplas_1.SeletorTuplas(...argumentos);
-                    default:
-                        this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-                }
-            case potigol_1.default.COLCHETE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                let valores = [];
-                if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.COLCHETE_DIREITO)) {
-                    return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), []);
-                }
-                while (!this.verificarSeSimboloAtualEIgualA(potigol_1.default.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
-                    valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== potigol_1.default.COLCHETE_DIREITO) {
-                        this.consumir(potigol_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                    }
-                }
-                return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), valores);
-            case potigol_1.default.CARACTERE:
-            case potigol_1.default.INTEIRO:
-            case potigol_1.default.LOGICO:
-            case potigol_1.default.REAL:
-            case potigol_1.default.TEXTO:
-                const simboloLiteral = this.avancarEDevolverAnterior();
-                return new construtos_1.Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal);
-            case potigol_1.default.FALSO:
-            case potigol_1.default.VERDADEIRO:
-                const simboloVerdadeiroFalso = this.avancarEDevolverAnterior();
-                return new construtos_1.Literal(this.hashArquivo, Number(simboloVerdadeiroFalso.linha), simboloVerdadeiroFalso.tipo === potigol_1.default.VERDADEIRO);
-            case potigol_1.default.LEIA_INTEIRO:
-            case potigol_1.default.LEIA_REAL:
-            case potigol_1.default.LEIA_TEXTO:
-                const simboloLeia = this.avancarEDevolverAnterior();
-                return new declaracoes_1.Leia(simboloLeia, []);
-            case potigol_1.default.LEIA_INTEIROS:
-            case potigol_1.default.LEIA_REAIS:
-            case potigol_1.default.LEIA_TEXTOS:
-                const simboloLeiaDefinido = this.avancarEDevolverAnterior();
-                this.consumir(potigol_1.default.PARENTESE_ESQUERDO, `Esperado parêntese esquerdo após ${simboloLeiaDefinido.lexema}.`);
-                const argumento = this.expressao();
-                this.consumir(potigol_1.default.PARENTESE_DIREITO, `Esperado parêntese direito após número de parâmetros em chamada de ${simboloLeiaDefinido.lexema}.`);
-                const leiaDefinido = new declaracoes_1.LeiaMultiplo(simboloLeiaDefinido, argumento);
-                return leiaDefinido;
-            default:
-                const simboloIdentificador = this.avancarEDevolverAnterior();
-                return new construtos_1.ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
-        }
-    }
-    /**
-     * Em Potigol, só é possível determinar a diferença entre uma chamada e uma
-     * declaração de função depois dos argumentos.
-     *
-     * Chamadas não aceitam dicas de tipos de parâmetros.
-     * @returns Um construto do tipo `AcessoMetodo`, `AcessoIndiceVariavel` ou `Constante`,
-     * dependendo dos símbolos encontrados.
-     */
-    chamar() {
-        let expressao = this.primario();
-        while (true) {
-            if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.PARENTESE_ESQUERDO)) {
-                if (expressao instanceof construtos_1.ConstanteOuVariavel) {
-                    expressao = new construtos_1.Constante(expressao.hashArquivo, expressao.simbolo);
-                }
-                expressao = this.finalizarChamada(expressao);
-            }
-            else if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.PONTO)) {
-                if (this.verificarTipoSimboloAtual(potigol_1.default.QUAL_TIPO)) {
-                    const identificador = this.simbolos[this.atual - 2];
-                    const simbolo = this.simbolos[this.atual];
-                    const valor = expressao ? expressao : identificador.lexema;
-                    this.avancarEDevolverAnterior();
-                    return new construtos_1.QualTipo(this.hashArquivo, simbolo, valor);
-                }
-                else {
-                    const nome = this.consumir(potigol_1.default.IDENTIFICADOR, "Esperado nome do método após '.'.");
-                    const variavelMetodo = new construtos_1.Variavel(expressao.hashArquivo, expressao.simbolo);
-                    expressao = new construtos_1.AcessoMetodoOuPropriedade(this.hashArquivo, variavelMetodo, nome);
-                }
-            }
-            else if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.COLCHETE_ESQUERDO)) {
-                const indice = this.expressao();
-                const simboloFechamento = this.consumir(potigol_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                const variavelVetor = new construtos_1.Variavel(expressao.hashArquivo, expressao.simbolo);
-                expressao = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, variavelVetor, indice, simboloFechamento);
-            }
-            else {
-                if (expressao instanceof construtos_1.ConstanteOuVariavel) {
-                    expressao = new construtos_1.Constante(expressao.hashArquivo, expressao.simbolo);
-                }
-                break;
-            }
-        }
-        return expressao;
-    }
-    comparacaoIgualdade() {
-        let expressao = this.comparar();
-        while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.DIFERENTE, potigol_1.default.IGUAL_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
-        }
-        return expressao;
-    }
-    declaracaoEscreva() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const argumentos = [];
-        this.verificarSeSimboloAtualEIgualA(potigol_1.default.PARENTESE_ESQUERDO);
-        do {
-            argumentos.push(this.ou());
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        this.verificarSeSimboloAtualEIgualA(potigol_1.default.PARENTESE_DIREITO);
-        return new declaracoes_1.Escreva(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-    declaracaoImprima() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const argumentos = [];
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        return new declaracoes_1.EscrevaMesmaLinha(Number(simboloAtual.linha), simboloAtual.hashArquivo, argumentos);
-    }
-    /**
-     * Blocos de escopo em Potigol existem quando:
-     *
-     * - Em uma declaração de função ou método, após fecha parênteses, o próximo
-     * símbolo obrigatório não é `=` e há pelo menos um `fim` até o final do código;
-     * - Em uma declaração `se`;
-     * - Em uma declaração `enquanto`;
-     * - Em uma declaração `para`.
-     * @returns Um vetor de `Declaracao`.
-     */
-    blocoEscopo() {
-        let declaracoes = [];
-        while (!this.estaNoFinal() && !this.verificarTipoSimboloAtual(potigol_1.default.FIM)) {
-            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(retornoDeclaracao)) {
-                declaracoes = declaracoes.concat(retornoDeclaracao);
-            }
-            else {
-                declaracoes.push(retornoDeclaracao);
-            }
-        }
-        return declaracoes;
-    }
-    declaracaoSe() {
-        const simboloSe = this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
-        this.consumir(potigol_1.default.ENTAO, "Esperado palavra reservada 'entao' após condição em declaração 'se'.");
-        const declaracoes = [];
-        do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![potigol_1.default.SENAO, potigol_1.default.FIM].includes(this.simbolos[this.atual].tipo));
-        let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.SENAO)) {
-            const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
-            do {
-                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
-            } while (![potigol_1.default.FIM].includes(this.simbolos[this.atual].tipo));
-            caminhoSenao = new declaracoes_1.Bloco(this.hashArquivo, Number(simboloSenao.linha), declaracoesSenao.filter((d) => d));
-        }
-        this.consumir(potigol_1.default.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'se'.");
-        return new declaracoes_1.Se(condicao, new declaracoes_1.Bloco(this.hashArquivo, Number(simboloSe.linha), declaracoes.filter((d) => d)), [], caminhoSenao);
-    }
-    declaracaoEnquanto() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
-        this.consumir(potigol_1.default.FACA, "Esperado paravra reservada 'faca' após condição de continuidade em declaracão 'enquanto'.");
-        const declaracoes = [];
-        do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![potigol_1.default.FIM].includes(this.simbolos[this.atual].tipo));
-        this.consumir(potigol_1.default.FIM, "Esperado palavra-chave 'fim' para fechamento de declaração 'enquanto'.");
-        return new declaracoes_1.Enquanto(condicao, new declaracoes_1.Bloco(simboloAtual.hashArquivo, Number(simboloAtual.linha), declaracoes.filter((d) => d)));
-    }
-    declaracaoPara() {
-        const simboloPara = this.avancarEDevolverAnterior();
-        const variavelIteracao = this.consumir(potigol_1.default.IDENTIFICADOR, "Esperado identificador de variável após 'para'.");
-        this.consumir(potigol_1.default.DE, "Esperado palavra reservada 'de' após variável de controle de 'para'.");
-        const literalOuVariavelInicio = this.adicaoOuSubtracao();
-        this.consumir(potigol_1.default.ATE, "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'.");
-        const literalOuVariavelFim = this.adicaoOuSubtracao();
-        let operadorCondicao = new lexador_1.Simbolo(potigol_1.default.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
-        let operadorCondicaoIncremento = new lexador_1.Simbolo(potigol_1.default.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo);
-        // Isso existe porque o laço `para` do Potigol pode ter o passo positivo ou negativo
-        // dependendo dos operandos de início e fim, que só são possíveis de determinar
-        // em tempo de execução.
-        // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
-        // passo são considerados indefinidos aqui.
-        let passo;
-        let resolverIncrementoEmExecucao = false;
-        if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.PASSO)) {
-            passo = this.unario();
-        }
-        else {
-            if (literalOuVariavelInicio instanceof construtos_1.Literal && literalOuVariavelFim instanceof construtos_1.Literal) {
-                if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
-                    passo = new construtos_1.Unario(this.hashArquivo, new lexador_1.Simbolo(potigol_1.default.SUBTRACAO, '-', undefined, simboloPara.linha, simboloPara.hashArquivo), new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), 1), 'ANTES');
-                    operadorCondicao = new lexador_1.Simbolo(potigol_1.default.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
-                    operadorCondicaoIncremento = new lexador_1.Simbolo(potigol_1.default.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
-                }
-                else {
-                    passo = new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), 1);
-                }
-            }
-            else {
-                // Passo e operador de condição precisam ser resolvidos em tempo de execução.
-                passo = undefined;
-                operadorCondicao = undefined;
-                operadorCondicaoIncremento = undefined;
-                resolverIncrementoEmExecucao = true;
-            }
-        }
-        this.consumir(potigol_1.default.FACA, "Esperado palavra reservada 'faca' após valor final do laço de repetição 'para'.");
-        const declaracoesBlocoPara = [];
-        let simboloAtualBlocoPara = this.simbolos[this.atual];
-        while (simboloAtualBlocoPara.tipo !== potigol_1.default.FIM) {
-            declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
-            simboloAtualBlocoPara = this.simbolos[this.atual];
-        }
-        this.consumir(potigol_1.default.FIM, '');
-        const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(simboloPara.linha) + 1, declaracoesBlocoPara.filter((d) => d));
-        const para = new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, literalOuVariavelInicio), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicao, literalOuVariavelFim), new construtos_1.FimPara(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicaoIncremento, literalOuVariavelFim), new declaracoes_1.Expressao(new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), new lexador_1.Simbolo(potigol_1.default.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo), passo)))), corpo);
-        para.blocoPosExecucao = corpo;
-        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
-        return para;
-    }
-    declaracaoEscolha() {
-        this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
-        const caminhos = [];
-        let caminhoPadrao = null;
-        while (!this.verificarSeSimboloAtualEIgualA(potigol_1.default.FIM)) {
-            this.consumir(potigol_1.default.CASO, "Esperado palavra reservada 'caso' após condição de 'escolha'.");
-            if (this.verificarSeSimboloAtualEIgualA(potigol_1.default.TRACO_BAIXO)) {
-                // Caso padrão
-                if (caminhoPadrao !== null) {
-                    const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(this.simbolos[this.atual], "Você só pode ter um caminho padrão em cada declaração de 'escolha'.");
-                    this.erros.push(excecao);
-                    throw excecao;
-                }
-                this.consumir(potigol_1.default.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-                const declaracoesPadrao = [this.resolverDeclaracaoForaDeBloco()];
-                // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
-                /* const declaracoesPadrao = [];
-                do {
-                    declaracoesPadrao.push(this.declaracao());
-                } while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO, tiposDeSimbolos.FIM)); */
-                caminhoPadrao = {
-                    declaracoes: declaracoesPadrao,
-                };
-                continue;
-            }
-            const caminhoCondicoes = [this.expressao()];
-            this.consumir(potigol_1.default.SETA, "Esperado '=>' após palavra reservada 'caso'.");
-            const declaracoes = [this.resolverDeclaracaoForaDeBloco()];
-            // TODO: Verificar se Potigol admite bloco de escopo para `escolha`.
-            /* const declaracoes = [];
-            do {
-                declaracoes.push(this.declaracao());
-            } while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CASO, tiposDeSimbolos.FIM)); */
-            caminhos.push({
-                condicoes: caminhoCondicoes,
-                declaracoes,
-            });
-        }
-        return new declaracoes_1.Escolha(condicao, caminhos, caminhoPadrao);
-    }
-    declaracaoDeConstantes() {
-        const identificadores = [];
-        let tipo = null;
-        do {
-            identificadores.push(this.consumir(potigol_1.default.IDENTIFICADOR, 'Esperado nome da constante.'));
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const tipoConstante = this.verificarDefinicaoTipoAtual();
-            if (!tipoConstante) {
-                throw this.erro(this.simboloAtual(), 'Tipo definido na constante não é válido.');
-            }
-            tipo = tipoConstante;
-            this.avancarEDevolverAnterior();
-        } */
-        this.consumir(potigol_1.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
-        const inicializadores = [];
-        do {
-            let inicializador = this.expressao();
-            if (inicializador instanceof declaracoes_1.Leia && identificadores.length > 1) {
-                inicializador = new declaracoes_1.LeiaMultiplo(inicializador.simbolo, new construtos_1.Literal(this.hashArquivo, Number(inicializador.simbolo.linha), identificadores.length));
-            }
-            inicializadores.push(inicializador);
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        if (identificadores.length !== inicializadores.length) {
-            // Pode ser que a inicialização seja feita por uma das
-            // funções `leia`, que podem ler vários valores. Neste caso, não deve dar erro.
-            if (!(inicializadores.length === 1 && inicializadores[0] instanceof declaracoes_1.LeiaMultiplo)) {
-                throw this.erro(this.simbolos[this.atual], 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.');
-            }
-            const inicializadorLeia = inicializadores[0];
-            let tipoConversao;
-            switch (inicializadorLeia.simbolo.tipo) {
-                case potigol_1.default.LEIA_INTEIROS:
-                    tipoConversao = 'inteiro[]';
-                    break;
-                case potigol_1.default.LEIA_INTEIRO:
-                    tipoConversao = 'inteiro';
-                    break;
-                case potigol_1.default.LEIA_REAL:
-                case potigol_1.default.LEIA_REAIS:
-                    tipoConversao = 'real';
-                    break;
-                default:
-                    tipoConversao = 'texto';
-                    break;
-            }
-            return new declaracoes_1.ConstMultiplo(identificadores, inicializadores[0], tipoConversao);
-        }
-        let retorno = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            // const inicializador = inicializadores[indice];
-            // this.verificarTipoAtribuido(tipo, inicializador);
-            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice], tipo));
-        }
-        // this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO_E_VIRGULA);
-        return retorno;
-    }
-    declaracaoDeVariaveis() {
-        const simboloVar = this.avancarEDevolverAnterior();
-        const identificadores = [];
-        do {
-            identificadores.push(this.consumir(potigol_1.default.IDENTIFICADOR, 'Esperado nome de variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        this.consumir(potigol_1.default.REATRIBUIR, "Esperado ':=' após identificador em instrução 'var'.");
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(potigol_1.default.VIRGULA));
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(simboloVar, 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.');
-        }
-        const retorno = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            retorno.push(new declaracoes_1.Var(identificador, inicializadores[indice]));
-        }
-        return retorno;
-    }
-    logicaAtribuicaoComDicaDeTipo(expressao) {
-        // A dica de tipo é opcional.
-        // Só que, se a avaliação entra na dica, só
-        // podemos ter uma constante apenas.
-        this.avancarEDevolverAnterior();
-        if (![
-            potigol_1.default.CARACTERE,
-            potigol_1.default.INTEIRO,
-            potigol_1.default.LOGICO,
-            potigol_1.default.REAL,
-            potigol_1.default.TEXTO,
-        ].includes(this.simbolos[this.atual].tipo)) {
-            throw this.erro(this.simbolos[this.atual], 'Esperado tipo após dois-pontos e nome de identificador.');
-        }
-        return this.avancarEDevolverAnterior();
-    }
-    declaracaoFazer() {
-        throw new Error('Método não implementado.');
-    }
-    /**
-     * Uma declaração de tipo nada mais é do que um declaração de classe.
-     * Em Potigol, classe e tipo são praticamente a mesma coisa.
-     *
-     * @returns Um construto do tipo `Classe`.
-     */
-    declaracaoTipo() {
-        const simboloTipo = this.avancarEDevolverAnterior();
-        const construto = this.primario();
-        // TODO: Verificar se Potigol trabalha com herança.
-        /* let superClasse = null;
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.HERDA)) {
-            this.consumir(tiposDeSimbolos.IDENTIFICADOR, 'Esperado nome da Superclasse.');
-            superClasse = new Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        } */
-        const metodos = [];
-        const propriedades = [];
-        while (!this.verificarTipoSimboloAtual(potigol_1.default.FIM) && !this.estaNoFinal()) {
-            const identificador = this.consumir(potigol_1.default.IDENTIFICADOR, 'Esperado nome de propriedade ou método.');
-            if (this.simbolos[this.atual].tipo === potigol_1.default.PARENTESE_ESQUERDO) {
-                // Método
-                const construtoMetodo = new construtos_1.Constante(identificador.hashArquivo, identificador);
-                metodos.push(this.declaracaoDeFuncaoOuMetodo(construtoMetodo));
-            }
-            else {
-                // Propriedade
-                this.consumir(potigol_1.default.DOIS_PONTOS, 'Esperado dois-pontos após nome de propriedade em declaração de tipo.');
-                this.verificacaoTipo(this.simbolos[this.atual], 'Esperado tipo do argumento após dois-pontos, em definição de função.');
-                const tipoPropriedade = this.avancarEDevolverAnterior();
-                propriedades.push(new declaracoes_1.PropriedadeClasse(identificador, this.tiposPotigolParaDelegua[tipoPropriedade.lexema]));
-            }
-        }
-        this.consumir(potigol_1.default.FIM, "Esperado 'fim' após o escopo do tipo.");
-        // Depois de verificadas todas as propriedades anotadas com tipo,
-        // Precisamos gerar um construtor com todas elas na ordem em que
-        // foram lidas.
-        const instrucoesConstrutor = [];
-        for (let propriedade of propriedades) {
-            instrucoesConstrutor.push(new declaracoes_1.Expressao(new construtos_1.DefinirValor(propriedade.hashArquivo, propriedade.linha, new construtos_1.Isto(propriedade.hashArquivo, propriedade.linha, new lexador_1.Simbolo(potigol_1.default.ISTO, 'isto', undefined, simboloTipo.linha, simboloTipo.hashArquivo)), propriedade.nome, new construtos_1.Variavel(propriedade.hashArquivo, propriedade.nome))));
-        }
-        const construtorConstruto = new construtos_1.FuncaoConstruto(simboloTipo.hashArquivo, simboloTipo.linha, propriedades.map((p) => ({
-            abrangencia: 'padrao',
-            nome: p.nome,
-        })), instrucoesConstrutor);
-        const construtor = new declaracoes_1.FuncaoDeclaracao(new lexador_1.Simbolo(potigol_1.default.CONSTRUTOR, 'construtor', undefined, simboloTipo.hashArquivo, simboloTipo.linha), construtorConstruto, undefined);
-        metodos.unshift(construtor);
-        return new declaracoes_1.Classe(construto.simbolo, undefined, metodos, propriedades);
-    }
-    atribuir() {
-        const expressao = this.ou();
-        if (!this.estaNoFinal() && expressao instanceof construtos_1.Constante) {
-            let tipoVariavelOuConstante;
-            // Atribuição constante.
-            if (this.simbolos[this.atual].tipo === potigol_1.default.DOIS_PONTOS) {
-                tipoVariavelOuConstante = this.logicaAtribuicaoComDicaDeTipo(expressao);
-            }
-            switch (this.simbolos[this.atual].tipo) {
-                case potigol_1.default.VIRGULA:
-                    this.atual--;
-                    return this.declaracaoDeConstantes();
-                case potigol_1.default.IGUAL:
-                    this.avancarEDevolverAnterior();
-                    const valorAtribuicao = this.ou();
-                    return new declaracoes_1.Const(expressao.simbolo, valorAtribuicao, tipoVariavelOuConstante
-                        ? this.tiposPotigolParaDelegua[tipoVariavelOuConstante.lexema]
-                        : undefined);
-            }
-        }
-        return expressao;
-    }
-    /**
-     * Em Potigol, uma definição de função normalmente começa com um
-     * identificador - que não é uma palavra reservada - seguido de parênteses.
-     * Este ponto de entrada verifica o símbolo atual e o próximo.
-     *
-     * Diferentemente dos demais dialetos, verificamos logo de cara se
-     * temos uma definição ou chamada de função, isto porque definições
-     * nunca aparecem do lado direito de uma atribuição, a não ser que
-     * estejam entre parênteses (_currying_).
-     *
-     * Se o próximo símbolo for parênteses, ou é uma definiçao de função,
-     * ou uma chamada de função.
-     */
-    expressaoOuDefinicaoFuncao() {
-        if (!this.estaNoFinal() && this.simbolos[this.atual].tipo === potigol_1.default.IDENTIFICADOR) {
-            if (this.atual + 1 < this.simbolos.length) {
-                switch (this.simbolos[this.atual + 1].tipo) {
-                    case potigol_1.default.PARENTESE_ESQUERDO:
-                        const construtoPrimario = this.primario();
-                        return this.declaracaoDeFuncaoOuMetodo(construtoPrimario);
-                }
-            }
-        }
-        return this.atribuir();
-    }
-    resolverDeclaracaoForaDeBloco() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case potigol_1.default.ENQUANTO:
-                return this.declaracaoEnquanto();
-            case potigol_1.default.ESCOLHA:
-                return this.declaracaoEscolha();
-            case potigol_1.default.ESCREVA:
-                return this.declaracaoEscreva();
-            case potigol_1.default.IMPRIMA:
-                return this.declaracaoImprima();
-            case potigol_1.default.PARA:
-                return this.declaracaoPara();
-            case potigol_1.default.SE:
-                return this.declaracaoSe();
-            case potigol_1.default.TIPO:
-                return this.declaracaoTipo();
-            case potigol_1.default.VARIAVEL:
-                return this.declaracaoDeVariaveis();
-            default:
-                return this.expressaoOuDefinicaoFuncao();
-        }
-    }
-    analisar(retornoLexador, hashArquivo) {
-        this.microAvaliadorSintatico = new micro_avaliador_sintatico_potigol_1.MicroAvaliadorSintaticoPotigol(hashArquivo);
-        this.erros = [];
-        this.atual = 0;
-        this.blocos = 0;
-        this.declaracoesAnteriores = {};
-        this.hashArquivo = hashArquivo || 0;
-        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        let declaracoes = [];
-        while (!this.estaNoFinal()) {
-            const retornoDeclaracao = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(retornoDeclaracao)) {
-                declaracoes = declaracoes.concat(retornoDeclaracao);
-            }
-            else {
-                declaracoes.push(retornoDeclaracao);
-            }
-        }
-        return {
-            declaracoes: declaracoes,
-            erros: this.erros,
-        };
-    }
-}
-exports.AvaliadorSintaticoPotigol = AvaliadorSintaticoPotigol;
-
-},{"../../../construtos":69,"../../../construtos/tuplas":78,"../../../declaracoes":107,"../../../lexador":158,"../../../tipos-de-simbolos/potigol":178,"../../avaliador-sintatico-base":23,"../../erro-avaliador-sintatico":37,"./micro-avaliador-sintatico-potigol":34}],33:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./avaliador-sintatico-potigol"), exports);
-
-},{"./avaliador-sintatico-potigol":32}],34:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MicroAvaliadorSintaticoPotigol = void 0;
-const construtos_1 = require("../../../construtos");
-const micro_avaliador_sintatico_base_1 = require("../../micro-avaliador-sintatico-base");
-const tuplas_1 = require("../../../construtos/tuplas");
-const potigol_1 = __importDefault(require("../../../tipos-de-simbolos/potigol"));
-class MicroAvaliadorSintaticoPotigol extends micro_avaliador_sintatico_base_1.MicroAvaliadorSintaticoBase {
-    constructor(hashArquivo) {
-        super();
-        this.hashArquivo = hashArquivo;
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case potigol_1.default.PARENTESE_ESQUERDO:
-                this.avancarEDevolverAnterior();
-                const expressao = this.ou();
-                switch (this.simbolos[this.atual].tipo) {
-                    case potigol_1.default.VIRGULA:
-                        // Tupla
-                        const argumentos = [expressao];
-                        while (this.simbolos[this.atual].tipo === potigol_1.default.VIRGULA) {
-                            this.avancarEDevolverAnterior();
-                            argumentos.push(this.ou());
-                        }
-                        this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        return new tuplas_1.SeletorTuplas(...argumentos);
-                    default:
-                        this.consumir(potigol_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-                        return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-                }
-            case potigol_1.default.CARACTERE:
-            case potigol_1.default.INTEIRO:
-            case potigol_1.default.LOGICO:
-            case potigol_1.default.REAL:
-            case potigol_1.default.TEXTO:
-                const simboloLiteral = this.avancarEDevolverAnterior();
-                return new construtos_1.Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal);
-            case potigol_1.default.FALSO:
-            case potigol_1.default.VERDADEIRO:
-                const simboloVerdadeiroFalso = this.avancarEDevolverAnterior();
-                return new construtos_1.Literal(this.hashArquivo, Number(simboloVerdadeiroFalso.linha), simboloVerdadeiroFalso.tipo === potigol_1.default.VERDADEIRO);
-            case potigol_1.default.VIRGULA:
-                return undefined;
-            default:
-                const simboloIdentificador = this.avancarEDevolverAnterior();
-                return new construtos_1.ConstanteOuVariavel(this.hashArquivo, simboloIdentificador);
-        }
-    }
-    chamar() {
-        return this.primario();
-    }
-    analisar(retornoLexador, linha) {
-        this.erros = [];
-        this.atual = 0;
-        this.linha = linha;
-        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        const declaracoes = [];
-        while (this.atual < this.simbolos.length) {
-            declaracoes.push(this.declaracao());
-        }
-        return {
-            declaracoes: declaracoes,
-            erros: this.erros,
-        };
-    }
-}
-exports.MicroAvaliadorSintaticoPotigol = MicroAvaliadorSintaticoPotigol;
-
-},{"../../../construtos":69,"../../../construtos/tuplas":78,"../../../tipos-de-simbolos/potigol":178,"../../micro-avaliador-sintatico-base":39}],35:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AvaliadorSintaticoVisuAlg = void 0;
-const avaliador_sintatico_base_1 = require("../../avaliador-sintatico-base");
-const declaracoes_1 = require("../../../declaracoes");
-const construtos_1 = require("../../../construtos");
-const lexador_1 = require("../../../lexador");
-const visualg_1 = __importDefault(require("../../../tipos-de-simbolos/visualg"));
-const erro_avaliador_sintatico_1 = require("../../erro-avaliador-sintatico");
-const inicio_algoritmo_1 = require("../../../declaracoes/inicio-algoritmo");
-class AvaliadorSintaticoVisuAlg extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
-    constructor() {
-        super();
-        this.blocoPrincipalIniciado = false;
-    }
-    validarSegmentoAlgoritmo() {
-        this.consumir(visualg_1.default.ALGORITMO, "Esperada expressão 'algoritmo' para inicializar programa.");
-        const descricaoAlgoritmo = this.consumir(visualg_1.default.CARACTERE, "Esperada cadeia de caracteres após palavra-chave 'algoritmo'.");
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após definição do segmento 'algoritmo'.");
-        return descricaoAlgoritmo;
-    }
-    criarVetorNDimensional(dimensoes) {
-        if (dimensoes.length > 0) {
-            const dimensao = dimensoes[0] + 1;
-            const resto = dimensoes.slice(1);
-            const novoArray = Array(dimensao);
-            for (let i = 0; i <= dimensao; i++) {
-                novoArray[i] = this.criarVetorNDimensional(resto);
-            }
-            return novoArray;
-        }
-        return undefined;
-    }
-    validarDimensoesVetor() {
-        let dimensoes = [];
-        do {
-            const numeroInicial = this.consumir(visualg_1.default.NUMERO, 'Esperado índice inicial para inicialização de dimensão de vetor.');
-            this.consumir(visualg_1.default.PONTO, 'Esperado primeiro ponto após índice inicial para inicialização de dimensão de vetor.');
-            this.consumir(visualg_1.default.PONTO, 'Esperado segundo ponto após índice inicial para inicialização de dimensão de vetor.');
-            const numeroFinal = this.consumir(visualg_1.default.NUMERO, 'Esperado índice final para inicialização de dimensão de vetor.');
-            dimensoes.push(Number(numeroFinal.literal) - Number(numeroInicial.literal));
-        } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
-        return dimensoes;
-    }
-    logicaComumParametroVisuAlg() {
-        const identificadores = [];
-        let referencia = this.verificarSeSimboloAtualEIgualA(visualg_1.default.VAR);
-        do {
-            identificadores.push(this.consumir(visualg_1.default.IDENTIFICADOR, 'Esperado nome de variável.'));
-        } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
-        this.consumir(visualg_1.default.DOIS_PONTOS, 'Esperado dois-pontos após nome de variável.');
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.CARACTER, visualg_1.default.CARACTERE, visualg_1.default.INTEIRO, visualg_1.default.LOGICO, visualg_1.default.REAL, visualg_1.default.VETOR)) {
-            throw this.erro(this.simbolos[this.atual], `Tipo de variável não conhecido: ${this.simbolos[this.atual].lexema}`);
-        }
-        const simboloAnterior = this.simbolos[this.atual - 1];
-        const tipoVariavel = simboloAnterior.tipo;
-        return {
-            identificadores,
-            tipo: tipoVariavel,
-            simbolo: simboloAnterior,
-            referencia: referencia,
-        };
-    }
-    /**
-     * Validação do segmento de declaração de variáveis (opcional).
-     * @returns Vetor de Construtos para inicialização de variáveis.
-     */
-    validarSegmentoVar() {
-        // Podem haver linhas de comentários acima de `var`, que geram
-        // quebras de linha.
-        while (this.simbolos[this.atual].tipo === visualg_1.default.QUEBRA_LINHA) {
-            this.avancarEDevolverAnterior();
-        }
-        if (!this.verificarTipoSimboloAtual(visualg_1.default.VAR)) {
-            return [];
-        }
-        const inicializacoes = [];
-        this.avancarEDevolverAnterior(); // Var
-        while (!this.verificarTipoSimboloAtual(visualg_1.default.INICIO)) {
-            // Se ainda houver quebras de linha, volta para o começo do `while`.
-            if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.QUEBRA_LINHA)) {
-                continue;
-            }
-            const simboloAtual = this.simbolos[this.atual];
-            switch (simboloAtual.tipo) {
-                case visualg_1.default.FUNCAO:
-                case visualg_1.default.FUNÇÃO:
-                    const dadosFuncao = this.funcao('funcao');
-                    inicializacoes.push(dadosFuncao);
-                    break;
-                case visualg_1.default.PROCEDIMENTO:
-                    const dadosProcedimento = this.declaracaoProcedimento();
-                    inicializacoes.push(dadosProcedimento);
-                    break;
-                default:
-                    const dadosVariaveis = this.logicaComumParametroVisuAlg();
-                    // Se chegou até aqui, variáveis são válidas.
-                    // Devem ser declaradas com um valor inicial padrão.
-                    if (dadosVariaveis.tipo === visualg_1.default.VETOR) {
-                        this.consumir(visualg_1.default.COLCHETE_ESQUERDO, 'Esperado colchete esquerdo após palavra reservada "vetor".');
-                        const dimensoes = this.validarDimensoesVetor();
-                        this.consumir(visualg_1.default.COLCHETE_DIREITO, 'Esperado colchete direito após declaração de dimensões de vetor.');
-                        this.consumir(visualg_1.default.DE, 'Esperado palavra reservada "de" após declaração de dimensões de vetor.');
-                        const simboloTipo = this.simbolos[this.atual];
-                        if (![
-                            visualg_1.default.CARACTER,
-                            visualg_1.default.CARACTERE,
-                            visualg_1.default.INTEIRO,
-                            visualg_1.default.LOGICO,
-                            visualg_1.default.REAL,
-                            visualg_1.default.VETOR,
-                        ].includes(simboloTipo.tipo)) {
-                            throw this.erro(simboloTipo, 'Tipo de variável não conhecido para inicialização de vetor.');
-                        }
-                        for (let identificador of dadosVariaveis.identificadores) {
-                            inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), this.criarVetorNDimensional(dimensoes)), `${simboloTipo.lexema}[]`));
-                        }
-                        this.atual++;
-                    }
-                    else {
-                        for (let identificador of dadosVariaveis.identificadores) {
-                            const tipo = dadosVariaveis.tipo;
-                            switch (dadosVariaveis.tipo) {
-                                case visualg_1.default.CARACTER:
-                                case visualg_1.default.CARACTERE:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), ''), tipo));
-                                    break;
-                                case visualg_1.default.INTEIRO:
-                                case visualg_1.default.REAL:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), 0), tipo));
-                                    break;
-                                case visualg_1.default.LOGICO:
-                                    inicializacoes.push(new declaracoes_1.Var(identificador, new construtos_1.Literal(this.hashArquivo, Number(dadosVariaveis.simbolo.linha), false), tipo));
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-            }
-            this.consumir(visualg_1.default.QUEBRA_LINHA, 'Esperado quebra de linha após declaração de variável.');
-        }
-        return inicializacoes;
-    }
-    validarSegmentoInicio(algoritmoOuFuncao) {
-        const simboloInicio = this.consumir(visualg_1.default.INICIO, `Esperada expressão 'inicio' para marcar escopo de ${algoritmoOuFuncao}.`);
-        return simboloInicio;
-    }
-    estaNoFinal() {
-        return this.atual === this.simbolos.length;
-    }
-    metodoBibliotecaGlobal() {
-        const simboloAnterior = this.simbolos[this.atual - 1];
-        switch (simboloAnterior.lexema) {
-            case 'int':
-                return new construtos_1.Chamada(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, new lexador_1.Simbolo(visualg_1.default.IDENTIFICADOR, 'inteiro', null, Number(simboloAnterior.linha), this.hashArquivo)), null, []);
-            default:
-                return null;
-        }
-    }
-    primario() {
-        const simboloAtual = this.simbolos[this.atual];
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.FALSO))
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false);
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VERDADEIRO))
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), true);
-        if (simboloAtual.lexema === 'limpatela') {
-            const variavel = new construtos_1.Variavel(this.hashArquivo, simboloAtual);
-            this.avancarEDevolverAnterior();
-            return new construtos_1.Chamada(this.hashArquivo, variavel, null, []);
-        }
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.IDENTIFICADOR, visualg_1.default.METODO_BIBLIOTECA_GLOBAL)) {
-            return new construtos_1.Variavel(this.hashArquivo, this.simbolos[this.atual - 1]);
-        }
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.NUMERO, visualg_1.default.CARACTER, visualg_1.default.CARACTERE)) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-            return new construtos_1.Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
-        }
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_ESQUERDO)) {
-            const expressao = this.expressao();
-            this.consumir(visualg_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
-            return new construtos_1.Agrupamento(this.hashArquivo, Number(simboloAtual.linha), expressao);
-        }
-        throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
-    }
-    comparacaoIgualdade() {
-        let expressao = this.comparar();
-        while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.DIFERENTE, visualg_1.default.IGUAL)) {
-            const simboloAnterior = this.simbolos[this.atual - 1];
-            const direito = this.comparar();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, simboloAnterior, direito);
-        }
-        return expressao;
-    }
-    ou() {
-        let expressao = this.e();
-        while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.OU, visualg_1.default.XOU)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = this.e();
-            expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
-        }
-        return expressao;
-    }
-    /**
-     * Método que resolve atribuições.
-     * @returns Um construto do tipo `Atribuir`, `Conjunto` ou `AtribuicaoPorIndice`.
-     */
-    atribuir() {
-        const expressao = this.ou();
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.SETA_ATRIBUICAO)) {
-            const setaAtribuicao = this.simbolos[this.atual - 1];
-            const valor = this.atribuir();
-            if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
-            }
-            else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
-                return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
-            }
-            else if (expressao instanceof construtos_1.AcessoElementoMatriz) {
-                return new construtos_1.AtribuicaoPorIndicesMatriz(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indicePrimario, expressao.indiceSecundario, valor);
-            }
-            this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
-        }
-        return expressao;
-    }
-    expressao() {
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.LEIA))
-            return this.declaracaoLeia();
-        return this.atribuir();
-    }
-    blocoEscopo() {
-        const declaracoes = [];
-        while (![visualg_1.default.FIM_FUNCAO, visualg_1.default.FIM_FUNÇÃO, visualg_1.default.FIM_PROCEDIMENTO].includes(this.simbolos[this.atual].tipo) &&
-            !this.estaNoFinal()) {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        }
-        // Se chegou até aqui, simplesmente consome o símbolo.
-        this.avancarEDevolverAnterior();
-        // this.consumir(tiposDeSimbolos.FIM_FUNCAO, "Esperado palavra-chave 'fimfuncao' após o bloco.");
-        return declaracoes;
-    }
-    chamar() {
-        let expressao = this.primario();
-        while (true) {
-            if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_ESQUERDO)) {
-                expressao = this.finalizarChamada(expressao);
-            }
-            else if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.COLCHETE_ESQUERDO)) {
-                const indices = [];
-                do {
-                    indices.push(this.expressao());
-                } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
-                const simboloFechamento = this.consumir(visualg_1.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                if (!indices[1]) {
-                    expressao = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressao, indices[0], simboloFechamento);
-                }
-                else {
-                    expressao = new construtos_1.AcessoElementoMatriz(this.hashArquivo, expressao, indices[0], indices[1], simboloFechamento);
-                }
-            }
-            else {
-                break;
-            }
-        }
-        return expressao;
-    }
-    simboloAtual() {
-        return this.simbolos[this.atual - 2];
-    }
-    verificarDefinicaoTipoAtual() {
-        const tipos = ['inteiro', 'qualquer', 'real', 'texto', 'vazio', 'vetor', 'caracter'];
-        const lexema = this.simboloAtual().lexema.toLowerCase();
-        const contemTipo = tipos.find((tipo) => tipo === lexema);
-        if (contemTipo && this.verificarTipoProximoSimbolo(visualg_1.default.COLCHETE_ESQUERDO)) {
-            const tiposVetores = ['inteiro[]', 'qualquer[]', 'real[]', 'texto[]', 'caracter[]'];
-            this.avancarEDevolverAnterior();
-            if (!this.verificarTipoProximoSimbolo(visualg_1.default.COLCHETE_DIREITO)) {
-                throw this.erro(this.simbolos[this.atual - 1], "Esperado símbolo de fechamento do vetor ']'.");
-            }
-            const contemTipoVetor = tiposVetores.find((tipo) => tipo === `${lexema}[]`);
-            this.avancarEDevolverAnterior();
-            return contemTipoVetor;
-        }
-        return contemTipo;
-    }
-    corpoDaFuncao(tipo) {
-        const simboloAnterior = this.simbolos[this.atual - 1];
-        // Parâmetros
-        const parametros = this.logicaComumParametros();
-        this.consumir(visualg_1.default.DOIS_PONTOS, 'Esperado dois-pontos após nome de função.');
-        // Tipo retornado pela função.
-        let tipoRetorno = null;
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.INTEIRO, visualg_1.default.CARACTER, visualg_1.default.CARACTERE, visualg_1.default.REAL, visualg_1.default.LOGICO)) {
-            throw this.erro(this.simbolos[this.atual], 'Esperado um tipo válido para retorno de função');
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após tipo retornado por 'funcao'.");
-        tipoRetorno = this.verificarDefinicaoTipoAtual();
-        const inicializacoes = this.validarSegmentoVar();
-        this.validarSegmentoInicio('função');
-        const corpo = inicializacoes.concat(this.blocoEscopo());
-        return new construtos_1.FuncaoConstruto(this.hashArquivo, Number(simboloAnterior.linha), parametros, corpo.filter((d) => d), tipoRetorno);
-    }
-    declaracaoEnquanto() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.FACA, visualg_1.default.FAÇA)) {
-            this.consumir(this.simbolos[this.atual].tipo, "Esperado paravra reservada 'faca' ou 'faça' após condição de continuidade em declaracão 'enquanto'.");
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'faca' em declaracão 'enquanto'.");
-        const declaracoes = [];
-        do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![visualg_1.default.FIM_ENQUANTO].includes(this.simbolos[this.atual].tipo));
-        this.consumir(visualg_1.default.FIM_ENQUANTO, "Esperado palavra-chave 'fimenquanto' para fechamento de declaração 'enquanto'.");
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimenquanto'.");
-        return new declaracoes_1.Enquanto(condicao, new declaracoes_1.Bloco(simboloAtual.hashArquivo, Number(simboloAtual.linha), declaracoes.filter((d) => d)));
-    }
-    logicaCasosEscolha() {
-        const literais = [];
-        let simboloAtualCaso = this.simbolos[this.atual];
-        while (simboloAtualCaso.tipo !== visualg_1.default.QUEBRA_LINHA) {
-            literais.push(this.primario());
-            this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA);
-            simboloAtualCaso = this.simbolos[this.atual];
-        }
-        return literais;
-    }
-    declaracaoEscolha() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        // Parênteses são opcionais para delimitar o identificador.
-        this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_ESQUERDO);
-        const identificador = this.primario();
-        this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_DIREITO);
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após variável ou literal de declaração 'caso'.");
-        while (this.simbolos[this.atual].tipo === visualg_1.default.QUEBRA_LINHA) {
-            this.avancarEDevolverAnterior();
-        }
-        // Blocos de caso
-        const caminhos = [];
-        let simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
-        while (![visualg_1.default.OUTRO_CASO, visualg_1.default.FIM_ESCOLHA].includes(simboloAtualBlocoCaso.tipo)) {
-            const caminhoCondicoes = this.logicaCasosEscolha();
-            const declaracoes = [];
-            do {
-                declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-            } while (![visualg_1.default.CASO, visualg_1.default.OUTRO_CASO, visualg_1.default.FIM_ESCOLHA].includes(this.simbolos[this.atual].tipo));
-            caminhos.push({
-                condicoes: caminhoCondicoes.filter((c) => c),
-                declaracoes: declaracoes.filter((d) => d),
-            });
-            while (this.simbolos[this.atual].tipo === visualg_1.default.QUEBRA_LINHA) {
-                this.avancarEDevolverAnterior();
-            }
-            simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
-        }
-        let caminhoPadrao = null;
-        if (simboloAtualBlocoCaso.tipo === visualg_1.default.OUTRO_CASO) {
-            const declaracoes = [];
-            do {
-                declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-            } while (!this.verificarTipoSimboloAtual(visualg_1.default.FIM_ESCOLHA));
-            caminhoPadrao = {
-                declaracoes: declaracoes.filter((d) => d),
-            };
-            simboloAtualBlocoCaso = this.avancarEDevolverAnterior();
-        }
-        if (simboloAtualBlocoCaso.tipo !== visualg_1.default.FIM_ESCOLHA) {
-            throw this.erro(this.simbolos[this.atual], "Esperado palavra-chave 'fimescolha' para fechamento de declaração 'escolha'.");
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimescolha'.");
-        return new declaracoes_1.Escolha(identificador, caminhos, caminhoPadrao);
-    }
-    logicaComumEscreva() {
-        const simboloParenteses = this.consumir(visualg_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
-        const argumentos = [];
-        // Sem não houver parâmetros, retorna vetor com literal vazio.
-        if (this.simbolos[this.atual].tipo === visualg_1.default.PARENTESE_DIREITO) {
-            this.avancarEDevolverAnterior();
-            return [
-                new construtos_1.FormatacaoEscrita(this.hashArquivo, Number(simboloParenteses.linha), new construtos_1.Literal(this.hashArquivo, Number(simboloParenteses.linha), '')),
-            ];
-        }
-        do {
-            const valor = this.expressao();
-            let espacos = 0;
-            let casasDecimais = 0;
-            if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.DOIS_PONTOS)) {
-                // Espaços
-                const simboloEspacos = this.consumir(visualg_1.default.NUMERO, 'Esperado número após sinal de dois-pontos após identificador como argumento.');
-                espacos = Number(simboloEspacos.lexema) - 1;
-            }
-            if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.DOIS_PONTOS)) {
-                // Casas decimais
-                const simboloCasasDecimais = this.consumir(visualg_1.default.NUMERO, 'Esperado número após segundo sinal de dois-pontos após identificador como argumento.');
-                casasDecimais = Number(simboloCasasDecimais.lexema);
-            }
-            argumentos.push(new construtos_1.FormatacaoEscrita(this.hashArquivo, Number(simboloParenteses.linha), valor, espacos, casasDecimais));
-        } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
-        this.consumir(visualg_1.default.PARENTESE_DIREITO, "Esperado ')' após os valores em escreva.");
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após fechamento de parênteses pós instrução 'escreva'.");
-        return argumentos;
-    }
-    declaracaoEscreva() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const argumentos = this.logicaComumEscreva();
-        return new declaracoes_1.Escreva(Number(simboloAtual.linha), this.hashArquivo, argumentos);
-    }
-    declaracaoEscrevaMesmaLinha() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        const argumentos = this.logicaComumEscreva();
-        return new declaracoes_1.EscrevaMesmaLinha(Number(simboloAtual.linha), this.hashArquivo, argumentos);
-    }
-    /**
-     * Criação de declaração "repita".
-     * @returns Um construto do tipo Fazer
-     */
-    declaracaoFazer() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após instrução 'repita'.");
-        const declaracoes = [];
-        do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![visualg_1.default.ATE, visualg_1.default.ATÉ].includes(this.simbolos[this.atual].tipo));
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.ATE, visualg_1.default.ATÉ)) {
-            this.consumir(this.simbolos[this.atual].tipo, "Esperado palavra-chave 'ate' ou 'até' após declaração de bloco em instrução 'repita'.");
-        }
-        const condicao = this.expressao();
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após condição de continuidade em instrução 'repita'.");
-        return new declaracoes_1.Fazer(this.hashArquivo, Number(simboloAtual.linha), new declaracoes_1.Bloco(this.hashArquivo, Number(simboloAtual.linha), declaracoes.filter((d) => d)), condicao);
-    }
-    /**
-     * Criação de declaração "interrompa".
-     * Em VisuAlg, "sustar" é chamada de "interrompa".
-     * @returns Uma declaração do tipo Sustar.
-     */
-    declaracaoInterrompa() {
-        const simboloAtual = this.avancarEDevolverAnterior();
-        // TODO: Contar blocos para colocar esta condição de erro.
-        /* if (this.blocos < 1) {
-            this.erro(this.simbolos[this.atual - 1], "'interrompa' deve estar dentro de um laço de repetição.");
-        } */
-        return new declaracoes_1.Sustar(simboloAtual);
-    }
-    /**
-     * Análise de uma declaração `leia()`. No VisuAlg, `leia()` aceita 1..N argumentos.
-     * @returns Uma declaração `Leia`.
-     */
-    declaracaoLeia() {
-        const simboloLeia = this.avancarEDevolverAnterior();
-        this.consumir(visualg_1.default.PARENTESE_ESQUERDO, "Esperado '(' antes do argumento em instrução `leia`.");
-        const argumentos = [];
-        do {
-            argumentos.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(visualg_1.default.VIRGULA));
-        this.consumir(visualg_1.default.PARENTESE_DIREITO, "Esperado ')' após o argumento em instrução `leia`.");
-        this.consumir(visualg_1.default.QUEBRA_LINHA, 'Esperado quebra de linha após fechamento de parênteses pós instrução `leia`.');
-        return new declaracoes_1.Leia(simboloLeia, argumentos);
-    }
-    declaracaoPara() {
-        const simboloPara = this.avancarEDevolverAnterior();
-        const variavelIteracao = this.consumir(visualg_1.default.IDENTIFICADOR, "Esperado identificador de variável após 'para'.");
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.DE, visualg_1.default.SETA_ATRIBUICAO)) {
-            throw this.erro(this.simbolos[this.atual], "Esperado palavra reservada 'de' ou seta de atribuição após variável de controle de 'para'.");
-        }
-        const literalOuVariavelInicio = this.adicaoOuSubtracao();
-        this.consumir(visualg_1.default.ATE, "Esperado palavra reservada 'ate' após valor inicial do laço de repetição 'para'.");
-        const literalOuVariavelFim = this.adicaoOuSubtracao();
-        let operadorCondicao = new lexador_1.Simbolo(visualg_1.default.MENOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
-        let operadorCondicaoIncremento = new lexador_1.Simbolo(visualg_1.default.MENOR, '', '', Number(simboloPara.linha), this.hashArquivo);
-        // Isso existe porque o laço `para` do VisuAlg pode ter o passo positivo ou negativo
-        // dependendo dos operandos de início e fim, que só são possíveis de determinar
-        // em tempo de execução.
-        // Quando um dos operandos é uma variável, tanto a condição do laço quanto o
-        // passo são considerados indefinidos aqui.
-        let passo;
-        let resolverIncrementoEmExecucao = false;
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PASSO)) {
-            passo = this.unario();
-            if (passo.hasOwnProperty('operador') && passo.operador.tipo === visualg_1.default.SUBTRACAO) {
-                operadorCondicao = new lexador_1.Simbolo(visualg_1.default.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
-                operadorCondicaoIncremento = new lexador_1.Simbolo(visualg_1.default.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
-            }
-        }
-        else {
-            if (literalOuVariavelInicio instanceof construtos_1.Literal && literalOuVariavelFim instanceof construtos_1.Literal) {
-                if (literalOuVariavelInicio.valor > literalOuVariavelFim.valor) {
-                    passo = new construtos_1.Unario(this.hashArquivo, new lexador_1.Simbolo(visualg_1.default.SUBTRACAO, '-', undefined, simboloPara.linha, simboloPara.hashArquivo), new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), 1), 'ANTES');
-                    operadorCondicao = new lexador_1.Simbolo(visualg_1.default.MAIOR_IGUAL, '', '', Number(simboloPara.linha), this.hashArquivo);
-                    operadorCondicaoIncremento = new lexador_1.Simbolo(visualg_1.default.MAIOR, '', '', Number(simboloPara.linha), this.hashArquivo);
-                }
-                else {
-                    passo = new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), 1);
-                }
-            }
-            else {
-                // Passo e operador de condição precisam ser resolvidos em tempo de execução.
-                passo = undefined;
-                operadorCondicao = undefined;
-                operadorCondicaoIncremento = undefined;
-                resolverIncrementoEmExecucao = true;
-            }
-        }
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.FACA, visualg_1.default.FAÇA)) {
-            this.consumir(this.simbolos[this.atual].tipo, "Esperado palavra reservada 'faca' ou 'faça' após valor final do laço de repetição 'para'.");
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'faca' do laço de repetição 'para'.");
-        const declaracoesBlocoPara = [];
-        let simboloAtualBlocoPara = this.simbolos[this.atual];
-        while (simboloAtualBlocoPara.tipo !== visualg_1.default.FIM_PARA) {
-            declaracoesBlocoPara.push(this.resolverDeclaracaoForaDeBloco());
-            simboloAtualBlocoPara = this.simbolos[this.atual];
-        }
-        this.consumir(visualg_1.default.FIM_PARA, '');
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'fimpara'.");
-        const corpo = new declaracoes_1.Bloco(this.hashArquivo, Number(simboloPara.linha) + 1, declaracoesBlocoPara.filter((d) => d));
-        const para = new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), 
-        // Inicialização.
-        new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, literalOuVariavelInicio), 
-        // Condição.
-        new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicao, literalOuVariavelFim), 
-        // Incremento, feito em construto especial `FimPara`.
-        new construtos_1.FimPara(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), operadorCondicaoIncremento, literalOuVariavelFim), new declaracoes_1.Expressao(new construtos_1.Atribuir(this.hashArquivo, variavelIteracao, new construtos_1.Binario(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, variavelIteracao), new lexador_1.Simbolo(visualg_1.default.ADICAO, '', null, Number(simboloPara.linha), this.hashArquivo), passo)))), corpo);
-        para.blocoPosExecucao = corpo;
-        para.resolverIncrementoEmExecucao = resolverIncrementoEmExecucao;
-        return para;
-    }
-    logicaComumParametros() {
-        const parametros = [];
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.PARENTESE_ESQUERDO)) {
-            while (!this.verificarTipoSimboloAtual(visualg_1.default.PARENTESE_DIREITO)) {
-                const dadosParametros = this.logicaComumParametroVisuAlg();
-                const tipoDadoParametro = {
-                    nome: dadosParametros.simbolo.lexema,
-                    tipo: dadosParametros.tipo,
-                    tipoInvalido: !dadosParametros.tipo ? this.simboloAtual().lexema : null,
-                };
-                for (let parametro of dadosParametros.identificadores) {
-                    parametros.push({
-                        abrangencia: 'padrao',
-                        nome: parametro,
-                        referencia: dadosParametros.referencia,
-                        tipoDado: tipoDadoParametro,
-                    });
-                }
-            }
-            // Consumir parêntese direito
-            this.consumir(visualg_1.default.PARENTESE_DIREITO, 'Esperado parêntese direito para finalização da leitura de parâmetros.');
-        }
-        return parametros;
-    }
-    /**
-     * Procedimentos nada mais são do que funções que não retornam valor.
-     */
-    declaracaoProcedimento() {
-        const simboloProcedimento = this.avancarEDevolverAnterior();
-        const nomeProcedimento = this.consumir(visualg_1.default.IDENTIFICADOR, 'Esperado nome do procedimento após palavra-chave `procedimento`.');
-        // Parâmetros
-        const parametros = this.logicaComumParametros();
-        const inicializacoes = this.validarSegmentoVar();
-        this.validarSegmentoInicio('procedimento');
-        const corpo = inicializacoes.concat(this.blocoEscopo());
-        return new declaracoes_1.FuncaoDeclaracao(nomeProcedimento, new construtos_1.FuncaoConstruto(this.hashArquivo, Number(simboloProcedimento.linha), parametros, corpo.filter((d) => d)));
-    }
-    declaracaoRetorna() {
-        const simboloRetorna = this.avancarEDevolverAnterior();
-        let valor = null;
-        if ([
-            visualg_1.default.CARACTER,
-            visualg_1.default.CARACTERE,
-            visualg_1.default.IDENTIFICADOR,
-            visualg_1.default.NUMERO,
-            visualg_1.default.VERDADEIRO,
-            visualg_1.default.NEGACAO,
-            visualg_1.default.FALSO,
-            visualg_1.default.PARENTESE_ESQUERDO,
-        ].includes(this.simbolos[this.atual].tipo)) {
-            valor = this.expressao();
-        }
-        return new declaracoes_1.Retorna(simboloRetorna, valor);
-    }
-    declaracaoSe() {
-        const simboloSe = this.avancarEDevolverAnterior();
-        const condicao = this.expressao();
-        if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.ENTAO, visualg_1.default.ENTÃO)) {
-            this.consumir(this.simbolos[this.atual].tipo, "Esperado palavra reservada 'entao' ou 'então' após condição em declaração 'se'.");
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra reservada 'entao' em declaração 'se'.");
-        const declaracoes = [];
-        do {
-            declaracoes.push(this.resolverDeclaracaoForaDeBloco());
-        } while (![visualg_1.default.SENAO, visualg_1.default.SENÃO, visualg_1.default.FIM_SE].includes(this.simbolos[this.atual].tipo));
-        let caminhoSenao = null;
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.SENAO, visualg_1.default.SENÃO)) {
-            const simboloSenao = this.simbolos[this.atual - 1];
-            const declaracoesSenao = [];
-            do {
-                declaracoesSenao.push(this.resolverDeclaracaoForaDeBloco());
-            } while (![visualg_1.default.FIM_SE].includes(this.simbolos[this.atual].tipo));
-            caminhoSenao = new declaracoes_1.Bloco(this.hashArquivo, Number(simboloSenao.linha), declaracoesSenao.filter((d) => d));
-        }
-        this.consumir(visualg_1.default.FIM_SE, "Esperado palavra-chave 'fimse' para fechamento de declaração 'se'.");
-        this.consumir(visualg_1.default.QUEBRA_LINHA, "Esperado quebra de linha após palavra-chave 'fimse'.");
-        return new declaracoes_1.Se(condicao, new declaracoes_1.Bloco(this.hashArquivo, Number(simboloSe.linha), declaracoes.filter((d) => d)), [], caminhoSenao);
-    }
-    declaracaoAleatorio() {
-        const simboloAleatorio = this.avancarEDevolverAnterior();
-        let argumentos = {
-            min: 0,
-            max: 0,
-        };
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.NUMERO)) {
-            this.consumir(visualg_1.default.VIRGULA, "Esperado ',' após declaração do primeiro número.");
-            argumentos.min = Number(this.simboloAtual().literal);
-            this.consumir(visualg_1.default.NUMERO, "Esperado um número após ','.");
-            argumentos.max = Number(this.simbolos[this.atual - 1].literal);
-        }
-        else if (!this.verificarSeSimboloAtualEIgualA(visualg_1.default.ON)) {
-            this.consumir(simboloAleatorio.tipo, "Esperado palavra reservada 'ON'ou 'on' ou combinação de número'(min, max)' após declaração 'aleatorio'");
-            argumentos = null;
-        }
-        this.consumir(visualg_1.default.QUEBRA_LINHA, 'Esperado quebra de linha após declaração do último número.');
-        const decoracoes = [];
-        do {
-            const decoracao = this.resolverDeclaracaoForaDeBloco();
-            if (decoracao instanceof declaracoes_1.Leia)
-                decoracao.eParaInterromper = true;
-            decoracoes.push(decoracao);
-        } while (![visualg_1.default.ALEATORIO, visualg_1.default.FIM_ALGORITMO].includes(this.simbolos[this.atual].tipo));
-        if (this.verificarSeSimboloAtualEIgualA(visualg_1.default.ALEATORIO)) {
-            this.consumir(visualg_1.default.OFF, "Esperado palavra reservada 'off' ou 'OFF' após declaração 'aleatorio'.");
-        }
-        return new declaracoes_1.Aleatorio(simboloAleatorio.linha, simboloAleatorio.hashArquivo, new declaracoes_1.Bloco(simboloAleatorio.hashArquivo, Number(simboloAleatorio.linha), decoracoes.filter((d) => d)), argumentos);
-    }
-    resolverDeclaracaoForaDeBloco() {
-        const simboloAtual = this.simbolos[this.atual];
-        switch (simboloAtual.tipo) {
-            case visualg_1.default.ALEATORIO:
-                return this.declaracaoAleatorio();
-            case visualg_1.default.ENQUANTO:
-                return this.declaracaoEnquanto();
-            case visualg_1.default.ESCOLHA:
-                return this.declaracaoEscolha();
-            case visualg_1.default.ESCREVA:
-                return this.declaracaoEscrevaMesmaLinha();
-            case visualg_1.default.ESCREVA_LINHA:
-                return this.declaracaoEscreva();
-            case visualg_1.default.FUNCAO:
-                return this.funcao('funcao');
-            case visualg_1.default.INICIO:
-                const simboloInicio = this.validarSegmentoInicio('algoritmo');
-                return new inicio_algoritmo_1.InicioAlgoritmo(simboloInicio.linha, simboloInicio.hashArquivo);
-            case visualg_1.default.INTERROMPA:
-                return this.declaracaoInterrompa();
-            case visualg_1.default.LEIA:
-                return this.declaracaoLeia();
-            case visualg_1.default.PARA:
-                return this.declaracaoPara();
-            case visualg_1.default.PARENTESE_DIREITO:
-                throw new Error('Não deveria estar caindo aqui.');
-            case visualg_1.default.PROCEDIMENTO:
-                return this.declaracaoProcedimento();
-            case visualg_1.default.QUEBRA_LINHA:
-                this.avancarEDevolverAnterior();
-                return null;
-            case visualg_1.default.REPITA:
-                return this.declaracaoFazer();
-            case visualg_1.default.RETORNE:
-                return this.declaracaoRetorna();
-            case visualg_1.default.SE:
-                return this.declaracaoSe();
-            case visualg_1.default.VAR:
-                if (this.blocoPrincipalIniciado) {
-                    throw this.erro(this.simbolos[this.atual], 'Sintaxe incorreta: início do bloco principal já foi declarado.');
-                }
-                return this.validarSegmentoVar();
-            default:
-                return new declaracoes_1.Expressao(this.expressao());
-        }
-    }
-    /**
-     * No VisuAlg, há uma determinada cadência de validação de símbolos.
-     * - O primeiro símbolo é `algoritmo`, seguido por um identificador e
-     * uma quebra de linha.
-     * - Os próximos símbolo pode `var`, que pode ser seguido por uma série de
-     * declarações de variáveis e finalizado por uma quebra de linha,
-     * ou ainda `funcao` ou `procedimento`, seguidos dos devidos símbolos que definem
-     * os blocos.
-     * - O penúltimo símbolo é `inicio`, seguido por uma quebra de linha.
-     * Pode haver ou não declarações dentro do bloco.
-     * - O último símbolo deve ser `fimalgoritmo`, que também é usado para
-     * definir quando não existem mais construtos a serem adicionados.
-     * @param retornoLexador Os símbolos entendidos pelo Lexador.
-     * @param hashArquivo Obrigatório por interface mas não usado aqui.
-     */
-    analisar(retornoLexador, hashArquivo) {
-        this.erros = [];
-        this.atual = 0;
-        this.blocos = 0;
-        this.blocoPrincipalIniciado = false;
-        this.hashArquivo = hashArquivo || 0;
-        this.simbolos = (retornoLexador === null || retornoLexador === void 0 ? void 0 : retornoLexador.simbolos) || [];
-        while (this.verificarTipoSimboloAtual(visualg_1.default.QUEBRA_LINHA)) {
-            this.avancarEDevolverAnterior();
-        }
-        let declaracoes = [];
-        const simboloNomeAlgoritmo = this.validarSegmentoAlgoritmo();
-        declaracoes.push(new declaracoes_1.CabecalhoPrograma(simboloNomeAlgoritmo.linha, simboloNomeAlgoritmo.hashArquivo, simboloNomeAlgoritmo.literal));
-        while (!this.estaNoFinal() && this.simbolos[this.atual].tipo !== visualg_1.default.FIM_ALGORITMO) {
-            const declaracao = this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracao)) {
-                declaracoes = declaracoes.concat(declaracao);
-            }
-            else {
-                declaracoes.push(declaracao);
-            }
-        }
-        const ultimoSimbolo = this.simbolos[this.simbolos.length - 1];
-        if (ultimoSimbolo.tipo !== visualg_1.default.FIM_ALGORITMO) {
-            throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(ultimoSimbolo, `Programa não termina com 'fimalgoritmo'. Último símbolo: '${ultimoSimbolo.lexema || ultimoSimbolo.literal}'.`);
-        }
-        return {
-            declaracoes: declaracoes.filter((d) => d),
-            erros: this.erros,
-        };
-    }
-}
-exports.AvaliadorSintaticoVisuAlg = AvaliadorSintaticoVisuAlg;
-
-},{"../../../construtos":69,"../../../declaracoes":107,"../../../declaracoes/inicio-algoritmo":108,"../../../lexador":158,"../../../tipos-de-simbolos/visualg":179,"../../avaliador-sintatico-base":23,"../../erro-avaliador-sintatico":37}],36:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./avaliador-sintatico-visualg"), exports);
-
-},{"./avaliador-sintatico-visualg":35}],37:[function(require,module,exports){
+},{"./avaliador-sintatico-egua-classico":25,"./avaliador-sintatico-mapler":26,"./avaliador-sintatico-pitugues":27,"./avaliador-sintatico-portugol-ipt":28}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -7958,7 +5143,7 @@ class ErroAvaliadorSintatico extends Error {
 }
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
-},{}],38:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -7982,7 +5167,7 @@ __exportStar(require("./erro-avaliador-sintatico"), exports);
 __exportStar(require("./micro-avaliador-sintatico"), exports);
 __exportStar(require("./retornos"), exports);
 
-},{"./avaliador-sintatico":24,"./avaliador-sintatico-base":23,"./dialetos":31,"./erro-avaliador-sintatico":37,"./micro-avaliador-sintatico":40,"./retornos":41}],39:[function(require,module,exports){
+},{"./avaliador-sintatico":24,"./avaliador-sintatico-base":23,"./dialetos":29,"./erro-avaliador-sintatico":30,"./micro-avaliador-sintatico":33,"./retornos":34}],32:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8100,7 +5285,7 @@ class MicroAvaliadorSintaticoBase {
 }
 exports.MicroAvaliadorSintaticoBase = MicroAvaliadorSintaticoBase;
 
-},{"../construtos":69,"../tipos-de-simbolos/comum":169,"./erro-avaliador-sintatico":37}],40:[function(require,module,exports){
+},{"../construtos":62,"../tipos-de-simbolos/comum":155,"./erro-avaliador-sintatico":30}],33:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8389,7 +5574,7 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
 }
 exports.MicroAvaliadorSintatico = MicroAvaliadorSintatico;
 
-},{"../construtos":69,"../tipos-de-simbolos/microgramaticas/delegua":174,"./erro-avaliador-sintatico":37,"./micro-avaliador-sintatico-base":39}],41:[function(require,module,exports){
+},{"../construtos":62,"../tipos-de-simbolos/microgramaticas/delegua":160,"./erro-avaliador-sintatico":30,"./micro-avaliador-sintatico-base":32}],34:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -8410,19 +5595,19 @@ __exportStar(require("./retorno-declaracao"), exports);
 __exportStar(require("./retorno-primario"), exports);
 __exportStar(require("./retorno-resolver-declaracao"), exports);
 
-},{"./retorno-declaracao":42,"./retorno-primario":43,"./retorno-resolver-declaracao":44}],42:[function(require,module,exports){
+},{"./retorno-declaracao":35,"./retorno-primario":36,"./retorno-resolver-declaracao":37}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],43:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],44:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],45:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const excecoes_1 = require("../excecoes");
@@ -8742,7 +5927,7 @@ function default_1(interpretador, pilhaEscoposExecucao) {
 }
 exports.default = default_1;
 
-},{"../estruturas":127,"../estruturas/delegua-classe":124,"../estruturas/funcao-padrao":126,"../estruturas/objeto-delegua-classe":130,"../excecoes":133}],46:[function(require,module,exports){
+},{"../estruturas":120,"../estruturas/delegua-classe":117,"../estruturas/funcao-padrao":119,"../estruturas/objeto-delegua-classe":123,"../excecoes":126}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -8754,7 +5939,7 @@ exports.default = {
     },
 };
 
-},{}],47:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -8766,7 +5951,7 @@ exports.default = {
     },
 };
 
-},{}],48:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -8790,7 +5975,7 @@ exports.default = {
     tamanho: (interpretador, texto) => Promise.resolve(texto.length),
 };
 
-},{}],49:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -8882,7 +6067,7 @@ exports.default = {
     tamanho: (interpretador, vetor) => Promise.resolve(vetor.length),
 };
 
-},{}],50:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -8901,7 +6086,7 @@ class AcessoElementoMatriz {
 }
 exports.AcessoElementoMatriz = AcessoElementoMatriz;
 
-},{}],51:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -8923,7 +6108,7 @@ class AcessoIndiceVariavel {
 }
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],52:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodoOuPropriedade = void 0;
@@ -8944,7 +6129,7 @@ class AcessoMetodoOuPropriedade {
 }
 exports.AcessoMetodoOuPropriedade = AcessoMetodoOuPropriedade;
 
-},{}],53:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
@@ -8965,7 +6150,7 @@ class Agrupamento {
 }
 exports.Agrupamento = Agrupamento;
 
-},{}],54:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndice = void 0;
@@ -8983,7 +6168,7 @@ class AtribuicaoPorIndice {
 }
 exports.AtribuicaoPorIndice = AtribuicaoPorIndice;
 
-},{}],55:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndicesMatriz = void 0;
@@ -9002,7 +6187,7 @@ class AtribuicaoPorIndicesMatriz {
 }
 exports.AtribuicaoPorIndicesMatriz = AtribuicaoPorIndicesMatriz;
 
-},{}],56:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
@@ -9019,7 +6204,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{}],57:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
@@ -9048,7 +6233,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],58:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
@@ -9071,7 +6256,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":134}],59:[function(require,module,exports){
+},{"../geracao-identificadores":127}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstanteOuVariavel = void 0;
@@ -9098,7 +6283,7 @@ class ConstanteOuVariavel {
 }
 exports.ConstanteOuVariavel = ConstanteOuVariavel;
 
-},{}],60:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constante = void 0;
@@ -9117,11 +6302,11 @@ class Constante {
 }
 exports.Constante = Constante;
 
-},{}],61:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],62:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Decorador = void 0;
@@ -9142,7 +6327,7 @@ class Decorador {
 }
 exports.Decorador = Decorador;
 
-},{}],63:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
@@ -9160,7 +6345,7 @@ class DefinirValor {
 }
 exports.DefinirValor = DefinirValor;
 
-},{}],64:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
@@ -9177,7 +6362,7 @@ class Dicionario {
 }
 exports.Dicionario = Dicionario;
 
-},{}],65:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpressaoRegular = void 0;
@@ -9194,7 +6379,7 @@ class ExpressaoRegular {
 }
 exports.ExpressaoRegular = ExpressaoRegular;
 
-},{}],66:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FimPara = void 0;
@@ -9221,7 +6406,7 @@ class FimPara {
 }
 exports.FimPara = FimPara;
 
-},{}],67:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatacaoEscrita = void 0;
@@ -9244,7 +6429,7 @@ class FormatacaoEscrita {
 }
 exports.FormatacaoEscrita = FormatacaoEscrita;
 
-},{}],68:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
@@ -9262,7 +6447,7 @@ class FuncaoConstruto {
 }
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],69:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9309,7 +6494,7 @@ __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 __exportStar(require("./qual-tipo"), exports);
 
-},{"./acesso-elemento-matriz":50,"./acesso-indice-variavel":51,"./acesso-metodo-ou-propriedade":52,"./agrupamento":53,"./atribuicao-por-indice":54,"./atribuicao-por-indices-matriz":55,"./atribuir":56,"./binario":57,"./chamada":58,"./constante":60,"./constante-ou-variavel":59,"./construto":61,"./decorador":62,"./definir-valor":63,"./dicionario":64,"./expressao-regular":65,"./fim-para":66,"./formatacao-escrita":67,"./funcao":68,"./isto":70,"./literal":71,"./logico":72,"./qual-tipo":73,"./super":74,"./tipo-de":75,"./tuplas":78,"./unario":87,"./variavel":88,"./vetor":89}],70:[function(require,module,exports){
+},{"./acesso-elemento-matriz":43,"./acesso-indice-variavel":44,"./acesso-metodo-ou-propriedade":45,"./agrupamento":46,"./atribuicao-por-indice":47,"./atribuicao-por-indices-matriz":48,"./atribuir":49,"./binario":50,"./chamada":51,"./constante":53,"./constante-ou-variavel":52,"./construto":54,"./decorador":55,"./definir-valor":56,"./dicionario":57,"./expressao-regular":58,"./fim-para":59,"./formatacao-escrita":60,"./funcao":61,"./isto":63,"./literal":64,"./logico":65,"./qual-tipo":66,"./super":67,"./tipo-de":68,"./tuplas":71,"./unario":80,"./variavel":81,"./vetor":82}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -9325,7 +6510,7 @@ class Isto {
 }
 exports.Isto = Isto;
 
-},{}],71:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
@@ -9341,7 +6526,7 @@ class Literal {
 }
 exports.Literal = Literal;
 
-},{}],72:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
@@ -9359,10 +6544,11 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],73:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QualTipo = void 0;
+// TODO: Depreciado. Priorizar `TipoDe`.
 class QualTipo {
     constructor(hashArquivo, simbolo, valor) {
         this.linha = Number(simbolo.linha);
@@ -9376,7 +6562,7 @@ class QualTipo {
 }
 exports.QualTipo = QualTipo;
 
-},{}],74:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
@@ -9393,7 +6579,7 @@ class Super {
 }
 exports.Super = Super;
 
-},{}],75:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoDe = void 0;
@@ -9410,7 +6596,7 @@ class TipoDe {
 }
 exports.TipoDe = TipoDe;
 
-},{}],76:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Deceto = void 0;
@@ -9444,7 +6630,7 @@ class Deceto extends tupla_1.Tupla {
 }
 exports.Deceto = Deceto;
 
-},{"./tupla":86}],77:[function(require,module,exports){
+},{"./tupla":79}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dupla = void 0;
@@ -9458,7 +6644,7 @@ class Dupla extends tupla_1.Tupla {
 }
 exports.Dupla = Dupla;
 
-},{"./tupla":86}],78:[function(require,module,exports){
+},{"./tupla":79}],71:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9527,7 +6713,7 @@ class SeletorTuplas {
 }
 exports.SeletorTuplas = SeletorTuplas;
 
-},{"./deceto":76,"./dupla":77,"./noneto":79,"./octeto":80,"./quarteto":81,"./quinteto":82,"./septeto":83,"./sexteto":84,"./trio":85,"./tupla":86}],79:[function(require,module,exports){
+},{"./deceto":69,"./dupla":70,"./noneto":72,"./octeto":73,"./quarteto":74,"./quinteto":75,"./septeto":76,"./sexteto":77,"./trio":78,"./tupla":79}],72:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Noneto = void 0;
@@ -9554,7 +6740,7 @@ class Noneto extends tupla_1.Tupla {
 }
 exports.Noneto = Noneto;
 
-},{"./tupla":86}],80:[function(require,module,exports){
+},{"./tupla":79}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Octeto = void 0;
@@ -9580,7 +6766,7 @@ class Octeto extends tupla_1.Tupla {
 }
 exports.Octeto = Octeto;
 
-},{"./tupla":86}],81:[function(require,module,exports){
+},{"./tupla":79}],74:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quarteto = void 0;
@@ -9596,7 +6782,7 @@ class Quarteto extends tupla_1.Tupla {
 }
 exports.Quarteto = Quarteto;
 
-},{"./tupla":86}],82:[function(require,module,exports){
+},{"./tupla":79}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quinteto = void 0;
@@ -9613,7 +6799,7 @@ class Quinteto extends tupla_1.Tupla {
 }
 exports.Quinteto = Quinteto;
 
-},{"./tupla":86}],83:[function(require,module,exports){
+},{"./tupla":79}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Septeto = void 0;
@@ -9638,7 +6824,7 @@ class Septeto extends tupla_1.Tupla {
 }
 exports.Septeto = Septeto;
 
-},{"./tupla":86}],84:[function(require,module,exports){
+},{"./tupla":79}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sexteto = void 0;
@@ -9656,7 +6842,7 @@ class Sexteto extends tupla_1.Tupla {
 }
 exports.Sexteto = Sexteto;
 
-},{"./tupla":86}],85:[function(require,module,exports){
+},{"./tupla":79}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trio = void 0;
@@ -9671,7 +6857,7 @@ class Trio extends tupla_1.Tupla {
 }
 exports.Trio = Trio;
 
-},{"./tupla":86}],86:[function(require,module,exports){
+},{"./tupla":79}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tupla = void 0;
@@ -9682,7 +6868,7 @@ class Tupla {
 }
 exports.Tupla = Tupla;
 
-},{}],87:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
@@ -9700,7 +6886,7 @@ class Unario {
 }
 exports.Unario = Unario;
 
-},{}],88:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
@@ -9716,7 +6902,7 @@ class Variavel {
 }
 exports.Variavel = Variavel;
 
-},{}],89:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
@@ -9732,7 +6918,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{}],90:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Aleatorio = void 0;
@@ -9749,7 +6935,7 @@ class Aleatorio extends declaracao_1.Declaracao {
 }
 exports.Aleatorio = Aleatorio;
 
-},{"./declaracao":97}],91:[function(require,module,exports){
+},{"./declaracao":90}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
@@ -9765,7 +6951,7 @@ class Bloco extends declaracao_1.Declaracao {
 }
 exports.Bloco = Bloco;
 
-},{"./declaracao":97}],92:[function(require,module,exports){
+},{"./declaracao":90}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CabecalhoPrograma = void 0;
@@ -9781,7 +6967,7 @@ class CabecalhoPrograma extends declaracao_1.Declaracao {
 }
 exports.CabecalhoPrograma = CabecalhoPrograma;
 
-},{"./declaracao":97}],93:[function(require,module,exports){
+},{"./declaracao":90}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
@@ -9801,7 +6987,7 @@ class Classe extends declaracao_1.Declaracao {
 }
 exports.Classe = Classe;
 
-},{"./declaracao":97}],94:[function(require,module,exports){
+},{"./declaracao":90}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstMultiplo = void 0;
@@ -9822,7 +7008,7 @@ class ConstMultiplo extends declaracao_1.Declaracao {
 }
 exports.ConstMultiplo = ConstMultiplo;
 
-},{"./declaracao":97}],95:[function(require,module,exports){
+},{"./declaracao":90}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Const = void 0;
@@ -9843,7 +7029,7 @@ class Const extends declaracao_1.Declaracao {
 }
 exports.Const = Const;
 
-},{"./declaracao":97}],96:[function(require,module,exports){
+},{"./declaracao":90}],89:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
@@ -9858,7 +7044,7 @@ class Continua extends declaracao_1.Declaracao {
 }
 exports.Continua = Continua;
 
-},{"./declaracao":97}],97:[function(require,module,exports){
+},{"./declaracao":90}],90:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
@@ -9877,7 +7063,7 @@ class Declaracao {
 }
 exports.Declaracao = Declaracao;
 
-},{}],98:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
@@ -9894,7 +7080,7 @@ class Enquanto extends declaracao_1.Declaracao {
 }
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":97}],99:[function(require,module,exports){
+},{"./declaracao":90}],92:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
@@ -9915,7 +7101,7 @@ class Escolha extends declaracao_1.Declaracao {
 }
 exports.Escolha = Escolha;
 
-},{"./declaracao":97}],100:[function(require,module,exports){
+},{"./declaracao":90}],93:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscrevaMesmaLinha = void 0;
@@ -9931,7 +7117,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
 
-},{"./declaracao":97}],101:[function(require,module,exports){
+},{"./declaracao":90}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
@@ -9947,7 +7133,7 @@ class Escreva extends declaracao_1.Declaracao {
 }
 exports.Escreva = Escreva;
 
-},{"./declaracao":97}],102:[function(require,module,exports){
+},{"./declaracao":90}],95:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
@@ -9963,7 +7149,7 @@ class Expressao extends declaracao_1.Declaracao {
 }
 exports.Expressao = Expressao;
 
-},{"./declaracao":97}],103:[function(require,module,exports){
+},{"./declaracao":90}],96:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Falhar = void 0;
@@ -9980,7 +7166,7 @@ class Falhar extends declaracao_1.Declaracao {
 }
 exports.Falhar = Falhar;
 
-},{"./declaracao":97}],104:[function(require,module,exports){
+},{"./declaracao":90}],97:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
@@ -9997,7 +7183,7 @@ class Fazer extends declaracao_1.Declaracao {
 }
 exports.Fazer = Fazer;
 
-},{"./declaracao":97}],105:[function(require,module,exports){
+},{"./declaracao":90}],98:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
@@ -10016,7 +7202,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"./declaracao":97}],106:[function(require,module,exports){
+},{"./declaracao":90}],99:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
@@ -10033,7 +7219,7 @@ class Importar extends declaracao_1.Declaracao {
 }
 exports.Importar = Importar;
 
-},{"./declaracao":97}],107:[function(require,module,exports){
+},{"./declaracao":90}],100:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10082,7 +7268,7 @@ __exportStar(require("./var"), exports);
 __exportStar(require("./var-multiplo"), exports);
 __exportStar(require("./aleatorio"), exports);
 
-},{"./aleatorio":90,"./bloco":91,"./cabecalho-programa":92,"./classe":93,"./const":95,"./const-multiplo":94,"./continua":96,"./declaracao":97,"./enquanto":98,"./escolha":99,"./escreva":101,"./escreva-mesma-linha":100,"./expressao":102,"./falhar":103,"./fazer":104,"./funcao":105,"./importar":106,"./inicio-algoritmo":108,"./leia":110,"./leia-multiplo":109,"./para":112,"./para-cada":111,"./propriedade-classe":113,"./retorna":114,"./se":115,"./sustar":116,"./tendo-como":117,"./tente":118,"./var":120,"./var-multiplo":119}],108:[function(require,module,exports){
+},{"./aleatorio":83,"./bloco":84,"./cabecalho-programa":85,"./classe":86,"./const":88,"./const-multiplo":87,"./continua":89,"./declaracao":90,"./enquanto":91,"./escolha":92,"./escreva":94,"./escreva-mesma-linha":93,"./expressao":95,"./falhar":96,"./fazer":97,"./funcao":98,"./importar":99,"./inicio-algoritmo":101,"./leia":103,"./leia-multiplo":102,"./para":105,"./para-cada":104,"./propriedade-classe":106,"./retorna":107,"./se":108,"./sustar":109,"./tendo-como":110,"./tente":111,"./var":113,"./var-multiplo":112}],101:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InicioAlgoritmo = void 0;
@@ -10097,7 +7283,7 @@ class InicioAlgoritmo extends declaracao_1.Declaracao {
 }
 exports.InicioAlgoritmo = InicioAlgoritmo;
 
-},{"./declaracao":97}],109:[function(require,module,exports){
+},{"./declaracao":90}],102:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeiaMultiplo = void 0;
@@ -10120,7 +7306,7 @@ class LeiaMultiplo extends declaracao_1.Declaracao {
 }
 exports.LeiaMultiplo = LeiaMultiplo;
 
-},{"../geracao-identificadores":134,"./declaracao":97}],110:[function(require,module,exports){
+},{"../geracao-identificadores":127,"./declaracao":90}],103:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -10143,7 +7329,7 @@ class Leia extends declaracao_1.Declaracao {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":134,"./declaracao":97}],111:[function(require,module,exports){
+},{"../geracao-identificadores":127,"./declaracao":90}],104:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
@@ -10162,7 +7348,7 @@ class ParaCada extends declaracao_1.Declaracao {
 }
 exports.ParaCada = ParaCada;
 
-},{"./declaracao":97}],112:[function(require,module,exports){
+},{"./declaracao":90}],105:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
@@ -10188,7 +7374,7 @@ class Para extends declaracao_1.Declaracao {
 }
 exports.Para = Para;
 
-},{"./declaracao":97}],113:[function(require,module,exports){
+},{"./declaracao":90}],106:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropriedadeClasse = void 0;
@@ -10206,7 +7392,7 @@ class PropriedadeClasse extends declaracao_1.Declaracao {
 }
 exports.PropriedadeClasse = PropriedadeClasse;
 
-},{"./declaracao":97}],114:[function(require,module,exports){
+},{"./declaracao":90}],107:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
@@ -10223,7 +7409,7 @@ class Retorna extends declaracao_1.Declaracao {
 }
 exports.Retorna = Retorna;
 
-},{"./declaracao":97}],115:[function(require,module,exports){
+},{"./declaracao":90}],108:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
@@ -10242,7 +7428,7 @@ class Se extends declaracao_1.Declaracao {
 }
 exports.Se = Se;
 
-},{"./declaracao":97}],116:[function(require,module,exports){
+},{"./declaracao":90}],109:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
@@ -10257,7 +7443,7 @@ class Sustar extends declaracao_1.Declaracao {
 }
 exports.Sustar = Sustar;
 
-},{"./declaracao":97}],117:[function(require,module,exports){
+},{"./declaracao":90}],110:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TendoComo = void 0;
@@ -10280,7 +7466,7 @@ class TendoComo extends declaracao_1.Declaracao {
 }
 exports.TendoComo = TendoComo;
 
-},{"./declaracao":97}],118:[function(require,module,exports){
+},{"./declaracao":90}],111:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
@@ -10302,7 +7488,7 @@ class Tente extends declaracao_1.Declaracao {
 }
 exports.Tente = Tente;
 
-},{"./declaracao":97}],119:[function(require,module,exports){
+},{"./declaracao":90}],112:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarMultiplo = void 0;
@@ -10324,7 +7510,7 @@ class VarMultiplo extends declaracao_1.Declaracao {
 }
 exports.VarMultiplo = VarMultiplo;
 
-},{"./declaracao":97}],120:[function(require,module,exports){
+},{"./declaracao":90}],113:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
@@ -10347,7 +7533,7 @@ class Var extends declaracao_1.Declaracao {
 }
 exports.Var = Var;
 
-},{"./declaracao":97}],121:[function(require,module,exports){
+},{"./declaracao":90}],114:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoVariaveis = void 0;
@@ -10368,7 +7554,7 @@ class EspacoVariaveis {
 }
 exports.EspacoVariaveis = EspacoVariaveis;
 
-},{}],122:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -10382,7 +7568,7 @@ class Chamavel {
 }
 exports.Chamavel = Chamavel;
 
-},{}],123:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
@@ -10423,7 +7609,7 @@ class ClassePadrao extends chamavel_1.Chamavel {
 }
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":122}],124:[function(require,module,exports){
+},{"./chamavel":115}],117:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaClasse = void 0;
@@ -10502,7 +7688,7 @@ class DeleguaClasse extends chamavel_1.Chamavel {
 }
 exports.DeleguaClasse = DeleguaClasse;
 
-},{"../excecoes":133,"./chamavel":122,"./objeto-delegua-classe":130}],125:[function(require,module,exports){
+},{"../excecoes":126,"./chamavel":115,"./objeto-delegua-classe":123}],118:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
@@ -10638,7 +7824,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
 }
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../declaracoes":107,"../espaco-variaveis":121,"../interpretador/inferenciador":137,"../quebras":165,"./chamavel":122}],126:[function(require,module,exports){
+},{"../declaracoes":100,"../espaco-variaveis":114,"../interpretador/inferenciador":130,"../quebras":152,"./chamavel":115}],119:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -10673,7 +7859,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
 }
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":122}],127:[function(require,module,exports){
+},{"./chamavel":115}],120:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10700,7 +7886,7 @@ __exportStar(require("./modulo"), exports);
 __exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./objeto-padrao"), exports);
 
-},{"./chamavel":122,"./classe-padrao":123,"./delegua-classe":124,"./delegua-funcao":125,"./funcao-padrao":126,"./metodo-primitiva":128,"./modulo":129,"./objeto-delegua-classe":130,"./objeto-padrao":131}],128:[function(require,module,exports){
+},{"./chamavel":115,"./classe-padrao":116,"./delegua-classe":117,"./delegua-funcao":118,"./funcao-padrao":119,"./metodo-primitiva":121,"./modulo":122,"./objeto-delegua-classe":123,"./objeto-padrao":124}],121:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
@@ -10742,7 +7928,7 @@ class MetodoPrimitiva extends chamavel_1.Chamavel {
 }
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":122}],129:[function(require,module,exports){
+},{"./chamavel":115}],122:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -10768,7 +7954,7 @@ class DeleguaModulo {
 }
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],130:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -10823,7 +8009,7 @@ class ObjetoDeleguaClasse {
 }
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../excecoes":133}],131:[function(require,module,exports){
+},{"../excecoes":126}],124:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -10857,7 +8043,7 @@ class ObjetoPadrao {
 }
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],132:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
@@ -10872,7 +8058,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],133:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10891,7 +8077,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":132}],134:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":125}],127:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uuidv4 = void 0;
@@ -10916,7 +8102,7 @@ function uuidv4() {
 }
 exports.uuidv4 = uuidv4;
 
-},{}],135:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagnosticoSeveridade = void 0;
@@ -10928,7 +8114,7 @@ var DiagnosticoSeveridade;
     DiagnosticoSeveridade[DiagnosticoSeveridade["SUGESTAO"] = 3] = "SUGESTAO";
 })(DiagnosticoSeveridade = exports.DiagnosticoSeveridade || (exports.DiagnosticoSeveridade = {}));
 
-},{}],136:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -10947,7 +8133,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./diagnostico-analisador-semantico"), exports);
 
-},{"./diagnostico-analisador-semantico":135}],137:[function(require,module,exports){
+},{"./diagnostico-analisador-semantico":128}],130:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.inferirTipoVariavel = void 0;
@@ -10984,7 +8170,7 @@ function inferirTipoVariavel(variavel) {
 }
 exports.inferirTipoVariavel = inferirTipoVariavel;
 
-},{}],138:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -11120,6 +8306,7 @@ class InterpretadorBase {
         }
         return (0, inferenciador_1.inferirTipoVariavel)((tipoDe === null || tipoDe === void 0 ? void 0 : tipoDe.valores) || tipoDe);
     }
+    // TODO: Depreciado. Priorizar `visitarExpressaoTipoDe`.
     async visitarExpressaoQualTipo(expressao) {
         throw new Error('Método não implementado.');
     }
@@ -11521,7 +8708,10 @@ class InterpretadorBase {
                     });
                 }
             }
-            if (entidadeChamada instanceof estruturas_1.Chamavel) {
+            // Por algum motivo misterioso, `entidadeChamada instanceof Chamavel` dá `false` em Liquido, 
+            // mesmo que esteja tudo certo com `DeleguaFuncao`,
+            // então precisamos testar o nome do construtor também.
+            if (entidadeChamada instanceof estruturas_1.Chamavel || entidadeChamada.constructor.name === 'DeleguaFuncao') {
                 const retornoEntidadeChamada = await entidadeChamada.chamar(this, argumentos);
                 return retornoEntidadeChamada;
             }
@@ -12010,11 +9200,11 @@ class InterpretadorBase {
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        if (!(objeto instanceof estruturas_1.ObjetoDeleguaClasse) && objeto.constructor !== Object) {
+        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
         }
         const valor = await this.avaliar(expressao.valor);
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             objeto.definir(expressao.nome, valor);
             return valor;
         }
@@ -12070,9 +9260,18 @@ class InterpretadorBase {
      * @returns O resultado da execução.
      */
     async visitarExpressaoAcessoMetodo(expressao) {
-        const variavelObjeto = await this.avaliar(expressao.objeto);
+        let variavelObjeto = await this.avaliar(expressao.objeto);
+        // Este caso acontece quando há encadeamento de métodos. 
+        // Por exemplo, `objeto1.metodo1().metodo2()`.
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o 
+        // valor dele primeiro.
+        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+            variavelObjeto = variavelObjeto.valor;
+        }
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
+        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido, 
+        // então testamos também o nome do construtor.
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obter(expressao.simbolo) || null;
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -12344,7 +9543,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../avaliador-sintatico":38,"../bibliotecas/biblioteca-global":45,"../bibliotecas/primitivas-dicionario":46,"../bibliotecas/primitivas-numero":47,"../bibliotecas/primitivas-texto":48,"../bibliotecas/primitivas-vetor":49,"../construtos":69,"../espaco-variaveis":121,"../estruturas":127,"../estruturas/metodo-primitiva":128,"../excecoes":133,"../lexador":158,"../quebras":165,"../tipos-de-dados/delegua":166,"../tipos-de-dados/primitivos":167,"../tipos-de-simbolos/delegua":170,"./inferenciador":137,"./pilha-escopos-execucao":139,"_process":370,"browser-process-hrtime":351}],139:[function(require,module,exports){
+},{"../avaliador-sintatico":31,"../bibliotecas/biblioteca-global":38,"../bibliotecas/primitivas-dicionario":39,"../bibliotecas/primitivas-numero":40,"../bibliotecas/primitivas-texto":41,"../bibliotecas/primitivas-vetor":42,"../construtos":62,"../espaco-variaveis":114,"../estruturas":120,"../estruturas/metodo-primitiva":121,"../excecoes":126,"../lexador":145,"../quebras":152,"../tipos-de-dados/delegua":153,"../tipos-de-dados/primitivos":154,"../tipos-de-simbolos/delegua":156,"./inferenciador":130,"./pilha-escopos-execucao":132,"_process":353,"browser-process-hrtime":334}],132:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12577,7 +9776,7 @@ class PilhaEscoposExecucao {
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../estruturas":127,"../excecoes":133,"../lexador":158,"../tipos-de-dados/delegua":166,"./inferenciador":137}],140:[function(require,module,exports){
+},{"../estruturas":120,"../excecoes":126,"../lexador":145,"../tipos-de-dados/delegua":153,"./inferenciador":130}],133:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12594,258 +9793,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./lexador-birl"), exports);
 __exportStar(require("./lexador-egua-classico"), exports);
 __exportStar(require("./lexador-pitugues"), exports);
 __exportStar(require("./lexador-guarani"), exports);
 __exportStar(require("./lexador-mapler"), exports);
 __exportStar(require("./lexador-potigol"), exports);
 __exportStar(require("./lexador-portugol-ipt"), exports);
-__exportStar(require("./lexador-portugol-studio"), exports);
-__exportStar(require("./lexador-visualg"), exports);
 
-},{"./lexador-birl":141,"./lexador-egua-classico":142,"./lexador-guarani":143,"./lexador-mapler":144,"./lexador-pitugues":145,"./lexador-portugol-ipt":146,"./lexador-portugol-studio":147,"./lexador-potigol":148,"./lexador-visualg":149}],141:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LexadorBirl = void 0;
-const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
-const simbolo_1 = require("../simbolo");
-const birl_1 = __importDefault(require("../../tipos-de-simbolos/birl"));
-const birl_2 = require("./palavras-reservadas/birl");
-class LexadorBirl extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
-    adicionarSimbolo(tipo, lexema = '', literal = null) {
-        this.simbolos.push(new simbolo_1.Simbolo(tipo, lexema, literal, this.linha, this.hashArquivo));
-    }
-    proximoIgualA(esperado) {
-        if (this.eFinalDoCodigo()) {
-            return false;
-        }
-        if (this.codigo[this.atual] !== esperado) {
-            return false;
-        }
-        this.atual += 1;
-        return true;
-    }
-    analisarTexto(delimitador) {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
-            this.avancar();
-        }
-        if (this.eFinalDoCodigo()) {
-            this.erros.push({
-                linha: this.linha + 1,
-                caractere: this.simboloAnterior(),
-                mensagem: 'Caractere não finalizado',
-            });
-            return;
-        }
-        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(birl_1.default.TEXTO, valor, valor);
-    }
-    analisarNumero() {
-        while (this.eDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
-            this.avancar();
-            while (this.eDigito(this.simboloAtual())) {
-                this.avancar();
-            }
-        }
-        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(birl_1.default.NUMERO, numeroCompleto, parseFloat(numeroCompleto));
-    }
-    identificarPalavraChave() {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual);
-        const codigoMinusculo = codigo.toLowerCase();
-        const tipo = codigoMinusculo in birl_2.palavrasReservadas ? birl_2.palavrasReservadas[codigoMinusculo] : birl_1.default.IDENTIFICADOR;
-        this.adicionarSimbolo(tipo, codigo, codigo);
-    }
-    analisarToken() {
-        const caractere = this.simboloAtual();
-        switch (caractere) {
-            case ',':
-                this.adicionarSimbolo(birl_1.default.VIRGULA, ',', null);
-                this.avancar();
-                break;
-            case '<':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(birl_1.default.MENOR_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.MENOR);
-                }
-                break;
-            case '>':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(birl_1.default.MAIOR_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.MAIOR);
-                }
-                break;
-            case '(':
-                this.adicionarSimbolo(birl_1.default.PARENTESE_ESQUERDO, '(', null);
-                this.avancar();
-                break;
-            case ')':
-                this.adicionarSimbolo(birl_1.default.PARENTESE_DIREITO, ')', null);
-                this.avancar();
-                break;
-            case '=':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(birl_1.default.IGUAL_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.IGUAL);
-                }
-                break;
-            case '&':
-                this.avancar();
-                if (this.simboloAtual() === '&') {
-                    this.avancar();
-                    this.adicionarSimbolo(birl_1.default.E);
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.PONTEIRO);
-                }
-                break;
-            case '+':
-                this.avancar();
-                if (this.simboloAtual() === '+') {
-                    this.avancar();
-                    this.adicionarSimbolo(birl_1.default.INCREMENTAR);
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.ADICAO);
-                }
-                break;
-            case '-':
-                this.avancar();
-                if (this.simboloAtual() === '-') {
-                    this.avancar();
-                    this.adicionarSimbolo(birl_1.default.DECREMENTAR);
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.SUBTRACAO);
-                }
-                break;
-            case '|':
-                this.avancar();
-                if (this.simboloAtual() === '|') {
-                    this.avancar();
-                    this.adicionarSimbolo(birl_1.default.OU);
-                }
-                else {
-                    this.adicionarSimbolo(birl_1.default.OU);
-                }
-                break;
-            case '*':
-                this.adicionarSimbolo(birl_1.default.MULTIPLICACAO);
-                this.avancar();
-                break;
-            case '/':
-                this.adicionarSimbolo(birl_1.default.DIVISAO);
-                this.avancar();
-                break;
-            case '%':
-                this.adicionarSimbolo(birl_1.default.MODULO);
-                this.avancar();
-                break;
-            case "'":
-                this.analisarTexto("'");
-                this.avancar();
-                break;
-            case '"':
-                this.avancar();
-                this.analisarTexto('"');
-                this.avancar();
-                break;
-            case ';':
-                this.adicionarSimbolo(birl_1.default.PONTO_E_VIRGULA, ';', null);
-                this.avancar();
-                break;
-            case '?':
-                this.adicionarSimbolo(birl_1.default.INTERROGACAO, '?', null);
-                this.avancar();
-                break;
-            case '\n':
-                this.adicionarSimbolo(birl_1.default.QUEBRA_LINHA, null, null);
-                this.avancar();
-                this.linha++;
-                break;
-            case ' ':
-            case '\0':
-            case '\r':
-            case '\t':
-            case '':
-                this.avancar();
-                break;
-            default:
-                if (this.eDigito(caractere))
-                    this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
-                else {
-                    this.erros.push({
-                        linha: this.linha,
-                        caractere: caractere,
-                        mensagem: 'Caractere inesperado.',
-                    });
-                    this.avancar();
-                }
-                break;
-        }
-    }
-    InjetaUmItemDentroDaLista(item, posicao) {
-        let codigoComeco;
-        let codigoPosPosição;
-        for (let i in this.codigo) {
-            if (Number(i) === posicao) {
-                let iterador = Number(i);
-                while (iterador <= this.codigo.length) {
-                    codigoPosPosição.push(this.codigo[iterador]);
-                    iterador += 1;
-                }
-                break;
-            }
-            codigoComeco.push(this.codigo[i]);
-        }
-        return [...codigoComeco, ...codigoPosPosição];
-    }
-    mapear(codigo, hashArquivo = -1) {
-        this.erros = [];
-        this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 1;
-        this.hashArquivo = hashArquivo;
-        this.codigo = codigo.join('\n') || '';
-        this.codigo += '\n';
-        while (!this.eFinalDoCodigo()) {
-            this.inicioSimbolo = this.atual;
-            this.analisarToken();
-        }
-        return {
-            simbolos: this.simbolos,
-            erros: this.erros,
-        };
-    }
-}
-exports.LexadorBirl = LexadorBirl;
-
-},{"../../tipos-de-simbolos/birl":168,"../lexador-base-linha-unica":159,"../simbolo":164,"./palavras-reservadas/birl":150}],142:[function(require,module,exports){
+},{"./lexador-egua-classico":134,"./lexador-guarani":135,"./lexador-mapler":136,"./lexador-pitugues":137,"./lexador-portugol-ipt":138,"./lexador-potigol":139}],134:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13133,7 +10088,7 @@ class LexadorEguaClassico {
 }
 exports.LexadorEguaClassico = LexadorEguaClassico;
 
-},{"../../tipos-de-simbolos/egua-classico":171,"../simbolo":164,"./palavras-reservadas/egua-classico":151}],143:[function(require,module,exports){
+},{"../../tipos-de-simbolos/egua-classico":157,"../simbolo":151,"./palavras-reservadas/egua-classico":140}],135:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13248,7 +10203,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
 }
 exports.LexadorGuarani = LexadorGuarani;
 
-},{"../../tipos-de-simbolos/guarani":172,"../lexador-base":160,"./palavras-reservadas/guarani":152}],144:[function(require,module,exports){
+},{"../../tipos-de-simbolos/guarani":158,"../lexador-base":147,"./palavras-reservadas/guarani":141}],136:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13454,7 +10409,7 @@ class LexadorMapler extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorMapler = LexadorMapler;
 
-},{"../../tipos-de-simbolos/mapler":173,"../lexador-base-linha-unica":159,"./palavras-reservadas/mapler":153}],145:[function(require,module,exports){
+},{"../../tipos-de-simbolos/mapler":159,"../lexador-base-linha-unica":146,"./palavras-reservadas/mapler":142}],137:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13854,7 +10809,7 @@ class LexadorPitugues {
 }
 exports.LexadorPitugues = LexadorPitugues;
 
-},{"../../tipos-de-simbolos/pitugues":175,"../palavras-reservadas":163,"../simbolo":164,"browser-process-hrtime":351}],146:[function(require,module,exports){
+},{"../../tipos-de-simbolos/pitugues":161,"../palavras-reservadas":150,"../simbolo":151,"browser-process-hrtime":334}],138:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14093,294 +11048,7 @@ class LexadorPortugolIpt {
 }
 exports.LexadorPortugolIpt = LexadorPortugolIpt;
 
-},{"../../tipos-de-simbolos/portugol-ipt":176,"../simbolo":164,"./palavras-reservadas/portugol-ipt":154}],147:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LexadorPortugolStudio = void 0;
-const lexador_base_1 = require("../lexador-base");
-const portugol_studio_1 = require("./palavras-reservadas/portugol-studio");
-const portugol_studio_2 = __importDefault(require("../../tipos-de-simbolos/portugol-studio"));
-/**
- * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
- * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
- * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
- * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- *
- * O Lexador de Portugol Studio possui algumas particularidades:
- * - Aspas simples são para caracteres individuais, e aspas duplas para cadeias de caracteres.
- * - Literais de vetores usam chaves, e não colchetes.
- */
-class LexadorPortugolStudio extends lexador_base_1.LexadorBase {
-    logicaComumCaracteres(delimitador) {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
-            this.avancar();
-        }
-        if (this.eFinalDoCodigo()) {
-            this.erros.push({
-                linha: this.linha + 1,
-                caractere: this.simboloAnterior(),
-                mensagem: 'Cadeia de caracteres não finalizada.',
-            });
-            return;
-        }
-        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
-        return valor;
-    }
-    analisarCaracter() {
-        const valor = this.logicaComumCaracteres("'");
-        this.adicionarSimbolo(portugol_studio_2.default.CARACTER, valor);
-    }
-    analisarTexto() {
-        const valor = this.logicaComumCaracteres('"');
-        this.adicionarSimbolo(portugol_studio_2.default.CADEIA, valor);
-    }
-    analisarNumero() {
-        let real = false;
-        while (this.eDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
-            real = true;
-            this.avancar();
-            while (this.eDigito(this.simboloAtual())) {
-                this.avancar();
-            }
-        }
-        const numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(real ? portugol_studio_2.default.REAL : portugol_studio_2.default.INTEIRO, parseFloat(numeroCompleto));
-    }
-    identificarPalavraChave() {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in portugol_studio_1.palavrasReservadas ? portugol_studio_1.palavrasReservadas[codigo] : portugol_studio_2.default.IDENTIFICADOR;
-        this.adicionarSimbolo(tipo);
-    }
-    analisarToken() {
-        const caractere = this.simboloAtual();
-        switch (caractere) {
-            case '[':
-                this.adicionarSimbolo(portugol_studio_2.default.COLCHETE_ESQUERDO);
-                this.avancar();
-                break;
-            case ']':
-                this.adicionarSimbolo(portugol_studio_2.default.COLCHETE_DIREITO);
-                this.avancar();
-                break;
-            case '(':
-                this.adicionarSimbolo(portugol_studio_2.default.PARENTESE_ESQUERDO);
-                this.avancar();
-                break;
-            case ')':
-                this.adicionarSimbolo(portugol_studio_2.default.PARENTESE_DIREITO);
-                this.avancar();
-                break;
-            case '{':
-                this.adicionarSimbolo(portugol_studio_2.default.CHAVE_ESQUERDA);
-                this.avancar();
-                break;
-            case '}':
-                this.adicionarSimbolo(portugol_studio_2.default.CHAVE_DIREITA);
-                this.avancar();
-                break;
-            case ',':
-                this.adicionarSimbolo(portugol_studio_2.default.VIRGULA);
-                this.avancar();
-                break;
-            case '.':
-                this.adicionarSimbolo(portugol_studio_2.default.PONTO);
-                this.avancar();
-                break;
-            case '-':
-                this.inicioSimbolo = this.atual;
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.MENOS_IGUAL);
-                    this.avancar();
-                }
-                else if (this.simboloAtual() === '-') {
-                    this.adicionarSimbolo(portugol_studio_2.default.DECREMENTAR);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.SUBTRACAO);
-                }
-                break;
-            case '+':
-                this.inicioSimbolo = this.atual;
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.MAIS_IGUAL);
-                    this.avancar();
-                }
-                else if (this.simboloAtual() === '+') {
-                    this.adicionarSimbolo(portugol_studio_2.default.INCREMENTAR);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.ADICAO);
-                }
-                break;
-            case ':':
-                this.adicionarSimbolo(portugol_studio_2.default.DOIS_PONTOS);
-                this.avancar();
-                break;
-            case '%':
-                this.adicionarSimbolo(portugol_studio_2.default.MODULO);
-                this.avancar();
-                break;
-            case '*':
-                this.inicioSimbolo = this.atual;
-                this.avancar();
-                switch (this.simboloAtual()) {
-                    case '=':
-                        this.avancar();
-                        this.adicionarSimbolo(portugol_studio_2.default.MULTIPLICACAO_IGUAL);
-                        break;
-                    default:
-                        this.adicionarSimbolo(portugol_studio_2.default.MULTIPLICACAO);
-                        break;
-                }
-                break;
-            case '!':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.DIFERENTE);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.NEGACAO);
-                }
-                break;
-            case '=':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.IGUAL_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.IGUAL);
-                }
-                break;
-            /* case '&':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_AND);
-                this.avancar();
-                break;
-
-            case '~':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_NOT);
-                this.avancar();
-                break;
-
-            case '|':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_OR);
-                this.avancar();
-                break;
-
-            case '^':
-                this.adicionarSimbolo(tiposDeSimbolos.BIT_XOR);
-                this.avancar();
-                break; */
-            case '<':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.MENOR_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.MENOR);
-                }
-                break;
-            case '>':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(portugol_studio_2.default.MAIOR_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(portugol_studio_2.default.MAIOR);
-                }
-                break;
-            case '/':
-                this.avancar();
-                switch (this.simboloAtual()) {
-                    case '/':
-                        this.avancarParaProximaLinha();
-                        break;
-                    case '*':
-                        this.encontrarFimComentarioAsterisco();
-                        break;
-                    case '=':
-                        this.adicionarSimbolo(portugol_studio_2.default.DIVISAO_IGUAL);
-                        this.avancar();
-                        break;
-                    default:
-                        this.adicionarSimbolo(portugol_studio_2.default.DIVISAO);
-                        break;
-                }
-                break;
-            // Esta sessão ignora espaços em branco na tokenização.
-            // Ponto-e-vírgula é opcional em Delégua, então pode apenas ser ignorado.
-            case ' ':
-            case '\0':
-            case '\r':
-            case '\t':
-            case ';':
-                this.avancar();
-                break;
-            case '"':
-                this.avancar();
-                this.analisarTexto();
-                this.avancar();
-                break;
-            case "'":
-                this.avancar();
-                this.analisarCaracter();
-                this.avancar();
-                break;
-            default:
-                if (this.eDigito(caractere))
-                    this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
-                else {
-                    this.erros.push({
-                        linha: this.linha + 1,
-                        caractere: caractere,
-                        mensagem: 'Caractere inesperado.',
-                    });
-                    this.avancar();
-                }
-        }
-    }
-    mapear(codigo, hashArquivo) {
-        this.erros = [];
-        this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 0;
-        this.codigo = codigo || [''];
-        this.hashArquivo = hashArquivo;
-        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
-            this.codigo[iterador] += '\0';
-        }
-        while (!this.eFinalDoCodigo()) {
-            this.inicioSimbolo = this.atual;
-            this.analisarToken();
-        }
-        return {
-            simbolos: this.simbolos,
-            erros: this.erros,
-        };
-    }
-}
-exports.LexadorPortugolStudio = LexadorPortugolStudio;
-
-},{"../../tipos-de-simbolos/portugol-studio":177,"../lexador-base":160,"./palavras-reservadas/portugol-studio":155}],148:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-ipt":162,"../simbolo":151,"./palavras-reservadas/portugol-ipt":143}],139:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14676,300 +11344,7 @@ class LexadorPotigol extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
 }
 exports.LexadorPotigol = LexadorPotigol;
 
-},{"../../tipos-de-simbolos/potigol":178,"../lexador-base-linha-unica":159,"./palavras-reservadas/potigol":156}],149:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LexadorVisuAlg = void 0;
-const lexador_base_linha_unica_1 = require("../lexador-base-linha-unica");
-const visualg_1 = __importDefault(require("../../tipos-de-simbolos/visualg"));
-const visualg_2 = require("./palavras-reservadas/visualg");
-const dicionarioBibliotecaGlobal = {
-    int: 'inteiro',
-};
-/**
- * O Lexador do VisuAlg é de linha única porque não possui comentários
- * multilinha na especificação.
- */
-class LexadorVisuAlg extends lexador_base_linha_unica_1.LexadorBaseLinhaUnica {
-    analisarNumero() {
-        while (this.eDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
-            this.avancar();
-            while (this.eDigito(this.simboloAtual())) {
-                this.avancar();
-            }
-        }
-        const numeroCompleto = this.codigo.substring(this.inicioSimbolo, this.atual);
-        this.adicionarSimbolo(visualg_1.default.NUMERO, parseFloat(numeroCompleto));
-    }
-    analisarTexto(delimitador) {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
-            this.avancar();
-        }
-        if (this.eFinalDoCodigo()) {
-            this.erros.push({
-                linha: this.linha + 1,
-                caractere: this.simboloAnterior(),
-                mensagem: 'Caractere não finalizado.',
-            });
-            return;
-        }
-        const valor = this.codigo.substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(visualg_1.default.CARACTERE, valor);
-    }
-    /**
-     * Identificação de palavra-chave.
-     * Palavras-chaves em VisuAlg não são sensíveis a tamanho de caixa
-     * (caracteres maiúsculos e minúsculos são equivalentes).
-     */
-    identificarPalavraChave() {
-        while (this.eAlfabetoOuDigito(this.simboloAtual())) {
-            this.avancar();
-        }
-        const codigo = this.codigo.substring(this.inicioSimbolo, this.atual).toLowerCase();
-        if (codigo in visualg_2.palavrasReservadas) {
-            this.adicionarSimbolo(visualg_2.palavrasReservadas[codigo], dicionarioBibliotecaGlobal.hasOwnProperty(codigo) ? dicionarioBibliotecaGlobal[codigo] : codigo);
-        }
-        else {
-            this.adicionarSimbolo(visualg_1.default.IDENTIFICADOR, codigo);
-        }
-    }
-    analisarToken() {
-        const caractere = this.simboloAtual();
-        switch (caractere) {
-            case '(':
-                this.adicionarSimbolo(visualg_1.default.PARENTESE_ESQUERDO);
-                this.avancar();
-                break;
-            case ')':
-                this.adicionarSimbolo(visualg_1.default.PARENTESE_DIREITO);
-                this.avancar();
-                break;
-            case '[':
-                this.adicionarSimbolo(visualg_1.default.COLCHETE_ESQUERDO);
-                this.avancar();
-                break;
-            case ']':
-                this.adicionarSimbolo(visualg_1.default.COLCHETE_DIREITO);
-                this.avancar();
-                break;
-            case ':':
-                this.inicioSimbolo = this.atual;
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(visualg_1.default.SETA_ATRIBUICAO);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(visualg_1.default.DOIS_PONTOS);
-                }
-                break;
-            case '<':
-                this.avancar();
-                switch (this.simboloAtual()) {
-                    case '-':
-                        this.adicionarSimbolo(visualg_1.default.SETA_ATRIBUICAO);
-                        this.avancar();
-                        break;
-                    case '=':
-                        this.adicionarSimbolo(visualg_1.default.MENOR_IGUAL);
-                        this.avancar();
-                        break;
-                    case '>':
-                        this.adicionarSimbolo(visualg_1.default.DIFERENTE);
-                        this.avancar();
-                        break;
-                    default:
-                        this.adicionarSimbolo(visualg_1.default.MENOR);
-                        break;
-                }
-                break;
-            case '>':
-                this.avancar();
-                if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(visualg_1.default.MAIOR_IGUAL);
-                    this.avancar();
-                }
-                else {
-                    this.adicionarSimbolo(visualg_1.default.MAIOR);
-                }
-                break;
-            case '=':
-                this.adicionarSimbolo(visualg_1.default.IGUAL);
-                this.avancar();
-                break;
-            case ',':
-                this.adicionarSimbolo(visualg_1.default.VIRGULA);
-                this.avancar();
-                break;
-            case '.':
-                this.adicionarSimbolo(visualg_1.default.PONTO);
-                this.avancar();
-                break;
-            case '-':
-                this.adicionarSimbolo(visualg_1.default.SUBTRACAO);
-                this.avancar();
-                break;
-            case '+':
-                this.adicionarSimbolo(visualg_1.default.ADICAO);
-                this.avancar();
-                break;
-            case '%':
-                this.adicionarSimbolo(visualg_1.default.MODULO);
-                this.avancar();
-                break;
-            case '*':
-                this.adicionarSimbolo(visualg_1.default.MULTIPLICACAO);
-                this.avancar();
-                break;
-            case '^':
-                this.adicionarSimbolo(visualg_1.default.EXPONENCIACAO);
-                this.avancar();
-                break;
-            case '/':
-                this.avancar();
-                switch (this.simboloAtual()) {
-                    case '/':
-                        while (this.simboloAtual() != '\n' && !this.eFinalDoCodigo())
-                            this.avancar();
-                        break;
-                    default:
-                        this.adicionarSimbolo(visualg_1.default.DIVISAO);
-                        break;
-                }
-                break;
-            case '\\':
-                this.adicionarSimbolo(visualg_1.default.DIVISAO_INTEIRA);
-                this.avancar();
-                break;
-            // Esta sessão ignora espaços em branco na tokenização.
-            // Ponto-e-vírgula é opcional em VisuAlg, então pode apenas ser ignorado.
-            case ' ':
-            case '\0':
-            case '\r':
-            case '\t':
-            case ';':
-                this.avancar();
-                break;
-            case '\n':
-                this.adicionarSimbolo(visualg_1.default.QUEBRA_LINHA);
-                this.linha++;
-                this.avancar();
-                break;
-            case '"':
-                this.avancar();
-                this.analisarTexto('"');
-                this.avancar();
-                break;
-            default:
-                if (this.eDigito(caractere))
-                    this.analisarNumero();
-                else if (this.eAlfabeto(caractere))
-                    this.identificarPalavraChave();
-                else {
-                    this.erros.push({
-                        linha: this.linha + 1,
-                        caractere: caractere,
-                        mensagem: 'Caractere inesperado.',
-                    });
-                    this.avancar();
-                }
-        }
-    }
-    mapear(codigo, hashArquivo) {
-        this.erros = [];
-        this.simbolos = [];
-        this.inicioSimbolo = 0;
-        this.atual = 0;
-        this.linha = 0;
-        // Em VisuAlg, quebras de linha são relevantes na avaliação sintática.
-        // Portanto, o Lexador precisa trabalhar com uma linha só.
-        this.codigo = codigo.join('\n') || '';
-        this.hashArquivo = hashArquivo;
-        while (!this.eFinalDoCodigo()) {
-            this.inicioSimbolo = this.atual;
-            this.analisarToken();
-        }
-        return {
-            simbolos: this.simbolos,
-            erros: this.erros,
-        };
-    }
-}
-exports.LexadorVisuAlg = LexadorVisuAlg;
-
-},{"../../tipos-de-simbolos/visualg":179,"../lexador-base-linha-unica":159,"./palavras-reservadas/visualg":157}],150:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.palavrasReservadas = void 0;
-const birl_1 = __importDefault(require("../../../tipos-de-simbolos/birl"));
-exports.palavrasReservadas = {
-    // HORA_DO_SHOW: tiposDeSimbolos.HORA_DO_SHOW,
-    // BIRL: tiposDeSimbolos.BIRL,
-    // QUE_QUE_CE_QUER_MONSTRAO: tiposDeSimbolos.QUE_QUE_CE_QUER_MONSTRAO,
-    // ELE_QUE_A_GENTE_QUER: tiposDeSimbolos.ELE_QUE_A_GENTE_QUER,
-    // NAO_VAI_DAR_NAO: tiposDeSimbolos.NAO_VAI_DAR_NAO,
-    // QUE_NAO_VAI_DAR_O_QUE: tiposDeSimbolos.QUE_NAO_VAI_DAR_O_QUE,
-    // NEGATIVA_BAMBAM: tiposDeSimbolos.NEGATIVA_BAMBAM,
-    // MAIS_QUERO_MAIS: tiposDeSimbolos.MAIS_QUERO_MAIS,
-    // VAMO_MONSTRO: tiposDeSimbolos.VAMO_MONSTRO,
-    // SAI_FILHO_DA_PUTA: tiposDeSimbolos.SAI_FILHO_DA_PUTA,
-    // OH_O_HOME_AI_PO: tiposDeSimbolos.OH_O_HOME_AI_PO,
-    // AJUDA_O_MALUCO_TA_DOENTE: tiposDeSimbolos.AJUDA_O_MALUCO_TA_DOENTE,
-    a: birl_1.default.A,
-    ai: birl_1.default.AI,
-    ajuda: birl_1.default.AJUDA,
-    bambam: birl_1.default.BAMBAM,
-    birl: birl_1.default.BIRL,
-    bora: birl_1.default.BORA,
-    biceps: birl_1.default.BICEPS,
-    ce: birl_1.default.CE,
-    cumpade: birl_1.default.CUMPADE,
-    da: birl_1.default.DA,
-    dar: birl_1.default.DAR,
-    do: birl_1.default.DO,
-    doente: birl_1.default.DOENTE,
-    descendente: birl_1.default.DESCENDENTE,
-    ele: birl_1.default.ELE,
-    essa: birl_1.default.ESSA,
-    filho: birl_1.default.FILHO,
-    frango: birl_1.default.FRANGO,
-    gente: birl_1.default.GENTE,
-    home: birl_1.default.HOME,
-    hora: birl_1.default.HORA,
-    mais: birl_1.default.MAIS,
-    maluco: birl_1.default.MALUCO,
-    monstrao: birl_1.default.MONSTRAO,
-    monstro: birl_1.default.MONSTRO,
-    monstrinho: birl_1.default.MONSTRINHO,
-    nao: birl_1.default.NAO,
-    negativa: birl_1.default.NEGATIVA,
-    o: birl_1.default.O,
-    oh: birl_1.default.OH,
-    po: birl_1.default.PO,
-    porra: birl_1.default.PORRA,
-    puta: birl_1.default.PUTA,
-    que: birl_1.default.QUE,
-    quer: birl_1.default.QUER,
-    quero: birl_1.default.QUERO,
-    sai: birl_1.default.SAI,
-    show: birl_1.default.SHOW,
-    ta: birl_1.default.TA,
-    vai: birl_1.default.VAI,
-    vamo: birl_1.default.VAMO,
-    ver: birl_1.default.VER,
-    trapezio: birl_1.default.TRAPEZIO,
-};
-
-},{"../../../tipos-de-simbolos/birl":168}],151:[function(require,module,exports){
+},{"../../tipos-de-simbolos/potigol":163,"../lexador-base-linha-unica":146,"./palavras-reservadas/potigol":144}],140:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15010,7 +11385,7 @@ exports.palavrasReservadas = {
     verdadeiro: egua_classico_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/egua-classico":171}],152:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/egua-classico":157}],141:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15022,7 +11397,7 @@ exports.palavrasReservadas = {
     hai: guarani_1.default.HAI,
 };
 
-},{"../../../tipos-de-simbolos/guarani":172}],153:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/guarani":158}],142:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15061,7 +11436,7 @@ exports.palavrasReservadas = {
     vetor: mapler_1.default.VETOR,
 };
 
-},{"../../../tipos-de-simbolos/mapler":173}],154:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/mapler":159}],143:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15083,44 +11458,7 @@ exports.palavrasReservadas = {
     senão: portugol_ipt_1.default.SENAO,
 };
 
-},{"../../../tipos-de-simbolos/portugol-ipt":176}],155:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.palavrasReservadas = void 0;
-const portugol_studio_1 = __importDefault(require("../../../tipos-de-simbolos/portugol-studio"));
-exports.palavrasReservadas = {
-    cadeia: portugol_studio_1.default.CADEIA,
-    caracter: portugol_studio_1.default.CARACTER,
-    caso: portugol_studio_1.default.CASO,
-    const: portugol_studio_1.default.CONSTANTE,
-    contrario: portugol_studio_1.default.CONTRARIO,
-    enquanto: portugol_studio_1.default.ENQUANTO,
-    escolha: portugol_studio_1.default.ESCOLHA,
-    escreva: portugol_studio_1.default.ESCREVA,
-    e: portugol_studio_1.default.E,
-    faca: portugol_studio_1.default.FACA,
-    falso: portugol_studio_1.default.FALSO,
-    funcao: portugol_studio_1.default.FUNCAO,
-    inteiro: portugol_studio_1.default.INTEIRO,
-    leia: portugol_studio_1.default.LEIA,
-    logico: portugol_studio_1.default.LOGICO,
-    nao: portugol_studio_1.default.NEGACAO,
-    ou: portugol_studio_1.default.OU,
-    para: portugol_studio_1.default.PARA,
-    pare: portugol_studio_1.default.PARE,
-    programa: portugol_studio_1.default.PROGRAMA,
-    real: portugol_studio_1.default.REAL,
-    retorne: portugol_studio_1.default.RETORNE,
-    se: portugol_studio_1.default.SE,
-    senao: portugol_studio_1.default.SENAO,
-    vazio: portugol_studio_1.default.VAZIO,
-    verdadeiro: portugol_studio_1.default.VERDADEIRO,
-};
-
-},{"../../../tipos-de-simbolos/portugol-studio":177}],156:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-ipt":162}],144:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15173,90 +11511,7 @@ exports.palavrasReservadas = {
     qual_tipo: potigol_1.default.QUAL_TIPO,
 };
 
-},{"../../../tipos-de-simbolos/potigol":178}],157:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.palavrasReservadas = void 0;
-const visualg_1 = __importDefault(require("../../../tipos-de-simbolos/visualg"));
-exports.palavrasReservadas = {
-    abs: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    algoritmo: visualg_1.default.ALGORITMO,
-    aleatorio: visualg_1.default.ALEATORIO,
-    arccos: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    arcsen: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    arctan: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    ate: visualg_1.default.ATE,
-    até: visualg_1.default.ATÉ,
-    caracter: visualg_1.default.CARACTER,
-    caractere: visualg_1.default.CARACTERE,
-    caso: visualg_1.default.CASO,
-    cos: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    cotan: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    de: visualg_1.default.DE,
-    e: visualg_1.default.E,
-    enquanto: visualg_1.default.ENQUANTO,
-    entao: visualg_1.default.ENTAO,
-    então: visualg_1.default.ENTÃO,
-    escolha: visualg_1.default.ESCOLHA,
-    escreva: visualg_1.default.ESCREVA,
-    escreval: visualg_1.default.ESCREVA_LINHA,
-    exp: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    faca: visualg_1.default.FACA,
-    faça: visualg_1.default.FAÇA,
-    falso: visualg_1.default.FALSO,
-    fimalgoritmo: visualg_1.default.FIM_ALGORITMO,
-    fimenquanto: visualg_1.default.FIM_ENQUANTO,
-    fimescolha: visualg_1.default.FIM_ESCOLHA,
-    fimfuncao: visualg_1.default.FIM_FUNCAO,
-    fimfunção: visualg_1.default.FIM_FUNÇÃO,
-    fimpara: visualg_1.default.FIM_PARA,
-    fimprocedimento: visualg_1.default.FIM_PROCEDIMENTO,
-    fimrepita: visualg_1.default.FIM_REPITA,
-    fimse: visualg_1.default.FIM_SE,
-    funcao: visualg_1.default.FUNCAO,
-    função: visualg_1.default.FUNÇÃO,
-    grauprad: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    inicio: visualg_1.default.INICIO,
-    int: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    inteiro: visualg_1.default.INTEIRO,
-    interrompa: visualg_1.default.INTERROMPA,
-    leia: visualg_1.default.LEIA,
-    limpatela: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    log: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    logn: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    logico: visualg_1.default.LOGICO,
-    nao: visualg_1.default.NEGACAO,
-    on: visualg_1.default.ON,
-    off: visualg_1.default.OFF,
-    ou: visualg_1.default.OU,
-    outrocaso: visualg_1.default.OUTRO_CASO,
-    para: visualg_1.default.PARA,
-    passo: visualg_1.default.PASSO,
-    pi: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    procedimento: visualg_1.default.PROCEDIMENTO,
-    quad: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    radpgrau: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    raizq: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    rand: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    randi: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    real: visualg_1.default.REAL,
-    repita: visualg_1.default.REPITA,
-    retorne: visualg_1.default.RETORNE,
-    se: visualg_1.default.SE,
-    sen: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    senao: visualg_1.default.SENAO,
-    senão: visualg_1.default.SENÃO,
-    tan: visualg_1.default.METODO_BIBLIOTECA_GLOBAL,
-    var: visualg_1.default.VAR,
-    verdadeiro: visualg_1.default.VERDADEIRO,
-    vetor: visualg_1.default.VETOR,
-    xou: visualg_1.default.XOU,
-};
-
-},{"../../../tipos-de-simbolos/visualg":179}],158:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/potigol":163}],145:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15278,7 +11533,7 @@ __exportStar(require("./lexador-base-linha-unica"), exports);
 __exportStar(require("./micro-lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./lexador":161,"./lexador-base-linha-unica":159,"./micro-lexador":162,"./simbolo":164}],159:[function(require,module,exports){
+},{"./lexador":148,"./lexador-base-linha-unica":146,"./micro-lexador":149,"./simbolo":151}],146:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBaseLinhaUnica = void 0;
@@ -15362,7 +11617,7 @@ class LexadorBaseLinhaUnica {
 }
 exports.LexadorBaseLinhaUnica = LexadorBaseLinhaUnica;
 
-},{"./simbolo":164}],160:[function(require,module,exports){
+},{"./simbolo":151}],147:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBase = void 0;
@@ -15476,7 +11731,7 @@ class LexadorBase {
 }
 exports.LexadorBase = LexadorBase;
 
-},{"./simbolo":164}],161:[function(require,module,exports){
+},{"./simbolo":151}],148:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15900,7 +12155,7 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":170,"./palavras-reservadas":163,"./simbolo":164,"browser-process-hrtime":351}],162:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":156,"./palavras-reservadas":150,"./simbolo":151,"browser-process-hrtime":334}],149:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -16109,7 +12364,7 @@ class MicroLexador {
 }
 exports.MicroLexador = MicroLexador;
 
-},{"../tipos-de-simbolos/microgramaticas/delegua":174,"./palavras-reservadas":163,"./simbolo":164}],163:[function(require,module,exports){
+},{"../tipos-de-simbolos/microgramaticas/delegua":160,"./palavras-reservadas":150,"./simbolo":151}],150:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -16172,7 +12427,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
-},{"../tipos-de-simbolos/delegua":170}],164:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":156}],151:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -16190,7 +12445,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],165:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -16211,7 +12466,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],166:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16232,7 +12487,7 @@ exports.default = {
     VETOR: 'vetor',
 };
 
-},{}],167:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16251,106 +12506,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],168:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
-    // Palavras reservadas
-    A: 'A',
-    AI: 'AI',
-    AJUDA: 'AJUDA',
-    BAMBAM: 'BAMBAM',
-    BIRL: 'BIRL',
-    BORA: 'BORA',
-    BICEPS: 'BICEPS',
-    BIT_AND: 'BIT_AND',
-    BIT_XOR: 'BIT_XOR',
-    BIT_NOT: 'BIT_NOT',
-    BIT_OR: 'BIT_OR',
-    CE: 'CE',
-    CUMPADE: 'CUMPADE',
-    DA: 'DA',
-    DAR: 'DAR',
-    DO: 'DO',
-    DOENTE: 'DOENTE',
-    DIVISAO_IGUAL: 'DIVISAO_IGUAL',
-    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
-    DIFERENTE: 'DIFERENTE',
-    DIVISAO_INTEIRA_IGUAL: 'DIVISAO_INTEIRA_IGUAL',
-    DESCENDENTE: 'DESCENDENTE',
-    DECREMENTAR: 'DECREMENTAR',
-    E: 'E',
-    ELE: 'ELE',
-    EM: 'EM',
-    ESSA: 'ESSA',
-    EXPONENCIACAO: 'EXPONENCIACAO',
-    FRANGAO: 'FRANGAO',
-    FRANGÃO: 'FRANGÃO',
-    FRANGO: 'FRANGO',
-    FILHO: 'FILHO',
-    GENTE: 'GENTE',
-    HOME: 'HOME',
-    HORA: 'HORA',
-    INCREMENTAR: 'INCREMENTAR',
-    MAIS: 'MAIS',
-    MALUCO: 'MALUCO',
-    MENOR_MENOR: 'MENOR_MENOR',
-    MAIOR_MAIOR: 'MAIOR_MAIOR',
-    MENOS_IGUAL: 'MENOS_IGUAL',
-    MAIS_IGUAL: 'MAIS_IGUAL',
-    MONSTRAO: 'MONSTRAO',
-    MONSTRO: 'MONSTRO',
-    MODULO_IGUAL: 'MODULO_IGUAL',
-    MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
-    MONSTRINHO: 'MONSTRINHO',
-    TRAPEZIO: 'TRAPEZIO',
-    NAO: 'NAO',
-    NEGATIVA: 'NEGATIVA',
-    NEGACAO: 'NEGACAO',
-    O: 'O',
-    OU: 'OU',
-    OH: 'OH',
-    PO: 'PO',
-    PORRA: 'PORRA',
-    PUTA: 'PUTA',
-    QUE: 'QUE',
-    QUER: 'QUER',
-    QUERO: 'QUERO',
-    SAI: 'SAI',
-    SHOW: 'SHOW',
-    TA: 'TA',
-    VAI: 'VAI',
-    VAMO: 'VAMO',
-    VER: 'VER',
-    // Símbolos de propósito geral
-    IGUAL: 'IGUAL',
-    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
-    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
-    PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
-    QUEBRA_LINHA: 'QUEBRA_LINHA',
-    INTERROGACAO: 'INTERROGACAO',
-    VIRGULA: 'VIRGULA',
-    // Operações matemáticas
-    ADICAO: 'ADICAO',
-    SUBTRACAO: 'SUBTRACAO',
-    MULTIPLICACAO: 'MULTIPLICACAO',
-    DIVISAO: 'DIVISAO',
-    MODULO: 'MODULO',
-    // Comparadores
-    IGUAL_IGUAL: 'IGUAL_IGUAL',
-    MAIOR: 'MAIOR',
-    MAIOR_IGUAL: 'MAIOR_IGUAL',
-    MENOR: 'MENOR',
-    MENOR_IGUAL: 'MENOR_IGUAL',
-    // Tipos de dados
-    TEXTO: 'TEXTO',
-    NUMERO: 'NUMERO',
-    IDENTIFICADOR: 'IDENTIFICADOR',
-    // SINTAXE BIRL
-    PONTEIRO: 'PONTEIRO',
-};
-
-},{}],169:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16376,7 +12532,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],170:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16468,7 +12624,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],171:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16546,7 +12702,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],172:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16563,7 +12719,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],173:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16621,7 +12777,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],174:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16670,7 +12826,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],175:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16748,7 +12904,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],176:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16787,69 +12943,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],177:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
-    ADICAO: 'ADICAO',
-    CADEIA: 'CADEIA',
-    CARACTER: 'CARACTER',
-    CASO: 'CASO',
-    CHAVE_ESQUERDA: 'CHAVE_ESQUERDA',
-    CHAVE_DIREITA: 'CHAVE_DIREITA',
-    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
-    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
-    CONSTANTE: 'CONSTANTE',
-    CONTRARIO: 'CONTRARIO',
-    DECREMENTAR: 'DECREMENTAR',
-    DIFERENTE: 'DIFERENTE',
-    DIVISAO: 'DIVISAO',
-    DIVISAO_IGUAL: 'DIVISAO_IGUAL',
-    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
-    DOIS_PONTOS: 'DOIS_PONTOS',
-    E: 'E',
-    ENQUANTO: 'ENQUANTO',
-    ESCOLHA: 'ESCOLHA',
-    ESCREVA: 'ESCREVA',
-    FACA: 'FACA',
-    FALSO: 'FALSO',
-    FUNCAO: 'FUNCAO',
-    IDENTIFICADOR: 'IDENTIFICADOR',
-    IGUAL: 'IGUAL',
-    IGUAL_IGUAL: 'IGUAL_IGUAL',
-    INCREMENTAR: 'INCREMENTAR',
-    INTEIRO: 'INTEIRO',
-    LEIA: 'LEIA',
-    LOGICO: 'LOGICO',
-    MAIOR: 'MAIOR',
-    MAIOR_IGUAL: 'MAIOR_IGUAL',
-    MAIS_IGUAL: 'MAIS_IGUAL',
-    MENOR: 'MENOR',
-    MENOR_IGUAL: 'MENOR_IGUAL',
-    MENOS_IGUAL: 'MENOS_IGUAL',
-    MODULO: 'MODULO',
-    MULTIPLICACAO: 'MULTIPLICACAO',
-    MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
-    NEGACAO: 'NEGACAO',
-    OU: 'OU',
-    PARA: 'PARA',
-    PARE: 'PARE',
-    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
-    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
-    PONTO: 'PONTO',
-    PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
-    PROGRAMA: 'PROGRAMA',
-    RETORNE: 'RETORNE',
-    REAL: 'REAL',
-    SUBTRACAO: 'SUBTRACAO',
-    VIRGULA: 'VIRGULA',
-    SE: 'SE',
-    SENAO: 'SENAO',
-    VAZIO: 'VAZIO',
-    VERDADEIRO: 'VERDADEIRO',
-};
-
-},{}],178:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -16917,90 +13011,7 @@ exports.default = {
     QUAL_TIPO: 'QUAL_TIPO',
 };
 
-},{}],179:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
-    ADICAO: 'ADICAO',
-    ALGORITMO: 'ALGORITMO',
-    ALEATORIO: 'ALEATORIO',
-    ATE: 'ATE',
-    ATÉ: 'ATÉ',
-    CARACTER: 'CARACTER',
-    CARACTERE: 'CARACTERE',
-    CASO: 'CASO',
-    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
-    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
-    DE: 'DE',
-    DIFERENTE: 'DIFERENTE',
-    DIVISAO: 'DIVISAO',
-    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
-    DOIS_PONTOS: 'DOIS_PONTOS',
-    E: 'E',
-    ENQUANTO: 'ENQUANTO',
-    ENTAO: 'ENTAO',
-    ENTÃO: 'ENTÃO',
-    ESCOLHA: 'ESCOLHA',
-    ESCREVA: 'ESCREVA',
-    ESCREVA_LINHA: 'ESCREVA_LINHA',
-    EXPONENCIACAO: 'EXPONENCIACAO',
-    FACA: 'FACA',
-    FAÇA: 'FAÇA',
-    FALSO: 'FALSO',
-    FIM_ALGORITMO: 'FIM_ALGORITMO',
-    FIM_ENQUANTO: 'FIM_ENQUANTO',
-    FIM_ESCOLHA: 'FIM_ESCOLHA',
-    FIM_FUNCAO: 'FIM_FUNCAO',
-    FIM_FUNÇÃO: 'FIM_FUNÇÃO',
-    FIM_PARA: 'FIM_PARA',
-    FIM_PROCEDIMENTO: 'FIM_PROCEDIMENTO',
-    FIM_REPITA: 'FIM_REPITA',
-    FIM_SE: 'FIM_SE',
-    FUNCAO: 'FUNCAO',
-    FUNÇÃO: 'FUNÇÃO',
-    IDENTIFICADOR: 'IDENTIFICADOR',
-    IGUAL: 'IGUAL',
-    INICIO: 'INICIO',
-    INTEIRO: 'INTEIRO',
-    INTERROMPA: 'INTERROMPA',
-    LEIA: 'LEIA',
-    LOGICO: 'LOGICO',
-    MAIOR: 'MAIOR',
-    MAIOR_IGUAL: 'MAIOR_IGUAL',
-    MENOR: 'MENOR',
-    MENOR_IGUAL: 'MENOR_IGUAL',
-    METODO_BIBLIOTECA_GLOBAL: 'METODO_BIBLIOTECA_GLOBAL',
-    MODULO: 'MODULO',
-    MULTIPLICACAO: 'MULTIPLICACAO',
-    NEGACAO: 'NEGACAO',
-    NUMERO: 'NUMERO',
-    ON: 'ON',
-    OFF: 'OFF',
-    OU: 'OU',
-    OUTRO_CASO: 'OUTRO_CASO',
-    PARA: 'PARA',
-    PASSO: 'PASSO',
-    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
-    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
-    PONTO: 'PONTO',
-    PROCEDIMENTO: 'PROCEDIMENTO',
-    REAL: 'REAL',
-    REPITA: 'REPITA',
-    RETORNE: 'RETORNE',
-    SE: 'SE',
-    SENAO: 'SENAO',
-    SENÃO: 'SENÃO',
-    SETA_ATRIBUICAO: 'SETA_ATRIBUICAO',
-    SUBTRACAO: 'SUBTRACAO',
-    QUEBRA_LINHA: 'QUEBRA_LINHA',
-    VAR: 'VAR',
-    VERDADEIRO: 'VERDADEIRO',
-    VETOR: 'VETOR',
-    VIRGULA: 'VIRGULA',
-    XOU: 'XOU',
-};
-
-},{}],180:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -17023,9 +13034,8 @@ __exportStar(require("./tradutor-portugol-ipt"), exports);
 __exportStar(require("./tradutor-python"), exports);
 __exportStar(require("./tradutor-reverso-javascript"), exports);
 __exportStar(require("./tradutor-reverso-python"), exports);
-__exportStar(require("./tradutor-reverso-visualg"), exports);
 
-},{"./tradutor-assemblyscript":183,"./tradutor-javascript":184,"./tradutor-portugol-ipt":185,"./tradutor-python":186,"./tradutor-reverso-javascript":187,"./tradutor-reverso-python":188,"./tradutor-reverso-visualg":189}],181:[function(require,module,exports){
+},{"./tradutor-assemblyscript":167,"./tradutor-javascript":168,"./tradutor-portugol-ipt":169,"./tradutor-python":170,"./tradutor-reverso-javascript":171,"./tradutor-reverso-python":172}],165:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -18254,7 +14264,7 @@ __decorate([
 ], Python3Lexer.prototype, "nextToken", null);
 exports.Python3Lexer = Python3Lexer;
 
-},{"./python3-parser":182,"antlr4ts/CommonToken":199,"antlr4ts/Decorators":203,"antlr4ts/Lexer":211,"antlr4ts/Token":228,"antlr4ts/VocabularyImpl":234,"antlr4ts/atn/ATNDeserializer":240,"antlr4ts/atn/LexerATNSimulator":261,"antlr4ts/misc/Utils":322}],182:[function(require,module,exports){
+},{"./python3-parser":166,"antlr4ts/CommonToken":182,"antlr4ts/Decorators":186,"antlr4ts/Lexer":194,"antlr4ts/Token":211,"antlr4ts/VocabularyImpl":217,"antlr4ts/atn/ATNDeserializer":223,"antlr4ts/atn/LexerATNSimulator":244,"antlr4ts/misc/Utils":305}],166:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -29482,7 +25492,7 @@ class Yield_argContext extends ParserRuleContext_1.ParserRuleContext {
 }
 exports.Yield_argContext = Yield_argContext;
 
-},{"antlr4ts/FailedPredicateException":207,"antlr4ts/NoViableAltException":215,"antlr4ts/Parser":216,"antlr4ts/ParserRuleContext":219,"antlr4ts/RecognitionException":222,"antlr4ts/Token":228,"antlr4ts/VocabularyImpl":234,"antlr4ts/atn/ATN":236,"antlr4ts/atn/ATNDeserializer":240,"antlr4ts/atn/ParserATNSimulator":277,"antlr4ts/misc/Utils":322}],183:[function(require,module,exports){
+},{"antlr4ts/FailedPredicateException":190,"antlr4ts/NoViableAltException":198,"antlr4ts/Parser":199,"antlr4ts/ParserRuleContext":202,"antlr4ts/RecognitionException":205,"antlr4ts/Token":211,"antlr4ts/VocabularyImpl":217,"antlr4ts/atn/ATN":219,"antlr4ts/atn/ATNDeserializer":223,"antlr4ts/atn/ParserATNSimulator":260,"antlr4ts/misc/Utils":305}],167:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30058,7 +26068,7 @@ class TradutorAssemblyScript {
 }
 exports.TradutorAssemblyScript = TradutorAssemblyScript;
 
-},{"../construtos":69,"../declaracoes":107,"../tipos-de-simbolos/delegua":170}],184:[function(require,module,exports){
+},{"../construtos":62,"../declaracoes":100,"../tipos-de-simbolos/delegua":156}],168:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30617,7 +26627,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":69,"../declaracoes":107,"../tipos-de-simbolos/delegua":170}],185:[function(require,module,exports){
+},{"../construtos":62,"../declaracoes":100,"../tipos-de-simbolos/delegua":156}],169:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorPortugolIpt = void 0;
@@ -30679,7 +26689,7 @@ class TradutorPortugolIpt {
 }
 exports.TradutorPortugolIpt = TradutorPortugolIpt;
 
-},{"../avaliador-sintatico/dialetos":31,"../lexador/dialetos":140}],186:[function(require,module,exports){
+},{"../avaliador-sintatico/dialetos":29,"../lexador/dialetos":133}],170:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31126,7 +27136,7 @@ class TradutorPython {
 }
 exports.TradutorPython = TradutorPython;
 
-},{"../construtos":69,"../declaracoes":107,"../tipos-de-simbolos/delegua":170}],187:[function(require,module,exports){
+},{"../construtos":62,"../declaracoes":100,"../tipos-de-simbolos/delegua":156}],171:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -31520,7 +27530,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{}],188:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoPython = void 0;
@@ -31593,272 +27603,7 @@ class TradutorReversoPython {
 }
 exports.TradutorReversoPython = TradutorReversoPython;
 
-},{"./python/python3-lexer":181,"./python/python3-parser":182,"antlr4ts":305,"antlr4ts/tree/ParseTreeWalker":324}],189:[function(require,module,exports){
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TradutorReversoVisuAlg = void 0;
-const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
-/**
- * Este tradutor reverso traduz de VisuAlg para Delégua.
- */
-class TradutorReversoVisuAlg {
-    constructor() {
-        this.indentacao = 0;
-        this.dicionarioConstrutos = {
-            Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
-            Atribuir: this.traduzirConstrutoAtribuir.bind(this),
-            Binario: this.traduzirConstrutoBinario.bind(this),
-            FimPara: this.traduzirConstrutoFimPara.bind(this),
-            Literal: this.traduzirConstrutoLiteral.bind(this),
-            Logico: this.traduzirConstrutoLogico.bind(this),
-            Variavel: this.traduzirConstrutoVariavel.bind(this),
-        };
-        this.dicionarioDeclaracoes = {
-            Bloco: this.traduzirDeclaracaoBloco.bind(this),
-            CabecalhoPrograma: () => '',
-            EscrevaMesmaLinha: this.traduzirDeclaracaoEscrevaMesmaLinha.bind(this),
-            Escolha: this.traduzirDeclaracaoEscolha.bind(this),
-            Escreva: this.traduzirDeclaracaoEscreva.bind(this),
-            Expressao: this.traduzirDeclaracaoExpressao.bind(this),
-            FimPara: this.traduzirDeclaracaoFimPara.bind(this),
-            InicioAlgoritmo: () => '',
-            Leia: this.traduzirDeclaracaoLeia.bind(this),
-            Para: this.traduzirDeclaracaoPara.bind(this),
-            Se: this.traduzirDeclaracaoSe.bind(this),
-            Var: this.traduzirDeclaracaoVar.bind(this),
-        };
-    }
-    traduzirSimboloOperador(operador) {
-        switch (operador.tipo) {
-            case delegua_1.default.ADICAO:
-                return '+';
-            case delegua_1.default.BIT_AND:
-                return '&';
-            case delegua_1.default.BIT_OR:
-                return '|';
-            case delegua_1.default.BIT_XOR:
-                return '^';
-            case delegua_1.default.BIT_NOT:
-                return '~';
-            case delegua_1.default.DIFERENTE:
-                return '!=';
-            case delegua_1.default.DIVISAO:
-                return '/';
-            case delegua_1.default.E:
-                return 'e';
-            case delegua_1.default.EXPONENCIACAO:
-                return '**';
-            case delegua_1.default.IGUAL:
-                return '=';
-            case delegua_1.default.IGUAL_IGUAL:
-                return '==';
-            case delegua_1.default.MAIOR:
-                return '>';
-            case delegua_1.default.MAIOR_IGUAL:
-                return '>=';
-            case delegua_1.default.MENOR:
-                return '<';
-            case delegua_1.default.MENOR_IGUAL:
-                return '<=';
-            case delegua_1.default.MODULO:
-                return '%';
-            case delegua_1.default.MULTIPLICACAO:
-                return '*';
-            case delegua_1.default.OU:
-                return 'ou';
-            case delegua_1.default.SUBTRACAO:
-                return '-';
-        }
-    }
-    traduzirConstrutoAgrupamento(agrupamento) {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
-    }
-    traduzirConstrutoAtribuir(atribuir) {
-        let resultado = atribuir.simbolo.lexema;
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
-        return resultado;
-    }
-    traduzirConstrutoBinario(binario) {
-        let resultado = '';
-        if (binario.esquerda.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
-        else
-            resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
-        let operador = this.traduzirSimboloOperador(binario.operador);
-        resultado += ` ${operador} `;
-        if (binario.direita.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
-        else
-            resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
-        return resultado;
-    }
-    traduzirConstrutoFimPara(fimPara) {
-        if (fimPara.incremento === null || fimPara.incremento === undefined) {
-            return '';
-        }
-        const expressao = fimPara.incremento;
-        const atribuir = expressao.expressao;
-        const variavel = atribuir.simbolo.lexema;
-        return `${variavel}++`;
-    }
-    traduzirConstrutoLiteral(literal) {
-        if (typeof literal.valor === 'string')
-            return `'${literal.valor}'`;
-        return literal.valor;
-    }
-    traduzirConstrutoVariavel(variavel) {
-        return variavel.simbolo.lexema;
-    }
-    logicaComumBlocoEscopo(declaracoes) {
-        let resultado = '{\n';
-        this.indentacao += 4;
-        if (typeof declaracoes[Symbol.iterator] === 'function') {
-            for (const declaracaoOuConstruto of declaracoes) {
-                resultado += ' '.repeat(this.indentacao);
-                const nomeConstrutor = declaracaoOuConstruto.constructor.name;
-                if (this.dicionarioConstrutos.hasOwnProperty(nomeConstrutor)) {
-                    resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoOuConstruto);
-                }
-                else {
-                    resultado += this.dicionarioDeclaracoes[nomeConstrutor](declaracaoOuConstruto);
-                }
-                resultado += '\n';
-            }
-        }
-        this.indentacao -= 4;
-        resultado += ' '.repeat(this.indentacao) + '}\n';
-        return resultado;
-    }
-    traduzirDeclaracaoBloco(declaracaoBloco) {
-        return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
-    }
-    logicaComumCaminhosEscolha(caminho) {
-        var _a, _b;
-        let resultado = '';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
-        if ((_a = caminho === null || caminho === void 0 ? void 0 : caminho.condicoes) === null || _a === void 0 ? void 0 : _a.length) {
-            for (let condicao of caminho.condicoes) {
-                resultado += 'caso ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
-                resultado += ' '.repeat(this.indentacao);
-            }
-        }
-        if ((_b = caminho === null || caminho === void 0 ? void 0 : caminho.declaracoes) === null || _b === void 0 ? void 0 : _b.length) {
-            for (let declaracao of caminho.declaracoes) {
-                resultado += ' '.repeat(this.indentacao + 4);
-                resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-            }
-            resultado += ' '.repeat(this.indentacao + 4);
-        }
-        this.indentacao -= 4;
-        return resultado;
-    }
-    traduzirDeclaracaoEscolha(declaracaoEscolha) {
-        let resultado = 'escolha (';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoEscolha.identificadorOuLiteral.constructor.name](declaracaoEscolha.identificadorOuLiteral) + ') {\n';
-        for (let caminho of declaracaoEscolha.caminhos) {
-            resultado += this.logicaComumCaminhosEscolha(caminho);
-        }
-        if (declaracaoEscolha.caminhoPadrao) {
-            resultado += ' '.repeat(4);
-            resultado += 'padrao:\n';
-            resultado += this.logicaComumCaminhosEscolha(declaracaoEscolha.caminhoPadrao);
-        }
-        resultado += '}\n';
-        return resultado;
-    }
-    traduzirDeclaracaoEscreva(declaracaoEscreva) {
-        let resultado = 'escreva(';
-        for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.expressao.constructor.name](argumento.expressao);
-            resultado += valor + ', ';
-        }
-        resultado = resultado.slice(0, -2);
-        resultado += ')';
-        return resultado;
-    }
-    traduzirDeclaracaoExpressao(declaracaoExpressao) {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
-    }
-    traduzirDeclaracaoFimPara(declaracaoFimPara) {
-        return this.dicionarioDeclaracoes[declaracaoFimPara.incremento.constructor.name](declaracaoFimPara.incremento);
-    }
-    traduzirDeclaracaoLeia(declaracaoLeia) {
-        let resultado = '';
-        for (const parametro of declaracaoLeia.argumentos) {
-            resultado += `var ${this.dicionarioConstrutos[parametro.constructor.name](parametro)} = leia()\n`;
-        }
-        return resultado;
-    }
-    traduzirDeclaracaoPara(declaracaoPara) {
-        let resultado = 'para (';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoPara.inicializador.constructor.name](declaracaoPara.inicializador) +
-                ' ';
-        resultado += !resultado.includes(';') ? ';' : '';
-        resultado +=
-            this.dicionarioConstrutos[declaracaoPara.condicao.constructor.name](declaracaoPara.condicao) + '; ';
-        resultado +=
-            this.dicionarioDeclaracoes[declaracaoPara.incrementar.constructor.name](declaracaoPara.incrementar) + ') ';
-        resultado += this.dicionarioDeclaracoes[declaracaoPara.corpo.constructor.name](declaracaoPara.corpo);
-        return resultado;
-    }
-    traduzirDeclaracaoSe(declaracaoSe) {
-        let resultado = 'se (';
-        const condicao = this.dicionarioConstrutos[declaracaoSe.condicao.constructor.name](declaracaoSe.condicao);
-        resultado += condicao;
-        resultado += ')';
-        resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoEntao.constructor.name](declaracaoSe.caminhoEntao);
-        if (declaracaoSe.caminhoSenao !== null) {
-            resultado += ' '.repeat(this.indentacao);
-            resultado += 'senao ';
-            resultado += this.dicionarioDeclaracoes[declaracaoSe.caminhoSenao.constructor.name](declaracaoSe.caminhoSenao);
-        }
-        return resultado;
-    }
-    traduzirDeclaracaoVar(declaracaoVar) {
-        let resultado = 'var ';
-        resultado += declaracaoVar.simbolo.lexema;
-        if (!(declaracaoVar === null || declaracaoVar === void 0 ? void 0 : declaracaoVar.inicializador))
-            resultado += ';';
-        else if (Array.isArray(declaracaoVar === null || declaracaoVar === void 0 ? void 0 : declaracaoVar.inicializador.valor))
-            resultado += ' = []';
-        else {
-            resultado += ' = ';
-            if (this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
-            }
-            else {
-                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
-            }
-            resultado += ';';
-        }
-        return resultado;
-    }
-    traduzirDeclaracaoEscrevaMesmaLinha(declaracaoEscreva) {
-        return this.traduzirDeclaracaoEscreva(declaracaoEscreva);
-    }
-    traduzirConstrutoLogico(logico) {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
-        return `${direita} ${operador} ${esquerda}`;
-    }
-    traduzir(declaracoes) {
-        let resultado = '';
-        for (const declaracao of declaracoes) {
-            resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
-        }
-        return resultado;
-    }
-}
-exports.TradutorReversoVisuAlg = TradutorReversoVisuAlg;
-
-},{"../tipos-de-simbolos/delegua":170}],190:[function(require,module,exports){
+},{"./python/python3-lexer":165,"./python/python3-parser":166,"antlr4ts":288,"antlr4ts/tree/ParseTreeWalker":307}],173:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31866,7 +27611,7 @@ exports.TradutorReversoVisuAlg = TradutorReversoVisuAlg;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],191:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -31874,7 +27619,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],192:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32036,7 +27781,7 @@ __decorate([
 ], ANTLRInputStream.prototype, "toString", null);
 exports.ANTLRInputStream = ANTLRInputStream;
 
-},{"./Decorators":203,"./IntStream":209,"assert":346}],193:[function(require,module,exports){
+},{"./Decorators":186,"./IntStream":192,"assert":329}],176:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32119,7 +27864,7 @@ __decorate([
 ], BailErrorStrategy.prototype, "sync", null);
 exports.BailErrorStrategy = BailErrorStrategy;
 
-},{"./Decorators":203,"./DefaultErrorStrategy":204,"./InputMismatchException":208,"./misc/ParseCancellationException":320}],194:[function(require,module,exports){
+},{"./Decorators":186,"./DefaultErrorStrategy":187,"./InputMismatchException":191,"./misc/ParseCancellationException":303}],177:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32609,7 +28354,7 @@ BufferedTokenStream = __decorate([
 ], BufferedTokenStream);
 exports.BufferedTokenStream = BufferedTokenStream;
 
-},{"./CommonToken":199,"./Decorators":203,"./Lexer":211,"./Token":228,"./misc/Interval":315,"assert":346}],195:[function(require,module,exports){
+},{"./CommonToken":182,"./Decorators":186,"./Lexer":194,"./Token":211,"./misc/Interval":298,"assert":329}],178:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32617,7 +28362,7 @@ exports.BufferedTokenStream = BufferedTokenStream;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],196:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32751,7 +28496,7 @@ var CharStreams;
     // }
 })(CharStreams = exports.CharStreams || (exports.CharStreams = {}));
 
-},{"./CodePointBuffer":197,"./CodePointCharStream":198,"./IntStream":209}],197:[function(require,module,exports){
+},{"./CodePointBuffer":180,"./CodePointCharStream":181,"./IntStream":192}],180:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -32986,7 +28731,7 @@ exports.CodePointBuffer = CodePointBuffer;
     CodePointBuffer.Builder = Builder;
 })(CodePointBuffer = exports.CodePointBuffer || (exports.CodePointBuffer = {}));
 
-},{"./misc/Character":311,"assert":346}],198:[function(require,module,exports){
+},{"./misc/Character":294,"assert":329}],181:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33136,7 +28881,7 @@ __decorate([
 ], CodePointCharStream.prototype, "getText", null);
 exports.CodePointCharStream = CodePointCharStream;
 
-},{"./Decorators":203,"./IntStream":209,"./misc/Interval":315,"assert":346}],199:[function(require,module,exports){
+},{"./Decorators":186,"./IntStream":192,"./misc/Interval":298,"assert":329}],182:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33366,7 +29111,7 @@ CommonToken = __decorate([
 ], CommonToken);
 exports.CommonToken = CommonToken;
 
-},{"./Decorators":203,"./Token":228,"./misc/Interval":315}],200:[function(require,module,exports){
+},{"./Decorators":186,"./Token":211,"./misc/Interval":298}],183:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33430,7 +29175,7 @@ exports.CommonTokenFactory = CommonTokenFactory;
     CommonTokenFactory.DEFAULT = new CommonTokenFactory();
 })(CommonTokenFactory = exports.CommonTokenFactory || (exports.CommonTokenFactory = {}));
 
-},{"./CommonToken":199,"./Decorators":203,"./misc/Interval":315}],201:[function(require,module,exports){
+},{"./CommonToken":182,"./Decorators":186,"./misc/Interval":298}],184:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33557,7 +29302,7 @@ CommonTokenStream = __decorate([
 ], CommonTokenStream);
 exports.CommonTokenStream = CommonTokenStream;
 
-},{"./BufferedTokenStream":194,"./Decorators":203,"./Token":228}],202:[function(require,module,exports){
+},{"./BufferedTokenStream":177,"./Decorators":186,"./Token":211}],185:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33591,7 +29336,7 @@ exports.ConsoleErrorListener = ConsoleErrorListener;
  */
 ConsoleErrorListener.INSTANCE = new ConsoleErrorListener();
 
-},{}],203:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -33618,7 +29363,7 @@ function SuppressWarnings(options) {
 }
 exports.SuppressWarnings = SuppressWarnings;
 
-},{}],204:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34432,7 +30177,7 @@ __decorate([
 ], DefaultErrorStrategy.prototype, "consumeUntil", null);
 exports.DefaultErrorStrategy = DefaultErrorStrategy;
 
-},{"./Decorators":203,"./FailedPredicateException":207,"./InputMismatchException":208,"./NoViableAltException":215,"./Token":228,"./atn/ATNState":242,"./atn/ATNStateType":243,"./atn/PredictionContext":283,"./misc/IntervalSet":316}],205:[function(require,module,exports){
+},{"./Decorators":186,"./FailedPredicateException":190,"./InputMismatchException":191,"./NoViableAltException":198,"./Token":211,"./atn/ATNState":225,"./atn/ATNStateType":226,"./atn/PredictionContext":266,"./misc/IntervalSet":299}],188:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34508,7 +30253,7 @@ var Dependents;
     Dependents[Dependents["FOLLOWING"] = 9] = "FOLLOWING";
 })(Dependents = exports.Dependents || (exports.Dependents = {}));
 
-},{}],206:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34656,7 +30401,7 @@ __decorate([
 ], DiagnosticErrorListener.prototype, "getConflictingAlts", null);
 exports.DiagnosticErrorListener = DiagnosticErrorListener;
 
-},{"./Decorators":203,"./misc/BitSet":310,"./misc/Interval":315}],207:[function(require,module,exports){
+},{"./Decorators":186,"./misc/BitSet":293,"./misc/Interval":298}],190:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34721,7 +30466,7 @@ FailedPredicateException = __decorate([
 ], FailedPredicateException);
 exports.FailedPredicateException = FailedPredicateException;
 
-},{"./Decorators":203,"./RecognitionException":222,"./atn/PredicateTransition":282}],208:[function(require,module,exports){
+},{"./Decorators":186,"./RecognitionException":205,"./atn/PredicateTransition":265}],191:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34761,7 +30506,7 @@ InputMismatchException = __decorate([
 ], InputMismatchException);
 exports.InputMismatchException = InputMismatchException;
 
-},{"./Decorators":203,"./RecognitionException":222}],209:[function(require,module,exports){
+},{"./Decorators":186,"./RecognitionException":205}],192:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34784,7 +30529,7 @@ var IntStream;
     IntStream.UNKNOWN_SOURCE_NAME = "<unknown>";
 })(IntStream = exports.IntStream || (exports.IntStream = {}));
 
-},{}],210:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -34831,7 +30576,7 @@ __decorate([
 ], InterpreterRuleContext.prototype, "ruleIndex", null);
 exports.InterpreterRuleContext = InterpreterRuleContext;
 
-},{"./Decorators":203,"./ParserRuleContext":219}],211:[function(require,module,exports){
+},{"./Decorators":186,"./ParserRuleContext":202}],194:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35167,7 +30912,7 @@ __decorate([
 ], Lexer.prototype, "charPositionInLine", null);
 exports.Lexer = Lexer;
 
-},{"./CommonTokenFactory":200,"./Decorators":203,"./IntStream":209,"./LexerNoViableAltException":213,"./Recognizer":223,"./Token":228,"./atn/LexerATNSimulator":261,"./misc/IntegerStack":314,"./misc/Interval":315}],212:[function(require,module,exports){
+},{"./CommonTokenFactory":183,"./Decorators":186,"./IntStream":192,"./LexerNoViableAltException":196,"./Recognizer":206,"./Token":211,"./atn/LexerATNSimulator":244,"./misc/IntegerStack":297,"./misc/Interval":298}],195:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35247,7 +30992,7 @@ LexerInterpreter = __decorate([
 ], LexerInterpreter);
 exports.LexerInterpreter = LexerInterpreter;
 
-},{"./Decorators":203,"./Lexer":211,"./atn/LexerATNSimulator":261}],213:[function(require,module,exports){
+},{"./Decorators":186,"./Lexer":194,"./atn/LexerATNSimulator":244}],196:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35304,7 +31049,7 @@ LexerNoViableAltException = __decorate([
 ], LexerNoViableAltException);
 exports.LexerNoViableAltException = LexerNoViableAltException;
 
-},{"./Decorators":203,"./RecognitionException":222,"./misc/Interval":315,"./misc/Utils":322}],214:[function(require,module,exports){
+},{"./Decorators":186,"./RecognitionException":205,"./misc/Interval":298,"./misc/Utils":305}],197:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35514,7 +31259,7 @@ ListTokenSource = __decorate([
 ], ListTokenSource);
 exports.ListTokenSource = ListTokenSource;
 
-},{"./CommonTokenFactory":200,"./Decorators":203,"./Token":228}],215:[function(require,module,exports){
+},{"./CommonTokenFactory":183,"./Decorators":186,"./Token":211}],198:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -35569,7 +31314,7 @@ __decorate([
 ], NoViableAltException.prototype, "_startToken", void 0);
 exports.NoViableAltException = NoViableAltException;
 
-},{"./Decorators":203,"./Parser":216,"./RecognitionException":222}],216:[function(require,module,exports){
+},{"./Decorators":186,"./Parser":199,"./RecognitionException":205}],199:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -36415,7 +32160,7 @@ __decorate([
 exports.Parser = Parser;
 
 }).call(this)}).call(this,require('_process'))
-},{"./Decorators":203,"./DefaultErrorStrategy":204,"./Lexer":211,"./ProxyParserErrorListener":221,"./Recognizer":223,"./Token":228,"./atn/ATNDeserializationOptions":239,"./atn/ATNDeserializer":240,"./atn/ParseInfo":276,"./atn/ParserATNSimulator":277,"./atn/ProfilingATNSimulator":286,"./misc/IntegerStack":314,"./misc/Utils":322,"./tree/ErrorNode":323,"./tree/TerminalNode":326,"./tree/pattern/ParseTreePatternMatcher":331,"_process":370}],217:[function(require,module,exports){
+},{"./Decorators":186,"./DefaultErrorStrategy":187,"./Lexer":194,"./ProxyParserErrorListener":204,"./Recognizer":206,"./Token":211,"./atn/ATNDeserializationOptions":222,"./atn/ATNDeserializer":223,"./atn/ParseInfo":259,"./atn/ParserATNSimulator":260,"./atn/ProfilingATNSimulator":269,"./misc/IntegerStack":297,"./misc/Utils":305,"./tree/ErrorNode":306,"./tree/TerminalNode":309,"./tree/pattern/ParseTreePatternMatcher":314,"_process":353}],200:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36423,7 +32168,7 @@ exports.Parser = Parser;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],218:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -36831,7 +32576,7 @@ ParserInterpreter = __decorate([
 ], ParserInterpreter);
 exports.ParserInterpreter = ParserInterpreter;
 
-},{"./Decorators":203,"./FailedPredicateException":207,"./InputMismatchException":208,"./InterpreterRuleContext":210,"./Parser":216,"./RecognitionException":222,"./Token":228,"./atn/ATNState":242,"./atn/ATNStateType":243,"./atn/LoopEndState":273,"./atn/ParserATNSimulator":277,"./atn/StarLoopEntryState":295,"./misc/BitSet":310}],219:[function(require,module,exports){
+},{"./Decorators":186,"./FailedPredicateException":190,"./InputMismatchException":191,"./InterpreterRuleContext":193,"./Parser":199,"./RecognitionException":205,"./Token":211,"./atn/ATNState":225,"./atn/ATNStateType":226,"./atn/LoopEndState":256,"./atn/ParserATNSimulator":260,"./atn/StarLoopEntryState":278,"./misc/BitSet":293}],202:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37132,7 +32877,7 @@ __decorate([
 ], ParserRuleContext.prototype, "sourceInterval", null);
 exports.ParserRuleContext = ParserRuleContext;
 
-},{"./Decorators":203,"./RuleContext":224,"./misc/Interval":315,"./tree/ErrorNode":323,"./tree/TerminalNode":326}],220:[function(require,module,exports){
+},{"./Decorators":186,"./RuleContext":207,"./misc/Interval":298,"./tree/ErrorNode":306,"./tree/TerminalNode":309}],203:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37182,7 +32927,7 @@ __decorate([
 ], ProxyErrorListener.prototype, "syntaxError", null);
 exports.ProxyErrorListener = ProxyErrorListener;
 
-},{"./Decorators":203}],221:[function(require,module,exports){
+},{"./Decorators":186}],204:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37241,7 +32986,7 @@ __decorate([
 ], ProxyParserErrorListener.prototype, "reportContextSensitivity", null);
 exports.ProxyParserErrorListener = ProxyParserErrorListener;
 
-},{"./Decorators":203,"./ProxyErrorListener":220}],222:[function(require,module,exports){
+},{"./Decorators":186,"./ProxyErrorListener":203}],205:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37346,7 +33091,7 @@ class RecognitionException extends Error {
 }
 exports.RecognitionException = RecognitionException;
 
-},{}],223:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37565,7 +33310,7 @@ __decorate([
 ], Recognizer.prototype, "getErrorListeners", null);
 exports.Recognizer = Recognizer;
 
-},{"./ConsoleErrorListener":202,"./Decorators":203,"./ProxyErrorListener":220,"./Token":228,"./misc/Utils":322}],224:[function(require,module,exports){
+},{"./ConsoleErrorListener":185,"./Decorators":186,"./ProxyErrorListener":203,"./Token":211,"./misc/Utils":305}],207:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37782,7 +33527,7 @@ __decorate([
 ], RuleContext.prototype, "toStringTree", null);
 exports.RuleContext = RuleContext;
 
-},{"./Decorators":203,"./ParserRuleContext":219,"./Recognizer":223,"./atn/ATN":236,"./misc/Interval":315,"./tree/RuleNode":325,"./tree/Trees":327}],225:[function(require,module,exports){
+},{"./Decorators":186,"./ParserRuleContext":202,"./Recognizer":206,"./atn/ATN":219,"./misc/Interval":298,"./tree/RuleNode":308,"./tree/Trees":310}],208:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37833,7 +33578,7 @@ __decorate([
 ], RuleContextWithAltNum.prototype, "altNumber", null);
 exports.RuleContextWithAltNum = RuleContextWithAltNum;
 
-},{"./Decorators":203,"./ParserRuleContext":219,"./atn/ATN":236}],226:[function(require,module,exports){
+},{"./Decorators":186,"./ParserRuleContext":202,"./atn/ATN":219}],209:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37856,7 +33601,7 @@ function RuleDependency(dependency) {
 }
 exports.RuleDependency = RuleDependency;
 
-},{}],227:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37875,7 +33620,7 @@ function RuleVersion(version) {
 }
 exports.RuleVersion = RuleVersion;
 
-},{}],228:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37915,7 +33660,7 @@ var Token;
     Token.MIN_USER_CHANNEL_VALUE = 2;
 })(Token = exports.Token || (exports.Token = {}));
 
-},{"./IntStream":209}],229:[function(require,module,exports){
+},{"./IntStream":192}],212:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37923,7 +33668,7 @@ var Token;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],230:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37931,7 +33676,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],231:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -37939,7 +33684,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],232:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38447,7 +34192,7 @@ __decorate([
     Decorators_1.Override
 ], ReplaceOp.prototype, "toString", null);
 
-},{"./Decorators":203,"./Token":228,"./misc/Interval":315}],233:[function(require,module,exports){
+},{"./Decorators":186,"./Token":211,"./misc/Interval":298}],216:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38455,7 +34200,7 @@ __decorate([
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],234:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38575,7 +34320,7 @@ __decorate([
 ], VocabularyImpl, "EMPTY_VOCABULARY", void 0);
 exports.VocabularyImpl = VocabularyImpl;
 
-},{"./Decorators":203,"./Token":228}],235:[function(require,module,exports){
+},{"./Decorators":186,"./Token":211}],218:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38583,7 +34328,7 @@ exports.VocabularyImpl = VocabularyImpl;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],236:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -38805,7 +34550,7 @@ exports.ATN = ATN;
 })(ATN = exports.ATN || (exports.ATN = {}));
 exports.ATN = ATN;
 
-},{"../Decorators":203,"../Token":228,"../dfa/DFA":301,"../misc/Array2DHashMap":306,"../misc/IntervalSet":316,"../misc/ObjectEqualityComparator":319,"./InvalidState":259,"./LL1Analyzer":260,"./PredictionContext":283,"assert":346}],237:[function(require,module,exports){
+},{"../Decorators":186,"../Token":211,"../dfa/DFA":284,"../misc/Array2DHashMap":289,"../misc/IntervalSet":299,"../misc/ObjectEqualityComparator":302,"./InvalidState":242,"./LL1Analyzer":243,"./PredictionContext":266,"assert":329}],220:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -39330,7 +35075,7 @@ ActionSemanticContextATNConfig = __decorate([
     __param(1, Decorators_1.NotNull), __param(2, Decorators_1.NotNull)
 ], ActionSemanticContextATNConfig);
 
-},{"../Decorators":203,"../misc/Array2DHashMap":306,"../misc/MurmurHash":318,"../misc/ObjectEqualityComparator":319,"./DecisionState":256,"./PredictionContext":283,"./SemanticContext":291,"assert":346}],238:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashMap":289,"../misc/MurmurHash":301,"../misc/ObjectEqualityComparator":302,"./DecisionState":239,"./PredictionContext":266,"./SemanticContext":274,"assert":329}],221:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -39777,7 +35522,7 @@ __decorate([
 ], ATNConfigSet.prototype, "hashCode", null);
 exports.ATNConfigSet = ATNConfigSet;
 
-},{"../Decorators":203,"../misc/Array2DHashMap":306,"../misc/Array2DHashSet":307,"../misc/ArrayEqualityComparator":308,"../misc/BitSet":310,"../misc/ObjectEqualityComparator":319,"../misc/Utils":322,"./ATN":236,"./ATNConfig":237,"./PredictionContext":283,"./PredictionContextCache":284,"./SemanticContext":291,"assert":346}],239:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashMap":289,"../misc/Array2DHashSet":290,"../misc/ArrayEqualityComparator":291,"../misc/BitSet":293,"../misc/ObjectEqualityComparator":302,"../misc/Utils":305,"./ATN":219,"./ATNConfig":220,"./PredictionContext":266,"./PredictionContextCache":267,"./SemanticContext":274,"assert":329}],222:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -39856,7 +35601,7 @@ __decorate([
 ], ATNDeserializationOptions, "defaultOptions", null);
 exports.ATNDeserializationOptions = ATNDeserializationOptions;
 
-},{"../Decorators":203}],240:[function(require,module,exports){
+},{"../Decorators":186}],223:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -40943,7 +36688,7 @@ __decorate([
 ], ATNDeserializer.prototype, "edgeFactory", null);
 exports.ATNDeserializer = ATNDeserializer;
 
-},{"../Decorators":203,"../Token":228,"../dfa/DFA":301,"../misc/Array2DHashSet":307,"../misc/BitSet":310,"../misc/IntervalSet":316,"../misc/UUID":321,"./ATN":236,"./ATNDeserializationOptions":239,"./ATNStateType":243,"./ActionTransition":245,"./AtomTransition":247,"./BasicBlockStartState":248,"./BasicState":249,"./BlockEndState":250,"./BlockStartState":251,"./DecisionState":256,"./EpsilonTransition":257,"./InvalidState":259,"./LexerChannelAction":263,"./LexerCustomAction":264,"./LexerModeAction":266,"./LexerMoreAction":267,"./LexerPopModeAction":268,"./LexerPushModeAction":269,"./LexerSkipAction":270,"./LexerTypeAction":271,"./LoopEndState":273,"./NotSetTransition":274,"./ParserATNSimulator":277,"./PlusBlockStartState":278,"./PlusLoopbackState":279,"./PrecedencePredicateTransition":280,"./PredicateTransition":282,"./RangeTransition":287,"./RuleStartState":288,"./RuleStopState":289,"./RuleTransition":290,"./SetTransition":292,"./StarBlockStartState":294,"./StarLoopEntryState":295,"./StarLoopbackState":296,"./TokensStartState":297,"./WildcardTransition":299}],241:[function(require,module,exports){
+},{"../Decorators":186,"../Token":211,"../dfa/DFA":284,"../misc/Array2DHashSet":290,"../misc/BitSet":293,"../misc/IntervalSet":299,"../misc/UUID":304,"./ATN":219,"./ATNDeserializationOptions":222,"./ATNStateType":226,"./ActionTransition":228,"./AtomTransition":230,"./BasicBlockStartState":231,"./BasicState":232,"./BlockEndState":233,"./BlockStartState":234,"./DecisionState":239,"./EpsilonTransition":240,"./InvalidState":242,"./LexerChannelAction":246,"./LexerCustomAction":247,"./LexerModeAction":249,"./LexerMoreAction":250,"./LexerPopModeAction":251,"./LexerPushModeAction":252,"./LexerSkipAction":253,"./LexerTypeAction":254,"./LoopEndState":256,"./NotSetTransition":257,"./ParserATNSimulator":260,"./PlusBlockStartState":261,"./PlusLoopbackState":262,"./PrecedencePredicateTransition":263,"./PredicateTransition":265,"./RangeTransition":270,"./RuleStartState":271,"./RuleStopState":272,"./RuleTransition":273,"./SetTransition":275,"./StarBlockStartState":277,"./StarLoopEntryState":278,"./StarLoopbackState":279,"./TokensStartState":280,"./WildcardTransition":282}],224:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41007,7 +36752,7 @@ exports.ATNSimulator = ATNSimulator;
 })(ATNSimulator = exports.ATNSimulator || (exports.ATNSimulator = {}));
 exports.ATNSimulator = ATNSimulator;
 
-},{"../Decorators":203,"../dfa/DFAState":303,"./ATNConfigSet":238,"./PredictionContext":283}],242:[function(require,module,exports){
+},{"../Decorators":186,"../dfa/DFAState":286,"./ATNConfigSet":221,"./PredictionContext":266}],225:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41194,7 +36939,7 @@ exports.ATNState = ATNState;
     ATNState.INVALID_STATE_NUMBER = -1;
 })(ATNState = exports.ATNState || (exports.ATNState = {}));
 
-},{"../Decorators":203}],243:[function(require,module,exports){
+},{"../Decorators":186}],226:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41220,7 +36965,7 @@ var ATNStateType;
     ATNStateType[ATNStateType["LOOP_END"] = 12] = "LOOP_END";
 })(ATNStateType = exports.ATNStateType || (exports.ATNStateType = {}));
 
-},{}],244:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41240,7 +36985,7 @@ class AbstractPredicateTransition extends Transition_1.Transition {
 }
 exports.AbstractPredicateTransition = AbstractPredicateTransition;
 
-},{"./Transition":298}],245:[function(require,module,exports){
+},{"./Transition":281}],228:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41296,7 +37041,7 @@ ActionTransition = __decorate([
 ], ActionTransition);
 exports.ActionTransition = ActionTransition;
 
-},{"../Decorators":203,"./Transition":298}],246:[function(require,module,exports){
+},{"../Decorators":186,"./Transition":281}],229:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41383,7 +37128,7 @@ AmbiguityInfo = __decorate([
 ], AmbiguityInfo);
 exports.AmbiguityInfo = AmbiguityInfo;
 
-},{"../Decorators":203,"./DecisionEventInfo":254}],247:[function(require,module,exports){
+},{"../Decorators":186,"./DecisionEventInfo":237}],230:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41441,7 +37186,7 @@ AtomTransition = __decorate([
 ], AtomTransition);
 exports.AtomTransition = AtomTransition;
 
-},{"../Decorators":203,"../misc/IntervalSet":316,"./Transition":298}],248:[function(require,module,exports){
+},{"../Decorators":186,"../misc/IntervalSet":299,"./Transition":281}],231:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41473,7 +37218,7 @@ __decorate([
 ], BasicBlockStartState.prototype, "stateType", null);
 exports.BasicBlockStartState = BasicBlockStartState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./BlockStartState":251}],249:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./BlockStartState":234}],232:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41505,7 +37250,7 @@ __decorate([
 ], BasicState.prototype, "stateType", null);
 exports.BasicState = BasicState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],250:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],233:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41534,7 +37279,7 @@ __decorate([
 ], BlockEndState.prototype, "stateType", null);
 exports.BlockEndState = BlockEndState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],251:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],234:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41548,7 +37293,7 @@ class BlockStartState extends DecisionState_1.DecisionState {
 }
 exports.BlockStartState = BlockStartState;
 
-},{"./DecisionState":256}],252:[function(require,module,exports){
+},{"./DecisionState":239}],235:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41618,7 +37363,7 @@ __decorate([
 ], ConflictInfo.prototype, "hashCode", null);
 exports.ConflictInfo = ConflictInfo;
 
-},{"../Decorators":203,"../misc/Utils":322}],253:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Utils":305}],236:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41678,7 +37423,7 @@ ContextSensitivityInfo = __decorate([
 ], ContextSensitivityInfo);
 exports.ContextSensitivityInfo = ContextSensitivityInfo;
 
-},{"../Decorators":203,"./DecisionEventInfo":254}],254:[function(require,module,exports){
+},{"../Decorators":186,"./DecisionEventInfo":237}],237:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41730,7 +37475,7 @@ DecisionEventInfo = __decorate([
 ], DecisionEventInfo);
 exports.DecisionEventInfo = DecisionEventInfo;
 
-},{"../Decorators":203}],255:[function(require,module,exports){
+},{"../Decorators":186}],238:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41943,7 +37688,7 @@ __decorate([
 ], DecisionInfo.prototype, "toString", null);
 exports.DecisionInfo = DecisionInfo;
 
-},{"../Decorators":203}],256:[function(require,module,exports){
+},{"../Decorators":186}],239:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41963,7 +37708,7 @@ class DecisionState extends ATNState_1.ATNState {
 }
 exports.DecisionState = DecisionState;
 
-},{"./ATNState":242}],257:[function(require,module,exports){
+},{"./ATNState":225}],240:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42029,7 +37774,7 @@ EpsilonTransition = __decorate([
 ], EpsilonTransition);
 exports.EpsilonTransition = EpsilonTransition;
 
-},{"../Decorators":203,"./Transition":298}],258:[function(require,module,exports){
+},{"../Decorators":186,"./Transition":281}],241:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42082,7 +37827,7 @@ ErrorInfo = __decorate([
 ], ErrorInfo);
 exports.ErrorInfo = ErrorInfo;
 
-},{"../Decorators":203,"./DecisionEventInfo":254}],259:[function(require,module,exports){
+},{"../Decorators":186,"./DecisionEventInfo":237}],242:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42113,7 +37858,7 @@ __decorate([
 ], InvalidState.prototype, "stateType", null);
 exports.InvalidState = InvalidState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./BasicState":249}],260:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./BasicState":232}],243:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42335,7 +38080,7 @@ LL1Analyzer = __decorate([
 ], LL1Analyzer);
 exports.LL1Analyzer = LL1Analyzer;
 
-},{"../Decorators":203,"../Token":228,"../misc/Array2DHashSet":307,"../misc/BitSet":310,"../misc/IntervalSet":316,"../misc/ObjectEqualityComparator":319,"./ATNConfig":237,"./AbstractPredicateTransition":244,"./NotSetTransition":274,"./PredictionContext":283,"./RuleStopState":289,"./RuleTransition":290,"./WildcardTransition":299}],261:[function(require,module,exports){
+},{"../Decorators":186,"../Token":211,"../misc/Array2DHashSet":290,"../misc/BitSet":293,"../misc/IntervalSet":299,"../misc/ObjectEqualityComparator":302,"./ATNConfig":220,"./AbstractPredicateTransition":227,"./NotSetTransition":257,"./PredictionContext":266,"./RuleStopState":272,"./RuleTransition":273,"./WildcardTransition":282}],244:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43052,7 +38797,7 @@ exports.LexerATNSimulator = LexerATNSimulator;
 })(LexerATNSimulator = exports.LexerATNSimulator || (exports.LexerATNSimulator = {}));
 exports.LexerATNSimulator = LexerATNSimulator;
 
-},{"../Decorators":203,"../IntStream":209,"../Lexer":211,"../LexerNoViableAltException":213,"../Token":228,"../dfa/AcceptStateInfo":300,"../dfa/DFAState":303,"../misc/Interval":315,"./ATN":236,"./ATNConfig":237,"./ATNConfigSet":238,"./ATNSimulator":241,"./LexerActionExecutor":262,"./OrderedATNConfigSet":275,"./PredictionContext":283,"./RuleStopState":289,"assert":346}],262:[function(require,module,exports){
+},{"../Decorators":186,"../IntStream":192,"../Lexer":194,"../LexerNoViableAltException":196,"../Token":211,"../dfa/AcceptStateInfo":283,"../dfa/DFAState":286,"../misc/Interval":298,"./ATN":219,"./ATNConfig":220,"./ATNConfigSet":221,"./ATNSimulator":224,"./LexerActionExecutor":245,"./OrderedATNConfigSet":258,"./PredictionContext":266,"./RuleStopState":272,"assert":329}],245:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43253,7 +38998,7 @@ LexerActionExecutor = __decorate([
 ], LexerActionExecutor);
 exports.LexerActionExecutor = LexerActionExecutor;
 
-},{"../Decorators":203,"../misc/ArrayEqualityComparator":308,"../misc/MurmurHash":318,"./LexerIndexedCustomAction":265}],263:[function(require,module,exports){
+},{"../Decorators":186,"../misc/ArrayEqualityComparator":291,"../misc/MurmurHash":301,"./LexerIndexedCustomAction":248}],246:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43358,7 +39103,7 @@ __decorate([
 ], LexerChannelAction.prototype, "toString", null);
 exports.LexerChannelAction = LexerChannelAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],264:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],247:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43487,7 +39232,7 @@ __decorate([
 ], LexerCustomAction.prototype, "equals", null);
 exports.LexerCustomAction = LexerCustomAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],265:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],248:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43622,7 +39367,7 @@ LexerIndexedCustomAction = __decorate([
 ], LexerIndexedCustomAction);
 exports.LexerIndexedCustomAction = LexerIndexedCustomAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],266:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],249:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43727,7 +39472,7 @@ __decorate([
 ], LexerModeAction.prototype, "toString", null);
 exports.LexerModeAction = LexerModeAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],267:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],250:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43823,7 +39568,7 @@ exports.LexerMoreAction = LexerMoreAction;
     LexerMoreAction.INSTANCE = new LexerMoreAction();
 })(LexerMoreAction = exports.LexerMoreAction || (exports.LexerMoreAction = {}));
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],268:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],251:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43919,7 +39664,7 @@ exports.LexerPopModeAction = LexerPopModeAction;
     LexerPopModeAction.INSTANCE = new LexerPopModeAction();
 })(LexerPopModeAction = exports.LexerPopModeAction || (exports.LexerPopModeAction = {}));
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],269:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],252:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44024,7 +39769,7 @@ __decorate([
 ], LexerPushModeAction.prototype, "toString", null);
 exports.LexerPushModeAction = LexerPushModeAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],270:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],253:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44120,7 +39865,7 @@ exports.LexerSkipAction = LexerSkipAction;
     LexerSkipAction.INSTANCE = new LexerSkipAction();
 })(LexerSkipAction = exports.LexerSkipAction || (exports.LexerSkipAction = {}));
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],271:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],254:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44224,7 +39969,7 @@ __decorate([
 ], LexerTypeAction.prototype, "toString", null);
 exports.LexerTypeAction = LexerTypeAction;
 
-},{"../Decorators":203,"../misc/MurmurHash":318}],272:[function(require,module,exports){
+},{"../Decorators":186,"../misc/MurmurHash":301}],255:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44276,7 +40021,7 @@ LookaheadEventInfo = __decorate([
 ], LookaheadEventInfo);
 exports.LookaheadEventInfo = LookaheadEventInfo;
 
-},{"../Decorators":203,"./DecisionEventInfo":254}],273:[function(require,module,exports){
+},{"../Decorators":186,"./DecisionEventInfo":237}],256:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44305,7 +40050,7 @@ __decorate([
 ], LoopEndState.prototype, "stateType", null);
 exports.LoopEndState = LoopEndState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],274:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],257:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44354,7 +40099,7 @@ NotSetTransition = __decorate([
 ], NotSetTransition);
 exports.NotSetTransition = NotSetTransition;
 
-},{"../Decorators":203,"./SetTransition":292}],275:[function(require,module,exports){
+},{"../Decorators":186,"./SetTransition":275}],258:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44409,7 +40154,7 @@ __decorate([
 ], OrderedATNConfigSet.prototype, "canMerge", null);
 exports.OrderedATNConfigSet = OrderedATNConfigSet;
 
-},{"../Decorators":203,"./ATNConfigSet":238}],276:[function(require,module,exports){
+},{"../Decorators":186,"./ATNConfigSet":221}],259:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44571,7 +40316,7 @@ ParseInfo = __decorate([
 ], ParseInfo);
 exports.ParseInfo = ParseInfo;
 
-},{"../Decorators":203}],277:[function(require,module,exports){
+},{"../Decorators":186}],260:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46844,7 +42589,7 @@ ParserATNSimulator = __decorate([
 ], ParserATNSimulator);
 exports.ParserATNSimulator = ParserATNSimulator;
 
-},{"../Decorators":203,"../IntStream":209,"../NoViableAltException":215,"../ParserRuleContext":219,"../Token":228,"../VocabularyImpl":234,"../dfa/AcceptStateInfo":300,"../dfa/DFAState":303,"../misc/Array2DHashSet":307,"../misc/Arrays":309,"../misc/BitSet":310,"../misc/IntegerList":313,"../misc/Interval":315,"../misc/ObjectEqualityComparator":319,"./ATN":236,"./ATNConfig":237,"./ATNConfigSet":238,"./ATNSimulator":241,"./ATNStateType":243,"./ActionTransition":245,"./AtomTransition":247,"./ConflictInfo":252,"./DecisionState":256,"./NotSetTransition":274,"./PredictionContext":283,"./PredictionContextCache":284,"./PredictionMode":285,"./RuleStopState":289,"./RuleTransition":290,"./SemanticContext":291,"./SetTransition":292,"./SimulatorState":293,"assert":346}],278:[function(require,module,exports){
+},{"../Decorators":186,"../IntStream":192,"../NoViableAltException":198,"../ParserRuleContext":202,"../Token":211,"../VocabularyImpl":217,"../dfa/AcceptStateInfo":283,"../dfa/DFAState":286,"../misc/Array2DHashSet":290,"../misc/Arrays":292,"../misc/BitSet":293,"../misc/IntegerList":296,"../misc/Interval":298,"../misc/ObjectEqualityComparator":302,"./ATN":219,"./ATNConfig":220,"./ATNConfigSet":221,"./ATNSimulator":224,"./ATNStateType":226,"./ActionTransition":228,"./AtomTransition":230,"./ConflictInfo":235,"./DecisionState":239,"./NotSetTransition":257,"./PredictionContext":266,"./PredictionContextCache":267,"./PredictionMode":268,"./RuleStopState":272,"./RuleTransition":273,"./SemanticContext":274,"./SetTransition":275,"./SimulatorState":276,"assert":329}],261:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46877,7 +42622,7 @@ __decorate([
 ], PlusBlockStartState.prototype, "stateType", null);
 exports.PlusBlockStartState = PlusBlockStartState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./BlockStartState":251}],279:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./BlockStartState":234}],262:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46908,7 +42653,7 @@ __decorate([
 ], PlusLoopbackState.prototype, "stateType", null);
 exports.PlusLoopbackState = PlusLoopbackState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./DecisionState":256}],280:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./DecisionState":239}],263:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46971,7 +42716,7 @@ PrecedencePredicateTransition = __decorate([
 ], PrecedencePredicateTransition);
 exports.PrecedencePredicateTransition = PrecedencePredicateTransition;
 
-},{"../Decorators":203,"./AbstractPredicateTransition":244,"./SemanticContext":291}],281:[function(require,module,exports){
+},{"../Decorators":186,"./AbstractPredicateTransition":227,"./SemanticContext":274}],264:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47034,7 +42779,7 @@ PredicateEvalInfo = __decorate([
 ], PredicateEvalInfo);
 exports.PredicateEvalInfo = PredicateEvalInfo;
 
-},{"../Decorators":203,"./DecisionEventInfo":254}],282:[function(require,module,exports){
+},{"../Decorators":186,"./DecisionEventInfo":237}],265:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47100,7 +42845,7 @@ PredicateTransition = __decorate([
 ], PredicateTransition);
 exports.PredicateTransition = PredicateTransition;
 
-},{"../Decorators":203,"./AbstractPredicateTransition":244,"./SemanticContext":291}],283:[function(require,module,exports){
+},{"../Decorators":186,"./AbstractPredicateTransition":227,"./SemanticContext":274}],266:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47791,7 +43536,7 @@ exports.SingletonPredictionContext = SingletonPredictionContext;
     PredictionContext.IdentityEqualityComparator = IdentityEqualityComparator;
 })(PredictionContext = exports.PredictionContext || (exports.PredictionContext = {}));
 
-},{"../Decorators":203,"../misc/Array2DHashMap":306,"../misc/Array2DHashSet":307,"../misc/Arrays":309,"../misc/MurmurHash":318,"./PredictionContextCache":284,"assert":346}],284:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashMap":289,"../misc/Array2DHashSet":290,"../misc/Arrays":292,"../misc/MurmurHash":301,"./PredictionContextCache":267,"assert":329}],267:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47932,7 +43677,7 @@ PredictionContextCache.UNCACHED = new PredictionContextCache(false);
     PredictionContextCache.IdentityCommutativePredictionContextOperands = IdentityCommutativePredictionContextOperands;
 })(PredictionContextCache = exports.PredictionContextCache || (exports.PredictionContextCache = {}));
 
-},{"../Decorators":203,"../misc/Array2DHashMap":306,"../misc/ObjectEqualityComparator":319,"./PredictionContext":283,"assert":346}],285:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashMap":289,"../misc/ObjectEqualityComparator":302,"./PredictionContext":266,"assert":329}],268:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48093,7 +43838,7 @@ var PredictionMode;
     PredictionMode.allConfigsInRuleStopStates = allConfigsInRuleStopStates;
 })(PredictionMode = exports.PredictionMode || (exports.PredictionMode = {}));
 
-},{"../Decorators":203,"../misc/Array2DHashMap":306,"../misc/MurmurHash":318,"./RuleStopState":289}],286:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashMap":289,"../misc/MurmurHash":301,"./RuleStopState":272}],269:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -48362,7 +44107,7 @@ __decorate([
 exports.ProfilingATNSimulator = ProfilingATNSimulator;
 
 }).call(this)}).call(this,require('_process'))
-},{"../Decorators":203,"./ATN":236,"./ATNSimulator":241,"./AmbiguityInfo":246,"./ContextSensitivityInfo":253,"./DecisionInfo":255,"./ErrorInfo":258,"./LookaheadEventInfo":272,"./ParserATNSimulator":277,"./PredicateEvalInfo":281,"./SemanticContext":291,"./SimulatorState":293,"_process":370}],287:[function(require,module,exports){
+},{"../Decorators":186,"./ATN":219,"./ATNSimulator":224,"./AmbiguityInfo":229,"./ContextSensitivityInfo":236,"./DecisionInfo":238,"./ErrorInfo":241,"./LookaheadEventInfo":255,"./ParserATNSimulator":260,"./PredicateEvalInfo":264,"./SemanticContext":274,"./SimulatorState":276,"_process":353}],270:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48420,7 +44165,7 @@ RangeTransition = __decorate([
 ], RangeTransition);
 exports.RangeTransition = RangeTransition;
 
-},{"../Decorators":203,"../misc/IntervalSet":316,"./Transition":298}],288:[function(require,module,exports){
+},{"../Decorators":186,"../misc/IntervalSet":299,"./Transition":281}],271:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48453,7 +44198,7 @@ __decorate([
 ], RuleStartState.prototype, "stateType", null);
 exports.RuleStartState = RuleStartState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],289:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],272:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48492,7 +44237,7 @@ __decorate([
 ], RuleStopState.prototype, "stateType", null);
 exports.RuleStopState = RuleStopState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],290:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],273:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48548,7 +44293,7 @@ RuleTransition = __decorate([
 ], RuleTransition);
 exports.RuleTransition = RuleTransition;
 
-},{"../Decorators":203,"./Transition":298}],291:[function(require,module,exports){
+},{"../Decorators":186,"./Transition":281}],274:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49028,7 +44773,7 @@ exports.SemanticContext = SemanticContext;
     SemanticContext.OR = OR;
 })(SemanticContext = exports.SemanticContext || (exports.SemanticContext = {}));
 
-},{"../Decorators":203,"../misc/Array2DHashSet":307,"../misc/ArrayEqualityComparator":308,"../misc/MurmurHash":318,"../misc/ObjectEqualityComparator":319,"../misc/Utils":322}],292:[function(require,module,exports){
+},{"../Decorators":186,"../misc/Array2DHashSet":290,"../misc/ArrayEqualityComparator":291,"../misc/MurmurHash":301,"../misc/ObjectEqualityComparator":302,"../misc/Utils":305}],275:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49094,7 +44839,7 @@ SetTransition = __decorate([
 ], SetTransition);
 exports.SetTransition = SetTransition;
 
-},{"../Decorators":203,"../Token":228,"../misc/IntervalSet":316,"./Transition":298}],293:[function(require,module,exports){
+},{"../Decorators":186,"../Token":211,"../misc/IntervalSet":299,"./Transition":281}],276:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49130,7 +44875,7 @@ SimulatorState = __decorate([
 ], SimulatorState);
 exports.SimulatorState = SimulatorState;
 
-},{"../Decorators":203,"../ParserRuleContext":219}],294:[function(require,module,exports){
+},{"../Decorators":186,"../ParserRuleContext":202}],277:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49158,7 +44903,7 @@ __decorate([
 ], StarBlockStartState.prototype, "stateType", null);
 exports.StarBlockStartState = StarBlockStartState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./BlockStartState":251}],295:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./BlockStartState":234}],278:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49215,7 +44960,7 @@ __decorate([
 ], StarLoopEntryState.prototype, "stateType", null);
 exports.StarLoopEntryState = StarLoopEntryState;
 
-},{"../Decorators":203,"../misc/BitSet":310,"./ATNStateType":243,"./DecisionState":256}],296:[function(require,module,exports){
+},{"../Decorators":186,"../misc/BitSet":293,"./ATNStateType":226,"./DecisionState":239}],279:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49246,7 +44991,7 @@ __decorate([
 ], StarLoopbackState.prototype, "stateType", null);
 exports.StarLoopbackState = StarLoopbackState;
 
-},{"../Decorators":203,"./ATNState":242,"./ATNStateType":243}],297:[function(require,module,exports){
+},{"../Decorators":186,"./ATNState":225,"./ATNStateType":226}],280:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49275,7 +45020,7 @@ __decorate([
 ], TokensStartState.prototype, "stateType", null);
 exports.TokensStartState = TokensStartState;
 
-},{"../Decorators":203,"./ATNStateType":243,"./DecisionState":256}],298:[function(require,module,exports){
+},{"../Decorators":186,"./ATNStateType":226,"./DecisionState":239}],281:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49349,7 +45094,7 @@ Transition = __decorate([
 ], Transition);
 exports.Transition = Transition;
 
-},{"../Decorators":203}],299:[function(require,module,exports){
+},{"../Decorators":186}],282:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49397,7 +45142,7 @@ WildcardTransition = __decorate([
 ], WildcardTransition);
 exports.WildcardTransition = WildcardTransition;
 
-},{"../Decorators":203,"./Transition":298}],300:[function(require,module,exports){
+},{"../Decorators":186,"./Transition":281}],283:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49439,7 +45184,7 @@ class AcceptStateInfo {
 }
 exports.AcceptStateInfo = AcceptStateInfo;
 
-},{}],301:[function(require,module,exports){
+},{}],284:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49614,7 +45359,7 @@ DFA = __decorate([
 ], DFA);
 exports.DFA = DFA;
 
-},{"../Decorators":203,"../VocabularyImpl":234,"../atn/ATNConfigSet":238,"../atn/StarLoopEntryState":295,"../misc/Array2DHashSet":307,"../misc/ObjectEqualityComparator":319,"./DFASerializer":302,"./DFAState":303,"./LexerDFASerializer":304}],302:[function(require,module,exports){
+},{"../Decorators":186,"../VocabularyImpl":217,"../atn/ATNConfigSet":221,"../atn/StarLoopEntryState":278,"../misc/Array2DHashSet":290,"../misc/ObjectEqualityComparator":302,"./DFASerializer":285,"./DFAState":286,"./LexerDFASerializer":287}],285:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49756,7 +45501,7 @@ __decorate([
 ], DFASerializer.prototype, "toString", null);
 exports.DFASerializer = DFASerializer;
 
-},{"../Decorators":203,"../Recognizer":223,"../VocabularyImpl":234,"../atn/ATNSimulator":241,"../atn/PredictionContext":283}],303:[function(require,module,exports){
+},{"../Decorators":186,"../Recognizer":206,"../VocabularyImpl":217,"../atn/ATNSimulator":224,"../atn/PredictionContext":266}],286:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49987,7 +45732,7 @@ exports.DFAState = DFAState;
     DFAState.PredPrediction = PredPrediction;
 })(DFAState = exports.DFAState || (exports.DFAState = {}));
 
-},{"../Decorators":203,"../atn/ATN":236,"../atn/PredictionContext":283,"../misc/BitSet":310,"../misc/MurmurHash":318,"assert":346}],304:[function(require,module,exports){
+},{"../Decorators":186,"../atn/ATN":219,"../atn/PredictionContext":266,"../misc/BitSet":293,"../misc/MurmurHash":301,"assert":329}],287:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50024,7 +45769,7 @@ LexerDFASerializer = __decorate([
 ], LexerDFASerializer);
 exports.LexerDFASerializer = LexerDFASerializer;
 
-},{"../Decorators":203,"../VocabularyImpl":234,"./DFASerializer":302}],305:[function(require,module,exports){
+},{"../Decorators":186,"../VocabularyImpl":217,"./DFASerializer":285}],288:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50090,7 +45835,7 @@ __exportStar(require("./Vocabulary"), exports);
 __exportStar(require("./VocabularyImpl"), exports);
 __exportStar(require("./WritableToken"), exports);
 
-},{"./ANTLRErrorListener":190,"./ANTLRErrorStrategy":191,"./ANTLRInputStream":192,"./BailErrorStrategy":193,"./BufferedTokenStream":194,"./CharStream":195,"./CharStreams":196,"./CodePointBuffer":197,"./CodePointCharStream":198,"./CommonToken":199,"./CommonTokenFactory":200,"./CommonTokenStream":201,"./ConsoleErrorListener":202,"./DefaultErrorStrategy":204,"./Dependents":205,"./DiagnosticErrorListener":206,"./FailedPredicateException":207,"./InputMismatchException":208,"./IntStream":209,"./InterpreterRuleContext":210,"./Lexer":211,"./LexerInterpreter":212,"./LexerNoViableAltException":213,"./ListTokenSource":214,"./NoViableAltException":215,"./Parser":216,"./ParserErrorListener":217,"./ParserInterpreter":218,"./ParserRuleContext":219,"./ProxyErrorListener":220,"./ProxyParserErrorListener":221,"./RecognitionException":222,"./Recognizer":223,"./RuleContext":224,"./RuleContextWithAltNum":225,"./RuleDependency":226,"./RuleVersion":227,"./Token":228,"./TokenFactory":229,"./TokenSource":230,"./TokenStream":231,"./TokenStreamRewriter":232,"./Vocabulary":233,"./VocabularyImpl":234,"./WritableToken":235}],306:[function(require,module,exports){
+},{"./ANTLRErrorListener":173,"./ANTLRErrorStrategy":174,"./ANTLRInputStream":175,"./BailErrorStrategy":176,"./BufferedTokenStream":177,"./CharStream":178,"./CharStreams":179,"./CodePointBuffer":180,"./CodePointCharStream":181,"./CommonToken":182,"./CommonTokenFactory":183,"./CommonTokenStream":184,"./ConsoleErrorListener":185,"./DefaultErrorStrategy":187,"./Dependents":188,"./DiagnosticErrorListener":189,"./FailedPredicateException":190,"./InputMismatchException":191,"./IntStream":192,"./InterpreterRuleContext":193,"./Lexer":194,"./LexerInterpreter":195,"./LexerNoViableAltException":196,"./ListTokenSource":197,"./NoViableAltException":198,"./Parser":199,"./ParserErrorListener":200,"./ParserInterpreter":201,"./ParserRuleContext":202,"./ProxyErrorListener":203,"./ProxyParserErrorListener":204,"./RecognitionException":205,"./Recognizer":206,"./RuleContext":207,"./RuleContextWithAltNum":208,"./RuleDependency":209,"./RuleVersion":210,"./Token":211,"./TokenFactory":212,"./TokenSource":213,"./TokenStream":214,"./TokenStreamRewriter":215,"./Vocabulary":216,"./VocabularyImpl":217,"./WritableToken":218}],289:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50173,7 +45918,7 @@ class Array2DHashMap {
 }
 exports.Array2DHashMap = Array2DHashMap;
 
-},{"./Array2DHashSet":307}],307:[function(require,module,exports){
+},{"./Array2DHashSet":290}],290:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50540,7 +46285,7 @@ __decorate([
 ], Array2DHashSet.prototype, "createBuckets", null);
 exports.Array2DHashSet = Array2DHashSet;
 
-},{"../Decorators":203,"./DefaultEqualityComparator":312,"./MurmurHash":318,"assert":346}],308:[function(require,module,exports){
+},{"../Decorators":186,"./DefaultEqualityComparator":295,"./MurmurHash":301,"assert":329}],291:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50612,7 +46357,7 @@ __decorate([
 ], ArrayEqualityComparator.prototype, "equals", null);
 exports.ArrayEqualityComparator = ArrayEqualityComparator;
 
-},{"../Decorators":203,"./MurmurHash":318,"./ObjectEqualityComparator":319}],309:[function(require,module,exports){
+},{"../Decorators":186,"./MurmurHash":301,"./ObjectEqualityComparator":302}],292:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50682,7 +46427,7 @@ var Arrays;
     Arrays.toString = toString;
 })(Arrays = exports.Arrays || (exports.Arrays = {}));
 
-},{}],310:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51354,7 +47099,7 @@ class BitSetIterator {
     [Symbol.iterator]() { return this; }
 }
 
-},{"./MurmurHash":318,"util":373}],311:[function(require,module,exports){
+},{"./MurmurHash":301,"util":356}],294:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51375,7 +47120,7 @@ function isSupplementaryCodePoint(ch) {
 }
 exports.isSupplementaryCodePoint = isSupplementaryCodePoint;
 
-},{}],312:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51446,7 +47191,7 @@ __decorate([
 ], DefaultEqualityComparator.prototype, "equals", null);
 exports.DefaultEqualityComparator = DefaultEqualityComparator;
 
-},{"../Decorators":203,"./MurmurHash":318,"./ObjectEqualityComparator":319}],313:[function(require,module,exports){
+},{"../Decorators":186,"./MurmurHash":301,"./ObjectEqualityComparator":302}],296:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51740,7 +47485,7 @@ __decorate([
 ], IntegerList.prototype, "toString", null);
 exports.IntegerList = IntegerList;
 
-},{"../Decorators":203,"./Arrays":309}],314:[function(require,module,exports){
+},{"../Decorators":186,"./Arrays":292}],297:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51770,7 +47515,7 @@ class IntegerStack extends IntegerList_1.IntegerList {
 }
 exports.IntegerStack = IntegerStack;
 
-},{"./IntegerList":313}],315:[function(require,module,exports){
+},{"./IntegerList":296}],298:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51913,7 +47658,7 @@ __decorate([
 ], Interval.prototype, "toString", null);
 exports.Interval = Interval;
 
-},{"../Decorators":203}],316:[function(require,module,exports){
+},{"../Decorators":186}],299:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52559,7 +48304,7 @@ __decorate([
 ], IntervalSet, "subtract", null);
 exports.IntervalSet = IntervalSet;
 
-},{"../Decorators":203,"../Lexer":211,"../Token":228,"./ArrayEqualityComparator":308,"./IntegerList":313,"./Interval":315,"./MurmurHash":318}],317:[function(require,module,exports){
+},{"../Decorators":186,"../Lexer":194,"../Token":211,"./ArrayEqualityComparator":291,"./IntegerList":296,"./Interval":298,"./MurmurHash":301}],300:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52592,7 +48337,7 @@ class MultiMap extends Map {
 }
 exports.MultiMap = MultiMap;
 
-},{}],318:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52707,7 +48452,7 @@ var MurmurHash;
     }
 })(MurmurHash = exports.MurmurHash || (exports.MurmurHash = {}));
 
-},{}],319:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52766,7 +48511,7 @@ __decorate([
 ], ObjectEqualityComparator.prototype, "equals", null);
 exports.ObjectEqualityComparator = ObjectEqualityComparator;
 
-},{"../Decorators":203}],320:[function(require,module,exports){
+},{"../Decorators":186}],303:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52795,7 +48540,7 @@ class ParseCancellationException extends Error {
 }
 exports.ParseCancellationException = ParseCancellationException;
 
-},{}],321:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52849,7 +48594,7 @@ class UUID {
 }
 exports.UUID = UUID;
 
-},{"./MurmurHash":318}],322:[function(require,module,exports){
+},{"./MurmurHash":301}],305:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53024,7 +48769,7 @@ exports.toCharArray = toCharArray;
 // 	return s;
 // }
 
-},{}],323:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53060,7 +48805,7 @@ __decorate([
 ], ErrorNode.prototype, "accept", null);
 exports.ErrorNode = ErrorNode;
 
-},{"../Decorators":203,"./TerminalNode":326}],324:[function(require,module,exports){
+},{"../Decorators":186,"./TerminalNode":309}],307:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53165,7 +48910,7 @@ exports.ParseTreeWalker = ParseTreeWalker;
     ParseTreeWalker.DEFAULT = new ParseTreeWalker();
 })(ParseTreeWalker = exports.ParseTreeWalker || (exports.ParseTreeWalker = {}));
 
-},{"./ErrorNode":323,"./RuleNode":325,"./TerminalNode":326}],325:[function(require,module,exports){
+},{"./ErrorNode":306,"./RuleNode":308,"./TerminalNode":309}],308:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53177,7 +48922,7 @@ class RuleNode {
 }
 exports.RuleNode = RuleNode;
 
-},{}],326:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53269,7 +49014,7 @@ __decorate([
 ], TerminalNode.prototype, "toString", null);
 exports.TerminalNode = TerminalNode;
 
-},{"../Decorators":203,"../Token":228,"../misc/Interval":315}],327:[function(require,module,exports){
+},{"../Decorators":186,"../Token":211,"../misc/Interval":298}],310:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53513,7 +49258,7 @@ __decorate([
 ], Trees, "getRootOfSubtreeEnclosingRegion", null);
 exports.Trees = Trees;
 
-},{"../CommonToken":199,"../Decorators":203,"../Parser":216,"../ParserRuleContext":219,"../Token":228,"../atn/ATN":236,"../misc/Utils":322,"./ErrorNode":323,"./RuleNode":325,"./TerminalNode":326}],328:[function(require,module,exports){
+},{"../CommonToken":182,"../Decorators":186,"../Parser":199,"../ParserRuleContext":202,"../Token":211,"../atn/ATN":219,"../misc/Utils":305,"./ErrorNode":306,"./RuleNode":308,"./TerminalNode":309}],311:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53537,7 +49282,7 @@ class Chunk {
 }
 exports.Chunk = Chunk;
 
-},{}],329:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53717,7 +49462,7 @@ ParseTreeMatch = __decorate([
 ], ParseTreeMatch);
 exports.ParseTreeMatch = ParseTreeMatch;
 
-},{"../../Decorators":203}],330:[function(require,module,exports){
+},{"../../Decorators":186}],313:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53875,7 +49620,7 @@ ParseTreePattern = __decorate([
 ], ParseTreePattern);
 exports.ParseTreePattern = ParseTreePattern;
 
-},{"../../Decorators":203,"../xpath/XPath":336}],331:[function(require,module,exports){
+},{"../../Decorators":186,"../xpath/XPath":319}],314:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54353,7 +50098,7 @@ exports.ParseTreePatternMatcher = ParseTreePatternMatcher;
     ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern = StartRuleDoesNotConsumeFullPattern;
 })(ParseTreePatternMatcher = exports.ParseTreePatternMatcher || (exports.ParseTreePatternMatcher = {}));
 
-},{"../../BailErrorStrategy":193,"../../CharStreams":196,"../../CommonTokenStream":201,"../../Decorators":203,"../../ListTokenSource":214,"../../ParserInterpreter":218,"../../ParserRuleContext":219,"../../RecognitionException":222,"../../Token":228,"../../misc/MultiMap":317,"../../misc/ParseCancellationException":320,"../RuleNode":325,"../TerminalNode":326,"./ParseTreeMatch":329,"./ParseTreePattern":330,"./RuleTagToken":332,"./TagChunk":333,"./TextChunk":334,"./TokenTagToken":335}],332:[function(require,module,exports){
+},{"../../BailErrorStrategy":176,"../../CharStreams":179,"../../CommonTokenStream":184,"../../Decorators":186,"../../ListTokenSource":197,"../../ParserInterpreter":201,"../../ParserRuleContext":202,"../../RecognitionException":205,"../../Token":211,"../../misc/MultiMap":300,"../../misc/ParseCancellationException":303,"../RuleNode":308,"../TerminalNode":309,"./ParseTreeMatch":312,"./ParseTreePattern":313,"./RuleTagToken":315,"./TagChunk":316,"./TextChunk":317,"./TokenTagToken":318}],315:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54551,7 +50296,7 @@ RuleTagToken = __decorate([
 ], RuleTagToken);
 exports.RuleTagToken = RuleTagToken;
 
-},{"../../Decorators":203,"../../Token":228}],333:[function(require,module,exports){
+},{"../../Decorators":186,"../../Token":211}],316:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54638,7 +50383,7 @@ __decorate([
 ], TagChunk.prototype, "toString", null);
 exports.TagChunk = TagChunk;
 
-},{"../../Decorators":203,"./Chunk":328}],334:[function(require,module,exports){
+},{"../../Decorators":186,"./Chunk":311}],317:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54708,7 +50453,7 @@ TextChunk = __decorate([
 ], TextChunk);
 exports.TextChunk = TextChunk;
 
-},{"../../Decorators":203,"./Chunk":328}],335:[function(require,module,exports){
+},{"../../Decorators":186,"./Chunk":311}],318:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -54803,7 +50548,7 @@ TokenTagToken = __decorate([
 ], TokenTagToken);
 exports.TokenTagToken = TokenTagToken;
 
-},{"../../CommonToken":199,"../../Decorators":203}],336:[function(require,module,exports){
+},{"../../CommonToken":182,"../../Decorators":186}],319:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55000,7 +50745,7 @@ exports.XPath = XPath;
 XPath.WILDCARD = "*"; // word not operator/separator
 XPath.NOT = "!"; // word for invert operator
 
-},{"../../CharStreams":196,"../../CommonTokenStream":201,"../../LexerNoViableAltException":213,"../../ParserRuleContext":219,"../../Token":228,"./XPathLexer":338,"./XPathLexerErrorListener":339,"./XPathRuleAnywhereElement":340,"./XPathRuleElement":341,"./XPathTokenAnywhereElement":342,"./XPathTokenElement":343,"./XPathWildcardAnywhereElement":344,"./XPathWildcardElement":345}],337:[function(require,module,exports){
+},{"../../CharStreams":179,"../../CommonTokenStream":184,"../../LexerNoViableAltException":196,"../../ParserRuleContext":202,"../../Token":211,"./XPathLexer":321,"./XPathLexerErrorListener":322,"./XPathRuleAnywhereElement":323,"./XPathRuleElement":324,"./XPathTokenAnywhereElement":325,"./XPathTokenElement":326,"./XPathWildcardAnywhereElement":327,"./XPathWildcardElement":328}],320:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55035,7 +50780,7 @@ __decorate([
 ], XPathElement.prototype, "toString", null);
 exports.XPathElement = XPathElement;
 
-},{"../../Decorators":203}],338:[function(require,module,exports){
+},{"../../Decorators":186}],321:[function(require,module,exports){
 "use strict";
 // Generated from XPathLexer.g4 by ANTLR 4.9.0-SNAPSHOT
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -55510,7 +51255,7 @@ XPathLexer._serializedATN = Utils.join([
     XPathLexer._serializedATNSegment1,
 ], "");
 
-},{"../../Lexer":211,"../../VocabularyImpl":234,"../../atn/ATNDeserializer":240,"../../atn/LexerATNSimulator":261,"../../misc/Utils":322}],339:[function(require,module,exports){
+},{"../../Lexer":194,"../../VocabularyImpl":217,"../../atn/ATNDeserializer":223,"../../atn/LexerATNSimulator":244,"../../misc/Utils":305}],322:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55535,7 +51280,7 @@ __decorate([
 ], XPathLexerErrorListener.prototype, "syntaxError", null);
 exports.XPathLexerErrorListener = XPathLexerErrorListener;
 
-},{"../../Decorators":203}],340:[function(require,module,exports){
+},{"../../Decorators":186}],323:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55569,7 +51314,7 @@ __decorate([
 ], XPathRuleAnywhereElement.prototype, "evaluate", null);
 exports.XPathRuleAnywhereElement = XPathRuleAnywhereElement;
 
-},{"../../Decorators":203,"../Trees":327,"./XPathElement":337}],341:[function(require,module,exports){
+},{"../../Decorators":186,"../Trees":310,"./XPathElement":320}],324:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55612,7 +51357,7 @@ __decorate([
 ], XPathRuleElement.prototype, "evaluate", null);
 exports.XPathRuleElement = XPathRuleElement;
 
-},{"../../Decorators":203,"../../ParserRuleContext":219,"../Trees":327,"./XPathElement":337}],342:[function(require,module,exports){
+},{"../../Decorators":186,"../../ParserRuleContext":202,"../Trees":310,"./XPathElement":320}],325:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55644,7 +51389,7 @@ __decorate([
 ], XPathTokenAnywhereElement.prototype, "evaluate", null);
 exports.XPathTokenAnywhereElement = XPathTokenAnywhereElement;
 
-},{"../../Decorators":203,"../Trees":327,"./XPathElement":337}],343:[function(require,module,exports){
+},{"../../Decorators":186,"../Trees":310,"./XPathElement":320}],326:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55687,7 +51432,7 @@ __decorate([
 ], XPathTokenElement.prototype, "evaluate", null);
 exports.XPathTokenElement = XPathTokenElement;
 
-},{"../../Decorators":203,"../TerminalNode":326,"../Trees":327,"./XPathElement":337}],344:[function(require,module,exports){
+},{"../../Decorators":186,"../TerminalNode":309,"../Trees":310,"./XPathElement":320}],327:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55723,7 +51468,7 @@ __decorate([
 ], XPathWildcardAnywhereElement.prototype, "evaluate", null);
 exports.XPathWildcardAnywhereElement = XPathWildcardAnywhereElement;
 
-},{"../../Decorators":203,"../Trees":327,"./XPath":336,"./XPathElement":337}],345:[function(require,module,exports){
+},{"../../Decorators":186,"../Trees":310,"./XPath":319,"./XPathElement":320}],328:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -55763,7 +51508,7 @@ __decorate([
 ], XPathWildcardElement.prototype, "evaluate", null);
 exports.XPathWildcardElement = XPathWildcardElement;
 
-},{"../../Decorators":203,"../Trees":327,"./XPath":336,"./XPathElement":337}],346:[function(require,module,exports){
+},{"../../Decorators":186,"../Trees":310,"./XPath":319,"./XPathElement":320}],329:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -56273,7 +52018,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object-assign":369,"util/":349}],347:[function(require,module,exports){
+},{"object-assign":352,"util/":332}],330:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -56298,14 +52043,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],348:[function(require,module,exports){
+},{}],331:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],349:[function(require,module,exports){
+},{}],332:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -56895,7 +52640,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":348,"_process":370,"inherits":347}],350:[function(require,module,exports){
+},{"./support/isBuffer":331,"_process":353,"inherits":330}],333:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -56926,7 +52671,7 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],351:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -56957,7 +52702,7 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":370}],352:[function(require,module,exports){
+},{"_process":353}],335:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -56974,7 +52719,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"./":353,"get-intrinsic":357}],353:[function(require,module,exports){
+},{"./":336,"get-intrinsic":340}],336:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -57023,7 +52768,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"function-bind":356,"get-intrinsic":357}],354:[function(require,module,exports){
+},{"function-bind":339,"get-intrinsic":340}],337:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -57087,7 +52832,7 @@ var forEach = function forEach(list, iterator, thisArg) {
 
 module.exports = forEach;
 
-},{"is-callable":366}],355:[function(require,module,exports){
+},{"is-callable":349}],338:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -57141,14 +52886,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],356:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":355}],357:[function(require,module,exports){
+},{"./implementation":338}],340:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -57501,7 +53246,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"function-bind":356,"has":363,"has-proto":359,"has-symbols":360}],358:[function(require,module,exports){
+},{"function-bind":339,"has":346,"has-proto":342,"has-symbols":343}],341:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -57519,7 +53264,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"get-intrinsic":357}],359:[function(require,module,exports){
+},{"get-intrinsic":340}],342:[function(require,module,exports){
 'use strict';
 
 var test = {
@@ -57532,7 +53277,7 @@ module.exports = function hasProto() {
 	return { __proto__: test }.foo === test.foo && !({ __proto__: null } instanceof $Object);
 };
 
-},{}],360:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -57547,7 +53292,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":361}],361:[function(require,module,exports){
+},{"./shams":344}],344:[function(require,module,exports){
 'use strict';
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
@@ -57591,7 +53336,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],362:[function(require,module,exports){
+},{}],345:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -57600,14 +53345,14 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":361}],363:[function(require,module,exports){
+},{"has-symbols/shams":344}],346:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":356}],364:[function(require,module,exports){
+},{"function-bind":339}],347:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -57636,7 +53381,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],365:[function(require,module,exports){
+},{}],348:[function(require,module,exports){
 'use strict';
 
 var hasToStringTag = require('has-tostringtag/shams')();
@@ -57671,7 +53416,7 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bind/callBound":352,"has-tostringtag/shams":362}],366:[function(require,module,exports){
+},{"call-bind/callBound":335,"has-tostringtag/shams":345}],349:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -57774,7 +53519,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],367:[function(require,module,exports){
+},{}],350:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -57814,7 +53559,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return getProto(fn) === GeneratorFunction;
 };
 
-},{"has-tostringtag/shams":362}],368:[function(require,module,exports){
+},{"has-tostringtag/shams":345}],351:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -57878,7 +53623,7 @@ module.exports = function isTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":350,"call-bind/callBound":352,"for-each":354,"gopd":358,"has-tostringtag/shams":362}],369:[function(require,module,exports){
+},{"available-typed-arrays":333,"call-bind/callBound":335,"for-each":337,"gopd":341,"has-tostringtag/shams":345}],352:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -57970,7 +53715,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],370:[function(require,module,exports){
+},{}],353:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -58156,9 +53901,9 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],371:[function(require,module,exports){
-arguments[4][348][0].apply(exports,arguments)
-},{"dup":348}],372:[function(require,module,exports){
+},{}],354:[function(require,module,exports){
+arguments[4][331][0].apply(exports,arguments)
+},{"dup":331}],355:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -58494,7 +54239,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":365,"is-generator-function":367,"is-typed-array":368,"which-typed-array":374}],373:[function(require,module,exports){
+},{"is-arguments":348,"is-generator-function":350,"is-typed-array":351,"which-typed-array":357}],356:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -59213,7 +54958,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":371,"./support/types":372,"_process":370,"inherits":364}],374:[function(require,module,exports){
+},{"./support/isBuffer":354,"./support/types":355,"_process":353,"inherits":347}],357:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -59272,5 +55017,5 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":350,"call-bind/callBound":352,"for-each":354,"gopd":358,"has-tostringtag/shams":362,"is-typed-array":368}]},{},[1])(1)
+},{"available-typed-arrays":333,"call-bind/callBound":335,"for-each":337,"gopd":341,"has-tostringtag/shams":345,"is-typed-array":351}]},{},[1])(1)
 });
