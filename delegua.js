@@ -82,11 +82,6 @@ var DeleguaWeb = /** @class */ (function () {
         this.teveErroEmTempoDeExecucao = false;
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
-        // TODO: Aparentemente, as propriedades abaixo não são usadas em lugar algum.
-        // iniciarDelegua: any;
-        // carregarArquivo: any;
-        // conteudoArquivosAbertos: any;
-        // executarUmaLinha: any;
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.tradutorPython = new tradutores_1.TradutorPython();
         this.tradutorAssemblyScript = new tradutores_1.TradutorAssemblyScript();
@@ -166,7 +161,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.17";
+        return "0.34";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -25647,6 +25642,7 @@ class TradutorAssemblyScript {
             Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             Chamada: this.traduzirConstrutoChamada.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
             FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
             Isto: () => 'this',
@@ -25660,6 +25656,7 @@ class TradutorAssemblyScript {
         this.dicionarioDeclaracoes = {
             Bloco: this.traduzirDeclaracaoBloco.bind(this),
             Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             Continua: () => 'continue',
             Escolha: this.traduzirDeclaracaoEscolha.bind(this),
             Expressao: this.traduzirDeclaracaoExpressao.bind(this),
@@ -26141,6 +26138,20 @@ class TradutorAssemblyScript {
         resultado += ')';
         return resultado;
     }
+    traduzirConstrutoComentario(comentario) {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `/*`;
+            for (let linhaComentario of comentario.conteudo) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `*/`;
+        }
+        else {
+            resultado += `// ${comentario.conteudo}`;
+        }
+        return resultado;
+    }
     traduzirConstrutoBinario(binario) {
         let resultado = '';
         if (binario.esquerda.constructor.name === 'Agrupamento')
@@ -26228,6 +26239,7 @@ class TradutorJavaScript {
             Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             Chamada: this.traduzirConstrutoChamada.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
             FuncaoConstruto: this.traduzirFuncaoConstruto.bind(this),
             Isto: () => 'this',
@@ -26242,6 +26254,7 @@ class TradutorJavaScript {
             Bloco: this.traduzirDeclaracaoBloco.bind(this),
             Classe: this.traduzirDeclaracaoClasse.bind(this),
             Const: this.traduzirDeclaracaoConst.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             Continua: () => 'continue',
             Enquanto: this.traduzirDeclaracaoEnquanto.bind(this),
             Escolha: this.traduzirDeclaracaoEscolha.bind(this),
@@ -26395,6 +26408,20 @@ class TradutorJavaScript {
             resultado = resultado.slice(0, -2);
         }
         resultado += ')';
+        return resultado;
+    }
+    traduzirConstrutoComentario(comentario) {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `/*`;
+            for (let linhaComentario of comentario.conteudo) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `*/`;
+        }
+        else {
+            resultado += `// ${comentario.conteudo}`;
+        }
         return resultado;
     }
     logicaComumBlocoEscopo(declaracoes) {
@@ -26842,6 +26869,7 @@ class TradutorPython {
             Atribuir: this.traduzirConstrutoAtribuir.bind(this),
             Binario: this.traduzirConstrutoBinario.bind(this),
             Chamada: this.traduzirConstrutoChamada.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
             Literal: this.traduzirConstrutoLiteral.bind(this),
             Logico: this.traduzirConstrutoLogico.bind(this),
@@ -26851,6 +26879,7 @@ class TradutorPython {
         this.dicionarioDeclaracoes = {
             Bloco: this.traduzirDeclaracaoBloco.bind(this),
             Classe: this.traduzirDeclaracaoClasse.bind(this),
+            Comentario: this.traduzirConstrutoComentario.bind(this),
             Const: this.traduzirDeclaracaoConst.bind(this),
             Continua: () => 'continue',
             Escreva: this.traduzirDeclaracaoEscreva.bind(this),
@@ -26961,54 +26990,6 @@ class TradutorPython {
         resultado += ' '.repeat(this.indentacao) + '\n';
         return resultado;
     }
-    traduzirDeclaracaoTente(declaracaoTente) {
-        let resultado = 'try:\n';
-        this.indentacao += 4;
-        resultado += ' '.repeat(this.indentacao);
-        for (let condicao of declaracaoTente.caminhoTente) {
-            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
-            resultado += ' '.repeat(this.indentacao);
-        }
-        if (declaracaoTente.caminhoPegue !== null) {
-            resultado += '\nexcept:\n';
-            resultado += ' '.repeat(this.indentacao);
-            if (Array.isArray(declaracaoTente.caminhoPegue)) {
-                for (let declaracao of declaracaoTente.caminhoPegue) {
-                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
-                }
-            }
-            else {
-                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
-                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
-                }
-            }
-            resultado += ' '.repeat(this.indentacao);
-        }
-        if (declaracaoTente.caminhoFinalmente !== null) {
-            resultado += '\nfinally:\n';
-            resultado += ' '.repeat(this.indentacao);
-            for (let finalmente of declaracaoTente.caminhoFinalmente) {
-                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
-            }
-        }
-        return resultado;
-    }
-    traduzirConstrutoLogico(logico) {
-        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
-        let operador = this.traduzirSimboloOperador(logico.operador);
-        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
-        return `${esquerda} ${operador} ${direita}`;
-    }
-    traduzirConstrutoLiteral(literal) {
-        if (typeof literal.valor === 'string')
-            return `'${literal.valor}'`;
-        if (typeof literal.valor === 'boolean') {
-            return literal.valor ? 'True' : 'False';
-        }
-        if (!literal.valor)
-            return 'None';
-        return literal.valor;
-    }
     trazudirConstrutoAcessoMetodo(acessoMetodo) {
         if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoMetodo.objeto;
@@ -27023,24 +27004,12 @@ class TradutorPython {
         }
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
-    traduzirDeclaracaoEscreva(declaracaoEscreva) {
-        let resultado = 'print(';
-        for (const argumento of declaracaoEscreva.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            resultado += valor + ', ';
-        }
-        resultado = resultado.slice(0, -2);
-        resultado += ')';
-        return resultado;
+    traduzirConstrutoAgrupamento(agrupamento) {
+        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
-    traduzirDeclaracaoLeia(declaracaoLeia) {
-        let resultado = 'input(';
-        for (const argumento of declaracaoLeia.argumentos) {
-            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
-            resultado += valor + ', ';
-        }
-        resultado = resultado.slice(0, -2);
-        resultado += ')';
+    traduzirConstrutoAtribuir(atribuir) {
+        let resultado = atribuir.simbolo.lexema;
+        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
     traduzirConstrutoBinario(binario) {
@@ -27057,17 +27026,85 @@ class TradutorPython {
             resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
         return resultado;
     }
-    traduzirDeclaracaoFuncao(declaracaoFuncao) {
-        let resultado = 'def ';
-        resultado += declaracaoFuncao.simbolo.lexema + '(';
-        for (const parametro of declaracaoFuncao.funcao.parametros) {
-            resultado += parametro.nome.lexema + ', ';
+    traduzirConstrutoChamada(chamada) {
+        let resultado = '';
+        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
+        resultado += retorno;
+        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
+            resultado += '(';
         }
-        if (declaracaoFuncao.funcao.parametros.length > 0) {
+        if (!resultado.includes('len(')) {
+            for (let parametro of chamada.argumentos) {
+                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
+                if (resultado.includes('in ') || resultado.includes('len')) {
+                    resultado = `${parametroTratado} ${resultado}`;
+                }
+                else {
+                    resultado += parametroTratado + ', ';
+                }
+            }
+            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
+                resultado = resultado.slice(0, -2);
+            }
+            if (!resultado.includes(')') && !resultado.includes('in ')) {
+                resultado += ')';
+            }
+        }
+        return resultado;
+    }
+    traduzirConstrutoComentario(comentario) {
+        let resultado = '';
+        if (comentario.multilinha) {
+            resultado += `'''`;
+            for (let linhaComentario of comentario.conteudo) {
+                resultado += `${linhaComentario}\n`;
+            }
+            resultado += `'''`;
+        }
+        else {
+            resultado += `# ${comentario.conteudo}`;
+        }
+        return resultado;
+    }
+    traduzirConstrutoDefinirValor(definirValor) {
+        let resultado = '';
+        if (definirValor.objeto instanceof construtos_1.Isto) {
+            resultado = 'self.' + definirValor.nome.lexema + ' = ';
+        }
+        resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+    traduzirConstrutoLiteral(literal) {
+        if (typeof literal.valor === 'string')
+            return `'${literal.valor}'`;
+        if (typeof literal.valor === 'boolean') {
+            return literal.valor ? 'True' : 'False';
+        }
+        if (!literal.valor)
+            return 'None';
+        return literal.valor;
+    }
+    traduzirConstrutoLogico(logico) {
+        let direita = this.dicionarioConstrutos[logico.direita.constructor.name](logico.direita);
+        let operador = this.traduzirSimboloOperador(logico.operador);
+        let esquerda = this.dicionarioConstrutos[logico.esquerda.constructor.name](logico.esquerda);
+        return `${esquerda} ${operador} ${direita}`;
+    }
+    traduzirConstrutoVariavel(variavel) {
+        return variavel.simbolo.lexema;
+    }
+    traduzirConstrutoVetor(vetor) {
+        if (!vetor.valores.length) {
+            return '[]';
+        }
+        let resultado = '[';
+        for (let valor of vetor.valores) {
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
+        }
+        if (vetor.valores.length > 0) {
             resultado = resultado.slice(0, -2);
         }
-        resultado += '):';
-        resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
+        resultado += ']';
         return resultado;
     }
     traduzirDeclaracaoSe(declaracaoSe, iniciarComIf = true) {
@@ -27134,6 +27171,9 @@ class TradutorPython {
         this.indentacao -= 4;
         return resultado;
     }
+    traduzirDeclaracaoBloco(declaracaoBloco) {
+        return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
+    }
     traduzirDeclaracaoClasse(declaracaoClasse) {
         let resultado = 'class ';
         if (declaracaoClasse.superClasse)
@@ -27144,77 +27184,6 @@ class TradutorPython {
             return (resultado += '    pass\n');
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
-        }
-        return resultado;
-    }
-    traduzirConstrutoChamada(chamada) {
-        let resultado = '';
-        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
-        resultado += retorno;
-        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
-            resultado += '(';
-        }
-        if (!resultado.includes('len(')) {
-            for (let parametro of chamada.argumentos) {
-                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
-                if (resultado.includes('in ') || resultado.includes('len')) {
-                    resultado = `${parametroTratado} ${resultado}`;
-                }
-                else {
-                    resultado += parametroTratado + ', ';
-                }
-            }
-            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
-                resultado = resultado.slice(0, -2);
-            }
-            if (!resultado.includes(')') && !resultado.includes('in ')) {
-                resultado += ')';
-            }
-        }
-        return resultado;
-    }
-    traduzirDeclaracaoRetorna(declaracaoRetorna) {
-        let resultado = 'return ';
-        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
-        return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna === null || declaracaoRetorna === void 0 ? void 0 : declaracaoRetorna.valor));
-    }
-    traduzirConstrutoVetor(vetor) {
-        if (!vetor.valores.length) {
-            return '[]';
-        }
-        let resultado = '[';
-        for (let valor of vetor.valores) {
-            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)}, `;
-        }
-        if (vetor.valores.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
-        resultado += ']';
-        return resultado;
-    }
-    traduzirConstrutoDefinirValor(definirValor) {
-        let resultado = '';
-        if (definirValor.objeto instanceof construtos_1.Isto) {
-            resultado = 'self.' + definirValor.nome.lexema + ' = ';
-        }
-        resultado += definirValor.valor.simbolo.lexema;
-        return resultado;
-    }
-    traduzirDeclaracaoVar(declaracaoVar) {
-        let resultado = '';
-        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
-        resultado += ' = ';
-        const inicializador = declaracaoVar.inicializador;
-        if (inicializador) {
-            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
-                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
-            }
-            else {
-                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
-            }
-        }
-        else {
-            resultado += 'None';
         }
         return resultado;
     }
@@ -27236,6 +27205,42 @@ class TradutorPython {
         }
         return resultado;
     }
+    traduzirDeclaracaoEscreva(declaracaoEscreva) {
+        let resultado = 'print(';
+        for (const argumento of declaracaoEscreva.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+        return resultado;
+    }
+    traduzirDeclaracaoExpressao(declaracaoExpressao) {
+        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
+    }
+    traduzirDeclaracaoFuncao(declaracaoFuncao) {
+        let resultado = 'def ';
+        resultado += declaracaoFuncao.simbolo.lexema + '(';
+        for (const parametro of declaracaoFuncao.funcao.parametros) {
+            resultado += parametro.nome.lexema + ', ';
+        }
+        if (declaracaoFuncao.funcao.parametros.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += '):';
+        resultado += this.logicaComumBlocoEscopo(declaracaoFuncao.funcao.corpo);
+        return resultado;
+    }
+    traduzirDeclaracaoLeia(declaracaoLeia) {
+        let resultado = 'input(';
+        for (const argumento of declaracaoLeia.argumentos) {
+            const valor = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            resultado += valor + ', ';
+        }
+        resultado = resultado.slice(0, -2);
+        resultado += ')';
+        return resultado;
+    }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
         let resultado = `for ${declaracaoParaCada.nomeVariavelIteracao} in `;
         resultado +=
@@ -27243,22 +27248,60 @@ class TradutorPython {
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
         return resultado;
     }
-    traduzirConstrutoAtribuir(atribuir) {
-        let resultado = atribuir.simbolo.lexema;
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+    traduzirDeclaracaoRetorna(declaracaoRetorna) {
+        let resultado = 'return ';
+        const nomeConstrutor = declaracaoRetorna.valor.constructor.name;
+        return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna === null || declaracaoRetorna === void 0 ? void 0 : declaracaoRetorna.valor));
+    }
+    traduzirDeclaracaoTente(declaracaoTente) {
+        let resultado = 'try:\n';
+        this.indentacao += 4;
+        resultado += ' '.repeat(this.indentacao);
+        for (let condicao of declaracaoTente.caminhoTente) {
+            resultado += this.dicionarioDeclaracoes[condicao.constructor.name](condicao) + '\n';
+            resultado += ' '.repeat(this.indentacao);
+        }
+        if (declaracaoTente.caminhoPegue !== null) {
+            resultado += '\nexcept:\n';
+            resultado += ' '.repeat(this.indentacao);
+            if (Array.isArray(declaracaoTente.caminhoPegue)) {
+                for (let declaracao of declaracaoTente.caminhoPegue) {
+                    resultado += this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao) + '\n';
+                }
+            }
+            else {
+                for (let corpo of declaracaoTente.caminhoPegue.corpo) {
+                    resultado += this.dicionarioDeclaracoes[corpo.constructor.name](corpo) + '\n';
+                }
+            }
+            resultado += ' '.repeat(this.indentacao);
+        }
+        if (declaracaoTente.caminhoFinalmente !== null) {
+            resultado += '\nfinally:\n';
+            resultado += ' '.repeat(this.indentacao);
+            for (let finalmente of declaracaoTente.caminhoFinalmente) {
+                resultado += this.dicionarioDeclaracoes[finalmente.constructor.name](finalmente) + '\n';
+            }
+        }
         return resultado;
     }
-    traduzirConstrutoVariavel(variavel) {
-        return variavel.simbolo.lexema;
-    }
-    traduzirDeclaracaoExpressao(declaracaoExpressao) {
-        return this.dicionarioConstrutos[declaracaoExpressao.expressao.constructor.name](declaracaoExpressao.expressao);
-    }
-    traduzirDeclaracaoBloco(declaracaoBloco) {
-        return this.logicaComumBlocoEscopo(declaracaoBloco.declaracoes);
-    }
-    traduzirConstrutoAgrupamento(agrupamento) {
-        return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
+    traduzirDeclaracaoVar(declaracaoVar) {
+        let resultado = '';
+        resultado += this.traduzirNomeVariavel(declaracaoVar.simbolo.lexema);
+        resultado += ' = ';
+        const inicializador = declaracaoVar.inicializador;
+        if (inicializador) {
+            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+                resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+            }
+            else {
+                resultado += this.dicionarioDeclaracoes[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
+            }
+        }
+        else {
+            resultado += 'None';
+        }
+        return resultado;
     }
     traduzir(declaracoes) {
         let resultado = '';

@@ -81,11 +81,6 @@ var DeleguaWeb = /** @class */ (function () {
         this.teveErroEmTempoDeExecucao = false;
         // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
-        // TODO: Aparentemente, as propriedades abaixo não são usadas em lugar algum.
-        // iniciarDelegua: any;
-        // carregarArquivo: any;
-        // conteudoArquivosAbertos: any;
-        // executarUmaLinha: any;
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.tradutorPython = new tradutores_1.TradutorPython();
         this.tradutorAssemblyScript = new tradutores_1.TradutorAssemblyScript();
@@ -165,7 +160,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.17";
+        return "0.34";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
