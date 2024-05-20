@@ -2,7 +2,7 @@
     "name": "delegua-web",
     "description": "Demonstração da Linguagem Delégua funcional em qualquer navegador de internet.",
     "scripts": {
-        "copiar-arquivos": "yarn copy-files-from-to",
+        "copiar-arquivos": "yarn copy-files-from-to && cp ./nls/default.js dist/vs/editor/editor.main.nls.js && rm ./nls -R",
         "empacotar": "yarn del-cli ./dist && yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
         "gerar-css:tempo-real": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
