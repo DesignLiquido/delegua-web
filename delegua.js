@@ -161,7 +161,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.34";
+        return "0.35";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)

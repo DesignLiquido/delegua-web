@@ -58,6 +58,7 @@ var limparResultadoEditor = function () {
 limparResultadoEditor();
 var mapearErros = function (erros) {
     var editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+    console.log(erros);
     var _erros = erros.map(function (item) {
         var _a;
         return {
@@ -65,11 +66,10 @@ var mapearErros = function (erros) {
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: item === null || item === void 0 ? void 0 : item.mensagem,
+            message: (item === null || item === void 0 ? void 0 : item.mensagem) || item.erroInterno,
             severity: MarkerSeverity.Error
         };
     });
-    console.log(_erros);
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros);
 };
 var executarTradutor = function () {
