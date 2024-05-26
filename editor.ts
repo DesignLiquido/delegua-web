@@ -6,10 +6,10 @@ const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 
 enum MarkerSeverity {
-    Hint = 1,
-    Info = 2,
-    Warning = 4,
-    Error = 8
+	Hint = 1,
+	Info = 2,
+	Warning = 4,
+	Error = 8
 }
 
 const mostrarResultadoExecutar = function (codigo: string) {
@@ -28,17 +28,17 @@ limparResultadoEditor();
 const mapearErros = function (erros: any[]) {
     const editor = Monaco?.editor.getEditors()[0];
 
+    console.log(erros)
     const _erros = erros.map(item => {
         return {
             startLineNumber: item?.simbolo?.linha || item.linha,
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: item?.mensagem,
+            message: item?.mensagem || item.erroInterno,
             severity: MarkerSeverity.Error
         }
     })
-    console.log(_erros)
 
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros)
 }
