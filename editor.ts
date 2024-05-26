@@ -12,7 +12,7 @@ enum MarkerSeverity {
 	Error = 8
 }
 
-const mostrarResultadoExecutar = function(codigo: string) {
+const mostrarResultadoExecutar = function (codigo: string) {
     const paragrafo: any = document.createElement("p");
     paragrafo.textContent = codigo;
     paragrafo.classList = " resultadoEditor";
@@ -48,34 +48,64 @@ const executarTradutor = function () {
 
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
-    if(codigo[0]){
+    //ts-ignore
+    const linguagem = (<HTMLInputElement>document.querySelector("#linguagem")).value.toLowerCase()
+
+    const funcoes = {
+        "python": { tradutor: delegua.tradutorPython, linguagem: "python" },
+        "javascript": { tradutor: delegua.tradutorJavascript, linguagem: "javascript" },
+        "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
+    }
+    if (codigo[0]) {
         const retornoLexador = delegua.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
             delegua.avaliadorSintatico.analisar(retornoLexador);
-    
-        const retornoTradutor = delegua.tradutorJavascript.traduzir(retornoAvaliadorSintatico.declaracoes)
 
-        if(retornoTradutor){
+        const funcao = funcoes[linguagem]
+        const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
+
+        if (retornoTradutor) {
             Monaco.editor.create(document.getElementById("resultadoEditor"), {
                 value: retornoTradutor,
-                language: "javascript"
+                language: funcao.linguagem
             });
         }
     }
 }
 
 const executarCodigo = async function () {
-    const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
+    try {
+        const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 
-    const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
+        const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico =
-        delegua.avaliadorSintatico.analisar(retornoLexador);
+        const retornoLexador = delegua.lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico =
+            delegua.avaliadorSintatico.analisar(retornoLexador);
+        const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+        const erros = analisadorSemantico.erros;
 
-    const retorno = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+        if (erros?.length) return mapearErros(erros);
 
-    mapearErros(retorno.erros);
+        delegua.executar({ retornoLexador, retornoAvaliadorSintatico })
+            .then(function (response) {
+                const erros = response.erros;
+                if (erros) {
+                    erros.forEach((erro) => {
+                        if (erro.linha > 0) {
+                            const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
+                            mostrarResultadoExecutar(mensagemErro);
+                        }
+                    });
+                }
+            })
+            .catch(function (erro) {
+                mostrarResultadoExecutar(erro);
+            });
+    } catch (error) {
+        const erro = "Erro: " + error
+        mostrarResultadoExecutar(erro)
+    }
 };
 
 botaoTraduzir.addEventListener("click", function () {

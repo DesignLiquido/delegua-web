@@ -1,16 +1,22 @@
-import { Lexador } from "@designliquido/delegua/fontes/lexador";
-import { AvaliadorSintatico } from "@designliquido/delegua/fontes/avaliador-sintatico";
-import { InterpretadorBase } from "@designliquido/delegua/fontes/interpretador/interpretador-base";
-import tiposDeSimbolos from "@designliquido/delegua/fontes/tipos-de-simbolos/delegua";
+import { Lexador } from "@designliquido/delegua/lexador";
+import { AvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico";
+import { AnalisadorSemantico } from "@designliquido/delegua/analisador-semantico";
+import { InterpretadorBase } from "@designliquido/delegua/interpretador/interpretador-base";
+import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 import {
     AvaliadorSintaticoInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
-} from "@designliquido/delegua/fontes/interfaces/index";
+} from "@designliquido/delegua/interfaces/index";
+import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/estruturas";
+import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
+import { Declaracao } from "@designliquido/delegua/declaracoes";
+
+import * as estatistica from "@designliquido/delegua-estatistica";
+import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
-import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/fontes/estruturas";
-import { TradutorJavaScript } from "@designliquido/delegua/fontes/tradutores";
+import * as tempo from "@designliquido/delegua-tempo";
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -21,14 +27,14 @@ export class DeleguaWeb {
     dialeto: string = "delegua";
     arquivosAbertos: any;
     interpretador: InterpretadorBase;
-    lexador: LexadorInterface;
-    avaliadorSintatico: AvaliadorSintaticoInterface;
+    lexador: LexadorInterface<SimboloInterface>;
+    avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
+    analisadorSemantico: AnalisadorSemantico
     funcaoDeRetorno: Function;
-    iniciarDelegua: any;
-    carregarArquivo: any;
-    conteudoArquivosAbertos: any;
-    executarUmaLinha: any;
+
     tradutorJavascript = new TradutorJavaScript();
+    tradutorPython = new TradutorPython();
+    tradutorAssemblyScript = new TradutorAssemblyScript();
 
     constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
         this.nomeArquivo = nomeArquivo;
@@ -36,6 +42,7 @@ export class DeleguaWeb {
 
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
+        this.analisadorSemantico = new AnalisadorSemantico();
         this.interpretador = new InterpretadorBase(
             "",
             false,
@@ -50,17 +57,39 @@ export class DeleguaWeb {
             }
         }
 
-        const moduloMatematica = new DeleguaModulo("matematica");
-        const chaves = Object.keys(matematica);
-        for (let i = 0; i < chaves.length; i++) {
-            const funcao = matematica[chaves[i]];
-            moduloMatematica.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
-        }
+        const moduloEstatistica = new DeleguaModulo("estatistica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "estatistica",
+            this.montarModulo(estatistica, moduloEstatistica)
+        );
 
+        const moduloFisica = new DeleguaModulo("fisica");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "fisica",
+            this.montarModulo(fisica, moduloFisica)
+        );
+
+        const moduloMatematica = new DeleguaModulo("matematica");
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "matematica",
-            moduloMatematica
+            this.montarModulo(matematica, moduloMatematica)
         );
+
+        const moduloTempo = new DeleguaModulo("tempo");
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            "tempo",
+            this.montarModulo(tempo, moduloTempo)
+        );
+    }
+
+    montarModulo(moduloNode: any, moduloDelegua: DeleguaModulo): DeleguaModulo {
+        const chaves = Object.keys(moduloNode);
+        for (let i = 0; i < chaves.length; i++) {
+            const funcao = moduloNode[chaves[i]];
+            moduloDelegua.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
+        }
+
+        return moduloDelegua;
     }
 
     async executar(
@@ -117,7 +146,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.17";
+        return "0.35";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

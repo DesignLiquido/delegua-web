@@ -43,12 +43,20 @@
       <option value="hc-light">Claro</option>
     </select>
     <div class="navbar-direita">
-      <button id="botaoTraduzir" style="padding-right: 16px;" title="Traduzir">
-        <i class="fa fa-language" style="font-size:20px;"></i>
-      </button>
-      <button id="botaoExecutar" title="Executar">
-        <i class="fa fa-play" style="font-size:20px;"></i>
-      </button>
+        <select id="linguagem">
+            <option selected>JavaScript</option>
+            <option>Python</option>
+            <option>AssemblyScript</option>
+        </select>
+        <div>
+            <button id="botaoTraduzir" title="Traduzir">
+							<i class="fa fa-language" style="font-size:20px;"></i>
+            </button>
+
+            <button id="botaoExecutar" title="Executar">
+							<i class="fa fa-play" style="font-size:20px;"></i>
+            </button>
+          </div>
     </div>
   </nav>
 
@@ -60,6 +68,7 @@
   <script src="./primitivas/primitivas-numero.js"></script>
   <script src="./primitivas/primitivas-texto.js"></script>
   <script src="./primitivas/primitivas-vetor.js"></script>
+  <script src="./primitivas/metodos-biblioteca-global.js"></script>
   <script src="./primitivas/index.js"></script>
 
   <script src="./delegua.js"></script>
