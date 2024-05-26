@@ -83,25 +83,20 @@ const executarCodigo = async function () {
         const retornoAvaliadorSintatico =
             delegua.avaliadorSintatico.analisar(retornoLexador);
         const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-        const erros = analisadorSemantico.erros;
+        const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
-        if (erros?.length) return mapearErros(erros);
+        if (errosAnaliseSemantica?.length) return mapearErros(errosAnaliseSemantica);
 
-        delegua.executar({ retornoLexador, retornoAvaliadorSintatico })
-            .then(function (response) {
-                const erros = response.erros;
-                if (erros) {
-                    erros.forEach((erro) => {
-                        if (erro.linha > 0) {
-                            const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
-                            mostrarResultadoExecutar(mensagemErro);
-                        }
-                    });
+        const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+        const errosInterpretacao = respostaInterpretador.erros;
+        if (errosInterpretacao) {
+            errosInterpretacao.forEach((erro: any) => {
+                if (erro.linha > 0) {
+                    const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
+                    mostrarResultadoExecutar(mensagemErro);
                 }
-            })
-            .catch(function (erro) {
-                mostrarResultadoExecutar(erro);
             });
+        }
     } catch (error) {
         const erro = "Erro: " + error
         mostrarResultadoExecutar(erro)
