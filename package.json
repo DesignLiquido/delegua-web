@@ -2,12 +2,14 @@
     "name": "delegua-web",
     "description": "Demonstração da Linguagem Delégua funcional em qualquer navegador de internet.",
     "scripts": {
-        "copiar-arquivos": "yarn copy-files-from-to",
-        "empacotar": "del-cli ./dist && yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
-        "gerar-css": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
-        "gerar-css:tempo-real": "sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
+        "copiar-arquivos": "yarn copy-files-from-to --force",
+        "empacotar": "yarn del-cli ./dist && yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
+        "gerar-css": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
+        "gerar-css:tempo-real": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
         "gerar-web": "tsc && browserify dist/index.js --s Delegua -o dist/delegua.js",
-        "publicar": "yarn empacotar && gh-pages -d dist"
+        "publicar": "yarn empacotar && yarn gh-pages -d dist",
+        "servir": "yarn http-server -o ./dist",
+        "testar": "yarn empacotar && yarn servir"
     },
     "devDependencies": {
         "@types/estree": "^1.0.0",
@@ -16,17 +18,18 @@
         "copy-files-from-to": "^3.6.0",
         "del-cli": "^5.0.0",
         "gh-pages": "^3.2.3",
+        "http-server": "^14.1.1",
         "sass": "^1.50.1",
         "ts-node": "^10.7.0",
         "typescript": "^4.6.3"
     },
     "dependencies": {
         "@designliquido/delegua": "^0.35.3",
-        "@designliquido/delegua-estatistica": "^0.0.5",
+        "@designliquido/delegua-estatistica": "^0.0.6",
         "@designliquido/delegua-fisica": "^0.0.2",
         "@designliquido/delegua-matematica": "^0.2.0",
-        "@designliquido/delegua-tempo": "^0.0.1",
-        "monaco-editor": "^0.50.0"
+        "@designliquido/delegua-tempo": "^0.0.2",
+        "monaco-editor": "^0.45.0"
     },
     "copyFiles": [
         {
@@ -42,16 +45,19 @@
             "to": "dist/favicon.ico"
         },
         {
-            "from": "*.js",
-            "to": "dist/"
-        },
-        {
             "from": "./icones/**",
             "to": "dist/icones/"
         },
         {
             "from": "node_modules/monaco-editor/min/vs/**/*",
             "to": "dist/vs"
+        },
+        {
+            "from": "nls/default.js",
+            "to": "dist/vs/editor/editor.main.nls.js"
         }
-    ]
+    ],
+    "copyFilesSettings": {
+        "whenFileExists": "overwrite"
+    }
 }

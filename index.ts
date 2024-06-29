@@ -32,11 +32,6 @@ export class DeleguaWeb {
     analisadorSemantico: AnalisadorSemantico
     funcaoDeRetorno: Function;
 
-    // TODO: Aparentemente, as propriedades abaixo não são usadas em lugar algum.
-    // iniciarDelegua: any;
-    // carregarArquivo: any;
-    // conteudoArquivosAbertos: any;
-    // executarUmaLinha: any;
     tradutorJavascript = new TradutorJavaScript();
     tradutorPython = new TradutorPython();
     tradutorAssemblyScript = new TradutorAssemblyScript();
@@ -151,7 +146,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.17";
+        return "0.35";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

@@ -6,10 +6,10 @@ const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 
 enum MarkerSeverity {
-    Hint = 1,
-    Info = 2,
-    Warning = 4,
-    Error = 8
+	Hint = 1,
+	Info = 2,
+	Warning = 4,
+	Error = 8
 }
 
 const mostrarResultadoExecutar = function (codigo: string) {
@@ -28,17 +28,17 @@ limparResultadoEditor();
 const mapearErros = function (erros: any[]) {
     const editor = Monaco?.editor.getEditors()[0];
 
+    console.log(erros)
     const _erros = erros.map(item => {
         return {
             startLineNumber: item?.simbolo?.linha || item.linha,
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: item?.mensagem,
+            message: item?.mensagem || item.erroInterno,
             severity: MarkerSeverity.Error
         }
     })
-    console.log(_erros)
 
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros)
 }
@@ -83,25 +83,20 @@ const executarCodigo = async function () {
         const retornoAvaliadorSintatico =
             delegua.avaliadorSintatico.analisar(retornoLexador);
         const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-        const erros = analisadorSemantico.erros;
+        const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
-        if (erros?.length) return mapearErros(erros);
+        if (errosAnaliseSemantica?.length) return mapearErros(errosAnaliseSemantica);
 
-        delegua.executar({ retornoLexador, retornoAvaliadorSintatico })
-            .then(function (response) {
-                const erros = response.erros;
-                if (erros) {
-                    erros.forEach((erro) => {
-                        if (erro.linha > 0) {
-                            const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
-                            mostrarResultadoExecutar(mensagemErro);
-                        }
-                    });
+        const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+        const errosInterpretacao = respostaInterpretador.erros;
+        if (errosInterpretacao) {
+            errosInterpretacao.forEach((erro: any) => {
+                if (erro.linha > 0) {
+                    const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
+                    mostrarResultadoExecutar(mensagemErro);
                 }
-            })
-            .catch(function (erro) {
-                mostrarResultadoExecutar(erro);
             });
+        }
     } catch (error) {
         const erro = "Erro: " + error
         mostrarResultadoExecutar(erro)
