@@ -29,7 +29,7 @@
         "@designliquido/delegua-fisica": "^0.0.2",
         "@designliquido/delegua-matematica": "^0.2.0",
         "@designliquido/delegua-tempo": "^0.0.2",
-        "monaco-editor": "^0.45.0"
+        "monaco-editor": "^0.50.0"
     },
     "copyFiles": [
         {
