@@ -125,7 +125,7 @@ para (a = 0; a < 4; a = a + 1) {
 var a = 1;
 // Insira o valor do coeficiente B:
 var b = -1;
-// Insira o valor do coeficiente B:
+// Insira o valor do coeficiente C:
 var c = -30;
 bhaskara(a,b,c);`,
   Fibonacci: `// Recursão para o cálculo da sequência de Fibonacci
