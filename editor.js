@@ -80,7 +80,7 @@ var executarTradutor = function () {
     var funcoes = {
         "python": { tradutor: delegua.tradutorPython, linguagem: "python" },
         "javascript": { tradutor: delegua.tradutorJavascript, linguagem: "javascript" },
-        "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
+        // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
     };
     if (codigo[0]) {
         var retornoLexador = delegua.lexador.mapear(codigo, -1);

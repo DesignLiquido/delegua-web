@@ -160,7 +160,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.35";
+        return "0.37";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
