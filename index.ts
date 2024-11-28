@@ -146,7 +146,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.35";
+        return "0.37";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
