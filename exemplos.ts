@@ -193,7 +193,14 @@ enquanto (erro != 0) {
   escreva("erro: " + texto(erro));
 }`,
 
-  FilaEstatica: `funcao enfileirar (valorEntrada) {
+  FilaEstatica: `var maximoDeElementos = 4;
+var indexInicial = 0;
+var indexFinal = 0;
+// Variavel de controle em iterações
+var i = 0;
+var filaEstatica = [];
+
+funcao enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos) {
     escreva("Fila Cheia");
   } senao {
@@ -226,12 +233,7 @@ função mostrar_fila() {
     }
   }
 }
-var maximoDeElementos = 4;
-var indexInicial = 0;
-var indexFinal = 0;
-// Variavel de controle em iterações
-var i = 0;
-var filaEstatica = [];
+
 // Demonstração de uso das funções:
 mostrar_fila();
 var valorEntrada = 2;
