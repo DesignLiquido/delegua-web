@@ -108,6 +108,41 @@ const executarCodigo = async function () {
     }
 };
 
+const analisarCodigo = function () {
+    const delegua = new Delegua.DeleguaWeb("");
+
+    const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+
+    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
+
+    mapearErros(errosAnaliseSemantica);
+};
+
+const configurarAtualizacaoAutomatica = function () {
+    const editor = Monaco?.editor.getEditors()[0];
+    if (!editor) {
+        console.error("Editor não encontrado. Verifique se foi inicializado corretamente.");
+        return;
+    }
+
+    const model = editor.getModel();
+    if (!model) {
+        console.error("Modelo não encontrado. Verifique a inicialização do Monaco Editor.");
+        return;
+    }
+
+    model.onDidChangeContent(() => {
+        analisarCodigo();
+    });
+};
+
+window.addEventListener("load", () => {
+    configurarAtualizacaoAutomatica();
+});
+
 botaoTraduzir.addEventListener("click", function () {
     limparResultadoEditor();
     executarTradutor();
