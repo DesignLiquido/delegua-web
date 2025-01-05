@@ -6,10 +6,10 @@ const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 
 enum MarkerSeverity {
-	Hint = 1,
-	Info = 2,
-	Warning = 4,
-	Error = 8
+    Hint = 1,
+    Info = 2,
+    Warning = 4,
+    Error = 8
 }
 
 const mostrarResultadoExecutar = function (codigo: string) {
@@ -85,7 +85,12 @@ const executarCodigo = async function () {
         const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
-        if (errosAnaliseSemantica?.length) return mapearErros(errosAnaliseSemantica);
+        if (errosAnaliseSemantica?.length) {
+            return mapearErros(errosAnaliseSemantica);
+        } else {
+            const editor = Monaco?.editor.getEditors()[0];
+            Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
+        }
 
         const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
         const errosInterpretacao = respostaInterpretador.erros;
