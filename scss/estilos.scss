@@ -1,4 +1,4 @@
-@import "variaveis";
+@use "variaveis";
 
 html {
     font-family: "Roboto Mono";
@@ -9,7 +9,7 @@ nav {
     display: flex;
     align-items: center;
     padding-bottom: 5px;
-    border-bottom: 1px solid $claro;
+    border-bottom: 1px solid variaveis.$claro;
     width: 100% !important;
     justify-content: space-between;
 
@@ -35,7 +35,7 @@ nav {
     .icone-burger {
         width: 30px;
         height: 3px;
-        background-color: $preto;
+        background-color: variaveis.$preto;
         border-radius: 5px;
         margin: 6px 5px;
     }
@@ -63,7 +63,7 @@ nav {
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: $branco;
+    background-color: variaveis.$branco;
     overflow-x: hidden;
     padding-top: 60px;
     transition: 0.5s;
@@ -102,7 +102,7 @@ nav {
     background-color: transparent;
     width: 0px !important;
     border: transparent;
-    color: $preto;
+    color: variaveis.$preto;
 }
 
 #editor {
@@ -110,8 +110,8 @@ nav {
     height: calc(100% - 65px);
     left: 0;
     position: fixed;
-    border-right: 1px solid $borda;
-    border-top: 1px solid $borda;
+    border-right: 1px solid variaveis.$borda;
+    border-top: 1px solid variaveis.$borda;
 }
 
 textarea {
@@ -178,8 +178,8 @@ textarea {
     height: calc(100% - 65px);
     right: 0;
     position: fixed;
-    border-right: 1px solid $borda;
-    border-top: 1px solid $borda;
+    border-right: 1px solid variaveis.$borda;
+    border-top: 1px solid variaveis.$borda;
     overflow-y: scroll;
 }
 
