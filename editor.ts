@@ -6,10 +6,10 @@ const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 
 enum MarkerSeverity {
-	Hint = 1,
-	Info = 2,
-	Warning = 4,
-	Error = 8
+    Hint = 1,
+    Info = 2,
+    Warning = 4,
+    Error = 8
 }
 
 const mostrarResultadoExecutar = function (codigo: string) {
@@ -85,7 +85,12 @@ const executarCodigo = async function () {
         const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
-        if (errosAnaliseSemantica?.length) return mapearErros(errosAnaliseSemantica);
+        if (errosAnaliseSemantica?.length) {
+            return mapearErros(errosAnaliseSemantica);
+        } else {
+            const editor = Monaco?.editor.getEditors()[0];
+            Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
+        }
 
         const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
         const errosInterpretacao = respostaInterpretador.erros;
@@ -102,6 +107,41 @@ const executarCodigo = async function () {
         mostrarResultadoExecutar(erro)
     }
 };
+
+const analisarCodigo = function () {
+    const delegua = new Delegua.DeleguaWeb("");
+
+    const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+
+    const retornoLexador = delegua.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
+
+    mapearErros(errosAnaliseSemantica);
+};
+
+const configurarAtualizacaoAutomatica = function () {
+    const editor = Monaco?.editor.getEditors()[0];
+    if (!editor) {
+        console.error("Editor não encontrado. Verifique se foi inicializado corretamente.");
+        return;
+    }
+
+    const model = editor.getModel();
+    if (!model) {
+        console.error("Modelo não encontrado. Verifique a inicialização do Monaco Editor.");
+        return;
+    }
+
+    model.onDidChangeContent(() => {
+        analisarCodigo();
+    });
+};
+
+window.addEventListener("load", () => {
+    configurarAtualizacaoAutomatica();
+});
 
 botaoTraduzir.addEventListener("click", function () {
     limparResultadoEditor();
