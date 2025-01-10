@@ -97,7 +97,7 @@ var executarTradutor = function () {
 };
 var executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function () {
-        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, analisadorSemantico, errosAnaliseSemantica, respostaInterpretador, errosInterpretacao, error_1, erro;
+        var delegua, codigo, retornoLexador, retornoAvaliadorSintatico, analisadorSemantico, errosAnaliseSemantica, editor, respostaInterpretador, errosInterpretacao, error_1, erro;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -108,8 +108,13 @@ var executarCodigo = function () {
                     retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
                     analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     errosAnaliseSemantica = analisadorSemantico.diagnosticos;
-                    if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length)
+                    if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length) {
                         return [2 /*return*/, mapearErros(errosAnaliseSemantica)];
+                    }
+                    else {
+                        editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+                        Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
+                    }
                     return [4 /*yield*/, delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico })];
                 case 1:
                     respostaInterpretador = _a.sent();
@@ -133,6 +138,33 @@ var executarCodigo = function () {
         });
     });
 };
+var analisarCodigo = function () {
+    var delegua = new Delegua.DeleguaWeb("");
+    var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+    var retornoLexador = delegua.lexador.mapear(codigo, -1);
+    var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    var analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    var errosAnaliseSemantica = analisadorSemantico.diagnosticos;
+    mapearErros(errosAnaliseSemantica);
+};
+var configurarAtualizacaoAutomatica = function () {
+    var editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+    if (!editor) {
+        console.error("Editor não encontrado. Verifique se foi inicializado corretamente.");
+        return;
+    }
+    var model = editor.getModel();
+    if (!model) {
+        console.error("Modelo não encontrado. Verifique a inicialização do Monaco Editor.");
+        return;
+    }
+    model.onDidChangeContent(function () {
+        analisarCodigo();
+    });
+};
+window.addEventListener("load", function () {
+    configurarAtualizacaoAutomatica();
+});
 botaoTraduzir.addEventListener("click", function () {
     limparResultadoEditor();
     executarTradutor();
