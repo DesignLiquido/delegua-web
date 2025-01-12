@@ -58,7 +58,9 @@ var limparResultadoEditor = function () {
 limparResultadoEditor();
 var mapearErros = function (erros) {
     var editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
-    console.log(erros);
+    if (erros.length > 0) {
+        console.log(erros);
+    }
     var _erros = erros.map(function (item) {
         var _a;
         return {
