@@ -28,7 +28,10 @@ limparResultadoEditor();
 const mapearErros = function (erros: any[]) {
     const editor = Monaco?.editor.getEditors()[0];
 
-    console.log(erros)
+    if (erros.length > 0) {
+        console.log(erros);
+    }
+
     const _erros = erros.map(item => {
         return {
             startLineNumber: item?.simbolo?.linha || item.linha,
@@ -40,7 +43,7 @@ const mapearErros = function (erros: any[]) {
         }
     })
 
-    Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros)
+    Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros);
 }
 
 const executarTradutor = function () {
