@@ -64,15 +64,33 @@ var mapearErros = function (erros) {
     var _erros = erros.map(function (item) {
         var _a;
         return {
-            startLineNumber: ((_a = item === null || item === void 0 ? void 0 : item.simbolo) === null || _a === void 0 ? void 0 : _a.linha) || item.linha,
+            startLineNumber: ((_a = item.simbolo) === null || _a === void 0 ? void 0 : _a.linha) || item.linha,
             startColumn: 1,
             endLineNumber: 2,
             endColumn: 1000,
-            message: (item === null || item === void 0 ? void 0 : item.mensagem) || item.erroInterno,
+            message: item.message || item.mensagem || item.erroInterno,
             severity: MarkerSeverity.Error
         };
     });
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _erros);
+};
+var mapearAvisos = function (avisos) {
+    var editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+    if (avisos.length > 0) {
+        console.log(avisos);
+    }
+    var _avisos = avisos.map(function (item) {
+        var _a;
+        return {
+            startLineNumber: ((_a = item.simbolo) === null || _a === void 0 ? void 0 : _a.linha) || item.linha,
+            startColumn: 1,
+            endLineNumber: 2,
+            endColumn: 1000,
+            message: item.message || item.mensagem || item.erroInterno,
+            severity: MarkerSeverity.Warning
+        };
+    });
+    Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _avisos);
 };
 var executarTradutor = function () {
     var delegua = new Delegua.DeleguaWeb("");
@@ -108,15 +126,16 @@ var executarCodigo = function () {
                     codigo = Monaco.editor.getModels()[0].getValue().split("\n");
                     retornoLexador = delegua.lexador.mapear(codigo, -1);
                     retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+                    if (retornoAvaliadorSintatico.erros.length > 0) {
+                        return [2 /*return*/, mapearErros(retornoAvaliadorSintatico.erros)];
+                    }
                     analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
                     errosAnaliseSemantica = analisadorSemantico.diagnosticos;
                     if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length) {
-                        return [2 /*return*/, mapearErros(errosAnaliseSemantica)];
+                        return [2 /*return*/, mapearAvisos(errosAnaliseSemantica)];
                     }
-                    else {
-                        editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
-                        Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
-                    }
+                    editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+                    Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
                     return [4 /*yield*/, delegua.executar({ retornoLexador: retornoLexador, retornoAvaliadorSintatico: retornoAvaliadorSintatico })];
                 case 1:
                     respostaInterpretador = _a.sent();
@@ -145,6 +164,10 @@ var analisarCodigo = function () {
     var codigo = Monaco.editor.getModels()[0].getValue().split("\n");
     var retornoLexador = delegua.lexador.mapear(codigo, -1);
     var retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    if (retornoAvaliadorSintatico.erros.length > 0) {
+        mapearErros(retornoAvaliadorSintatico.erros);
+        return;
+    }
     var analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     var errosAnaliseSemantica = analisadorSemantico.diagnosticos;
     mapearErros(errosAnaliseSemantica);
