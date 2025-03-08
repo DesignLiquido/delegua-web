@@ -8,7 +8,7 @@
         "gerar-css:tempo-real": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
         "gerar-web": "yarn tsc && yarn browserify dist/index.js --s Delegua -o dist/delegua.js",
         "publicar": "yarn empacotar && yarn gh-pages -d dist",
-        "servir": "yarn http-server -o ./dist",
+        "servir": "yarn http-server -o ./dist -c-1",
         "testar": "yarn empacotar && yarn servir"
     },
     "devDependencies": {
