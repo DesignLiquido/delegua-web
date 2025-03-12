@@ -125,7 +125,7 @@ const executarCodigo = async function () {
         if (errosInterpretacao) {
             errosInterpretacao.forEach((erro: any) => {
                 if (erro.linha > 0) {
-                    const mensagemErro = `Erro na linha ${erro.linha}:  ${erro.erroInterno.message}`;
+                    const mensagemErro = `Erro na linha ${erro.linha}: ${erro.erroInterno.message}`;
                     mostrarResultadoExecutar(mensagemErro);
                 }
             });

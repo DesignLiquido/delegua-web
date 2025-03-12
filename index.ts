@@ -1,14 +1,14 @@
 import { Lexador } from "@designliquido/delegua/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico";
 import { AnalisadorSemantico } from "@designliquido/delegua/analisador-semantico";
-import { InterpretadorBase } from "@designliquido/delegua/interpretador/interpretador-base";
-import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
+import { Interpretador } from "@designliquido/delegua/interpretador";
+
 import {
     AvaliadorSintaticoInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
-} from "@designliquido/delegua/interfaces/index";
+} from "@designliquido/delegua/interfaces";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/estruturas";
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
 import { Declaracao } from "@designliquido/delegua/declaracoes";
@@ -18,6 +18,8 @@ import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 
+import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
+
 export class DeleguaWeb {
     nomeArquivo: string;
 
@@ -25,11 +27,10 @@ export class DeleguaWeb {
     teveErroEmTempoDeExecucao: boolean = false;
     // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
     dialeto: string = "delegua";
-    arquivosAbertos: any;
-    interpretador: InterpretadorBase;
+    interpretador: Interpretador;
     lexador: LexadorInterface<SimboloInterface>;
     avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
-    analisadorSemantico: AnalisadorSemantico
+    analisadorSemantico: AnalisadorSemantico;
     funcaoDeRetorno: Function;
 
     tradutorJavascript = new TradutorJavaScript();
@@ -43,7 +44,7 @@ export class DeleguaWeb {
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
         this.analisadorSemantico = new AnalisadorSemantico();
-        this.interpretador = new InterpretadorBase(
+        this.interpretador = new Interpretador(
             "",
             false,
             this.funcaoDeRetorno,
@@ -146,7 +147,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.37";
+        return "0.39 (web)";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
