@@ -76,14 +76,14 @@ exports.DeleguaWeb = void 0;
 var lexador_1 = require("@designliquido/delegua/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
 var analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
-var interpretador_base_1 = require("@designliquido/delegua/interpretador/interpretador-base");
-var delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
+var interpretador_1 = require("@designliquido/delegua/interpretador");
 var estruturas_1 = require("@designliquido/delegua/estruturas");
 var tradutores_1 = require("@designliquido/delegua/tradutores");
 var estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 var fisica = __importStar(require("@designliquido/delegua-fisica"));
 var matematica = __importStar(require("@designliquido/delegua-matematica"));
 var tempo = __importStar(require("@designliquido/delegua-tempo"));
+var delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
 var DeleguaWeb = /** @class */ (function () {
     function DeleguaWeb(nomeArquivo, funcaoDeRetorno) {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
@@ -99,7 +99,7 @@ var DeleguaWeb = /** @class */ (function () {
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
         this.analisadorSemantico = new analisador_semantico_1.AnalisadorSemantico();
-        this.interpretador = new interpretador_base_1.InterpretadorBase("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
+        this.interpretador = new interpretador_1.Interpretador("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: function (mensagem, callback) {
                 var resposta = window.prompt(mensagem);
@@ -170,7 +170,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.37";
+        return "0.39 (web)";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)

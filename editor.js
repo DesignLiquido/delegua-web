@@ -143,7 +143,7 @@ var executarCodigo = function () {
                     if (errosInterpretacao) {
                         errosInterpretacao.forEach(function (erro) {
                             if (erro.linha > 0) {
-                                var mensagemErro = "Erro na linha ".concat(erro.linha, ":  ").concat(erro.erroInterno.message);
+                                var mensagemErro = "Erro na linha ".concat(erro.linha, ": ").concat(erro.erroInterno.message);
                                 mostrarResultadoExecutar(mensagemErro);
                             }
                         });
