@@ -1609,18 +1609,29 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return Promise.resolve();
     }
     visitarExpressaoDeAtribuicao(expressao) {
-        let valor = this.variaveis[expressao.simbolo.lexema];
+        // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
+        let simboloAlvo;
+        switch (expressao.alvo.constructor.name) {
+            case 'Variavel':
+                const alvoVariavel = expressao.alvo;
+                simboloAlvo = alvoVariavel.simbolo;
+                break;
+            default:
+                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor.name}.`);
+                return Promise.resolve();
+        }
+        let valor = this.variaveis[simboloAlvo.lexema];
         if (!valor) {
-            this.erro(expressao.simbolo, `Variável ${expressao.simbolo.lexema} ainda não foi declarada até este ponto.`);
+            this.erro(simboloAlvo, `Variável ${simboloAlvo.lexema} ainda não foi declarada até este ponto.`);
             return Promise.resolve();
         }
         if (valor.tipo) {
             if (expressao.valor instanceof construtos_1.Literal && valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(simboloAlvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof construtos_1.Vetor && !valor.tipo.includes('[]')) {
-                this.erro(expressao.simbolo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
+                this.erro(simboloAlvo, `Atribuição inválida, esperado tipo '${valor.tipo}' na atribuição.`);
                 return Promise.resolve();
             }
             if (expressao.valor instanceof construtos_1.Literal) {
@@ -1628,13 +1639,13 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 if (!['qualquer'].includes(valor.tipo)) {
                     if (valorLiteral === 'string') {
                         if (valor.tipo != 'texto') {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (valorLiteral === 'number') {
                         if (!['inteiro', 'número', 'real'].includes(valor.tipo)) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -1645,13 +1656,13 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valores.every((v) => typeof v.valor === 'string')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
                     if (['inteiro[]', 'numero[]'].includes(valor.tipo)) {
                         if (!valores.every((v) => typeof v.valor === 'number')) {
-                            this.erro(expressao.simbolo, `Esperado tipo '${valor.tipo}' na atribuição.`);
+                            this.erro(simboloAlvo, `Esperado tipo '${valor.tipo}' na atribuição.`);
                             return Promise.resolve();
                         }
                     }
@@ -1659,12 +1670,12 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             }
         }
         if (valor.imutavel) {
-            this.erro(expressao.simbolo, `Constante ${expressao.simbolo.lexema} não pode ser modificada.`);
+            this.erro(simboloAlvo, `Constante ${simboloAlvo.lexema} não pode ser modificada.`);
             return Promise.resolve();
         }
         else {
-            if (this.variaveis[expressao.simbolo.lexema]) {
-                this.variaveis[expressao.simbolo.lexema].valor = expressao.valor;
+            if (this.variaveis[simboloAlvo.lexema]) {
+                this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
             }
         }
     }
@@ -2680,18 +2691,15 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             ].includes(expressao.operador.tipo)) {
             if (expressao.esquerda instanceof construtos_1.AcessoIndiceVariavel) {
                 const entidade = expressao.esquerda;
-                const simbolo = entidade.entidadeChamada.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, expressao, entidade.indice);
+                return new construtos_1.Atribuir(this.hashArquivo, entidade.entidadeChamada, expressao, entidade.indice, expressao.operador);
             }
-            const simbolo = expressao.esquerda.simbolo;
-            return new construtos_1.Atribuir(this.hashArquivo, simbolo, expressao);
+            return new construtos_1.Atribuir(this.hashArquivo, expressao.esquerda, expressao, undefined, expressao.operador);
         }
         else if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
             if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
+                return new construtos_1.Atribuir(this.hashArquivo, expressao, valor);
             }
             if (expressao instanceof construtos_1.AcessoMetodoOuPropriedade) {
                 return new construtos_1.DefinirValor(this.hashArquivo, igual.linha, expressao.objeto, expressao.simbolo, valor);
@@ -3903,8 +3911,7 @@ class AvaliadorSintaticoEguaClassico {
             const igual = this.simboloAnterior();
             const valor = this.atribuir();
             if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
+                return new construtos_1.Atribuir(this.hashArquivo, expressao, valor);
             }
             else if (expressao instanceof construtos_1.AcessoMetodoOuPropriedade) {
                 const get = expressao;
@@ -4580,8 +4587,7 @@ class AvaliadorSintaticoPitugues {
             const igual = this.simboloAnterior();
             const valor = this.atribuir();
             if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
+                return new construtos_1.Atribuir(this.hashArquivo, expressao, valor);
             }
             if (expressao instanceof construtos_1.AcessoMetodoOuPropriedade) {
                 return new construtos_1.DefinirValor(this.hashArquivo, 0, expressao.objeto, expressao.simbolo, valor);
@@ -5051,10 +5057,9 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
             const setaAtribuicao = this.simbolos[this.atual - 1];
             const valor = this.atribuir();
             if (expressao instanceof construtos_1.Variavel) {
-                const simbolo = expressao.simbolo;
-                return new construtos_1.Atribuir(this.hashArquivo, simbolo, valor);
+                return new construtos_1.Atribuir(this.hashArquivo, expressao, valor);
             }
-            else if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
+            if (expressao instanceof construtos_1.AcessoIndiceVariavel) {
                 return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressao.linha, expressao.entidadeChamada, expressao.indice, valor);
             }
             throw this.erro(setaAtribuicao, 'Tarefa de atribuição inválida');
@@ -6306,7 +6311,7 @@ exports.default = {
         implementacao: (interpretador, vetor) => Promise.resolve(vetor.reverse())
     },
     juntar: {
-        tipoRetorno: 'qualquer[]',
+        tipoRetorno: 'texto',
         implementacao: (interpretador, vetor, separador) => Promise.resolve(vetor.join(separador))
     },
     mapear: {
@@ -6548,16 +6553,19 @@ exports.Atribuir = void 0;
  * Construto de atribuição de um valor a um símbolo.
  */
 class Atribuir {
-    constructor(hashArquivo, simbolo, valor, 
+    constructor(hashArquivo, alvo, valor, 
     // indice so é usado para variaveis de vetores
     // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
-    indice) {
-        this.linha = Number(simbolo.linha);
+    indice, simboloOperador) {
+        this.linha = Number(alvo.linha);
         this.hashArquivo = hashArquivo;
-        this.simbolo = simbolo;
+        this.alvo = alvo;
         this.valor = valor;
         if (indice !== undefined) {
             this.indice = indice;
+        }
+        if (simboloOperador !== undefined) {
+            this.simboloOperador = simboloOperador;
         }
     }
     async aceitar(visitante) {
@@ -9526,7 +9534,25 @@ class InterpretadorBase {
         if (expressao.indice) {
             indice = await this.avaliar(expressao.indice);
         }
-        this.pilhaEscoposExecucao.atribuirVariavel(expressao.simbolo, valorResolvido, indice);
+        switch (expressao.alvo.constructor.name) {
+            case 'Variavel':
+                const alvoVariavel = expressao.alvo;
+                this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+                break;
+            case 'AcessoMetodoOuPropriedade':
+                // Nunca será método aqui: apenas propriedade.
+                const alvoPropriedade = expressao.alvo;
+                const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
+                const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+                const valor = await this.avaliar(expressao.valor);
+                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                    const objetoDeleguaClasse = objeto;
+                    objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
+                }
+                break;
+            default:
+                throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
+        }
         return valorResolvido;
     }
     procurarVariavel(simbolo) {
@@ -12955,11 +12981,11 @@ class Lexador {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.MENOS_IGUAL);
+                    this.adicionarSimbolo(delegua_1.default.MENOS_IGUAL, '-=');
                     this.avancar();
                 }
                 else if (this.simboloAtual() === '-') {
-                    this.adicionarSimbolo(delegua_1.default.DECREMENTAR);
+                    this.adicionarSimbolo(delegua_1.default.DECREMENTAR, '--');
                     this.avancar();
                 }
                 else {
@@ -12970,11 +12996,11 @@ class Lexador {
                 this.inicioSimbolo = this.atual;
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.MAIS_IGUAL);
+                    this.adicionarSimbolo(delegua_1.default.MAIS_IGUAL, '+=');
                     this.avancar();
                 }
                 else if (this.simboloAtual() === '+') {
-                    this.adicionarSimbolo(delegua_1.default.INCREMENTAR);
+                    this.adicionarSimbolo(delegua_1.default.INCREMENTAR, '++');
                     this.avancar();
                 }
                 else {
@@ -12991,7 +13017,7 @@ class Lexador {
                 switch (this.simboloAtual()) {
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(delegua_1.default.MODULO_IGUAL);
+                        this.adicionarSimbolo(delegua_1.default.MODULO_IGUAL, '%=');
                         break;
                     default:
                         this.adicionarSimbolo(delegua_1.default.MODULO);
@@ -13004,11 +13030,11 @@ class Lexador {
                 switch (this.simboloAtual()) {
                     case '*':
                         this.avancar();
-                        this.adicionarSimbolo(delegua_1.default.EXPONENCIACAO);
+                        this.adicionarSimbolo(delegua_1.default.EXPONENCIACAO, '**');
                         break;
                     case '=':
                         this.avancar();
-                        this.adicionarSimbolo(delegua_1.default.MULTIPLICACAO_IGUAL);
+                        this.adicionarSimbolo(delegua_1.default.MULTIPLICACAO_IGUAL, '*=');
                         break;
                     default:
                         this.adicionarSimbolo(delegua_1.default.MULTIPLICACAO);
@@ -13018,7 +13044,7 @@ class Lexador {
             case '!':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.DIFERENTE);
+                    this.adicionarSimbolo(delegua_1.default.DIFERENTE, '!=');
                     this.avancar();
                 }
                 else {
@@ -13028,7 +13054,7 @@ class Lexador {
             case '=':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.IGUAL_IGUAL);
+                    this.adicionarSimbolo(delegua_1.default.IGUAL_IGUAL, '==');
                     this.avancar();
                 }
                 else {
@@ -13060,11 +13086,11 @@ class Lexador {
             case '<':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.MENOR_IGUAL);
+                    this.adicionarSimbolo(delegua_1.default.MENOR_IGUAL, '<=');
                     this.avancar();
                 }
                 else if (this.simboloAtual() === '<') {
-                    this.adicionarSimbolo(delegua_1.default.MENOR_MENOR);
+                    this.adicionarSimbolo(delegua_1.default.MENOR_MENOR, '<<');
                     this.avancar();
                 }
                 else {
@@ -13074,11 +13100,11 @@ class Lexador {
             case '>':
                 this.avancar();
                 if (this.simboloAtual() === '=') {
-                    this.adicionarSimbolo(delegua_1.default.MAIOR_IGUAL);
+                    this.adicionarSimbolo(delegua_1.default.MAIOR_IGUAL, '>=');
                     this.avancar();
                 }
                 else if (this.simboloAtual() === '>') {
-                    this.adicionarSimbolo(delegua_1.default.MAIOR_MAIOR);
+                    this.adicionarSimbolo(delegua_1.default.MAIOR_MAIOR, '>>');
                     this.avancar();
                 }
                 else {
@@ -13095,7 +13121,7 @@ class Lexador {
                         this.comentarioMultilinha();
                         break;
                     case '=':
-                        this.adicionarSimbolo(delegua_1.default.DIVISAO_IGUAL);
+                        this.adicionarSimbolo(delegua_1.default.DIVISAO_IGUAL, '/=');
                         this.avancar();
                         break;
                     default:
@@ -13108,7 +13134,7 @@ class Lexador {
                 this.avancar();
                 switch (this.simboloAtual()) {
                     case '=':
-                        this.adicionarSimbolo(delegua_1.default.DIVISAO_INTEIRA_IGUAL);
+                        this.adicionarSimbolo(delegua_1.default.DIVISAO_INTEIRA_IGUAL, '\\=');
                         this.avancar();
                         break;
                     default:
@@ -13116,7 +13142,7 @@ class Lexador {
                         break;
                 }
                 break;
-            // Esta sessão ignora espaços em branco na tokenização.
+            // Esta sessão ignora espaços em branco (ou similares) na tokenização.
             case ' ':
             case '\0':
             case '\r':
@@ -26955,7 +26981,7 @@ class TradutorAssemblyScript {
         return resultado;
     }
     traduzirConstrutoAtribuir(atribuir) {
-        let resultado = atribuir.simbolo.lexema;
+        let resultado = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
         resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
         return resultado;
     }
@@ -27108,47 +27134,64 @@ class TradutorJavaScript {
                 return '-';
         }
     }
-    traduzirFuncoesNativas(metodo) {
-        switch (metodo.toLowerCase()) {
+    traduzirFuncaoOuMetodo(nomeMetodo, objetoResolvido, argumentos) {
+        const argumentosResolvidos = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+        switch (nomeMetodo) {
             case 'adicionar':
             case 'empilhar':
-                return 'push';
-            case 'concatenar':
-                return 'concat';
+                return `${objetoResolvido}.push(${textoArgumentos})`;
             case 'fatiar':
-                return 'slice';
+                return `${objetoResolvido}.slice(${argumentos[0]}, ${argumentos[1]})`;
             case 'inclui':
-                return 'includes';
+                return `${objetoResolvido}.includes(${argumentosResolvidos[0]})`;
             case 'inverter':
-                return 'reverse';
+                return `${objetoResolvido}.toReversed()`;
             case 'juntar':
-                return 'join';
-            case 'ordenar':
-                return 'sort';
-            case 'removerprimeiro':
-                return 'shift';
-            case 'removerultimo':
-                return 'pop';
-            case 'tamanho':
-                return 'length';
+                return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
             case 'maiusculo':
-                return 'toUpperCase';
+                return `${objetoResolvido}.toUpperCase()`;
+            case 'mapear':
+                return `${objetoResolvido}.map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])})`;
             case 'minusculo':
-                return 'toLowerCase';
-            case 'substituir':
-                return 'replace';
-            case 'texto':
-                return 'String';
-            default:
-                return metodo;
+                return `${objetoResolvido}.toLowerCase()`;
+            case 'ordenar':
+                return `${objetoResolvido}.sort()`;
+            case 'remover':
+                return `delete ${objetoResolvido}[${argumentosResolvidos[0]}]`;
+            case 'removerPrimeiro':
+                return `${objetoResolvido}.shift()`;
+            case 'removerUltimo':
+                return `${objetoResolvido}.pop()`;
+            case 'somar':
+                return `${objetoResolvido}.reduce((acumulador, valorAtual) => acumulador + valorAtual, 0)`;
+            case 'tamanho':
+                return `${objetoResolvido}.length`;
         }
+        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
     }
     traduzirConstrutoAgrupamento(agrupamento) {
         return this.dicionarioConstrutos[agrupamento.constructor.name](agrupamento.expressao || agrupamento);
     }
     traduzirConstrutoAtribuir(atribuir) {
-        let resultado = atribuir.simbolo.lexema;
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        var _a;
+        let resultado = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
+        const operador = ((_a = atribuir.simboloOperador) === null || _a === void 0 ? void 0 : _a.lexema) || '=';
+        // Em Delégua, atribuições com operações embutidas devolvem um construto `Binario` no valor
+        // por várias razões, sendo a mais importante delas a lógica de interpretação.
+        let valorResolvido = '';
+        if (atribuir.simboloOperador && atribuir.valor.constructor.name === 'Binario') {
+            valorResolvido = this.dicionarioConstrutos[atribuir.valor.direita.constructor.name](atribuir.valor.direita);
+        }
+        else {
+            valorResolvido = this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        }
+        resultado += ` ${operador} ` + valorResolvido;
         return resultado;
     }
     traduzirConstrutoBinario(binario) {
@@ -27167,28 +27210,8 @@ class TradutorJavaScript {
     }
     traduzirConstrutoChamada(chamada) {
         let resultado = '';
-        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
-        const instanciaClasse = this.declaracoesDeClasses.some((declaracao) => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
-        if (instanciaClasse) {
-            const classe = this.declaracoesDeClasses.find((declaracao) => { var _a; return ((_a = declaracao === null || declaracao === void 0 ? void 0 : declaracao.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === retorno; });
-            if (classe.simbolo.lexema === retorno)
-                resultado += `new ${retorno}`;
-        }
-        else {
-            resultado += retorno;
-        }
-        if (!retorno.endsWith('length')) {
-            resultado += '(';
-        }
-        for (let parametro of chamada.argumentos) {
-            resultado += this.dicionarioConstrutos[parametro.constructor.name](parametro) + ', ';
-        }
-        if (chamada.argumentos.length > 0) {
-            resultado = resultado.slice(0, -2);
-        }
-        if (!retorno.endsWith('length')) {
-            resultado += ')';
-        }
+        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada, chamada.argumentos)}`;
+        resultado += retorno;
         return resultado;
     }
     traduzirConstrutoComentario(comentario) {
@@ -27238,8 +27261,28 @@ class TradutorJavaScript {
         }
         return literal.valor;
     }
-    traduzirConstrutoVariavel(variavel) {
-        return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
+    traduzirConstrutoVariavel(variavel, argumentos) {
+        const argumentosResolvidos = [];
+        const argumentosValidados = argumentos || [];
+        for (const argumento of argumentosValidados) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+        switch (variavel.simbolo.lexema) {
+            case 'texto':
+                return `String(${textoArgumentos})`;
+            default:
+                const buscaClasseCorrespondente = this.declaracoesDeClasses.filter(d => d.simbolo.lexema === variavel.simbolo.lexema);
+                if (buscaClasseCorrespondente.length === 0 && argumentosValidados.length === 0) {
+                    return `${variavel.simbolo.lexema}`;
+                }
+                if (buscaClasseCorrespondente.length > 0) {
+                    return `new ${variavel.simbolo.lexema}(${textoArgumentos})`;
+                }
+                return `${variavel.simbolo.lexema}(${textoArgumentos})`;
+        }
     }
     logicaComumBlocoEscopo(declaracoes) {
         let resultado = '{\n';
@@ -27506,24 +27549,72 @@ class TradutorJavaScript {
         }
         return resultado;
     }
-    traduzirConstrutoAcessoMetodo(acessoMetodo) {
-        if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
-            let objetoVariavel = acessoMetodo.objeto;
-            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo)}`;
-        }
-        return `this.${acessoMetodo.nomeMetodo}`;
+    // TODO: Talvez terminar (ou remover, sei lá).
+    traduzirFuncaoAnonimaParaLambda(argumento) {
+        return "";
     }
-    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo) {
+    traduzirAcessoMetodoVetor(objeto, nomeMetodo, argumentos) {
+        const objetoResolvido = this.dicionarioConstrutos[objeto.constructor.name](objeto);
+        const argumentosResolvidos = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        switch (nomeMetodo) {
+            case 'adicionar':
+            case 'empilhar':
+                let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+                textoArgumentos = textoArgumentos.slice(0, -2);
+                return `${objetoResolvido}.push(${textoArgumentos})`;
+            case 'fatiar':
+                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+            case 'inclui':
+                return `${argumentos[0]} in ${objetoResolvido}`;
+            case 'inverter':
+                return `reversed(${objetoResolvido})`;
+            case 'juntar':
+                return `${argumentos[0]}.join(${objetoResolvido})`;
+            case 'mapear':
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+            case 'ordenar':
+                return `${objetoResolvido}.sort()`;
+            case 'remover':
+                return `del ${objetoResolvido}[${argumentos[0]}]`;
+            case 'removerPrimeiro':
+                return `del ${objetoResolvido}[0]`;
+            case 'removerUltimo':
+                return `del ${objetoResolvido}[-1]`;
+            case 'somar':
+                return `sum(${objetoResolvido})`;
+            case 'tamanho':
+                return `len(${objetoResolvido})`;
+        }
+    }
+    traduzirConstrutoAcessoMetodo(acessoMetodo, argumentos) {
+        switch (acessoMetodo.objeto.constructor.name) {
+            case 'Isto':
+                return `this.${acessoMetodo.nomeMetodo}`;
+            case 'Variavel':
+                let objetoVariavel = acessoMetodo.objeto;
+                return this.traduzirFuncaoOuMetodo(acessoMetodo.nomeMetodo, objetoVariavel.simbolo.lexema, argumentos);
+            case 'Vetor':
+                return this.traduzirAcessoMetodoVetor(acessoMetodo.objeto, acessoMetodo.nomeMetodo, argumentos);
+            default:
+                const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](acessoMetodo.objeto);
+                return `${objetoResolvido}.${acessoMetodo.nomeMetodo}`;
+        }
+    }
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo, argumentos) {
         if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoMetodo.objeto;
-            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
+            return `${this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos)}`;
         }
         return `this.${acessoMetodo.simbolo.lexema}`;
     }
-    traduzirConstrutoAcessoPropriedade(acessoMetodo) {
+    traduzirConstrutoAcessoPropriedade(acessoMetodo, argumentos) {
         if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoMetodo.objeto;
-            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.nomePropriedade)}`;
+            return `${this.traduzirFuncaoOuMetodo(objetoVariavel.simbolo.lexema, acessoMetodo.nomePropriedade, argumentos)}`;
         }
         return `this.${acessoMetodo.nomePropriedade}`;
     }
@@ -27584,13 +27675,20 @@ class TradutorJavaScript {
     traduzirConstrutoTipoDe(tipoDe) {
         let resultado = 'typeof ';
         if (!tipoDe.valor)
-            resultado += tipoDe.valor;
+            resultado += tipoDe.valor; // Qual o sentido disso?
         else if (typeof tipoDe.valor === 'string')
             resultado += `'${tipoDe.valor}'`;
         else if (typeof tipoDe.valor === 'number')
             resultado += tipoDe.valor;
-        else
-            resultado += `${this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor)}`;
+        else {
+            // Talvez isso seja uma péssima ideia.
+            // Pensar em algo melhor.
+            let alvoTipoDe = String(this.dicionarioConstrutos[tipoDe.valor.constructor.name](tipoDe.valor));
+            if (alvoTipoDe.startsWith('new')) {
+                alvoTipoDe = alvoTipoDe.slice(4, -2);
+            }
+            resultado += `${alvoTipoDe}`;
+        }
         return resultado;
     }
     traduzirDeclaracaoFalhar(falhar) {
@@ -27696,6 +27794,7 @@ const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 class TradutorPython {
     constructor() {
         this.indentacao = 0;
+        this.classesConhecidas = [];
         this.dicionarioConstrutos = {
             AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
             AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
@@ -27708,6 +27807,7 @@ class TradutorPython {
             Chamada: this.traduzirConstrutoChamada.bind(this),
             Comentario: this.traduzirConstrutoComentario.bind(this),
             DefinirValor: this.traduzirConstrutoDefinirValor.bind(this),
+            Dicionario: this.traduzirConstrutoDicionario.bind(this),
             Literal: this.traduzirConstrutoLiteral.bind(this),
             Logico: this.traduzirConstrutoLogico.bind(this),
             Unario: this.traduzirConstrutoUnario.bind(this),
@@ -27776,38 +27876,46 @@ class TradutorPython {
                 return '-';
         }
     }
-    traduzirFuncoesNativas(metodo) {
-        switch (metodo.toLowerCase()) {
+    traduzirFuncaoOuMetodo(nomeMetodo, objetoResolvido, argumentos) {
+        const argumentosResolvidos = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+        switch (nomeMetodo) {
             case 'adicionar':
             case 'empilhar':
-                return 'append';
+                return `${objetoResolvido}.append(${textoArgumentos})`;
             case 'fatiar':
-                return 'slice';
+                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
             case 'inclui':
-                return 'in';
+                return `${argumentosResolvidos[0]} in ${objetoResolvido}`;
             case 'inverter':
-                return 'reverse';
+                return `reversed(${objetoResolvido})`;
             case 'juntar':
-                return 'join';
-            case 'ordenar':
-                return 'sort';
-            case 'removerprimeiro':
-                return 'pop(0)';
-            case 'removerultimo':
-                return 'pop';
-            case 'tamanho':
-                return 'len';
+                return `${argumentosResolvidos[0]}.join(${objetoResolvido})`;
             case 'maiusculo':
-                return 'upper';
+                return `${objetoResolvido}.upper()`;
+            case 'mapear':
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
             case 'minusculo':
-                return 'lower';
-            case 'substituir':
-                return 'replace';
-            case 'texto':
-                return 'str';
-            default:
-                return metodo;
+                return `${objetoResolvido}.lower()`;
+            case 'ordenar':
+                return `${objetoResolvido}.sort()`;
+            case 'remover':
+                return `del ${objetoResolvido}[${argumentosResolvidos[0]}]`;
+            case 'removerPrimeiro':
+                return `${objetoResolvido}.pop(0)`;
+            case 'removerUltimo':
+                return `${objetoResolvido}.pop()`;
+            case 'somar':
+                return `sum(${objetoResolvido})`;
+            case 'tamanho':
+                return `len(${objetoResolvido})`;
         }
+        return `${objetoResolvido}.${nomeMetodo}(${textoArgumentos}))`;
     }
     logicaComumBlocoEscopo(declaracoes) {
         let resultado = '';
@@ -27834,45 +27942,72 @@ class TradutorPython {
         const indice = this.dicionarioConstrutos[acessoIndiceVariavel.indice.constructor.name](acessoIndiceVariavel.indice);
         return `${entidade}[${indice}]`;
     }
-    traduzirConstrutoAcessoMetodo(acessoMetodo) {
-        if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
-            let objetoVariavel = acessoMetodo.objeto;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.nomeMetodo);
-            if (funcaoTraduzida === 'in') {
-                return `in ${objetoVariavel.simbolo.lexema}`;
-            }
-            else if (funcaoTraduzida === 'len') {
-                return `len(${objetoVariavel.simbolo.lexema})`;
-            }
-            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
-        }
-        return `self.${acessoMetodo.nomeMetodo}`;
+    // TODO: Talvez terminar (ou remover, sei lá).
+    traduzirFuncaoAnonimaParaLambda(argumento) {
+        return "";
     }
-    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo) {
+    traduzirAcessoMetodoVetor(objeto, nomeMetodo, argumentos) {
+        const objetoResolvido = this.dicionarioConstrutos[objeto.constructor.name](objeto);
+        const argumentosResolvidos = [];
+        for (const argumento of argumentos) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        switch (nomeMetodo) {
+            case 'adicionar':
+            case 'empilhar':
+                let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+                textoArgumentos = textoArgumentos.slice(0, -2);
+                return `${objetoResolvido}.append(${textoArgumentos})`;
+            case 'fatiar':
+                return `${objetoResolvido}[${argumentos[0]}:${argumentos[1]}]`;
+            case 'inclui':
+                return `${argumentos[0]} in ${objetoResolvido}`;
+            case 'inverter':
+                return `reversed(${objetoResolvido})`;
+            case 'juntar':
+                return `${argumentos[0]}.join(${objetoResolvido})`;
+            case 'mapear':
+                return `list(map(${this.traduzirFuncaoAnonimaParaLambda(argumentos[0])}), ${objetoResolvido})`;
+            case 'ordenar':
+                return `${objetoResolvido}.sort()`;
+            case 'remover':
+                return `del ${objetoResolvido}[${argumentos[0]}]`;
+            case 'removerPrimeiro':
+                return `del ${objetoResolvido}[0]`;
+            case 'removerUltimo':
+                return `del ${objetoResolvido}[-1]`;
+            case 'somar':
+                return `sum(${objetoResolvido})`;
+            case 'tamanho':
+                return `len(${objetoResolvido})`;
+        }
+    }
+    traduzirConstrutoAcessoMetodo(acessoMetodo, argumentos) {
+        switch (acessoMetodo.objeto.constructor.name) {
+            case 'Isto':
+                return `self.${acessoMetodo.nomeMetodo}`;
+            case 'Variavel':
+                let objetoVariavel = acessoMetodo.objeto;
+                return this.traduzirFuncaoOuMetodo(acessoMetodo.nomeMetodo, objetoVariavel.simbolo.lexema, argumentos);
+            case 'Vetor':
+                return this.traduzirAcessoMetodoVetor(acessoMetodo.objeto, acessoMetodo.nomeMetodo, argumentos);
+            default:
+                const objetoResolvido = this.dicionarioConstrutos[acessoMetodo.objeto.constructor.name](acessoMetodo.objeto);
+                return `${objetoResolvido}.${acessoMetodo.nomeMetodo}`;
+        }
+    }
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodo, argumentos) {
         if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoMetodo.objeto;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema);
-            if (funcaoTraduzida === 'in') {
-                return `in ${objetoVariavel.simbolo.lexema}`;
-            }
-            else if (funcaoTraduzida === 'len') {
-                return `len(${objetoVariavel.simbolo.lexema})`;
-            }
-            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+            return this.traduzirFuncaoOuMetodo(acessoMetodo.simbolo.lexema, objetoVariavel.simbolo.lexema, argumentos);
         }
         return `self.${acessoMetodo.simbolo.lexema}`;
     }
-    traduzirConstrutoAcessoPropriedade(acessoPropriedade) {
+    traduzirConstrutoAcessoPropriedade(acessoPropriedade, argumentos) {
         if (acessoPropriedade.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoPropriedade.objeto;
-            let funcaoTraduzida = this.traduzirFuncoesNativas(acessoPropriedade.nomePropriedade);
-            if (funcaoTraduzida === 'in') {
-                return `in ${objetoVariavel.simbolo.lexema}`;
-            }
-            else if (funcaoTraduzida === 'len') {
-                return `len(${objetoVariavel.simbolo.lexema})`;
-            }
-            return `${objetoVariavel.simbolo.lexema}.${funcaoTraduzida}`;
+            return this.traduzirFuncaoOuMetodo(objetoVariavel.simbolo.lexema, acessoPropriedade.nomePropriedade, argumentos);
         }
         return `self.${acessoPropriedade.nomePropriedade}`;
     }
@@ -27886,49 +28021,39 @@ class TradutorPython {
         return `${objeto}[${indice}] = ${valor}`;
     }
     traduzirConstrutoAtribuir(atribuir) {
-        let resultado = atribuir.simbolo.lexema;
-        resultado += ' = ' + this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        var _a;
+        let resultado = this.dicionarioConstrutos[atribuir.alvo.constructor.name](atribuir.alvo);
+        const operador = ((_a = atribuir.simboloOperador) === null || _a === void 0 ? void 0 : _a.lexema) || '=';
+        // Em Delégua, atribuições com operações embutidas devolvem um construto `Binario` no valor
+        // por várias razões, sendo a mais importante delas a lógica de interpretação.
+        let valorResolvido = '';
+        if (atribuir.simboloOperador && atribuir.valor.constructor.name === 'Binario') {
+            valorResolvido = this.dicionarioConstrutos[atribuir.valor.direita.constructor.name](atribuir.valor.direita);
+        }
+        else {
+            valorResolvido = this.dicionarioConstrutos[atribuir.valor.constructor.name](atribuir.valor);
+        }
+        resultado += ` ${operador} ` + valorResolvido;
         return resultado;
     }
     traduzirConstrutoBinario(binario) {
         let resultado = '';
+        const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
         if (binario.esquerda.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) + ')';
+            resultado += '(' + valorEsquerdo + ')';
         else
-            resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
+            resultado += valorEsquerdo;
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
+        const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
         if (binario.direita.constructor.name === 'Agrupamento')
-            resultado += '(' + this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) + ')';
+            resultado += '(' + valorDireito + ')';
         else
-            resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
+            resultado += valorDireito;
         return resultado;
     }
     traduzirConstrutoChamada(chamada) {
-        let resultado = '';
-        const retorno = `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada)}`;
-        resultado += retorno;
-        if (!resultado.includes('in ') && !resultado.includes('len') && !resultado.includes('pop(')) {
-            resultado += '(';
-        }
-        if (!resultado.includes('len(')) {
-            for (let parametro of chamada.argumentos) {
-                const parametroTratado = this.dicionarioConstrutos[parametro.constructor.name](parametro);
-                if (resultado.includes('in ') || resultado.includes('len')) {
-                    resultado = `${parametroTratado} ${resultado}`;
-                }
-                else {
-                    resultado += parametroTratado + ', ';
-                }
-            }
-            if (chamada.argumentos.length > 0 && !resultado.includes('in ') && !resultado.includes('len')) {
-                resultado = resultado.slice(0, -2);
-            }
-            if (!resultado.includes(')') && !resultado.includes('in ')) {
-                resultado += ')';
-            }
-        }
-        return resultado;
+        return `${this.dicionarioConstrutos[chamada.entidadeChamada.constructor.name](chamada.entidadeChamada, chamada.argumentos)}`;
     }
     traduzirConstrutoComentario(comentario) {
         let resultado = '';
@@ -27950,6 +28075,18 @@ class TradutorPython {
             resultado = 'self.' + definirValor.nome.lexema + ' = ';
         }
         resultado += definirValor.valor.simbolo.lexema;
+        return resultado;
+    }
+    traduzirConstrutoDicionario(dicionario) {
+        let resultado = `{${dicionario.chaves.length > 0 ? '\n' : ''}`;
+        for (let indice = 0; indice < dicionario.chaves.length; indice++) {
+            resultado += ' '.repeat(this.indentacao + 4);
+            const chave = dicionario.chaves[indice];
+            resultado += `${this.dicionarioConstrutos[chave.constructor.name](chave)}: `;
+            const valor = dicionario.valores[indice];
+            resultado += `${this.dicionarioConstrutos[valor.constructor.name](valor)},\n`;
+        }
+        resultado += '}';
         return resultado;
     }
     traduzirConstrutoLiteral(literal) {
@@ -27981,8 +28118,24 @@ class TradutorPython {
                 return `${operando}${operador}`;
         }
     }
-    traduzirConstrutoVariavel(variavel) {
-        return this.traduzirFuncoesNativas(variavel.simbolo.lexema);
+    traduzirConstrutoVariavel(variavel, argumentos) {
+        const argumentosResolvidos = [];
+        const argumentosValidados = argumentos || [];
+        for (const argumento of argumentosValidados) {
+            const argumentoResolvido = this.dicionarioConstrutos[argumento.constructor.name](argumento);
+            argumentosResolvidos.push(argumentoResolvido);
+        }
+        let textoArgumentos = argumentosResolvidos.reduce((atual, proximo) => atual += proximo + ', ', "");
+        textoArgumentos = textoArgumentos.slice(0, -2);
+        switch (variavel.simbolo.lexema) {
+            case 'texto':
+                return `str(${textoArgumentos})`;
+            default:
+                if (argumentosValidados.length === 0 && !this.classesConhecidas.includes(variavel.simbolo.lexema)) {
+                    return `${variavel.simbolo.lexema}`;
+                }
+                return `${variavel.simbolo.lexema}(${textoArgumentos})`;
+        }
     }
     traduzirConstrutoVetor(vetor) {
         if (!vetor.valores.length) {
@@ -28032,11 +28185,14 @@ class TradutorPython {
             resultado += `${declaracaoClasse.simbolo.lexema}(${declaracaoClasse.superClasse.simbolo.lexema}):\n`;
         else
             resultado += declaracaoClasse.simbolo.lexema + ':\n';
-        if (declaracaoClasse.metodos.length === 0)
+        if (declaracaoClasse.metodos.length === 0) {
+            this.classesConhecidas.push(declaracaoClasse.simbolo.lexema);
             return (resultado += '    pass\n');
+        }
         for (let metodo of declaracaoClasse.metodos) {
             resultado += this.logicaTraducaoMetodoClasse(metodo);
         }
+        this.classesConhecidas.push(declaracaoClasse.simbolo.lexema);
         return resultado;
     }
     traduzirDeclaracaoConst(declaracaoConst) {
@@ -28211,7 +28367,7 @@ class TradutorPython {
         let resultado = declaracaoVar.simbolo.lexema + ' = ';
         const inicializador = declaracaoVar.inicializador;
         if (inicializador) {
-            if (this.dicionarioConstrutos[inicializador.constructor.name]) {
+            if (inicializador.constructor.name in this.dicionarioConstrutos) {
                 resultado += this.dicionarioConstrutos[declaracaoVar.inicializador.constructor.name](declaracaoVar.inicializador);
             }
             else {
@@ -28225,6 +28381,7 @@ class TradutorPython {
     }
     traduzir(declaracoes) {
         let resultado = '';
+        this.classesConhecidas = [];
         try {
             for (const declaracao of declaracoes) {
                 resultado += `${this.dicionarioDeclaracoes[declaracao.constructor.name](declaracao)} \n`;
