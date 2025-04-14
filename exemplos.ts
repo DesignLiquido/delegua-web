@@ -204,9 +204,9 @@ funcao enfileirar (valorEntrada) {
   se (indexFinal == maximoDeElementos) {
     escreva("Fila Cheia");
   } senao {
-  filaEstatica[indexFinal] = valorEntrada;
-  escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
-    retorna indexFinal = indexFinal + 1;
+    filaEstatica[indexFinal] = valorEntrada;
+    escreva("Valor inserido com sucesso: " + texto(filaEstatica[indexFinal]));
+    indexFinal = indexFinal + 1;
   }
 }
 função desenfileirar() {
