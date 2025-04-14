@@ -24,11 +24,11 @@
         "typescript": "^5.7.2"
     },
     "dependencies": {
-        "@designliquido/delegua": "^0.39.3",
-        "@designliquido/delegua-estatistica": "^0.0.6",
-        "@designliquido/delegua-fisica": "^0.0.2",
-        "@designliquido/delegua-matematica": "^0.2.0",
-        "@designliquido/delegua-tempo": "^0.0.2",
+        "@designliquido/delegua": "^0.40.0",
+        "@designliquido/delegua-estatistica": "^0.1.0",
+        "@designliquido/delegua-fisica": "^0.1.0",
+        "@designliquido/delegua-matematica": "^0.3.0",
+        "@designliquido/delegua-tempo": "^0.1.0",
         "monaco-editor": "0.48.0"
     },
     "copyFiles": [
