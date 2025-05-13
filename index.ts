@@ -9,7 +9,7 @@ import {
     RetornoExecucaoInterface,
     SimboloInterface,
 } from "@designliquido/delegua/interfaces";
-import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/estruturas";
+import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/interpretador/estruturas";
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
 import { Declaracao } from "@designliquido/delegua/declaracoes";
 
@@ -25,7 +25,7 @@ export class DeleguaWeb {
 
     teveErro: boolean = false;
     teveErroEmTempoDeExecucao: boolean = false;
-    // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
+
     dialeto: string = "delegua";
     interpretador: Interpretador;
     lexador: LexadorInterface<SimboloInterface>;
