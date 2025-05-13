@@ -77,7 +77,7 @@ var lexador_1 = require("@designliquido/delegua/lexador");
 var avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
 var analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
 var interpretador_1 = require("@designliquido/delegua/interpretador");
-var estruturas_1 = require("@designliquido/delegua/estruturas");
+var estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 var tradutores_1 = require("@designliquido/delegua/tradutores");
 var estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 var fisica = __importStar(require("@designliquido/delegua-fisica"));
@@ -89,7 +89,6 @@ var DeleguaWeb = /** @class */ (function () {
         if (funcaoDeRetorno === void 0) { funcaoDeRetorno = null; }
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
-        // TODO: Remover todos os `any` abaixo depois de implementar DeleguaInterface.
         this.dialeto = "delegua";
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.tradutorPython = new tradutores_1.TradutorPython();
