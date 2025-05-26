@@ -170,7 +170,7 @@ var DeleguaWeb = /** @class */ (function () {
         });
     };
     DeleguaWeb.prototype.versao = function () {
-        return "0.39 (web)";
+        return "0.41 (web)";
     };
     DeleguaWeb.prototype.reportar = function (linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -2164,14 +2164,21 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.performance = performance;
         this.tiposDefinidosEmCodigo = {};
         this.tiposDeFerramentasExternas = {};
-        this.primitivasConhecidas = [
-            ...Object.keys(primitivas_dicionario_1.default),
-            ...Object.keys(primitivas_numero_1.default),
-            ...Object.keys(primitivas_texto_1.default),
-            ...Object.keys(primitivas_vetor_1.default),
-            'inteiro',
-            'texto',
-        ];
+        this.primitivasConhecidas = {};
+        for (const nomePrimitivaDicionario of Object.keys(primitivas_dicionario_1.default)) {
+            this.primitivasConhecidas[nomePrimitivaDicionario] = 'dicionário';
+        }
+        for (const nomePrimitivaNumero of Object.keys(primitivas_numero_1.default)) {
+            this.primitivasConhecidas[nomePrimitivaNumero] = 'número';
+        }
+        for (const nomePrimitivaTexto of Object.keys(primitivas_texto_1.default)) {
+            this.primitivasConhecidas[nomePrimitivaTexto] = 'texto';
+        }
+        for (const nomePrimitivaVetor of Object.keys(primitivas_vetor_1.default)) {
+            this.primitivasConhecidas[nomePrimitivaVetor] = 'vetor';
+        }
+        this.primitivasConhecidas['inteiro'] = 'inteiro';
+        this.primitivasConhecidas['texto'] = 'texto';
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
     }
     verificarDefinicaoTipoAtual() {
@@ -2493,7 +2500,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     resolverEntidadeChamada(entidadeChamada) {
         if (entidadeChamada.constructor.name === 'Variavel') {
             const entidadeChamadaResolvidaVariavel = entidadeChamada;
-            if (this.primitivasConhecidas.includes(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
+            if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaResolvidaVariavel.simbolo.lexema)) {
                 return entidadeChamadaResolvidaVariavel;
             }
             if (entidadeChamadaResolvidaVariavel.simbolo.lexema in this.tiposDefinidosEmCodigo) {
@@ -4919,24 +4926,6 @@ class AvaliadorSintaticoPitugues {
                 this.avancarEDevolverAnterior();
                 return this.declaracaoDeVariaveis();
         }
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.FAZER)) return this.declaracaoFazer();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.TENTE)) return this.declaracaoTente();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCOLHA)) return this.declaracaoEscolha();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.RETORNA)) return this.declaracaoRetorna();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CONTINUA)) return this.declaracaoContinua();
-        if (
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SUSTAR) ||
-            this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PAUSA)
-        )
-            return this.declaracaoSustar();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PARA)) return this.declaracaoPara();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ENQUANTO)) return this.declaracaoEnquanto();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.SE)) return this.declaracaoSe();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.ESCREVA)) return this.declaracaoEscreva();
-        if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            const simboloInicioBloco: SimboloInterface = this.simboloAnterior();
-            return new Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), this.blocoEscopo());
-        } */
         return this.declaracaoExpressao();
     }
     funcao(tipo, construtor) {
@@ -6113,10 +6102,10 @@ async function tamanho(interpretador, objeto) {
     return Promise.resolve(valorObjeto.length);
 }
 /**
- *
- * @param interpretador
- * @param valorOuVariavel
- * @returns
+ * Transforma o valor ou variável em texto.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorOuVariavel O valor ou variável.
+ * @returns {string} O valor resolvido em texto.
  */
 async function texto(interpretador, valorOuVariavel) {
     return Promise.resolve(`${valorOuVariavel.hasOwnProperty('valor') ? valorOuVariavel.valor : valorOuVariavel}`);
@@ -6150,8 +6139,8 @@ async function todosEmCondicao(interpretador, vetor, funcaoCondicional) {
 /**
  * Transforma um vetor de elementos em uma tupla de N elementos, sendo N a
  * largura do vetor.
- * @param interpretador
- * @param vetor
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any[]} vetor O vetor.
  * @returns
  */
 async function tupla(interpretador, vetor) {
@@ -9019,15 +9008,14 @@ const espaco_variaveis_1 = require("../espaco-variaveis");
 const comum_1 = require("./comum");
 const excecoes_1 = require("../excecoes");
 const primitivas_dicionario_1 = __importDefault(require("../bibliotecas/primitivas-dicionario"));
-const primitivas_numero_1 = __importDefault(require("../bibliotecas/primitivas-numero"));
-const primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
-const primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 const primitivos_1 = __importDefault(require("../tipos-de-dados/primitivos"));
 const delegua_2 = __importDefault(require("../tipos-de-dados/delegua"));
 /**
  * O Interpretador visita todos os elementos complexos gerados pelo avaliador sintático (_parser_),
- * e de fato executa a lógica de programação descrita no código.
+ * e de fato executa a lógica de programação descrita no código. Este interpretador base é usado
+ * por Delégua e todos os seus dialetos, contendo somente os pontos em comum entre todas as
+ * linguagens.
  *
  * O Interpretador Base não contém dependências com o Node.js. É
  * recomendado para uso em execuções que ocorrem no navegador de internet.
@@ -10085,13 +10073,10 @@ class InterpretadorBase {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
         const descritorTipoClasse = new estruturas_1.DescritorTipoClasse(declaracao.simbolo, superClasse, metodos, declaracao.propriedades);
+        // TODO: Mover para Potigol, que é o único dialeto que realmente usa isso.
         descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
             this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
-        // TODO: Recolocar isso se for necessário.
-        /* if (superClasse !== null) {
-            this.ambiente = this.ambiente.enclosing;
-        } */
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
     }
@@ -10146,35 +10131,7 @@ class InterpretadorBase {
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(variavelObjeto);
         }
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case delegua_2.default.INTEIRO:
-            case delegua_2.default.NUMERO:
-            case delegua_2.default.NÚMERO:
-                const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case delegua_2.default.TEXTO:
-                const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case delegua_2.default.VETOR:
-            case delegua_2.default.VETOR_NUMERO:
-            case delegua_2.default.VETOR_NÚMERO:
-            case delegua_2.default.VETOR_TEXTO:
-                const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`, expressao.linha));
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método ou propriedade para objeto não encontrado: ${expressao.simbolo.lexema}.`, expressao.linha));
     }
     visitarExpressaoIsto(expressao) {
         return this.procurarVariavel(expressao.palavraChave);
@@ -10302,6 +10259,7 @@ class InterpretadorBase {
     async executar(declaracao, mostrarResultado = false) {
         const resultado = await declaracao.aceitar(this);
         /* console.log("Resultado aceitar: " + resultado, this); */
+        // TODO: Mover a lógica abaixo para `delegua-node`.
         if (mostrarResultado) {
             this.funcaoDeRetorno(this.paraTexto(resultado));
         }
@@ -10397,7 +10355,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../avaliador-sintatico":31,"../bibliotecas/primitivas-dicionario":39,"../bibliotecas/primitivas-numero":40,"../bibliotecas/primitivas-texto":41,"../bibliotecas/primitivas-vetor":42,"../construtos":65,"../espaco-variaveis":117,"../excecoes":119,"../inferenciador":121,"../lexador":168,"../quebras":175,"../tipos-de-dados/delegua":176,"../tipos-de-dados/primitivos":177,"../tipos-de-simbolos/delegua":179,"./comum":144,"./estruturas":150,"./estruturas/metodo-primitiva":151,"./pilha-escopos-execucao":159,"_process":391,"browser-process-hrtime":356}],157:[function(require,module,exports){
+},{"../avaliador-sintatico":31,"../bibliotecas/primitivas-dicionario":39,"../construtos":65,"../espaco-variaveis":117,"../excecoes":119,"../inferenciador":121,"../lexador":168,"../quebras":175,"../tipos-de-dados/delegua":176,"../tipos-de-dados/primitivos":177,"../tipos-de-simbolos/delegua":179,"./comum":144,"./estruturas":150,"./estruturas/metodo-primitiva":151,"./pilha-escopos-execucao":159,"_process":391,"browser-process-hrtime":356}],157:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10409,7 +10367,7 @@ const espaco_variaveis_1 = require("../espaco-variaveis");
 const quebras_1 = require("../quebras");
 const construtos_1 = require("../construtos");
 const inferenciador_1 = require("../inferenciador");
-const interpretador_base_1 = require("./interpretador-base");
+const interpretador_1 = require("./interpretador");
 /**
  * Implementação do Interpretador com suporte a depuração.
  * Herda o Interpretador padrão de Delégua e implementa métodos a mais, que são
@@ -10430,7 +10388,7 @@ const interpretador_base_1 = require("./interpretador-base");
  * uma série de variáveis implementadas aqui, o que o torna mais econômico em
  * recursos de máquina.
  */
-class InterpretadorComDepuracao extends interpretador_base_1.InterpretadorBase {
+class InterpretadorComDepuracao extends interpretador_1.Interpretador {
     constructor(diretorioBase, funcaoDeRetorno, funcaoDeRetornoMesmaLinha) {
         super(diretorioBase, false, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
         this.pontosParada = [];
@@ -10969,7 +10927,7 @@ class InterpretadorComDepuracao extends interpretador_base_1.InterpretadorBase {
 }
 exports.InterpretadorComDepuracao = InterpretadorComDepuracao;
 
-},{"../construtos":65,"../espaco-variaveis":117,"../inferenciador":121,"../quebras":175,"./interpretador-base":156,"lodash":384}],158:[function(require,module,exports){
+},{"../construtos":65,"../espaco-variaveis":117,"../inferenciador":121,"../quebras":175,"./interpretador":158,"lodash":384}],158:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -11007,9 +10965,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
-        // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
-        // então testamos também o nome do construtor.
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse || objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obterMetodo(expressao.nomeMetodo) || null;
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -11070,6 +11026,73 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         }
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Método para objeto ou primitiva não encontrado: ${expressao.nomeMetodo}.`, expressao.linha));
     }
+    /**
+     * Casos que ocorrem aqui:
+     *
+     * - Quando o método ou propriedade é ou 'qualquer', ou vetor
+     *   de 'qualquer' ('qualquer[]'), e uma primitiva é usada.
+     * - Quando o objeto é uma classe definida em código.
+     * @param {AcessoMetodoOuPropriedade} expressao A expressão de acesso a método ou propriedade.
+     * @returns A primitiva encontrada.
+     */
+    async visitarExpressaoAcessoMetodoOuPropriedade(expressao) {
+        let variavelObjeto = await this.avaliar(expressao.objeto);
+        // Este caso acontece quando há encadeamento de métodos.
+        // Por exemplo, `objeto1.metodo1().metodo2()`.
+        // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
+        // valor dele primeiro.
+        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+            variavelObjeto = variavelObjeto.valor;
+        }
+        const objeto = variavelObjeto.hasOwnProperty('valor') ? variavelObjeto.valor : variavelObjeto;
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            return objeto.obter(expressao.simbolo);
+        }
+        // Objeto simples do JavaScript, ou dicionário de Delégua.
+        if (objeto.constructor === Object) {
+            if (expressao.simbolo.lexema in primitivas_dicionario_1.default) {
+                const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
+                return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+            }
+            return objeto[expressao.simbolo.lexema] || null;
+        }
+        let tipoObjeto = variavelObjeto.tipo;
+        if (tipoObjeto === null || tipoObjeto === undefined) {
+            tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(variavelObjeto);
+        }
+        // Como internamente um dicionário de Delégua é simplesmente um objeto de
+        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
+        // mais acima.
+        switch (tipoObjeto) {
+            case delegua_1.default.INTEIRO:
+            case delegua_1.default.NUMERO:
+            case delegua_1.default.NÚMERO:
+                const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaNumero) {
+                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                }
+                break;
+            case delegua_1.default.TEXTO:
+                const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaTexto) {
+                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                }
+                break;
+            case delegua_1.default.VETOR:
+            case delegua_1.default.VETOR_INTEIRO:
+            case delegua_1.default.VETOR_LOGICO:
+            case delegua_1.default.VETOR_LÓGICO:
+            case delegua_1.default.VETOR_NUMERO:
+            case delegua_1.default.VETOR_NÚMERO:
+            case delegua_1.default.VETOR_QUALQUER:
+            case delegua_1.default.VETOR_TEXTO:
+                const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
+                if (metodoDePrimitivaVetor) {
+                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                }
+                break;
+        }
+    }
     async visitarExpressaoAcessoPropriedade(expressao) {
         let variavelObjeto = await this.avaliar(expressao.objeto);
         // Este caso acontece quando há encadeamento de métodos.
@@ -11113,35 +11136,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(variavelObjeto);
         }
-        // Como internamente um dicionário de Delégua é simplesmente um objeto de
-        // JavaScript, as primitivas de dicionário, especificamente, são tratadas
-        // mais acima.
-        switch (tipoObjeto) {
-            case delegua_1.default.INTEIRO:
-            case delegua_1.default.NUMERO:
-            case delegua_1.default.NÚMERO:
-                const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaNumero) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
-                }
-                break;
-            case delegua_1.default.TEXTO:
-                const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaTexto) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
-                }
-                break;
-            case delegua_1.default.VETOR:
-            case delegua_1.default.VETOR_NUMERO:
-            case delegua_1.default.VETOR_NÚMERO:
-            case delegua_1.default.VETOR_TEXTO:
-                const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.nomePropriedade].implementacao;
-                if (metodoDePrimitivaVetor) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
-                }
-                break;
-        }
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Método para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`, expressao.linha));
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Propriedade para objeto ou primitiva não encontrado: ${expressao.nomePropriedade}.`, expressao.linha));
     }
     async visitarExpressaoArgumentoReferenciaFuncao(expressao) {
         const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(expressao.simboloFuncao.lexema);
@@ -13614,8 +13609,12 @@ exports.default = {
     TUPLA: 'tupla',
     VAZIO: 'vazio',
     VETOR: 'vetor',
+    VETOR_INTEIRO: 'inteiro[]',
+    VETOR_LOGICO: 'logico[]',
+    VETOR_LÓGICO: 'lógico[]',
     VETOR_NUMERO: 'numero[]',
     VETOR_NÚMERO: 'número[]',
+    VETOR_QUALQUER: 'qualquer[]',
     VETOR_TEXTO: 'texto[]',
 };
 
