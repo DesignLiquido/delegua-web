@@ -2355,6 +2355,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             case delegua_2.default.ISTO:
                 this.avancarEDevolverAnterior();
                 return new construtos_1.Isto(this.hashArquivo, Number(simboloAtual.linha), simboloAtual);
+            case delegua_2.default.LEIA:
+                return this.expressaoLeia();
             case delegua_2.default.NULO:
                 this.avancarEDevolverAnterior();
                 return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), null, 'nulo');
@@ -2750,7 +2752,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
      * @returns Um objeto da classe `Leia`.
      */
     expressaoLeia() {
-        const simboloLeia = this.simbolos[this.atual];
+        const simboloLeia = this.avancarEDevolverAnterior();
         this.consumir(delegua_2.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos argumentos em instrução `leia`.");
         const argumentos = [];
         if (this.simbolos[this.atual].tipo !== delegua_2.default.PARENTESE_DIREITO) {
@@ -2761,9 +2763,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.consumir(delegua_2.default.PARENTESE_DIREITO, "Esperado ')' após os argumentos em instrução `leia`.");
         return new construtos_1.Leia(simboloLeia, argumentos);
     }
+    // TODO: Depreciar.
     expressao() {
-        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.LEIA))
-            return this.expressaoLeia();
         return this.atribuir();
     }
     blocoEscopo() {
@@ -3226,6 +3227,15 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                     case 'AcessoMetodo':
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada;
                         return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                    case 'AcessoMetodoOuPropriedade':
+                        // Este caso ocorre quando a variável/constante é do tipo 'qualquer', 
+                        // e a chamada normalmente é feita para uma primitiva. 
+                        // A inferência, portanto, ocorre pelo uso da primitiva.
+                        const entidadeChamadaAcessoMetodoOuPropriedade = entidadeChamadaChamada;
+                        if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema)) {
+                            return this.primitivasConhecidas[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
+                        }
+                        throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamadaAcessoMetodoOuPropriedade.simbolo, `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`);
                     case 'AcessoPropriedade':
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
@@ -3255,6 +3265,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             case 'Noneto':
             case 'Deceto':
                 return delegua_1.default.TUPLA;
+            case "ImportarBiblioteca":
+            case "ModuloDeclaracoes":
+                return "módulo";
             default:
                 return inicializador.tipo;
         }
@@ -6388,6 +6401,13 @@ exports.default = {
         argumentos: [],
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Math.ceil(valor));
+        },
+    },
+    absoluto: {
+        tipoRetorno: 'número',
+        argumentos: [],
+        implementacao: (interpretador, valor) => {
+            return Promise.resolve(Math.abs(valor));
         },
     },
 };
@@ -13297,19 +13317,36 @@ class Lexador {
         return this.codigo[this.linha].charAt(this.atual - 1);
     }
     analisarTexto(delimitador = '"') {
-        while (this.simboloAtual() !== delimitador && !this.eFinalDoCodigo()) {
+        let textoCompleto = '';
+        this.avancar();
+        while (!this.eFinalDoCodigo()) {
+            const caractere = this.simboloAtual();
+            if (caractere === delimitador) {
+                this.avancar();
+                this.adicionarSimbolo(delegua_1.default.TEXTO, textoCompleto);
+                return;
+            }
+            if (caractere === '\0' && this.eUltimaLinha()) {
+                this.erros.push({
+                    linha: this.linha + 1,
+                    caractere: this.simboloAnterior(),
+                    mensagem: 'Texto não finalizado.',
+                });
+                return;
+            }
+            if (caractere === '\0') {
+                textoCompleto += '\n';
+                this.avancar();
+                continue;
+            }
+            textoCompleto += caractere;
             this.avancar();
         }
-        if (this.eFinalDoCodigo()) {
-            this.erros.push({
-                linha: this.linha + 1,
-                caractere: this.simboloAnterior(),
-                mensagem: 'Texto não finalizado.',
-            });
-            return;
-        }
-        const valor = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
-        this.adicionarSimbolo(delegua_1.default.TEXTO, valor);
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: this.simboloAnterior(),
+            mensagem: 'Texto não finalizado.',
+        });
     }
     analisarNumero() {
         while (this.eDigito(this.simboloAtual())) {
@@ -13550,14 +13587,10 @@ class Lexador {
                 this.avancar();
                 break;
             case '"':
-                this.avancar();
                 this.analisarTexto('"');
-                this.avancar();
                 break;
             case "'":
-                this.avancar();
                 this.analisarTexto("'");
-                this.avancar();
                 break;
             default:
                 if (this.eDigito(caractere))

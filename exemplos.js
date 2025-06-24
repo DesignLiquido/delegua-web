@@ -281,8 +281,10 @@ function definirLinguagemDelegua() {
     };
 }
 window.onload = function () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-    var exemploId = window.location.search.split('?exemploId=')[1];
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+    var searchParams = new URLSearchParams(window.location.search.split('?')[1]);
+    var exemploId = searchParams.get('exemploId');
+    var codigo = searchParams.get('codigo');
     (_b = (_a = this.Monaco) === null || _a === void 0 ? void 0 : _a.languages) === null || _b === void 0 ? void 0 : _b.register({
         id: 'delegua',
         extensions: ['.delegua'],
@@ -385,11 +387,18 @@ window.onload = function () {
     //     }
     //   }
     // })
-    (_k = (_j = this.Monaco) === null || _j === void 0 ? void 0 : _j.editor) === null || _k === void 0 ? void 0 : _k.create(document.getElementById('editor'), {
-        value: Exemplos[exemploId],
-        language: 'delegua'
-    });
-    if (exemploId) {
+    if (codigo) {
+        var codigoDecodificado = atob(codigo);
+        (_k = (_j = this.Monaco) === null || _j === void 0 ? void 0 : _j.editor) === null || _k === void 0 ? void 0 : _k.create(document.getElementById('editor'), {
+            value: codigoDecodificado,
+            language: 'delegua'
+        });
+    }
+    else if (exemploId) {
+        (_m = (_l = this.Monaco) === null || _l === void 0 ? void 0 : _l.editor) === null || _m === void 0 ? void 0 : _m.create(document.getElementById('editor'), {
+            value: Exemplos[exemploId],
+            language: 'delegua'
+        });
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
     }
 };
