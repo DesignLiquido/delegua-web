@@ -31,10 +31,10 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.1.0.tgz#0ecf3ec282bd394998784b226c567254a320e068"
   integrity sha512-YlGqYpFU59Nk79c3jXVsBL2giw5dQe7sPIfBpm06N2NFaPCdyw9KLbhp6SboNtSB7vV+11PqPt7EarIJx0skjQ==
 
-"@designliquido/delegua@^0.42.0":
-  version "0.42.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.42.0.tgz#54e8f651d87ef42a9faf97751c9e15142d896a20"
-  integrity sha512-ubPiw/AzZ+1hP8q9AkxGmRGEXATyFUDrU4n9LKfoImYT33BU2N838ZMiKsqAbrxqZUeQ/9V/l1sS+KpzuTH66Q==
+"@designliquido/delegua@^0.42.1":
+  version "0.42.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.42.1.tgz#49a5c87c6bb1dafc3e1fda81854c797d665da802"
+  integrity sha512-k6V911SH/mkw2oxMJVQ0dT5F18D+r7dvzLRA2On5QWV95p24nnySUK9/cEMBnAWd8W5kXXU0F3u3CCq2yxm1aQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -224,10 +224,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.4.tgz#0b92dcc0cc1c81f6f306a381f28e31b1a56536e9"
   integrity sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==
 
-"@types/estree@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.6.tgz#628effeeae2064a1b4e79f78e81d87b7e5fc7b50"
-  integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
+"@types/estree@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.8.tgz#958b91c991b1867ced318bedea0e215ee050726e"
+  integrity sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==
 
 "@types/node@^22.10.1":
   version "22.10.1"

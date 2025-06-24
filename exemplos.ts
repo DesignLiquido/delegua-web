@@ -540,7 +540,9 @@ function definirLinguagemDelegua() {
 }
 
 window.onload = function () {
-  const exemploId: any = window.location.search.split('?exemploId=')[1];
+  const searchParams = new URLSearchParams(window.location.search.split('?')[1]);
+  const exemploId: any = searchParams.get('exemploId');
+  const codigo: any = searchParams.get('codigo');
 
   this.Monaco?.languages?.register({
     id: 'delegua',
@@ -649,12 +651,18 @@ window.onload = function () {
   //   }
   // })
 
-  this.Monaco?.editor?.create(document.getElementById('editor'), {
-    value: Exemplos[exemploId],
-    language: 'delegua'
-  });
-
-  if (exemploId) {
+  if (codigo) {
+    const codigoDecodificado = atob(codigo);
+    this.Monaco?.editor?.create(document.getElementById('editor'), {
+      value: codigoDecodificado,
+      language: 'delegua'
+    });
+  }
+  else if (exemploId) {
+    this.Monaco?.editor?.create(document.getElementById('editor'), {
+      value: Exemplos[exemploId],
+      language: 'delegua'
+    });
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
   }
 }
