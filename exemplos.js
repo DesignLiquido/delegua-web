@@ -281,7 +281,7 @@ function definirLinguagemDelegua() {
     };
 }
 window.onload = function () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
     var searchParams = new URLSearchParams(window.location.search.split('?')[1]);
     var exemploId = searchParams.get('exemploId');
     var codigo = searchParams.get('codigo');
@@ -400,5 +400,11 @@ window.onload = function () {
             language: 'delegua'
         });
         document.querySelector('#titulo-arquivo').innerHTML = "".concat(exemploId, ".delegua");
+    }
+    else {
+        (_p = (_o = this.Monaco) === null || _o === void 0 ? void 0 : _o.editor) === null || _p === void 0 ? void 0 : _p.create(document.getElementById('editor'), {
+            value: '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.',
+            language: 'delegua'
+        });
     }
 };
