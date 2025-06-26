@@ -53,6 +53,10 @@
             "to": "dist/vs"
         },
         {
+            "from": "node_modules/monaco-editor/min-maps/**/*",
+            "to": "dist/min-maps"
+        },
+        {
             "from": "nls/default.js",
             "to": "dist/vs/editor/editor.main.nls.js"
         }

@@ -664,5 +664,10 @@ window.onload = function () {
       language: 'delegua'
     });
     document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
+  } else {
+    this.Monaco?.editor?.create(document.getElementById('editor'), {
+      value: '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.',
+      language: 'delegua'
+    });
   }
 }
