@@ -7,7 +7,7 @@ var primitivasTexto = [
             '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
             '\n    escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.aparar()'
+        exemploCodigo: 'texto.aparar()'
     },
     {
         nome: 'apararFim',
@@ -17,7 +17,7 @@ var primitivasTexto = [
             '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
             '\n    escreva("|" + t.apararFim() + "|") // "|   meu texto com espaços no início e no fim|"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.apararFim()'
+        exemploCodigo: 'texto.apararFim()'
     },
     {
         nome: 'apararInicio',
@@ -27,7 +27,7 @@ var primitivasTexto = [
             '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
             '\n    escreva("|" + t.apararInicio() + "|") // "|meu texto com espaços no início e no fim       |"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.apararInicio()'
+        exemploCodigo: 'texto.apararInicio()'
     },
     {
         nome: 'concatenar',
@@ -38,7 +38,7 @@ var primitivasTexto = [
             '\n    var t2 = "dois três"    ' +
             '\n    escreva(t1.concatenar(t2)) // "umdois três"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.concatenar(Outro texto)'
+        exemploCodigo: 'texto.concatenar(Outro texto)'
     },
     {
         nome: 'dividir',
@@ -48,7 +48,7 @@ var primitivasTexto = [
             '\n    var t = "um dois três"    ' +
             '\n    t.dividir(\' \') // [\'um\',\'dois\',\'três\']    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.dividir(\'<delimitador (, ; \' \')>\')'
+        exemploCodigo: 'texto.dividir(\'<delimitador (, ; \' \')>\')'
     },
     {
         nome: 'fatiar',
@@ -61,7 +61,7 @@ var primitivasTexto = [
             '\n    t.fatiar(8, 12) // "três"    ' +
             '\n    t.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.fatiar(início,final)' +
+        exemploCodigo: 'texto.fatiar(início,final)' +
             '\n    texto.fatiar(a partir da posicao)    '
     },
     {
@@ -73,7 +73,7 @@ var primitivasTexto = [
             '\n    t.inclui("dois") // verdadeiro    ' +
             '\n    t.inclui("quatro") // falso    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.inclui(\'palavra\')'
+        exemploCodigo: 'texto.inclui(\'palavra\')'
     },
     {
         nome: 'maiusculo',
@@ -83,7 +83,7 @@ var primitivasTexto = [
             '\n    var t = "tudo em minúsculo"    ' +
             '\n    escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.maiusculo()'
+        exemploCodigo: 'texto.maiusculo()'
     },
     {
         nome: 'minusculo',
@@ -93,7 +93,7 @@ var primitivasTexto = [
             '\n    var t = "TUDO EM MAIÚSCULO"    ' +
             '\n    escreva(t.minusculo()) // "tudo em maiúsculo"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.minusculo()'
+        exemploCodigo: 'texto.minusculo()'
     },
     {
         nome: 'substituir',
@@ -103,7 +103,7 @@ var primitivasTexto = [
             '\n    var t = "Eu gosto de caju"    ' +
             '\n    t.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.substituir(\'palavra a ser substituída\', \'nova palavra\')'
+        exemploCodigo: 'texto.substituir(\'palavra a ser substituída\', \'nova palavra\')'
     },
     {
         nome: 'subtexto',
@@ -113,7 +113,7 @@ var primitivasTexto = [
             '\n    var t = "Eu gosto de caju e de graviola"    ' +
             '\n    t.subtexto(3, 16) // Resultado será "gosto de caju"    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.subtexto(posição inicial, posição final)'
+        exemploCodigo: 'texto.subtexto(posição inicial, posição final)'
     },
     {
         nome: 'tamanho',
@@ -123,6 +123,6 @@ var primitivasTexto = [
             '\n    var t = "Um dois três quatro"    ' +
             '\n    t.tamanho() // 19    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'texto.tamanho()'
+        exemploCodigo: 'texto.tamanho()'
     },
 ];

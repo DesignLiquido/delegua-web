@@ -304,8 +304,8 @@ window.onload = function () {
             //   kind: this.Monaco.languages.CompletionItemKind.Text,
             //   insertText: 'escreva(\'\')'
             // }];
-            var formatoPrimitivas = primitivas.filter(function (p) { return p.exemplo; }).map(function (_a) {
-                var nome = _a.nome, exemplo = _a.exemplo;
+            var formatoPrimitivas = primitivas.filter(function (p) { return p.exemploCodigo; }).map(function (_a) {
+                var nome = _a.nome, exemplo = _a.exemploCodigo;
                 return {
                     label: nome,
                     kind: 17, // Keyword,
@@ -336,7 +336,7 @@ window.onload = function () {
                     contents: [
                         { value: "**".concat(primitiva.nome, "**") },
                         { value: primitiva.documentacao },
-                        { value: "    ".concat(primitiva.exemplo, "    ") }
+                        { value: "    ".concat(primitiva.exemploCodigo, "    ") }
                     ]
                 };
             }

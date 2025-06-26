@@ -2949,7 +2949,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
         }
         const tipoVetor = vetor.tipo;
-        if (!tipoVetor.endsWith('[]')) {
+        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`);
         }
         this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
