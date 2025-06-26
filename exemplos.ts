@@ -308,17 +308,19 @@ function definirLinguagemDelegua() {
       'vazio',
       'vetor',
 
-      /* keywords delégua funções nativas texto*/
+      /* funções nativas de delégua (texto) */
       'dividir',
       'fatiar',
       'inclui',
       'maiusculo',
+      'maiúsculo',
       'minusculo',
+      'minúsculo',
       'texto',
       'substituir',
       'subtexto',
 
-      /* keywords delégua funções nativas vetor*/
+      /* funções nativas de delégua (vetor) */
       'adicionar',
       'concatenar',
       'empilhar',
@@ -333,7 +335,7 @@ function definirLinguagemDelegua() {
       'removerUltimo',
       'somar',
 
-      /* keywords delégua funções nativas gerais*/
+      /* funções nativas de delégua (sem tipo específico) */
       'aleatorio',
       'aleatorioEntre',
       'algum',
@@ -344,6 +346,7 @@ function definirLinguagemDelegua() {
       'escreva',
       'filtrarPor',
       'incluido',
+      'incluído',
       'inteiro',
       'paraCada',
       'primeiroEmCondicao',
@@ -356,6 +359,7 @@ function definirLinguagemDelegua() {
 
     operators: [
       'e',
+      'em',
       'ou',
       '<=',
       '>=',
@@ -367,6 +371,7 @@ function definirLinguagemDelegua() {
       '**',
       '*',
       '/',
+      '\\',
       '%',
       '++',
       '--',
@@ -384,7 +389,7 @@ function definirLinguagemDelegua() {
       '%=',
     ],
 
-    // we include these common regular expressions
+    // Expressões regulares para determinados componentes da linguagem
     symbols: /[=><!~?:&|+\-*\/\^%]+/,
     escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
     digits: /\d+(_+\d+)*/,
@@ -402,7 +407,7 @@ function definirLinguagemDelegua() {
       common: [
         // identifiers and keywords
         [
-          /[a-z_$][çã\w$]*/,
+          /[a-z_âáêéíóôõú$][çãâáêéíóôõú\w$]*/,
           {
             cases: {
               '@keywords': 'keyword',
@@ -410,19 +415,19 @@ function definirLinguagemDelegua() {
             }
           }
         ],
-        [/[A-Z][\w\$]*/, 'type.identifier'], // to show class names nicely
-        // [/[A-Z][\w\$]*/, 'identifier'],
+        [/[A-ZÂÁÊÉÍÓÔÕÚ][\w\$]*/, 'type.identifier'], // Mostra nomes de classes (normalmente em maiúsculo) com uma cor bonita
+        // [/[A-Z][\w\$]*/, 'identifier'], // Talvez voltar com isso um dia
 
         // whitespace
         { include: '@whitespace' },
 
-        // regular expression: ensure it is terminated before beginning (otherwise it is an opeator)
+        // regular expression: ensure it is terminated before beginning (otherwise it is an operator)
         [
           /\/(?=([^\\\/]|\\.)+\/([dgimsuy]*)(\s*)(\.|;|,|\)|\]|\}|$))/,
           { token: 'regexp', bracket: '@open', next: '@regexp' }
         ],
 
-        // delimiters and operators
+        // delimitadores e operadores
         [/[()\[\]]/, '@brackets'],
         [/[<>](?!@symbols)/, '@brackets'],
         [/!(?=([^=]|$))/, 'delimiter'],
@@ -436,7 +441,7 @@ function definirLinguagemDelegua() {
           }
         ],
 
-        // numbers
+        // números
         [/(@digits)[eE]([\-+]?(@digits))?/, 'number.float'],
         [/(@digits)\.(@digits)([eE][\-+]?(@digits))?/, 'number.float'],
         [/0[xX](@hexdigits)n?/, 'number.hex'],
@@ -447,9 +452,9 @@ function definirLinguagemDelegua() {
         // delimiter: after number because of .\d floats
         [/[;,.]/, 'delimiter'],
 
-        // strings
-        [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
-        [/'([^'\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+        // textos
+        [/"([^"\\]|\\.)*$/, 'string.invalid'], // texto não finalizado
+        [/'([^'\\]|\\.)*$/, 'string.invalid'], // idem
         [/"/, 'string', '@string_double'],
         [/'/, 'string', '@string_single'],
         [/`/, 'string', '@string_backtick']
@@ -474,7 +479,7 @@ function definirLinguagemDelegua() {
         [/[\/*]/, 'comment.doc']
       ],
 
-      // We match regular expression quite precisely
+      // TODO: Ajustar esta parte para expressões regulares de Delégua
       regexp: [
         [
           /(\{)(\d+(?:,\d*)?)(\})/,
@@ -599,6 +604,7 @@ window.onload = function () {
     }
   })
 
+  // TODO: Devemos manter isso?
   // this.Monaco?.languages?.registerCodeActionProvider('delegua', {
   //   provideCodeActions: (
   //     model /**ITextModel*/,
