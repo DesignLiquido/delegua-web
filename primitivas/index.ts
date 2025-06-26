@@ -1,7 +1,8 @@
 interface IPrimitiva {
     nome: string;
+    assinaturas?: any[];
     documentacao: string;
-    exemplo: string;
+    exemploCodigo: string;
 }
 
 const ordenarPrimitivaPorNome = (a: IPrimitiva, b: IPrimitiva) => {

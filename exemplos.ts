@@ -565,7 +565,7 @@ window.onload = function () {
       //   kind: this.Monaco.languages.CompletionItemKind.Text,
       //   insertText: 'escreva(\'\')'
       // }];
-      const formatoPrimitivas = primitivas.filter(p => p.exemplo).map(({ nome, exemplo }) => {
+      const formatoPrimitivas = primitivas.filter(p => p.exemploCodigo).map(({ nome, exemploCodigo: exemplo }) => {
         return {
           label: nome,
           kind: 17, // Keyword,
@@ -596,7 +596,7 @@ window.onload = function () {
           contents: [
             { value: `**${primitiva.nome}**` },
             { value: primitiva.documentacao },
-            { value: `    ${primitiva.exemplo}    ` }
+            { value: `    ${primitiva.exemploCodigo}    ` }
           ]
         }
       }

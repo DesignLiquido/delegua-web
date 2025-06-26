@@ -4,7 +4,7 @@ const primitivasVetor: PrimitivaVetor = [
     {
         nome: 'mapear',
         documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.',
-        exemplo: null
+        exemploCodigo: null
     },
     {
         nome: 'adicionar',
@@ -16,7 +16,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    v.adicionar(3)    ' +
             '\n    escreva(v) // [7, 5, 3]    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.adicionar(elemento)'
+        exemploCodigo: 'vetor.adicionar(elemento)'
     },
     {
         nome: 'concatenar',
@@ -26,7 +26,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var v = [7, 5, 3]    ' +
             '\n    escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]    ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.concatenar(...argumentos)'
+        exemploCodigo: 'vetor.concatenar(...argumentos)'
     },
     {
         nome: 'empilhar',
@@ -39,7 +39,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    v.empilhar(3)    ' +
             '\n    escreva(v) // [7, 5, 3]     ' +
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.empilhar(conteúdo)'
+        exemploCodigo: 'vetor.empilhar(conteúdo)'
     },
     {
         nome: 'fatiar',
@@ -52,7 +52,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.     ' +
             '\n \n ### Formas de uso  \n' +
             'Fatiar suporta sobrecarga do método\n \n',
-        exemplo: 'vetor.fatiar(a partir desta posicao)\n\n' +
+        exemploCodigo: 'vetor.fatiar(a partir desta posicao)\n\n' +
             '    vetor.fatiar(a partir desta posicao, ate esta posicao)    '
     },
     {
@@ -65,7 +65,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    escreva(v.inclui(2)) // verdadeiro    ' +
             '\n    escreva(v.inclui(4)) // falso    '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.inclui(elemento)'
+        exemploCodigo: 'vetor.inclui(elemento)'
     },
     {
         nome: 'inverter',
@@ -75,7 +75,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var v = [1, 2, 3]     ' +
             '\n    escreva(v.inverter()) // [3, 2, 1]     '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.inverter()'
+        exemploCodigo: 'vetor.inverter()'
     },
     {
         nome: 'ordenar',
@@ -89,7 +89,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var v = ["aaa", "a", "aba", "abb", "abc"]    ' +
             '\n    escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]    '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.ordenar()'
+        exemploCodigo: 'vetor.ordenar()'
     },
     {
         nome: 'remover',
@@ -100,7 +100,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    vetor.remover(2)     ' +
             '\n    escreva(vetor) // [1, 3]     '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.remover(elemento)'
+        exemploCodigo: 'vetor.remover(elemento)'
     },
     {
         nome: 'removerPrimeiro',
@@ -112,7 +112,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    escreva(primeiroElemento) // 1    ' +
             '\n    escreva(vetor) // [2, 3]    '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.removerPrimeiro()'
+        exemploCodigo: 'vetor.removerPrimeiro()'
     },
     {
         nome: 'removerUltimo',
@@ -124,7 +124,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    escreva(ultimoElemento) // 3    ' +
             '\n    escreva(vetor) // [1, 2]    '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.removerUltimo()'
+        exemploCodigo: 'vetor.removerUltimo()'
     },
     {
         nome: 'somar',
@@ -134,7 +134,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var vetor = [1, 2, 3, 4, 5]    ' +
             '\n    escreva(vetor.somar()) // 15      '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.somar()'
+        exemploCodigo: 'vetor.somar()'
     },
     {
         nome: 'tamanho',
@@ -144,7 +144,7 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var vetor = [0, 1, 2, 3, 4]     ' +
             '\n    escreva(vetor.tamanho()) // 5     '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.tamanho()'
+        exemploCodigo: 'vetor.tamanho()'
     },
     {
         nome: 'juntar',
@@ -154,6 +154,6 @@ const primitivasVetor: PrimitivaVetor = [
             '\n    var vetor = [\'maçã\', \'laranja\', \'banana\', \'morango\']     '+
             '\n    escreva(vetor.juntar(\', \')) // maçã, laranja, banana, morango      '+
             '\n \n ### Formas de uso  \n',
-        exemplo: 'vetor.juntar(separador)'
+        exemploCodigo: 'vetor.juntar(separador)'
     },
 ];
