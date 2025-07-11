@@ -24,11 +24,11 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
-        "@designliquido/delegua": "^0.42.2",
+        "@designliquido/delegua": "^0.45.0",
         "@designliquido/delegua-estatistica": "^0.1.0",
         "@designliquido/delegua-fisica": "^0.1.0",
         "@designliquido/delegua-matematica": "^0.3.0",
-        "@designliquido/delegua-tempo": "^0.1.0",
+        "@designliquido/delegua-tempo": "^1.0.0",
         "monaco-editor": "0.48.0"
     },
     "copyFiles": [

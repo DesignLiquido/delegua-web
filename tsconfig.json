@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "commonjs",
     "lib": [
-      "es5",
-      "es6",
+      "es2015",
+      "es2017",
       "dom"
     ],
     "moduleResolution": "node",
@@ -14,5 +14,8 @@
     "allowJs": true,
     "skipLibCheck": true
   },
-  "exclude": ["babel.config.js", "dist/**/*"]
+  "exclude": [
+    "babel.config.js",
+    "dist/**/*"
+  ]
 }

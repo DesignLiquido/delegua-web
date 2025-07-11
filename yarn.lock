@@ -26,15 +26,17 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.3.0.tgz#fbd1048bc0efbadcecf96c3486f8c376b6516846"
   integrity sha512-UD276/tKuWuqky0FfwuI+QJ5M+nUpnGq9QWjqmqPJikXfhUjePpTR5bBz/Ni+6WfBtgW9FShJ4T9GH96jKYuGw==
 
-"@designliquido/delegua-tempo@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.1.0.tgz#0ecf3ec282bd394998784b226c567254a320e068"
-  integrity sha512-YlGqYpFU59Nk79c3jXVsBL2giw5dQe7sPIfBpm06N2NFaPCdyw9KLbhp6SboNtSB7vV+11PqPt7EarIJx0skjQ==
+"@designliquido/delegua-tempo@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-1.0.0.tgz#d4b01226c557ec2d5f3a4d04dce09f1975e9b2fb"
+  integrity sha512-6nflQRd5SZu4MlC8nMYXFzSSxBsQDuO4CtZKlmwygtUnT9WjAJKYS1dtJ67ipvUd9Z4HWePU4WYXVTLuMORTkA==
+  dependencies:
+    dayjs "^1.11.13"
 
-"@designliquido/delegua@^0.42.2":
-  version "0.42.2"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.42.2.tgz#56c8f7314f0b195f86c46d954e2060848e78d91d"
-  integrity sha512-sfear8DWP/zmGmCvitj2kj53zjqWcBSvRsr8OaVE4ILryl5g1tLLfnOZxKjliixrglvG3Q4AARem+rBsZcchDA==
+"@designliquido/delegua@^0.45.0":
+  version "0.45.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.45.0.tgz#aebfc3dd4315ece7a3ad53dd514a07099e721101"
+  integrity sha512-1i2XvDlZ2VrcrZwgH32Iw5gZG2EP82jIkWGFWwRtU3qtJB8sCEymDopygYfi5xuyhafsbWuTOxlriJclgF9Wpw==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -809,6 +811,11 @@ dash-ast@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/dash-ast/-/dash-ast-1.0.0.tgz#12029ba5fb2f8aa6f0a861795b23c1b4b6c27d37"
   integrity sha512-Vy4dx7gquTeMcQR/hDkYLGUnwVil6vk4FOOct+djUnHOUWt+zJPJAaRIXaAFkPXtJjvlY7o3rfRu0/3hpnwoUA==
+
+dayjs@^1.11.13:
+  version "1.11.13"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
+  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
 
 debug@^4.3.6:
   version "4.4.1"

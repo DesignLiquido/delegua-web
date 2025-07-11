@@ -17,8 +17,12 @@ import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
+import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
+import { InformacaoVariavelOuConstante } from "@designliquido/delegua/informacao-variavel-ou-constante";
+
+import { InterpretadorWeb } from "./interpretador-web";
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -44,7 +48,7 @@ export class DeleguaWeb {
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
         this.analisadorSemantico = new AnalisadorSemantico();
-        this.interpretador = new Interpretador(
+        this.interpretador = new InterpretadorWeb(
             "",
             false,
             this.funcaoDeRetorno,
@@ -61,33 +65,49 @@ export class DeleguaWeb {
         const moduloEstatistica = new DeleguaModulo("estatistica");
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "estatistica",
-            this.montarModulo(estatistica, moduloEstatistica)
+            this.montarModulo(moduloEstatistica, estatistica)
         );
 
         const moduloFisica = new DeleguaModulo("fisica");
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "fisica",
-            this.montarModulo(fisica, moduloFisica)
+            this.montarModulo(moduloFisica, fisica)
         );
 
         const moduloMatematica = new DeleguaModulo("matematica");
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "matematica",
-            this.montarModulo(matematica, moduloMatematica)
+            this.montarModulo(moduloMatematica, matematica)
         );
 
         const moduloTempo = new DeleguaModulo("tempo");
+        // TODO: Pensar numa forma de exportar sem precisar fazer isso.
+        const moduloTempoResolvido = this.montarModulo(moduloTempo, tempo, {'ObjetoData': ObjetoData});
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             "tempo",
-            this.montarModulo(tempo, moduloTempo)
+            moduloTempoResolvido
         );
+
+        (this.avaliadorSintatico as any).tiposDefinidosEmCodigo['tempo'] = 'módulo';
+        const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }} = (this.avaliadorSintatico as any).primitivasConhecidas;
+        primitivasConhecidas['tempo'] = {};
+        for (const nomeComponente in moduloTempoResolvido.componentes) {
+            primitivasConhecidas['tempo'][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
+        }
+
+        // console.log(
+        //     (this.avaliadorSintatico as any).tiposDefinidosEmCodigo, 
+        //     (this.avaliadorSintatico as any).primitivasConhecidas
+        // );
     }
 
-    montarModulo(moduloNode: any, moduloDelegua: DeleguaModulo): DeleguaModulo {
-        const chaves = Object.keys(moduloNode);
-        for (let i = 0; i < chaves.length; i++) {
-            const funcao = moduloNode[chaves[i]];
-            moduloDelegua.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
+    montarModulo(moduloDelegua: DeleguaModulo, ...modulosNode: any[]): DeleguaModulo {
+        for (const moduloNode of modulosNode) {
+            const chaves = Object.keys(moduloNode);
+            for (let i = 0; i < chaves.length; i++) {
+                const funcao = moduloNode[chaves[i]];
+                moduloDelegua.componentes[chaves[i]] = new FuncaoPadrao(funcao.length, funcao);
+            }
         }
 
         return moduloDelegua;
