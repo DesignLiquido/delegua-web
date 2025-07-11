@@ -94,11 +94,6 @@ export class DeleguaWeb {
         for (const nomeComponente in moduloTempoResolvido.componentes) {
             primitivasConhecidas['tempo'][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
         }
-
-        // console.log(
-        //     (this.avaliadorSintatico as any).tiposDefinidosEmCodigo, 
-        //     (this.avaliadorSintatico as any).primitivasConhecidas
-        // );
     }
 
     montarModulo(moduloDelegua: DeleguaModulo, ...modulosNode: any[]): DeleguaModulo {
