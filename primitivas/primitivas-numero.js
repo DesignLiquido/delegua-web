@@ -1,1 +1,1 @@
-var primitivasNumero = [];
+const primitivasNumero = [];

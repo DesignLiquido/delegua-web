@@ -1,4 +1,4 @@
-var primitivasVetor = [
+const primitivasVetor = [
     {
         nome: 'mapear',
         documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.',

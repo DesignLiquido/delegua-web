@@ -1,4 +1,4 @@
-var metodosBibliotecaGlobal = [
+const metodosBibliotecaGlobal = [
     {
         nome: 'aleatorio',
         documentacao: '### Descrição \n \n' +

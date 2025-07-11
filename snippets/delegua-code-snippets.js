@@ -1,4 +1,4 @@
-var deleguaCodeSnippets = [
+const deleguaCodeSnippets = [
     {
         prefix: "para",
         body: [

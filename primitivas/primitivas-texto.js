@@ -1,4 +1,4 @@
-var primitivasTexto = [
+const primitivasTexto = [
     {
         nome: 'aparar',
         documentacao: '### Descrição \n \n' +
