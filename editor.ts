@@ -100,8 +100,10 @@ const executarTradutor = function () {
 const executarCodigo = async function () {
     try {
         const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
-
-        const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
+        const editor = Monaco?.editor.getEditors()[0];
+        const modelo = Monaco.editor.getModels()[0];
+        const codigo = modelo.getValue().split("\n");
+        Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
 
         const retornoLexador = delegua.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
@@ -114,11 +116,8 @@ const executarCodigo = async function () {
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
         if (errosAnaliseSemantica?.length) {
-            return mapearAvisos(errosAnaliseSemantica);
+            mapearAvisos(errosAnaliseSemantica);
         }
-
-        const editor = Monaco?.editor.getEditors()[0];
-        Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
 
         const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
         const errosInterpretacao = respostaInterpretador.erros;
