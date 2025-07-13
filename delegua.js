@@ -3777,13 +3777,25 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 yield declaracao;
             }
         }
-        const blocoSenao = construtoSe.caminhoSenao;
-        if (!blocoSenao)
+        if (!construtoSe.caminhoSenao)
             return;
-        for (const declaracao of blocoSenao.declaracoes) {
-            if (declaracao.constructor.name === 'Retorna') {
-                yield declaracao;
-            }
+        switch (construtoSe.caminhoSenao.constructor.name) {
+            case 'Bloco':
+                const blocoSenao = construtoSe.caminhoSenao;
+                for (const declaracao of blocoSenao.declaracoes) {
+                    if (declaracao.constructor.name === 'Retorna') {
+                        yield declaracao;
+                    }
+                }
+                break;
+            case 'Se':
+                const senaoSe = construtoSe.caminhoSenao;
+                for (const declaracao of this.buscarRetornosEmSe(senaoSe)) {
+                    if (declaracao.constructor.name === 'Retorna') {
+                        yield declaracao;
+                    }
+                }
+                break;
         }
     }
     buscarRetornos(declaracao) {
@@ -13545,8 +13557,8 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 break;
         }
         // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
-        // Exemplos: classes de LinConEs, como `RetornoComando`.
-        if (objeto.hasOwnProperty(expressao.simbolo.lexema)) {
+        // Exemplos: classes de LinConEs, como `RetornoComando, ou bibliotecas globais com objetos próprios`.
+        if (objeto.hasOwnProperty(expressao.simbolo.lexema) || typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
         }
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Método ou propriedade para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`, expressao.linha));

@@ -92,7 +92,10 @@ const executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
-            const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+            const editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
+            const modelo = Monaco.editor.getModels()[0];
+            const codigo = modelo.getValue().split("\n");
+            Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
             const retornoLexador = delegua.lexador.mapear(codigo, -1);
             const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
             if (retornoAvaliadorSintatico.erros.length > 0) {
@@ -101,10 +104,8 @@ const executarCodigo = function () {
             const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
             const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
             if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length) {
-                return mapearAvisos(errosAnaliseSemantica);
+                mapearAvisos(errosAnaliseSemantica);
             }
-            const editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
-            Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
             const respostaInterpretador = yield delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
             const errosInterpretacao = respostaInterpretador.erros;
             if (errosInterpretacao) {
@@ -128,12 +129,11 @@ const analisarCodigo = function () {
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     if (retornoAvaliadorSintatico.erros.length > 0) {
-        mapearErros(retornoAvaliadorSintatico.erros);
-        return;
+        return mapearErros(retornoAvaliadorSintatico.erros);
     }
     const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
-    mapearErros(errosAnaliseSemantica);
+    mapearAvisos(errosAnaliseSemantica);
 };
 function definirLinguagemDelegua() {
     return {
@@ -402,6 +402,7 @@ function definirLinguagemDelegua() {
         }
     };
 }
+let tempoEsperaMudancas;
 const configurarAtualizacaoAutomatica = function () {
     var _a;
     let editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
@@ -418,7 +419,14 @@ const configurarAtualizacaoAutomatica = function () {
         return;
     }
     model.onDidChangeContent(() => {
-        analisarCodigo();
+        if (tempoEsperaMudancas !== null) {
+            clearTimeout(tempoEsperaMudancas);
+        }
+        tempoEsperaMudancas = setInterval(function () {
+            clearTimeout(tempoEsperaMudancas);
+            tempoEsperaMudancas = null;
+            analisarCodigo();
+        }, 500);
     });
 };
 const configurarLinguagemDelegua = function () {
