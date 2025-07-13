@@ -137,20 +137,18 @@ const executarCodigo = async function () {
 
 const analisarCodigo = function () {
     const delegua = new Delegua.DeleguaWeb("");
-
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
 
     const retornoLexador = delegua.lexador.mapear(codigo, -1);
     const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
     if (retornoAvaliadorSintatico.erros.length > 0) {
-        mapearErros(retornoAvaliadorSintatico.erros);
-        return;
+        return mapearErros(retornoAvaliadorSintatico.erros);
     }
 
     const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
-    mapearErros(errosAnaliseSemantica);
+    mapearAvisos(errosAnaliseSemantica);
 };
 
 function definirLinguagemDelegua() {
@@ -445,6 +443,7 @@ function definirLinguagemDelegua() {
   };
 }
 
+let tempoEsperaMudancas;
 const configurarAtualizacaoAutomatica = function () {
     let editor = Monaco?.editor.getEditors()[0];
     if (!editor) {
@@ -462,7 +461,15 @@ const configurarAtualizacaoAutomatica = function () {
     }
 
     model.onDidChangeContent(() => {
-        analisarCodigo();
+        if (tempoEsperaMudancas !== null) {
+            clearTimeout(tempoEsperaMudancas);
+        }
+
+        tempoEsperaMudancas = setInterval(function () {
+            clearTimeout(tempoEsperaMudancas);
+            tempoEsperaMudancas = null;
+            analisarCodigo();
+        }, 500);
     });
 };
 
