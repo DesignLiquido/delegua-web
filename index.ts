@@ -12,17 +12,19 @@ import {
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/interpretador/estruturas";
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
 import { Declaracao } from "@designliquido/delegua/declaracoes";
+import { InformacaoVariavelOuConstante } from "@designliquido/delegua/informacao-variavel-ou-constante";
 
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
+import * as json from "@designliquido/delegua-json";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
-import { InformacaoVariavelOuConstante } from "@designliquido/delegua/informacao-variavel-ou-constante";
 
 import { InterpretadorWeb } from "./interpretador-web";
+
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -62,37 +64,28 @@ export class DeleguaWeb {
             }
         }
 
-        const moduloEstatistica = new DeleguaModulo("estatistica");
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(
-            "estatistica",
-            this.montarModulo(moduloEstatistica, estatistica)
-        );
+        this.registrarModuloComPrimitivas("estatistica", estatistica);
+        this.registrarModuloComPrimitivas("fisica", fisica);
+        this.registrarModuloComPrimitivas("json", json);
+        this.registrarModuloComPrimitivas("matematica", matematica);
+        this.registrarModuloComPrimitivas("tempo", tempo, {'ObjetoData': ObjetoData});
+    }
 
-        const moduloFisica = new DeleguaModulo("fisica");
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(
-            "fisica",
-            this.montarModulo(moduloFisica, fisica)
-        );
-
-        const moduloMatematica = new DeleguaModulo("matematica");
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(
-            "matematica",
-            this.montarModulo(moduloMatematica, matematica)
-        );
-
-        const moduloTempo = new DeleguaModulo("tempo");
+    registrarModuloComPrimitivas(nomeModulo: string, ...modulosNode: any[]): void {
+        const modulo = new DeleguaModulo(nomeModulo);
         // TODO: Pensar numa forma de exportar sem precisar fazer isso.
-        const moduloTempoResolvido = this.montarModulo(moduloTempo, tempo, {'ObjetoData': ObjetoData});
+        const moduloResolvido = this.montarModulo(modulo, ...modulosNode);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
-            "tempo",
-            moduloTempoResolvido
+            nomeModulo,
+            moduloResolvido
         );
 
-        (this.avaliadorSintatico as any).tiposDefinidosEmCodigo['tempo'] = 'módulo';
+        (this.avaliadorSintatico as any).tiposDefinidosEmCodigo[nomeModulo] = 'módulo';
         const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }} = (this.avaliadorSintatico as any).primitivasConhecidas;
-        primitivasConhecidas['tempo'] = {};
-        for (const nomeComponente in moduloTempoResolvido.componentes) {
-            primitivasConhecidas['tempo'][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
+        primitivasConhecidas[nomeModulo] = {};
+        for (const nomeComponente in moduloResolvido.componentes) {
+            // TODO: Pensar em como fazer a tipagem.
+            primitivasConhecidas[nomeModulo][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
         }
     }
 

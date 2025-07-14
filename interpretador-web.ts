@@ -20,6 +20,7 @@ export class InterpretadorWeb
         switch (caminhoResolvido.valor) {
             case 'estatistica':
             case 'fisica':
+            case 'json':
             case 'matematica':
             case 'tempo':
                 const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminhoResolvido.valor);
