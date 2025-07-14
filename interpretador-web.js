@@ -23,6 +23,7 @@ class InterpretadorWeb extends delegua_1.Interpretador {
             switch (caminhoResolvido.valor) {
                 case 'estatistica':
                 case 'fisica':
+                case 'json':
                 case 'matematica':
                 case 'tempo':
                     const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminhoResolvido.valor);
