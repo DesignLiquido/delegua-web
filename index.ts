@@ -16,15 +16,15 @@ import { InformacaoVariavelOuConstante } from "@designliquido/delegua/informacao
 
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
-import * as json from "@designliquido/delegua-json";
 import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
+import * as json from "./bibliotecas/delegua-json";
+
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 
 import { InterpretadorWeb } from "./interpretador-web";
-
 
 export class DeleguaWeb {
     nomeArquivo: string;

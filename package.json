@@ -24,10 +24,9 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
-        "@designliquido/delegua": "^0.45.4",
+        "@designliquido/delegua": "^0.45.9",
         "@designliquido/delegua-estatistica": "^0.1.0",
         "@designliquido/delegua-fisica": "^0.1.0",
-        "@designliquido/delegua-json": "^0.1.0",
         "@designliquido/delegua-matematica": "^0.3.0",
         "@designliquido/delegua-tempo": "^1.0.1",
         "monaco-editor": "0.48.0"
