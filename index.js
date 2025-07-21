@@ -54,10 +54,10 @@ const tradutores_1 = require("@designliquido/delegua/tradutores");
 const informacao_variavel_ou_constante_1 = require("@designliquido/delegua/informacao-variavel-ou-constante");
 const estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 const fisica = __importStar(require("@designliquido/delegua-fisica"));
-const json = __importStar(require("@designliquido/delegua-json"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
 const tempo = __importStar(require("@designliquido/delegua-tempo"));
 const objeto_data_1 = require("@designliquido/delegua-tempo/objeto-data");
+const json = __importStar(require("./bibliotecas/delegua-json"));
 const delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
 const interpretador_web_1 = require("./interpretador-web");
 class DeleguaWeb {
