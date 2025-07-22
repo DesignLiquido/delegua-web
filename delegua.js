@@ -2301,13 +2301,6 @@ class AvaliadorSintaticoBase {
             this.atual += 1;
         return this.simbolos[this.atual - 1];
     }
-    // TODO: Verificar possibilidade de remoção.
-    // Regressão de símbolo é uma roubada por N razões.
-    regredirEDevolverAtual() {
-        if (this.atual > 0)
-            this.atual -= 1;
-        return this.simbolos[this.atual];
-    }
     verificarSeSimboloAtualEIgualA(...argumentos) {
         for (let i = 0; i < argumentos.length; i++) {
             const tipoAtual = argumentos[i];
@@ -2414,7 +2407,8 @@ class AvaliadorSintaticoBase {
         return this.atribuir();
     }
     funcao(tipo) {
-        const simboloFuncao = this.avancarEDevolverAnterior();
+        // Avançar `função` ou `funcao`.
+        this.avancarEDevolverAnterior();
         const nomeFuncao = this.consumir(comum_1.default.IDENTIFICADOR, `Esperado nome ${tipo}.`);
         return new declaracoes_1.FuncaoDeclaracao(nomeFuncao, this.corpoDaFuncao(tipo));
     }
@@ -2894,7 +2888,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             }
             const argumentoEntidadeChamadaQualquer = argumentoEntidadeChamada.tipo.startsWith('qualquer');
             const argumentoUtilizadoQualquer = argumentoUtilizado.tipo.startsWith('qualquer');
-            // Este caso é tarefa do anasalidor semântico apontar.
+            // Este caso é tarefa do analisador semântico apontar.
             if (argumentoEntidadeChamadaQualquer || argumentoUtilizadoQualquer) {
                 continue;
             }
@@ -2927,7 +2921,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             if (tipoPrimitiva === undefined) {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
                 const informacoesPossivelFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(entidadeChamadaResolvidaVariavel.simbolo.lexema);
-                if (informacoesPossivelFuncaoBibliotecaGlobal !== undefined) {
+                if (informacoesPossivelFuncaoBibliotecaGlobal) {
                     const erros = this.validarArgumentosEntidadeChamada(informacoesPossivelFuncaoBibliotecaGlobal.argumentos, argumentos);
                     if (erros.length > 0) {
                         throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamadaResolvidaVariavel.simbolo, `Erros ao resolver argumentos de chamada a ${entidadeChamadaResolvidaVariavel.simbolo.lexema}: \n${erros.reduce((mensagem, erro) => (mensagem += `${erro}\n`), '')}`);
@@ -3775,8 +3769,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer'));
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
-        this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo));
-        const funcaoDeclaracao = new declaracoes_1.FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo, decoradores);
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
+        this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao));
+        const funcaoDeclaracao = new declaracoes_1.FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao, decoradores);
         this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
         return funcaoDeclaracao;
     }
@@ -5467,7 +5462,7 @@ class AvaliadorSintaticoPitugues {
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
         }
         const tipoVetor = vetor.tipo;
-        if (!tipoVetor.endsWith('[]') && tipoVetor !== 'vetor') {
+        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`);
         }
         this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
@@ -5640,8 +5635,9 @@ class AvaliadorSintaticoPitugues {
         // para ela. Vai ser atualizado após avaliação do corpo da função.
         this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, 'qualquer'));
         const corpoDaFuncao = this.corpoDaFuncao(tipo);
-        this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, corpoDaFuncao.tipo));
-        const funcaoDeclaracao = new declaracoes_1.FuncaoDeclaracao(simbolo, corpoDaFuncao, corpoDaFuncao.tipo);
+        const tipoDaFuncao = `função<${corpoDaFuncao.tipo}>`;
+        this.pilhaEscopos.definirInformacoesVariavel(simbolo.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simbolo.lexema, tipoDaFuncao));
+        const funcaoDeclaracao = new declaracoes_1.FuncaoDeclaracao(simbolo, corpoDaFuncao, tipoDaFuncao);
         this.pilhaEscopos.registrarReferenciaFuncao(simbolo.lexema, funcaoDeclaracao);
         return funcaoDeclaracao;
     }
@@ -5733,7 +5729,7 @@ class AvaliadorSintaticoPitugues {
     inicializarPilhaEscopos() {
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
-        // Funções nativas de Delégua
+        // Funções nativas de Delégua (e de Pituguês também, por enquanto)
         this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'inteiro', [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número'),
         ]));
@@ -10048,11 +10044,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = cyrb53;
 /**
  * Função de geração de hashes copiada de https://stackoverflow.com/a/52171480/1314276.
- * A ideia é gerar hashes únicos para nomes de arquivos importados e usar o hash para os
+ * A ideia é gerar _hashes_ únicos para nomes de arquivos importados e usar o _hash_ para os
  * pragmas de elementos catalogados pelo lexador e usados pelo interpretador.
- * @param nomeArquivo Nome do arquivo
- * @param semente Uma semente de dispersão, padrão: 0
- * @returns Texto com o hash correspondente ao nome do arquivo
+ * @param {string} nomeArquivo Nome do arquivo
+ * @param {number} semente Uma semente de dispersão, padrão: 0
+ * @returns {number} Número inteiro com o hash correspondente ao nome do arquivo
  */
 function cyrb53(nomeArquivo, semente = 0) {
     let h1 = 0xdeadbeef ^ semente, h2 = 0x41c6ce57 ^ semente;
@@ -16311,6 +16307,7 @@ class Lexador {
         }
         if (this.performance) {
             const deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
+            // eslint-disable-next-line no-undef
             console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
         return {
@@ -16573,6 +16570,7 @@ exports.palavrasReservadas = {
     nulo: delegua_1.default.NULO,
     ou: delegua_1.default.OU,
     padrao: delegua_1.default.PADRAO,
+    padrão: delegua_1.default.PADRAO,
     para: delegua_1.default.PARA,
     pausa: delegua_1.default.PAUSA,
     pegue: delegua_1.default.PEGUE,
