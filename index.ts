@@ -85,7 +85,7 @@ export class DeleguaWeb {
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
-            primitivasConhecidas[nomeModulo][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
+            primitivasConhecidas[nomeModulo][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', true, []);
         }
     }
 
