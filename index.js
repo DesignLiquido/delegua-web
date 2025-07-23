@@ -96,7 +96,7 @@ class DeleguaWeb {
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
-            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
+            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeComponente, 'qualquer', true, []);
         }
     }
     montarModulo(moduloDelegua, ...modulosNode) {

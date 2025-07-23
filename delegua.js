@@ -122,7 +122,7 @@ class DeleguaWeb {
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
-            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeComponente, 'qualquer', []);
+            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeComponente, 'qualquer', true, []);
         }
     }
     montarModulo(moduloDelegua, ...modulosNode) {
@@ -2883,6 +2883,12 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         const possiveisErros = [];
         for (const [indice, argumentoEntidadeChamada] of argumentosEntidadeChamada.entries()) {
             const argumentoUtilizado = argumentosUtilizados[indice];
+            if (!argumentoUtilizado) {
+                if (argumentoEntidadeChamada.obrigatorio) {
+                    possiveisErros.push(`Argumento ${argumentoEntidadeChamada.nome} é obrigatório, mas não foi fornecido.`);
+                }
+                continue;
+            }
             if (argumentoUtilizado.tipo === null || argumentoUtilizado.tipo === undefined) {
                 continue;
             }
@@ -4021,85 +4027,83 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
         // Funções nativas de Delégua
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número'),
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorioEntre', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'número'));
+        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorioEntre', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('minimo', 'número'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('maximo', 'número'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('algum', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('algum', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('algum', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('algum', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrar', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrar', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('incluido', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('incluido', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('incluido', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('incluido', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('mapear', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('mapear', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('mapear', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('mapear', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoMapeamento', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('numero', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('numero', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('número', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('número', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('ordenar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('ordenar', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('ordenar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('ordenar', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('paraCada', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('paraCada', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('real', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('real', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('real', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('real', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('reduzir', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('reduzir', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('reduzir', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('reduzir', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoReducao', 'função'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorInicial', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tamanho', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tamanho', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('tamanho', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tamanho', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('objeto', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('texto', 'texto', [
+        this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('texto', 'texto', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoCondicional', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tupla', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tupla', 'tupla', [
+        this.pilhaEscopos.definirInformacoesVariavel('tupla', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tupla', 'tupla', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
         ]));
         // TODO: Escrever algum tipo de validação aqui.
@@ -4151,7 +4155,7 @@ const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-co
 function registrarPrimitiva(primitivasConhecidas, tipo, catalogoPrimitivas) {
     primitivasConhecidas[tipo] = {};
     for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
-        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaDicionario, tipo, dadosPrimitiva.argumentos);
+        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaDicionario, tipo, true, dadosPrimitiva.argumentos);
     }
 }
 
@@ -5730,85 +5734,83 @@ class AvaliadorSintaticoPitugues {
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
         // Funções nativas de Delégua (e de Pituguês também, por enquanto)
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número'),
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorioEntre', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'número'));
+        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorioEntre', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('minimo', 'número'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('maximo', 'número'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('algum', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('algum', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('algum', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('algum', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrar', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrar', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('incluido', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('incluido', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('incluido', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('incluido', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('mapear', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('mapear', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('mapear', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('mapear', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoMapeamento', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('numero', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('numero', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('número', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('número', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('ordenar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('ordenar', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('ordenar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('ordenar', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('paraCada', 'qualquer[]', [
+        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('paraCada', 'qualquer[]', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('real', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('real', 'número', [
+        this.pilhaEscopos.definirInformacoesVariavel('real', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('real', 'número', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('reduzir', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('reduzir', 'qualquer', [
+        this.pilhaEscopos.definirInformacoesVariavel('reduzir', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('reduzir', 'qualquer', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoReducao', 'função'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorInicial', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tamanho', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tamanho', 'inteiro', [
+        this.pilhaEscopos.definirInformacoesVariavel('tamanho', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tamanho', 'inteiro', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('objeto', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('texto', 'texto', [
+        this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('texto', 'texto', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', [
+        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoCondicional', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tupla', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tupla', 'tupla', [
+        this.pilhaEscopos.definirInformacoesVariavel('tupla', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tupla', 'tupla', true, [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
         ]));
     }
@@ -6058,16 +6060,16 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         this.tiposDeFerramentasExternas = {};
         this.primitivasConhecidas = {};
         for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(primitivas_dicionario_1.default)) {
-            this.primitivasConhecidas[nomePrimitivaDicionario] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaDicionario, 'dicionário', dadosPrimitiva.argumentos);
+            this.primitivasConhecidas[nomePrimitivaDicionario] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaDicionario, 'dicionário', true, dadosPrimitiva.argumentos);
         }
         for (const [nomePrimitivaNumero, dadosPrimitiva] of Object.entries(primitivas_numero_1.default)) {
-            this.primitivasConhecidas[nomePrimitivaNumero] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaNumero, 'número', dadosPrimitiva.argumentos);
+            this.primitivasConhecidas[nomePrimitivaNumero] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaNumero, 'número', true, dadosPrimitiva.argumentos);
         }
         for (const [nomePrimitivaTexto, dadosPrimitiva] of Object.entries(primitivas_texto_1.default)) {
-            this.primitivasConhecidas[nomePrimitivaTexto] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaTexto, 'texto', dadosPrimitiva.argumentos);
+            this.primitivasConhecidas[nomePrimitivaTexto] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaTexto, 'texto', true, dadosPrimitiva.argumentos);
         }
         for (const [nomePrimitivaVetor, dadosPrimitiva] of Object.entries(primitivas_vetor_1.default)) {
-            this.primitivasConhecidas[nomePrimitivaVetor] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaVetor, 'vetor', dadosPrimitiva.argumentos);
+            this.primitivasConhecidas[nomePrimitivaVetor] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomePrimitivaVetor, 'vetor', true, dadosPrimitiva.argumentos);
         }
         // TODO: Por enquanto não há necessidade de validar argumentos aqui, mas isso pode mudar no futuro.
         this.primitivasConhecidas['inteiro'] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro');
@@ -6952,93 +6954,10 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
     }
     /**
      * Inicializa o primeiro nível da pilha de escopos, normalmente com ítens da biblioteca global.
-     * TODO: Esta abordagem deve ser depreciada, em favor do novo suporte a referências de funções.
      */
     inicializarPilhaEscopos() {
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
-        // Funções nativas de Delégua
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorio', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('aleatorioEntre', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('minimo', 'número'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('maximo', 'número')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('algum', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('algum', 'lógico', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrar', 'qualquer', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarIndice', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimo', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('encontrarUltimoIndice', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoPesquisa', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('filtrarPor', 'qualquer[]', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('incluido', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('incluido', 'lógico', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inteiro', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valor', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('mapear', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('mapear', 'qualquer[]', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoMapeamento', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('numero', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('número', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('número', 'número', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('ordenar', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('ordenar', 'qualquer[]', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('paraCada', 'qualquer[]', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('primeiroEmCondicao', 'qualquer', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoFiltragem', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('real', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('real', 'número', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('reduzir', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('reduzir', 'qualquer', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoReducao', 'função'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorInicial', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tamanho', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tamanho', 'inteiro', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('objeto', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('texto', 'texto', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('valorParaConverter', 'qualquer')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('todosEmCondicao', 'lógico', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoCondicional', 'função')
-        ]));
-        this.pilhaEscopos.definirInformacoesVariavel('tupla', new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('tupla', 'tupla', [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('vetor', 'qualquer[]')
-        ]));
         // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
@@ -7769,7 +7688,8 @@ async function filtrarPor(interpretador, vetor, funcaoFiltragem) {
     if (!Array.isArray(valorVetor)) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'));
     }
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
+    if (construtorResolvido !== 'DeleguaFuncao') {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(this.simbolo, 'Parâmetro inválido. O segundo parâmetro da função filtrarPor() deve ser uma função.'));
     }
     const resultados = [];
@@ -11231,14 +11151,15 @@ function tipoInferenciaParaTipoDadosElementar(tipoInferencia) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoVariavelOuConstante = void 0;
 class InformacaoVariavelOuConstante {
-    constructor(nome, tipo, argumentos = []) {
+    constructor(nome, tipo, obrigatorio = true, argumentos = []) {
         this.argumentos = [];
         this.nome = nome;
         this.tipo = tipo;
+        this.obrigatorio = obrigatorio;
         this.argumentos = argumentos;
     }
     toString() {
-        return `<informação-variável-ou-constante nome=${this.nome}, tipo=${this.tipo}, argumentos=${this.argumentos.map((arg) => arg.toString()).join(', ')}>`;
+        return `<informação-variável-ou-constante nome=${this.nome}, tipo=${this.tipo}, obrigatorio=${this.obrigatorio ? 'verdadeiro' : 'falso'} argumentos=${this.argumentos.map((arg) => arg.toString()).join(', ')}>`;
     }
 }
 exports.InformacaoVariavelOuConstante = InformacaoVariavelOuConstante;
