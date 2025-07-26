@@ -5869,6 +5869,11 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
             case portugol_ipt_1.default.TEXTO:
                 const simboloAnterior = this.avancarEDevolverAnterior();
                 return new construtos_1.Literal(this.hashArquivo, Number(simboloAnterior.linha), simboloAnterior.literal);
+            case portugol_ipt_1.default.PARENTESE_ESQUERDO:
+                this.avancarEDevolverAnterior();
+                const expressao = this.expressao();
+                this.consumir(portugol_ipt_1.default.PARENTESE_DIREITO, "Esperado ')' após a expressão.");
+                return new construtos_1.Agrupamento(this.hashArquivo, Number(this.simbolos[this.atual].linha), expressao);
         }
     }
     /**
@@ -8028,6 +8033,7 @@ async function tupla(interpretador, vetor) {
 },{"../construtos":70,"../excecoes":128,"../interpretador/estruturas":164,"../interpretador/estruturas/descritor-tipo-classe":162,"../interpretador/estruturas/funcao-padrao":163,"../interpretador/estruturas/objeto-delegua-classe":167}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-constante");
 exports.default = {
     chaves: {
         tipoRetorno: 'texto[]',
@@ -8035,6 +8041,27 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Object.keys(valor));
         },
+    },
+    contem: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')
+        ],
+        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor)
+    },
+    contém: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')
+        ],
+        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor)
+    },
+    remover: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')
+        ],
+        implementacao: (interpretador, valor, chave) => Promise.resolve(delete valor[chave])
     },
     valores: {
         tipoRetorno: 'qualquer[]',
@@ -8045,7 +8072,7 @@ exports.default = {
     },
 };
 
-},{}],45:[function(require,module,exports){
+},{"../informacao-variavel-ou-constante":135}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -14419,7 +14446,6 @@ class LexadorPitugues {
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
-            // this.logicaEmLinhaIniciada = false;
             this.analisarIndentacao();
         }
     }
@@ -14720,6 +14746,7 @@ class LexadorPitugues {
         }
         if (this.performance) {
             const deltaMapeamento = (0, browser_process_hrtime_1.default)(inicioMapeamento);
+            // eslint-disable-next-line no-undef
             console.log(`[Lexador] Tempo para mapeamento: ${deltaMapeamento[0] * 1e9 + deltaMapeamento[1]}ns`);
         }
         return {
@@ -14937,6 +14964,14 @@ class LexadorPortugolIpt {
                         break;
                 }
                 break;
+            case '(':
+                this.adicionarSimbolo(portugol_ipt_2.default.PARENTESE_ESQUERDO);
+                this.avancar();
+                break;
+            case ')':
+                this.adicionarSimbolo(portugol_ipt_2.default.PARENTESE_DIREITO);
+                this.avancar();
+                break;
             default:
                 if (this.eDigito(caractere))
                     this.analisarNumero();
@@ -14960,6 +14995,9 @@ class LexadorPortugolIpt {
         this.linha = 0;
         this.codigo = codigo || [''];
         this.hashArquivo = hashArquivo;
+        for (let iterador = 0; iterador < this.codigo.length; iterador++) {
+            this.codigo[iterador] += '\n';
+        }
         while (!this.eFinalDoCodigo()) {
             this.inicioSimbolo = this.atual;
             this.analisarToken();
