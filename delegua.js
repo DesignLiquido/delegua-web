@@ -8076,6 +8076,13 @@ exports.default = {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
+    absoluto: {
+        tipoRetorno: 'número',
+        argumentos: [],
+        implementacao: (interpretador, valor) => {
+            return Promise.resolve(Math.abs(valor));
+        },
+    },
     arredondarParaBaixo: {
         tipoRetorno: 'número',
         argumentos: [],
@@ -8088,13 +8095,6 @@ exports.default = {
         argumentos: [],
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Math.ceil(valor));
-        },
-    },
-    absoluto: {
-        tipoRetorno: 'número',
-        argumentos: [],
-        implementacao: (interpretador, valor) => {
-            return Promise.resolve(Math.abs(valor));
         },
     },
 };
@@ -13079,9 +13079,8 @@ class InterpretadorBase {
             metodos[metodoAtual.simbolo.lexema] = funcao;
         }
         const descritorTipoClasse = new estruturas_1.DescritorTipoClasse(declaracao.simbolo, superClasse, metodos, declaracao.propriedades);
-        // TODO: Depreciar na próxima versão.
-        descritorTipoClasse.dialetoRequerExpansaoPropriedadesEspacoVariaveis =
-            this.expandirPropriedadesDeObjetosEmEspacoVariaveis;
+        // TODO: Até então, a única exceção a isso é Égua Clássico.
+        // Por enquanto, tudo bem deixar isso aqui.
         descritorTipoClasse.dialetoRequerDeclaracaoPropriedades = this.requerDeclaracaoPropriedades;
         this.pilhaEscoposExecucao.atribuirVariavel(declaracao.simbolo, descritorTipoClasse);
         return null;
@@ -13160,7 +13159,7 @@ class InterpretadorBase {
                 dicionario[chaveLogico] = promises[1];
                 continue;
             }
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
+            dicionario[promises[0]] = promises[1] && promises[1].hasOwnProperty('valor')
                 ? promises[1].valor
                 : promises[1];
         }
