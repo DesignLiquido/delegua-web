@@ -3316,8 +3316,32 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             this.blocos -= 1;
         }
     }
-    declaracaoParaCada(simboloPara) {
-        const nomeVariavelIteracao = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado identificador de variável de iteração para instrução 'para cada'.");
+    declaracaoParaCadaDicionario(simboloPara) {
+        this.avancarEDevolverAnterior(); // chave esquerda
+        const nomeVariavelChave = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado identificador de variável para chave de iteração, em instrução 'para cada'.");
+        this.consumir(delegua_2.default.VIRGULA, "Esperado vírgula após nome de variável para chave de iteração, em instrução 'para cada'.");
+        const nomeVariavelValor = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado identificador de variável para valor de iteração, em instrução 'para cada'.");
+        this.consumir(delegua_2.default.CHAVE_DIREITA, "Esperado chave direita após nome de variável para valor de iteração, em instrução 'para cada'.");
+        if (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.DE, delegua_2.default.EM)) {
+            throw this.erro(this.simbolos[this.atual], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'.");
+        }
+        const dicionario = this.expressao();
+        if (!dicionario.hasOwnProperty('tipo')) {
+            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece ser um dicionário.`);
+        }
+        const tipoDicionario = dicionario.tipo;
+        if (tipoDicionario !== 'dicionário') {
+            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é um dicionário. Tipo resolvido: ${tipoDicionario}.`);
+        }
+        this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelChave.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelChave.lexema, 'qualquer'));
+        this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelValor.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelValor.lexema, 'qualquer'));
+        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+        const corpo = this.resolverDeclaracao();
+        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), new tuplas_1.Dupla(new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelChave.lexema), new construtos_1.Literal(this.hashArquivo, Number(simboloPara.linha), nomeVariavelValor.lexema)), dicionario, corpo);
+    }
+    declaracaoParaCadaVetor(simboloPara) {
+        const nomeVariavelIteracao = this.avancarEDevolverAnterior();
+        const variavelIteracao = new construtos_1.Variavel(this.hashArquivo, nomeVariavelIteracao);
         if (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.DE, delegua_2.default.EM)) {
             throw this.erro(this.simbolos[this.atual], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'.");
         }
@@ -3326,7 +3350,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
         }
         const tipoVetor = vetor.tipo;
-        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
+        if (!tipoVetor.endsWith('[]') && !['dicionário', 'qualquer', 'vetor'].includes(tipoVetor)) {
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`);
         }
         let tipoVariavelIteracao = 'qualquer';
@@ -3336,7 +3360,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVariavelIteracao));
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo = this.resolverDeclaracao();
-        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, corpo);
+        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), variavelIteracao, vetor, corpo);
+    }
+    declaracaoParaCada(simboloPara) {
+        if (this.verificarTipoSimboloAtual(delegua_2.default.IDENTIFICADOR)) {
+            return this.declaracaoParaCadaVetor(simboloPara);
+        }
+        if (this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_ESQUERDA)) {
+            return this.declaracaoParaCadaDicionario(simboloPara);
+        }
+        throw this.erro(simboloPara, 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.');
     }
     declaracaoParaTradicional(simboloPara) {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(delegua_2.default.PARENTESE_ESQUERDO);
@@ -5477,7 +5510,7 @@ class AvaliadorSintaticoPitugues {
         this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
         const corpo = this.resolverDeclaracao();
-        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), nomeVariavelIteracao.lexema, vetor, corpo);
+        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Variavel(this.hashArquivo, nomeVariavelIteracao), vetor, corpo);
     }
     declaracaoParaTradicional(simboloPara) {
         let inicializador;
@@ -6684,7 +6717,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         this.pilhaEscopos.definirInformacoesVariavel(simboloVariavelIteracao.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(simboloVariavelIteracao.lexema, tipoVariavelIteracao));
         this.consumir(tenda_1.default.FAÇA, "Esperado palavra reservada 'faça' após literal ou variável de iteração em declaração 'para cada'.");
         const corpo = this.blocoEscopo();
-        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloParaCada.linha), simboloVariavelIteracao.lexema, literalOuVariavelIteravel, new declaracoes_1.Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo));
+        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloParaCada.linha), new construtos_1.Variavel(this.hashArquivo, simboloVariavelIteracao), literalOuVariavelIteravel, new declaracoes_1.Bloco(simboloParaCada.hashArquivo, simboloParaCada.linha, corpo));
     }
     declaracaoParaTradicional(simboloPara, simboloVariavelIteracao, literalOuVariavelInicio) {
         this.consumir(tenda_1.default.ATÉ, "Esperado palavra reservada 'até' após literal ou identificador de início de declaração 'para cada'.");
@@ -8047,6 +8080,25 @@ async function tupla(interpretador, vetor) {
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-constante");
+const contemComum = (nome) => {
+    return {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'qualquer', true, [], 'O elemento como chave do dicionário.')
+        ],
+        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor),
+        assinaturaFormato: `dicionário.${nome}(chave: qualquer)`,
+        documentacao: `# \`dicionário.${nome}(chave)\`\n\n` +
+            'Retorna verdadeiro se o elemento passado como parâmetro existe como chave do dicionário. Devolve falso em caso contrário.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var d = {"a": 1, "b": 2, "c": 3}\n' +
+            `escreva(d.${nome}("a")) // verdadeiro\n` +
+            `escreva(d.${nome}("f")) // falso\n\`\`\`` +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'dicionário.contem("minhaChave")'
+    };
+};
 exports.default = {
     chaves: {
         tipoRetorno: 'texto[]',
@@ -8054,21 +8106,23 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Object.keys(valor));
         },
+        assinaturaFormato: 'dicionário.chaves()',
+        documentacao: '# `dicionário.chaves()`\n\n' +
+            'Retorna um vetor de texto com todas as chaves de um dicionário.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var d = {"a": 1, "b": 2, "c": 3}\n' +
+            'escreva(d.chaves()) // ["a", "b", "c"]\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'dicionário.chaves()'
     },
-    contem: {
-        tipoRetorno: 'lógico',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')],
-        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor),
-    },
-    contém: {
-        tipoRetorno: 'lógico',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')],
-        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor),
-    },
+    contem: contemComum('contem'),
+    contém: contemComum('contém'),
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')],
         implementacao: (interpretador, valor, chave) => Promise.resolve(delete valor[chave]),
+        assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
     valores: {
         tipoRetorno: 'qualquer[]',
@@ -8089,6 +8143,15 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Math.abs(valor));
         },
+        assinaturaFormato: 'número.absoluto()',
+        documentacao: '# `número.absoluto()`\n\n' +
+            'Retorna a versão absoluta de um número, ou seja, seu valor sem sinal.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var n = -5\n' +
+            'escreva(n.absoluto()) // 5\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.absoluto()'
     },
     arredondarParaBaixo: {
         tipoRetorno: 'número',
@@ -8096,6 +8159,15 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Math.floor(valor));
         },
+        assinaturaFormato: 'número.arredondarParaBaixo()',
+        documentacao: '# `número.arredondarParaBaixo()`\n\n' +
+            'Retira as partes decimais de um número com partes decimais e retorna sua parte inteira. Se o número já é inteiro, devolve apenas o próprio número.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var n = 2.5\n' +
+            'escreva(n.arredondarParaBaixo()) // 2\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.arredondarParaBaixo()'
     },
     arredondarParaCima: {
         tipoRetorno: 'número',
@@ -8103,6 +8175,15 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Math.ceil(valor));
         },
+        assinaturaFormato: 'número.arredondarParaCima()',
+        documentacao: '# `número.arredondarParaCima()`\n\n' +
+            'Arredonda um número com partes decimais para cima, ou seja, para o próximo número inteiro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var n = 2.5\n' +
+            'escreva(n.arredondarParaCima()) // 3\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.arredondarParaCima()'
     },
 };
 
@@ -8115,27 +8196,62 @@ exports.default = {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.trim()),
+        assinaturaFormato: 'texto.aparar()',
+        documentacao: '# `texto.aparar()` \n \n' +
+            'Remove espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.aparar()'
     },
     apararFim: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.trimEnd()),
+        assinaturaFormato: 'texto.apararFim()',
+        documentacao: '# `texto.apararFim()` \n \n' +
+            'Remove espaços em branco no no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararFim() + "|") // "|   meu texto com espaços no início e no fim|"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararFim()'
     },
     apararInicio: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.trimStart()),
+        assinaturaFormato: 'texto.apararInicio()',
+        documentacao: '# `texto.apararInicio()` \n \n' +
+            'Remover espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararInicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararInicio()'
     },
     concatenar: {
         tipoRetorno: 'texto',
-        argumentos: [],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('outroTexto', 'texto', true, [], 'O texto a ser concatenado.')
+        ],
         implementacao: (interpretador, ...texto) => Promise.resolve(''.concat(...texto)),
+        assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
+        documentacao: '# `texto.concatenar(outroTexto)` \n \n' +
+            'Realiza a junção de palavras/textos.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "um"\n' +
+            'var t2 = "dois três"\n' +
+            'escreva(t1.concatenar(t2)) // "umdois três"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.concatenar(outroTexto)'
     },
     dividir: {
         tipoRetorno: 'texto[]',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('divisor', 'texto'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('limite', 'número'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('delimitador', 'texto', true, [], 'O delimitador usado para dividir o texto.'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('limite', 'número', false, [], '(Opcional) Número limite de elementos a serem retornados.'),
         ],
         implementacao: (interpretador, texto, divisor, limite) => {
             if (limite) {
@@ -8143,55 +8259,134 @@ exports.default = {
             }
             return Promise.resolve(texto.split(divisor));
         },
+        assinaturaFormato: 'texto.dividir(delimitador: texto, limite?: inteiro)',
+        documentacao: '# `texto.dividir(delimitador)` \n \n' +
+            'Divide o texto pelo separador passado como parâmetro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.dividir(\' \') // [\'um\',\'dois\',\'três\']\n```' +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: 'texto.dividir(\'<delimitador (, ; \' \')>\')'
     },
     fatiar: {
         tipoRetorno: 'texto',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número', true, [], 'A posição inicial da fatia.'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número', false, [], '(Opcional) A posição final da fatia. Se não fornecido, seleciona até o final do texto.'),
         ],
         implementacao: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        assinaturaFormato: 'texto.fatiar(inicio: número, fim?: número)',
+        documentacao: '# `texto.fatiar(inicio)` \n \n' +
+            'Extrai uma fatia do texto, dadas posições de início e fim.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            't.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.\n' +
+            't.fatiar(2, 7) // "dois"\n' +
+            't.fatiar(8, 12) // "três"\n' +
+            't.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.fatiar(início, final)\n' +
+            'texto.fatiar(aPartirDaPosicao)'
     },
     inclui: {
         tipoRetorno: 'texto',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'texto')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'texto', true, [], 'O elemento a ser verificado se está contido no texto.')
+        ],
         implementacao: (interpretador, texto, elemento) => Promise.resolve(texto.includes(elemento)),
+        assinaturaFormato: 'inclui(elemento: texto)',
+        documentacao: '# `texto.inclui(elemento)` \n \n' +
+            'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.inclui("dois") // verdadeiro\n' +
+            't.inclui("quatro") // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.inclui(\'palavra\')'
     },
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
+        assinaturaFormato: 'texto.inverter()',
+        documentacao: '# `texto.inverter()` \n \n' +
+            'Inverte as letras de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.inverter() // "sêrt siod mu"```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.inverter()'
     },
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.toUpperCase()),
+        assinaturaFormato: 'texto.maiusculo()',
+        documentacao: '# `texto.maiusculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            'escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.maiusculo()'
     },
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.toLowerCase()),
+        assinaturaFormato: 'texto.minusculo()',
+        documentacao: '# `texto.minusculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            'escreva(t.minusculo()) // "tudo em maiúsculo"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.minusculo()'
     },
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'texto'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('substituto', 'texto'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('textoASerSubstituido', 'texto', true, [], 'Texto a ser substituído.'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('substituto', 'texto', true, [], 'A substituição'),
         ],
         implementacao: (interpretador, texto, elemento, substituto) => Promise.resolve(texto.replace(elemento, substituto)),
+        assinaturaFormato: 'texto.substituir(textoASerSubstituido: texto, substituto: texto)',
+        documentacao: '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
+            'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Eu gosto de caju"\n' +
+            't.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.substituir(\'palavra a ser substituída\',\'nova palavra\')'
     },
     subtexto: {
         tipoRetorno: 'texto',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'inteiro', true, [], 'A posição de início do texto a ser extraído.'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'inteiro', true, [], 'A posição de fim do texto a ser extraído.'),
         ],
         implementacao: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        assinaturaFormato: 'texto.subtexto(inicio: inteiro, fim: inteiro)',
+        documentacao: '# `texto.subtexto(inicio, fim)` \n\n' +
+            'Extrai uma fatia do texto, dadas posições de início e fim.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Eu gosto de caju e de graviola"\n' +
+            't.subtexto(3, 16) // Resultado será "gosto de caju"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.subtexto(posiçãoInicial, posiçãoFinal)'
     },
     tamanho: {
-        tipoRetorno: 'número',
+        tipoRetorno: 'inteiro',
         argumentos: [],
         implementacao: (interpretador, texto) => Promise.resolve(texto.length),
+        assinaturaFormato: 'texto.tamanho()',
+        documentacao: '# `texto.tamanho()` \n\n' +
+            'Devolve um número inteiro com o número de caracteres do texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            't.tamanho() // 19\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tamanho()'
     },
 };
 
@@ -8202,31 +8397,66 @@ const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-co
 exports.default = {
     adicionar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'Os elementos a serem adicionados ao vetor.')
+        ],
         implementacao: (interpretador, vetor, elemento) => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
+        assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
+        documentacao: '# `vetor.adicionar(elemento)` \n \n' +
+            'Adiciona um ou mais elementos em um vetor.' +
+            '\n\n ## Exemplo de Código\n' +
+            '```delegua\nv.adicionar(7)\n' +
+            'v.adicionar(5)\n' +
+            'v.adicionar(3)\n' +
+            'escreva(v) // [7, 5, 3]\n```' +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: 'vetor.adicionar(elemento)'
     },
     concatenar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('outroVetor', 'qualquer[]')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('outroVetor', 'qualquer[]', true, [], 'O outro vetorm ou outros vetores, a serem concatenados a este vetor.')
+        ],
         implementacao: (interpretador, vetor, outroVetor) => {
             return Promise.resolve(vetor.concat(outroVetor));
         },
+        assinaturaFormato: 'vetor.concatenar(...outroVetor: qualquer[])',
+        documentacao: '# `vetor.concatenar(outroVetor)` \n \n' +
+            'Adiciona ao conteúdo do vetor um ou mais elementos' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [7, 5, 3]\n' +
+            'escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]\n```' +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: 'vetor.concatenar(...argumentos)'
     },
     empilhar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], '')
+        ],
         implementacao: (interpretador, vetor, elemento) => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
+        assinaturaFormato: 'vetor.empilhar(elemento: qualquer)',
+        documentacao: '# `vetor.empilhar(elemento)` \n \n' +
+            'Adiciona um elemento ao final do vetor, como se o vetor fosse uma pilha na vertical.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = []\n' +
+            'v.empilhar(7)\n' +
+            'v.empilhar(5)\n' +
+            'v.empilhar(3)\n' +
+            'escreva(v) // [7, 5, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.empilhar(elemento)'
     },
     encaixar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'qualquer'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'inteiro'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('excluirQuantidade', 'número'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('itens', 'qualquer[]'),
         ],
@@ -8246,14 +8476,28 @@ exports.default = {
     fatiar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número'),
-            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número', false, [], 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'),
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número', false, [], 'A posição de fim do vetor a ser fatiado.'),
         ],
         implementacao: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
+        assinaturaFormato: 'vetor.fatiar(inicio?: número, fim?: número)',
+        documentacao: '# `vetor.fatiar(inicio, fim)` \n \n' +
+            'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
+            'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
+            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.\n```' +
+            '\n\n ### Formas de uso \n' +
+            'Fatiar suporta sobrecarga do método.\n\n',
+        exemploCodigo: 'vetor.fatiar(<a partir desta posição>)\n' +
+            'vetor.fatiar(<a partir desta posição>, <até esta posição>)'
     },
     filtrarPor: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função', true, [], 'A função de filtragem.')
+        ],
         implementacao: async (interpretador, vetor, funcao) => {
             if (funcao === undefined || funcao === null) {
                 return Promise.reject("É necessário passar uma função para o método 'filtrarPor'");
@@ -8266,25 +8510,66 @@ exports.default = {
             }
             return retorno;
         },
+        assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
+        documentacao: '# `vetor.filtrarPor(funcao)` \n \n' +
+            'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
+            'Elementos cujo retorno da função é `falso` são excluídos. \n' +
+            '\n\n ### Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
+            'escreva(v.filtrarPor(funcaoNumerosImpares)) // "[1, 3, 5]"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.filtrarPor(funcao (argumento) { <corpo da função com retorna> })'
     },
     inclui: {
         tipoRetorno: 'lógico',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'O elemento a ser verificado se está presente no vetor.')
+        ],
         implementacao: (interpretador, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
+        assinaturaFormato: 'vetor.inclui(elemento: qualquer)',
+        documentacao: '# `vetor.inclui(elemento)` \n \n' +
+            'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.inclui(2)) // verdadeiro\n' +
+            'escreva(v.inclui(4)) // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.inclui(elemento)'
     },
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
         implementacao: (interpretador, vetor) => Promise.resolve(vetor.reverse()),
+        assinaturaFormato: 'vetor.inverter()',
+        documentacao: '# `vetor.inverter()` \n \n' +
+            'Inverte a ordem dos elementos de um vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.inverter()) // [3, 2, 1]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.inverter()'
     },
     juntar: {
         tipoRetorno: 'texto',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('separador', 'texto')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('separador', 'texto', true, [], 'O separador entre elementos do vetor para o texto.')
+        ],
         implementacao: (interpretador, vetor, separador) => Promise.resolve(vetor.join(separador)),
+        assinaturaFormato: 'vetor.juntar(separador: texto)',
+        documentacao: '# `vetor.juntar(separador)` \n \n' +
+            'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.juntar(":")) // "1:2:3"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.juntar()'
     },
     mapear: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função', true, [], 'A função que transforma cada elemento de um vetor em outro elemento a ser retornado em um novo vetor.')
+        ],
         implementacao: async (interpretador, vetor, funcao) => {
             if (funcao === undefined || funcao === null) {
                 return Promise.reject("É necessário passar uma função para o método 'mapear'");
@@ -8296,10 +8581,22 @@ exports.default = {
             }
             return retorno;
         },
+        assinaturaFormato: 'vetor.mapear(funcao: função)',
+        documentacao: '# `vetor.mapear(funcao)` \n \n' +
+            'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
+            'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'var funcaoPotenciasDeDois = funcao (n) { retorna n ** 2 }\n' +
+            'escreva(v.mapear(funcaoPotenciasDeDois)) // [1, 4, 9, 16, 25]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.mapear(funcao (argumento) { <corpo da função com retorna> })'
     },
     ordenar: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função', false, [], '(Opcional) Função para guiar a ordenação.')
+        ],
         implementacao: async (interpretador, vetor, funcaoOrdenacao) => {
             if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
                 for (let i = 0; i < vetor.length - 1; i++) {
@@ -8321,16 +8618,39 @@ exports.default = {
             }
             return vetor.sort((a, b) => a - b);
         },
+        assinaturaFormato: 'vetor.ordenar()',
+        documentacao: '# `vetor.ordenar()` \n \n' +
+            'Ordena valores de um vetor em ordem crescente.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
+            'var v = [4, 2, 12, 5]\n' +
+            'escreva(v.ordenar()) // [2, 4, 5, 12]\n' +
+            '// Para o caso de textos, a ordenação é feita em ordem alfabética, caractere a caractere.\n' +
+            'var v = ["aaa", "a", "aba", "abb", "abc"]\n' +
+            'escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.ordenar()'
     },
     remover: {
         tipoRetorno: 'qualquer[]',
-        argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer')],
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'O elemento a ser removido do vetor.')
+        ],
         implementacao: (interpretador, vetor, elemento) => {
             const index = vetor.indexOf(elemento);
             if (index !== -1)
                 vetor.splice(index, 1);
             return Promise.resolve(vetor);
         },
+        assinaturaFormato: 'vetor.remover(elemento: qualquer)',
+        documentacao: '# `vetor.remover(elemento)` \n \n' +
+            'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'vetor.remover(2)\n' +
+            'escreva(vetor) // [1, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.remover(elemento)'
     },
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
@@ -8339,6 +8659,16 @@ exports.default = {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
+        assinaturaFormato: 'vetor.removerPrimeiro()',
+        documentacao: '# `vetor.removerPrimeiro()` \n \n' +
+            'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var primeiroElemento = vetor.removerPrimeiro()\n' +
+            'escreva(primeiroElemento) // 1\n' +
+            'escreva(vetor) // [2, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerPrimeiro()'
     },
     removerUltimo: {
         tipoRetorno: 'qualquer',
@@ -8347,6 +8677,16 @@ exports.default = {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
+        assinaturaFormato: 'vetor.removerUltimo()',
+        documentacao: '# `vetor.removerUltimo()` \n \n' +
+            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.removerUltimo()\n' +
+            'escreva(ultimoElemento) // 3\n' +
+            'escreva(vetor) // [1, 2]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerUltimo()'
     },
     somar: {
         tipoRetorno: 'qualquer',
@@ -8354,11 +8694,27 @@ exports.default = {
         implementacao: (interpretador, vetor) => {
             return Promise.resolve(vetor.reduce((acc, item) => acc + (typeof item === 'number' ? item : item.valor), 0));
         },
+        assinaturaFormato: 'vetor.somar()',
+        documentacao: '# `vetor.somar()` \n \n' +
+            'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
+            '\n\n ### Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3, 4, 5]\n' +
+            'escreva(vetor.somar()) // 15\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.somar()'
     },
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
         implementacao: (interpretador, vetor) => Promise.resolve(vetor.length),
+        assinaturaFormato: 'vetor.tamanho()',
+        documentacao: '# `vetor.tamanho()` \n \n' +
+            'Retorna o número de elementos que compõem o vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [0, 1, 2, 3, 4]\n' +
+            'escreva(vetor.tamanho()) // 5\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.tamanho()'
     },
 };
 
@@ -9781,9 +10137,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
 const declaracao_1 = require("./declaracao");
 class ParaCada extends declaracao_1.Declaracao {
-    constructor(hashArquivo, linha, nomeVariavelIteracao, vetor, corpo) {
+    constructor(hashArquivo, linha, variavelIteracao, vetor, corpo) {
         super(linha, hashArquivo);
-        this.nomeVariavelIteracao = nomeVariavelIteracao;
+        this.variavelIteracao = variavelIteracao;
         this.vetor = vetor;
         this.corpo = corpo;
         this.posicaoAtual = 0;
@@ -10288,7 +10644,7 @@ class FormatadorDelegua {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
     visitarDeclaracaoParaCada(declaracao) {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.nomeVariavelIteracao} de `;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}para cada ${declaracao.variavelIteracao} de `;
         this.formatarDeclaracaoOuConstruto(declaracao.vetor);
         this.visitarExpressaoBloco(declaracao.corpo);
     }
@@ -11163,12 +11519,13 @@ function tipoInferenciaParaTipoDadosElementar(tipoInferencia) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoVariavelOuConstante = void 0;
 class InformacaoVariavelOuConstante {
-    constructor(nome, tipo, obrigatorio = true, argumentos = []) {
+    constructor(nome, tipo, obrigatorio = true, argumentos = [], documentacao = "") {
         this.argumentos = [];
         this.nome = nome;
         this.tipo = tipo;
         this.obrigatorio = obrigatorio;
         this.argumentos = argumentos;
+        this.documentacao = documentacao;
     }
     toString() {
         return `<informação-variável-ou-constante nome=${this.nome}, tipo=${this.tipo}, obrigatorio=${this.obrigatorio ? 'verdadeiro' : 'falso'} argumentos=${this.argumentos.map((arg) => arg.toString()).join(', ')}>`;
@@ -12063,6 +12420,15 @@ class InterpretadorBase {
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         (0, comum_1.carregarBibliotecasGlobais)(this.pilhaEscoposExecucao);
     }
+    resolverValor(objeto) {
+        if (objeto === null || objeto === undefined) {
+            return objeto;
+        }
+        if (objeto.hasOwnProperty('valor')) {
+            return objeto.valor;
+        }
+        return objeto;
+    }
     visitarExpressaoArgumentoReferenciaFuncao(expressao) {
         throw new Error('Método não implementado.');
     }
@@ -12170,14 +12536,12 @@ class InterpretadorBase {
     retirarInterpolacao(texto, variaveis) {
         let textoFinal = texto;
         variaveis.forEach((elemento) => {
-            var _a, _b, _c;
+            var _a, _b;
             if (((_a = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _a === void 0 ? void 0 : _a.tipo) === delegua_2.default.LOGICO) {
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', this.paraTexto((_b = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _b === void 0 ? void 0 : _b.valor));
             }
             else {
-                const valor = ((_c = elemento === null || elemento === void 0 ? void 0 : elemento.valor) === null || _c === void 0 ? void 0 : _c.hasOwnProperty('valor'))
-                    ? elemento === null || elemento === void 0 ? void 0 : elemento.valor.valor
-                    : elemento === null || elemento === void 0 ? void 0 : elemento.valor;
+                const valor = this.resolverValor(elemento.valor);
                 textoFinal = textoFinal.replace('${' + elemento.variavel + '}', `${this.paraTexto(valor)}`);
             }
         });
@@ -12236,7 +12600,7 @@ class InterpretadorBase {
     }
     async visitarExpressaoUnaria(expressao) {
         const operando = await this.avaliar(expressao.operando);
-        let valor = operando.hasOwnProperty('valor') ? operando.valor : operando;
+        let valor = this.resolverValor(operando);
         switch (expressao.operador.tipo) {
             case delegua_1.default.SUBTRACAO:
                 this.verificarOperandoNumero(expressao.operador, valor);
@@ -12282,7 +12646,7 @@ class InterpretadorBase {
     async visitarExpressaoFormatacaoEscrita(declaracao) {
         let resultado = '';
         const conteudo = await this.avaliar(declaracao.expressao);
-        const valorConteudo = (conteudo === null || conteudo === void 0 ? void 0 : conteudo.hasOwnProperty('valor')) ? conteudo.valor : conteudo;
+        const valorConteudo = this.resolverValor(conteudo);
         const tipoConteudo = conteudo.hasOwnProperty('tipo')
             ? conteudo.tipo
             : typeof conteudo;
@@ -12348,8 +12712,8 @@ class InterpretadorBase {
     async visitarExpressaoBinaria(expressao) {
         const esquerda = await this.avaliar(expressao.esquerda);
         const direita = await this.avaliar(expressao.direita);
-        const valorEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('valor')) ? esquerda.valor : esquerda;
-        const valorDireito = (direita === null || direita === void 0 ? void 0 : direita.hasOwnProperty('valor')) ? direita.valor : direita;
+        const valorEsquerdo = this.resolverValor(esquerda);
+        const valorDireito = this.resolverValor(direita);
         const tipoEsquerdo = (esquerda === null || esquerda === void 0 ? void 0 : esquerda.hasOwnProperty('tipo'))
             ? esquerda.tipo
             : (0, inferenciador_1.inferirTipoVariavel)(esquerda);
@@ -12455,7 +12819,7 @@ class InterpretadorBase {
         const argumentosResolvidos = [];
         for (const argumento of expressao.argumentos) {
             const valorResolvido = await this.avaliar(argumento);
-            argumentosResolvidos.push((valorResolvido === null || valorResolvido === void 0 ? void 0 : valorResolvido.hasOwnProperty('valor')) ? valorResolvido.valor : valorResolvido);
+            argumentosResolvidos.push(this.resolverValor(valorResolvido));
         }
         return await entidadeChamada.chamar(this, argumentosResolvidos);
     }
@@ -12485,9 +12849,7 @@ class InterpretadorBase {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.parentese, 'Chamada de função ou método inexistente: ' +
                     String(expressao.entidadeChamada), expressao.linha));
             }
-            const entidadeChamada = variavelEntidadeChamada.hasOwnProperty('valor')
-                ? variavelEntidadeChamada.valor
-                : variavelEntidadeChamada;
+            const entidadeChamada = this.resolverValor(variavelEntidadeChamada);
             if (entidadeChamada instanceof estruturas_1.DeleguaModulo) {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.parentese, 'Entidade chamada é um módulo de Delégua. Provavelmente você quer chamar um de seus componentes?', expressao.linha));
             }
@@ -12510,9 +12872,7 @@ class InterpretadorBase {
             }
             if (entidadeChamada instanceof estruturas_1.FuncaoPadrao) {
                 try {
-                    return entidadeChamada.chamar(this, argumentos.map((a) => a && a.valor && a.valor.hasOwnProperty('valor')
-                        ? a.valor.valor
-                        : a === null || a === void 0 ? void 0 : a.valor), expressao.entidadeChamada.simbolo);
+                    return entidadeChamada.chamar(this, argumentos.map((a) => a && a.valor && this.resolverValor(a.valor)), expressao.entidadeChamada.simbolo);
                 }
                 catch (erro) {
                     this.erros.push({
@@ -12546,7 +12906,7 @@ class InterpretadorBase {
                 if (expressao.entidadeChamada.objeto) {
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
                 }
-                return entidadeChamada.apply(objeto.hasOwnProperty('valor') ? objeto.valor : objeto, argumentos);
+                return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
             }
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.parentese, 'Só pode chamar função ou classe.', expressao.linha));
         }
@@ -12565,7 +12925,7 @@ class InterpretadorBase {
      */
     async visitarExpressaoDeAtribuicao(expressao) {
         const valor = await this.avaliar(expressao.valor);
-        const valorResolvido = valor !== undefined && valor.hasOwnProperty('valor') ? valor.valor : valor;
+        const valorResolvido = this.resolverValor(valor);
         let indice = null;
         if (expressao.indice) {
             indice = await this.avaliar(expressao.indice);
@@ -12579,9 +12939,7 @@ class InterpretadorBase {
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
-                const objeto = variavelObjeto.hasOwnProperty('valor')
-                    ? variavelObjeto.valor
-                    : variavelObjeto;
+                const objeto = this.resolverValor(variavelObjeto);
                 const valor = await this.avaliar(expressao.valor);
                 if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
                     const objetoDeleguaClasse = objeto;
@@ -12663,22 +13021,33 @@ class InterpretadorBase {
         }
         return retornoExecucao;
     }
+    // TODO: Descobrir se mais algum dialeto, fora Delégua e Pituguês, usam isso.
     async visitarDeclaracaoParaCada(declaracao) {
         let retornoExecucao;
         // Posição atual precisa ser reiniciada, pois pode estar dentro de outro
         // laço de repetição.
         declaracao.posicaoAtual = 0;
         const vetorResolvido = await this.avaliar(declaracao.vetor);
-        const valorVetorResolvido = vetorResolvido.hasOwnProperty('valor')
-            ? vetorResolvido.valor
-            : vetorResolvido;
+        let valorVetorResolvido = this.resolverValor(vetorResolvido);
+        // Se até aqui vetor resolvido é um dicionário, converte dicionário
+        // para vetor de duplas.
+        if (declaracao.vetor.tipo === 'dicionário') {
+            valorVetorResolvido = Object.entries(valorVetorResolvido).map(v => new construtos_1.Dupla(v[0], v[1]));
+        }
         if (!Array.isArray(valorVetorResolvido)) {
             return Promise.reject("Variável ou literal provida em instrução 'para cada' não é um vetor.");
         }
         while (!(retornoExecucao instanceof quebras_1.Quebra) &&
             declaracao.posicaoAtual < valorVetorResolvido.length) {
             try {
-                this.pilhaEscoposExecucao.definirVariavel(declaracao.nomeVariavelIteracao, valorVetorResolvido[declaracao.posicaoAtual]);
+                if (declaracao.variavelIteracao instanceof construtos_1.Variavel) {
+                    this.pilhaEscoposExecucao.definirVariavel(declaracao.variavelIteracao.simbolo.lexema, valorVetorResolvido[declaracao.posicaoAtual]);
+                }
+                if (declaracao.variavelIteracao instanceof construtos_1.Dupla) {
+                    const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual];
+                    this.pilhaEscoposExecucao.definirVariavel(declaracao.variavelIteracao.primeiro.valor, valorComoDupla.primeiro);
+                    this.pilhaEscoposExecucao.definirVariavel(declaracao.variavelIteracao.segundo.valor, valorComoDupla.segundo);
+                }
                 retornoExecucao = await this.executar(declaracao.corpo);
                 if (retornoExecucao instanceof quebras_1.SustarQuebra) {
                     return null;
@@ -12746,9 +13115,7 @@ class InterpretadorBase {
     }
     async visitarDeclaracaoEscolha(declaracao) {
         const condicaoEscolha = await this.avaliar(declaracao.identificadorOuLiteral);
-        const valorCondicaoEscolha = condicaoEscolha.hasOwnProperty('valor')
-            ? condicaoEscolha.valor
-            : condicaoEscolha;
+        const valorCondicaoEscolha = this.resolverValor(condicaoEscolha);
         const caminhos = declaracao.caminhos;
         const caminhoPadrao = declaracao.caminhoPadrao;
         let encontrado = false;
@@ -12850,9 +13217,7 @@ class InterpretadorBase {
         let formatoTexto = '';
         for (const argumento of argumentos) {
             const resultadoAvaliacao = await this.avaliar(argumento);
-            let valor = (resultadoAvaliacao === null || resultadoAvaliacao === void 0 ? void 0 : resultadoAvaliacao.hasOwnProperty('valor'))
-                ? resultadoAvaliacao.valor
-                : resultadoAvaliacao;
+            let valor = this.resolverValor(resultadoAvaliacao);
             formatoTexto += `${this.paraTexto(valor)} `;
         }
         return formatoTexto.trimEnd();
@@ -12932,9 +13297,7 @@ class InterpretadorBase {
         }
         let valorFinal = null;
         if (valorOuOutraVariavel !== null && valorOuOutraVariavel !== undefined) {
-            valorFinal = valorOuOutraVariavel.hasOwnProperty('valor')
-                ? valorOuOutraVariavel.valor
-                : valorOuOutraVariavel;
+            valorFinal = this.resolverValor(valorOuOutraVariavel);
         }
         return valorFinal;
     }
@@ -12988,8 +13351,8 @@ class InterpretadorBase {
         if (objeto.tipo === delegua_2.default.TUPLA) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.simbolo.lexema, 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.', expressao.linha));
         }
-        objeto = objeto.hasOwnProperty('valor') ? objeto.valor : objeto;
-        indice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        objeto = this.resolverValor(objeto);
+        indice = this.resolverValor(indice);
         if (Array.isArray(objeto)) {
             if (indice < 0 && objeto.length !== 0) {
                 while (indice < 0) {
@@ -13009,7 +13372,7 @@ class InterpretadorBase {
             objeto[indice] = valor;
         }
         else {
-            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por sobrescrita.', expressao.linha));
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por índice.', expressao.linha));
         }
     }
     async visitarExpressaoAcessoIndiceVariavel(expressao) {
@@ -13019,10 +13382,8 @@ class InterpretadorBase {
         ]);
         const variavelObjeto = promises[0];
         const indice = promises[1];
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
-        let valorIndice = indice.hasOwnProperty('valor') ? indice.valor : indice;
+        const objeto = this.resolverValor(variavelObjeto);
+        let valorIndice = this.resolverValor(indice);
         if (Array.isArray(objeto)) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar um vetor.', expressao.linha));
@@ -13070,9 +13431,7 @@ class InterpretadorBase {
     }
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
         if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
         }
@@ -13138,9 +13497,7 @@ class InterpretadorBase {
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
@@ -13156,7 +13513,7 @@ class InterpretadorBase {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
                 return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
-            return objeto[expressao.simbolo.lexema] || null;
+            return objeto[expressao.simbolo.lexema];
         }
         // Casos em que o objeto possui algum outro tipo que não o de objeto simples.
         // Normalmente executam quando uma biblioteca é importada, e estamos tentando
@@ -13199,9 +13556,7 @@ class InterpretadorBase {
                 continue;
             }
             dicionario[promises[0]] =
-                promises[1] && promises[1].hasOwnProperty('valor')
-                    ? promises[1].valor
-                    : promises[1];
+                this.resolverValor(promises[1]);
         }
         return dicionario;
     }
@@ -13456,6 +13811,74 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         }
         return objeto;
     }
+    paraTexto(objeto) {
+        if (objeto === null || objeto === undefined)
+            return delegua_1.default.NULO;
+        if (typeof objeto === primitivos_1.default.BOOLEANO) {
+            return objeto ? 'verdadeiro' : 'falso';
+        }
+        if (objeto.valor instanceof estruturas_1.ObjetoPadrao)
+            return objeto.valor.paraTexto();
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+            objeto instanceof estruturas_1.DeleguaFuncao ||
+            typeof objeto.paraTexto === 'function')
+            return objeto.paraTexto();
+        if (objeto instanceof quebras_1.RetornoQuebra) {
+            if (typeof objeto.valor === 'boolean')
+                return objeto.valor ? 'verdadeiro' : 'falso';
+        }
+        if (objeto instanceof Date) {
+            const formato = Intl.DateTimeFormat('pt', {
+                dateStyle: 'full',
+                timeStyle: 'full',
+            });
+            return formato.format(objeto);
+        }
+        if (Array.isArray(objeto)) {
+            let retornoVetor = '[';
+            for (let elemento of objeto) {
+                if (typeof elemento === 'object') {
+                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    continue;
+                }
+                retornoVetor +=
+                    typeof elemento === 'string'
+                        ? `'${elemento}', `
+                        : `${this.paraTexto(elemento)}, `;
+            }
+            if (retornoVetor.length > 1) {
+                retornoVetor = retornoVetor.slice(0, -2);
+            }
+            retornoVetor += ']';
+            return retornoVetor;
+        }
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
+        }
+        if (typeof objeto === primitivos_1.default.OBJETO) {
+            const objetoEscrita = {};
+            for (const propriedade in objeto) {
+                let valor = objeto[propriedade];
+                if (typeof valor === primitivos_1.default.BOOLEANO) {
+                    valor = valor ? 'verdadeiro' : 'falso';
+                }
+                if (valor instanceof estruturas_1.ReferenciaMontao) {
+                    valor = this.resolverValor(valor);
+                }
+                objetoEscrita[propriedade] = valor;
+            }
+            return JSON.stringify(objetoEscrita);
+        }
+        return objeto.toString();
+    }
     async avaliacaoDeclaracaoVarOuConst(declaracao) {
         let valorOuOutraVariavel = null;
         if (declaracao.inicializador !== null) {
@@ -13638,7 +14061,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
                 return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
             }
-            return objeto[expressao.simbolo.lexema] || null;
+            return objeto[expressao.simbolo.lexema];
         }
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
@@ -13682,7 +14105,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 break;
         }
         // Último caso válido: objeto de uma classe JavaScript que possua a propriedade.
-        // Exemplos: classes de LinConEs, como `RetornoComando, ou bibliotecas globais com objetos próprios`.
+        // Exemplos: classes de LinConEs, como `RetornoComando`, ou bibliotecas globais com objetos próprios.
         if (objeto.hasOwnProperty(expressao.simbolo.lexema) ||
             typeof objeto[expressao.simbolo.lexema] !== 'undefined') {
             return objeto[expressao.simbolo.lexema];
@@ -13698,9 +14121,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
-        const objeto = variavelObjeto.hasOwnProperty('valor')
-            ? variavelObjeto.valor
-            : variavelObjeto;
+        const objeto = this.resolverValor(variavelObjeto);
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
@@ -13741,6 +14162,52 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         const deleguaFuncao = this.pilhaEscoposExecucao.obterVariavelPorNome(expressao.simboloFuncao.lexema);
         return deleguaFuncao;
     }
+    async visitarExpressaoAtribuicaoPorIndice(expressao) {
+        const promises = await Promise.all([
+            this.avaliar(expressao.objeto),
+            this.avaliar(expressao.indice),
+            this.avaliar(expressao.valor),
+        ]);
+        let objeto = promises[0];
+        let indice = promises[1];
+        const valor = promises[2];
+        if (objeto.tipo === delegua_1.default.TUPLA) {
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.simbolo.lexema, 'Não é possível modificar uma tupla. As tuplas são estruturas de dados imutáveis.', expressao.linha));
+        }
+        objeto = this.resolverValor(objeto);
+        indice = this.resolverValor(indice);
+        // Se o valor é uma referência ao montão, e o índice que a recebe é
+        // de uma variável/constante que vive num escopo superior, a referência
+        // precisa ser transferida para o escopo correspondente.
+        if (valor instanceof estruturas_1.ReferenciaMontao) {
+            // TODO: Terminar
+            const nomeVariavel = expressao.objeto.simbolo.lexema;
+            if (this.pilhaEscoposExecucao.obterVariavelEm(1, nomeVariavel) === undefined) {
+                this.pilhaEscoposExecucao.migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel, valor.endereco);
+            }
+        }
+        if (Array.isArray(objeto)) {
+            if (indice < 0 && objeto.length !== 0) {
+                while (indice < 0) {
+                    indice += objeto.length;
+                }
+            }
+            while (objeto.length < indice) {
+                objeto.push(null);
+            }
+            objeto[indice] = valor;
+        }
+        else if (objeto.constructor === Object ||
+            objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+            objeto instanceof estruturas_1.DeleguaFuncao ||
+            objeto instanceof estruturas_1.DescritorTipoClasse ||
+            objeto instanceof estruturas_1.DeleguaModulo) {
+            objeto[indice] = valor;
+        }
+        else {
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.objeto.nome, 'Somente listas, dicionários, classes e objetos podem ser mudados por índice.', expressao.linha));
+        }
+    }
     /**
      * Execução de uma expressão de atribuição.
      * @param expressao A expressão.
@@ -13775,11 +14242,31 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                     const objetoDeleguaClasse = objeto;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 }
+                else {
+                    // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
+                    objeto[alvoPropriedade.simbolo.lexema] = valor;
+                }
                 break;
             default:
                 throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
         }
         return valorResolvido;
+    }
+    async visitarExpressaoDefinirValor(expressao) {
+        const variavelObjeto = await this.avaliar(expressao.objeto);
+        const objeto = this.resolverValor(variavelObjeto);
+        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+            return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
+        }
+        const valor = await this.avaliar(expressao.valor);
+        const valorResolvido = this.resolverValor(valor);
+        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            objeto.definir(expressao.nome, valorResolvido);
+            return valorResolvido;
+        }
+        if (objeto.constructor === Object) {
+            objeto[expressao.nome.lexema] = valorResolvido;
+        }
     }
     /**
      * Dicionários em Delégua são passados por referência, portanto, são
@@ -13797,9 +14284,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 dicionario[chaveLogico] = promises[1];
                 continue;
             }
-            dicionario[promises[0]] = promises[1].hasOwnProperty('valor')
-                ? promises[1].valor
-                : promises[1];
+            dicionario[promises[0]] = this.resolverValor(promises[1]);
         }
         const enderecoDicionarioMontao = this.montao.adicionarReferencia(dicionario);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoDicionarioMontao);
@@ -14249,6 +14734,20 @@ class PilhaEscoposExecucao {
     registrarReferenciaMontao(endereco) {
         const espacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
         espacoMemoria.enderecosMontao.add(endereco);
+    }
+    migrarReferenciaMontaoParaEscopoDeVariavel(nomeVariavel, enderecoMontao) {
+        // TODO: Normalmente uma referência a ser migrada está sempre no último escopo.
+        // Conferir se é sempre este o caso.
+        const ultimoEspacoMemoria = this.pilha[this.pilha.length - 1].espacoMemoria;
+        ultimoEspacoMemoria.enderecosMontao.delete(enderecoMontao);
+        for (let i = 1; i <= this.pilha.length; i++) {
+            const espacoMemoria = this.pilha[this.pilha.length - i].espacoMemoria;
+            if (espacoMemoria.valores[nomeVariavel] !== undefined) {
+                espacoMemoria.enderecosMontao.add(enderecoMontao);
+                break;
+            }
+        }
+        // TODO: Devemos emitir erro em algum momento?
     }
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
@@ -30324,7 +30823,7 @@ class TradutorAssemblyScript {
         return (resultado += this.dicionarioConstrutos[nomeConstrutor](declaracaoRetorna === null || declaracaoRetorna === void 0 ? void 0 : declaracaoRetorna.valor));
     }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
-        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
+        let resultado = `for (let ${declaracaoParaCada.variavelIteracao} of `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ') ';
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
@@ -31031,7 +31530,8 @@ class TradutorJavaScript {
         return `'leia() não é suportado por este padrão de JavaScript.'`;
     }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
-        let resultado = `for (let ${declaracaoParaCada.nomeVariavelIteracao} of `;
+        const variavelIteracao = this.dicionarioConstrutos[declaracaoParaCada.variavelIteracao.constructor.name](declaracaoParaCada.variavelIteracao);
+        let resultado = `for (let ${variavelIteracao} of `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ') ';
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
@@ -31715,7 +32215,8 @@ class TradutorMermaidJs {
         return vertices;
     }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
-        let texto = `Linha${declaracaoParaCada.linha}(para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
+        const textoVariavelIteracao = this.dicionarioConstrutos[declaracaoParaCada.variavelIteracao.constructor.name](declaracaoParaCada.variavelIteracao);
+        let texto = `Linha${declaracaoParaCada.linha}(para cada ${textoVariavelIteracao} em `;
         const textoVariavelIterada = this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor);
         texto += textoVariavelIterada + ')';
         const aresta = new ArestaFluxograma(declaracaoParaCada, texto);
@@ -32387,7 +32888,8 @@ class TradutorPython {
         return resultado;
     }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
-        let resultado = `for ${declaracaoParaCada.nomeVariavelIteracao} in `;
+        const variavelIteracao = this.dicionarioConstrutos[declaracaoParaCada.variavelIteracao.constructor.name](declaracaoParaCada.variavelIteracao);
+        let resultado = `for ${variavelIteracao} in `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ':\n';
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
@@ -33311,7 +33813,8 @@ class TradutorReversoTenda {
         return `leia("${declaracaoLeia.argumentos[0].valor}")'`;
     }
     traduzirDeclaracaoParaCada(declaracaoParaCada) {
-        let resultado = `para cada ${declaracaoParaCada.nomeVariavelIteracao} em `;
+        const variavelIteracao = this.dicionarioConstrutos[declaracaoParaCada.variavelIteracao.constructor.name](declaracaoParaCada.variavelIteracao);
+        let resultado = `para cada ${variavelIteracao} em `;
         resultado +=
             this.dicionarioConstrutos[declaracaoParaCada.vetor.constructor.name](declaracaoParaCada.vetor) + ' ';
         resultado += this.dicionarioDeclaracoes[declaracaoParaCada.corpo.constructor.name](declaracaoParaCada.corpo);
