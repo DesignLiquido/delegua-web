@@ -13800,6 +13800,13 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto === null || objeto === undefined) {
             return objeto;
         }
+        if (Array.isArray(objeto)) {
+            const vetorResolvido = [];
+            for (const elemento of objeto) {
+                vetorResolvido.push(this.resolverValor(elemento));
+            }
+            return vetorResolvido;
+        }
         if (objeto instanceof estruturas_1.ReferenciaMontao) {
             return this.resolverReferenciaMontao(objeto);
         }
