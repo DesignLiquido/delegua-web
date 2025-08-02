@@ -13811,6 +13811,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             return this.resolverReferenciaMontao(objeto);
         }
         if (objeto.hasOwnProperty('valor')) {
+            if (Array.isArray(objeto.valor)) {
+                return this.resolverValor(objeto.valor);
+            }
             if (objeto.valor instanceof estruturas_1.ReferenciaMontao) {
                 return this.resolverReferenciaMontao(objeto.valor);
             }
