@@ -8086,7 +8086,7 @@ const contemComum = (nome) => {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'qualquer', true, [], 'O elemento como chave do dicionário.')
         ],
-        implementacao: (interpretador, valor, chave) => Promise.resolve(chave in valor),
+        implementacao: (interpretador, nomePrimitiva, valor, chave) => Promise.resolve(chave in valor),
         assinaturaFormato: `dicionário.${nome}(chave: qualquer)`,
         documentacao: `# \`dicionário.${nome}(chave)\`\n\n` +
             'Retorna verdadeiro se o elemento passado como parâmetro existe como chave do dicionário. Devolve falso em caso contrário.\n' +
@@ -8103,7 +8103,7 @@ exports.default = {
     chaves: {
         tipoRetorno: 'texto[]',
         argumentos: [],
-        implementacao: (interpretador, valor) => {
+        implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Object.keys(valor));
         },
         assinaturaFormato: 'dicionário.chaves()',
@@ -8121,13 +8121,13 @@ exports.default = {
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('chave', 'texto')],
-        implementacao: (interpretador, valor, chave) => Promise.resolve(delete valor[chave]),
+        implementacao: (interpretador, nomePrimitiva, valor, chave) => Promise.resolve(delete valor[chave]),
         assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
     valores: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (interpretador, valor) => {
+        implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Object.values(valor));
         },
     },
@@ -8140,7 +8140,7 @@ exports.default = {
     absoluto: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador, valor) => {
+        implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Math.abs(valor));
         },
         assinaturaFormato: 'número.absoluto()',
@@ -8156,7 +8156,7 @@ exports.default = {
     arredondarParaBaixo: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador, valor) => {
+        implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Math.floor(valor));
         },
         assinaturaFormato: 'número.arredondarParaBaixo()',
@@ -8172,7 +8172,7 @@ exports.default = {
     arredondarParaCima: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador, valor) => {
+        implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Math.ceil(valor));
         },
         assinaturaFormato: 'número.arredondarParaCima()',
@@ -8195,7 +8195,7 @@ exports.default = {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.trim()),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trim()),
         assinaturaFormato: 'texto.aparar()',
         documentacao: '# `texto.aparar()` \n \n' +
             'Remove espaços em branco no início e no fim de um texto.' +
@@ -8208,7 +8208,7 @@ exports.default = {
     apararFim: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.trimEnd()),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trimEnd()),
         assinaturaFormato: 'texto.apararFim()',
         documentacao: '# `texto.apararFim()` \n \n' +
             'Remove espaços em branco no no fim de um texto.' +
@@ -8221,7 +8221,7 @@ exports.default = {
     apararInicio: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.trimStart()),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trimStart()),
         assinaturaFormato: 'texto.apararInicio()',
         documentacao: '# `texto.apararInicio()` \n \n' +
             'Remover espaços em branco no início e no fim de um texto.' +
@@ -8236,7 +8236,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('outroTexto', 'texto', true, [], 'O texto a ser concatenado.')
         ],
-        implementacao: (interpretador, ...texto) => Promise.resolve(''.concat(...texto)),
+        implementacao: (interpretador, nomePrimitiva, ...texto) => Promise.resolve(''.concat(...texto)),
         assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
         documentacao: '# `texto.concatenar(outroTexto)` \n \n' +
             'Realiza a junção de palavras/textos.' +
@@ -8253,7 +8253,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('delimitador', 'texto', true, [], 'O delimitador usado para dividir o texto.'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('limite', 'número', false, [], '(Opcional) Número limite de elementos a serem retornados.'),
         ],
-        implementacao: (interpretador, texto, divisor, limite) => {
+        implementacao: (interpretador, nomePrimitiva, texto, divisor, limite) => {
             if (limite) {
                 return Promise.resolve(texto.split(divisor, limite));
             }
@@ -8274,7 +8274,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número', true, [], 'A posição inicial da fatia.'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número', false, [], '(Opcional) A posição final da fatia. Se não fornecido, seleciona até o final do texto.'),
         ],
-        implementacao: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        implementacao: (interpretador, nomePrimitiva, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
         assinaturaFormato: 'texto.fatiar(inicio: número, fim?: número)',
         documentacao: '# `texto.fatiar(inicio)` \n \n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
@@ -8293,7 +8293,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'texto', true, [], 'O elemento a ser verificado se está contido no texto.')
         ],
-        implementacao: (interpretador, texto, elemento) => Promise.resolve(texto.includes(elemento)),
+        implementacao: (interpretador, nomePrimitiva, texto, elemento) => Promise.resolve(texto.includes(elemento)),
         assinaturaFormato: 'inclui(elemento: texto)',
         documentacao: '# `texto.inclui(elemento)` \n \n' +
             'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
@@ -8307,7 +8307,7 @@ exports.default = {
     inverter: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
         assinaturaFormato: 'texto.inverter()',
         documentacao: '# `texto.inverter()` \n \n' +
             'Inverte as letras de um texto.' +
@@ -8320,7 +8320,7 @@ exports.default = {
     maiusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.toUpperCase()),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.toUpperCase()),
         assinaturaFormato: 'texto.maiusculo()',
         documentacao: '# `texto.maiusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
@@ -8333,7 +8333,7 @@ exports.default = {
     minusculo: {
         tipoRetorno: 'texto',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.toLowerCase()),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.toLowerCase()),
         assinaturaFormato: 'texto.minusculo()',
         documentacao: '# `texto.minusculo()` \n \n' +
             'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
@@ -8349,7 +8349,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('textoASerSubstituido', 'texto', true, [], 'Texto a ser substituído.'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('substituto', 'texto', true, [], 'A substituição'),
         ],
-        implementacao: (interpretador, texto, elemento, substituto) => Promise.resolve(texto.replace(elemento, substituto)),
+        implementacao: (interpretador, nomePrimitiva, texto, elemento, substituto) => Promise.resolve(texto.replace(elemento, substituto)),
         assinaturaFormato: 'texto.substituir(textoASerSubstituido: texto, substituto: texto)',
         documentacao: '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
             'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
@@ -8365,7 +8365,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'inteiro', true, [], 'A posição de início do texto a ser extraído.'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'inteiro', true, [], 'A posição de fim do texto a ser extraído.'),
         ],
-        implementacao: (interpretador, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        implementacao: (interpretador, nomePrimitiva, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
         assinaturaFormato: 'texto.subtexto(inicio: inteiro, fim: inteiro)',
         documentacao: '# `texto.subtexto(inicio, fim)` \n\n' +
             'Extrai uma fatia do texto, dadas posições de início e fim.' +
@@ -8378,7 +8378,7 @@ exports.default = {
     tamanho: {
         tipoRetorno: 'inteiro',
         argumentos: [],
-        implementacao: (interpretador, texto) => Promise.resolve(texto.length),
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.length),
         assinaturaFormato: 'texto.tamanho()',
         documentacao: '# `texto.tamanho()` \n\n' +
             'Devolve um número inteiro com o número de caracteres do texto.' +
@@ -8400,7 +8400,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'Os elementos a serem adicionados ao vetor.')
         ],
-        implementacao: (interpretador, vetor, elemento) => {
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
@@ -8420,7 +8420,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('outroVetor', 'qualquer[]', true, [], 'O outro vetorm ou outros vetores, a serem concatenados a este vetor.')
         ],
-        implementacao: (interpretador, vetor, outroVetor) => {
+        implementacao: (interpretador, nomePrimitiva, vetor, outroVetor) => {
             return Promise.resolve(vetor.concat(outroVetor));
         },
         assinaturaFormato: 'vetor.concatenar(...outroVetor: qualquer[])',
@@ -8437,7 +8437,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], '')
         ],
-        implementacao: (interpretador, vetor, elemento) => {
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
             vetor.push(elemento);
             return Promise.resolve(vetor);
         },
@@ -8460,7 +8460,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('excluirQuantidade', 'número'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('itens', 'qualquer[]'),
         ],
-        implementacao: (interpretador, vetor, inicio, excluirQuantidade, ...itens) => {
+        implementacao: (interpretador, nomePrimitiva, vetor, inicio, excluirQuantidade, ...itens) => {
             let elementos = [];
             if (excluirQuantidade || excluirQuantidade === 0) {
                 elementos = !itens.length
@@ -8479,7 +8479,7 @@ exports.default = {
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('inicio', 'número', false, [], 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'),
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('fim', 'número', false, [], 'A posição de fim do vetor a ser fatiado.'),
         ],
-        implementacao: (interpretador, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
+        implementacao: (interpretador, nomePrimitiva, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
         assinaturaFormato: 'vetor.fatiar(inicio?: número, fim?: número)',
         documentacao: '# `vetor.fatiar(inicio, fim)` \n \n' +
             'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
@@ -8498,7 +8498,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função', true, [], 'A função de filtragem.')
         ],
-        implementacao: async (interpretador, vetor, funcao) => {
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcao) => {
             if (funcao === undefined || funcao === null) {
                 return Promise.reject("É necessário passar uma função para o método 'filtrarPor'");
             }
@@ -8526,7 +8526,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'O elemento a ser verificado se está presente no vetor.')
         ],
-        implementacao: (interpretador, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
         assinaturaFormato: 'vetor.inclui(elemento: qualquer)',
         documentacao: '# `vetor.inclui(elemento)` \n \n' +
             'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
@@ -8540,7 +8540,7 @@ exports.default = {
     inverter: {
         tipoRetorno: 'qualquer[]',
         argumentos: [],
-        implementacao: (interpretador, vetor) => Promise.resolve(vetor.reverse()),
+        implementacao: (interpretador, nomePrimitiva, vetor) => Promise.resolve(vetor.reverse()),
         assinaturaFormato: 'vetor.inverter()',
         documentacao: '# `vetor.inverter()` \n \n' +
             'Inverte a ordem dos elementos de um vetor.\n' +
@@ -8555,7 +8555,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('separador', 'texto', true, [], 'O separador entre elementos do vetor para o texto.')
         ],
-        implementacao: (interpretador, vetor, separador) => Promise.resolve(vetor.join(separador)),
+        implementacao: (interpretador, nomePrimitiva, vetor, separador) => Promise.resolve(vetor.join(separador)),
         assinaturaFormato: 'vetor.juntar(separador: texto)',
         documentacao: '# `vetor.juntar(separador)` \n \n' +
             'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
@@ -8570,7 +8570,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcao', 'função', true, [], 'A função que transforma cada elemento de um vetor em outro elemento a ser retornado em um novo vetor.')
         ],
-        implementacao: async (interpretador, vetor, funcao) => {
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcao) => {
             if (funcao === undefined || funcao === null) {
                 return Promise.reject("É necessário passar uma função para o método 'mapear'");
             }
@@ -8597,7 +8597,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('funcaoOrdenacao', 'função', false, [], '(Opcional) Função para guiar a ordenação.')
         ],
-        implementacao: async (interpretador, vetor, funcaoOrdenacao) => {
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcaoOrdenacao) => {
             if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
                 for (let i = 0; i < vetor.length - 1; i++) {
                     for (let j = 1; j < vetor.length; j++) {
@@ -8611,12 +8611,25 @@ exports.default = {
                         }
                     }
                 }
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel({
+                        lexema: nomePrimitiva,
+                    }, vetor);
+                }
                 return vetor;
             }
             if (!vetor.every((v) => typeof v === 'number')) {
-                return vetor.sort();
+                vetor.sort();
             }
-            return vetor.sort((a, b) => a - b);
+            else {
+                vetor.sort((a, b) => a - b);
+            }
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel({
+                    lexema: nomePrimitiva,
+                }, vetor);
+            }
+            return vetor;
         },
         assinaturaFormato: 'vetor.ordenar()',
         documentacao: '# `vetor.ordenar()` \n \n' +
@@ -8636,7 +8649,7 @@ exports.default = {
         argumentos: [
             new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('elemento', 'qualquer', true, [], 'O elemento a ser removido do vetor.')
         ],
-        implementacao: (interpretador, vetor, elemento) => {
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
             const index = vetor.indexOf(elemento);
             if (index !== -1)
                 vetor.splice(index, 1);
@@ -8655,7 +8668,7 @@ exports.default = {
     removerPrimeiro: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador, vetor) => {
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
             let elemento = vetor.shift();
             return Promise.resolve(elemento);
         },
@@ -8673,7 +8686,7 @@ exports.default = {
     removerUltimo: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador, vetor) => {
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
             let elemento = vetor.pop();
             return Promise.resolve(elemento);
         },
@@ -8691,7 +8704,7 @@ exports.default = {
     somar: {
         tipoRetorno: 'qualquer',
         argumentos: [],
-        implementacao: (interpretador, vetor) => {
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
             return Promise.resolve(vetor.reduce((acc, item) => acc + (typeof item === 'number' ? item : item.valor), 0));
         },
         assinaturaFormato: 'vetor.somar()',
@@ -8706,7 +8719,7 @@ exports.default = {
     tamanho: {
         tipoRetorno: 'número',
         argumentos: [],
-        implementacao: (interpretador, vetor) => Promise.resolve(vetor.length),
+        implementacao: (interpretador, nomePrimitiva, vetor) => Promise.resolve(vetor.length),
         assinaturaFormato: 'vetor.tamanho()',
         documentacao: '# `vetor.tamanho()` \n \n' +
             'Retorna o número de elementos que compõem o vetor.\n' +
@@ -12145,14 +12158,15 @@ const chamavel_1 = require("./chamavel");
  * primeiro parâmetro é sempre a referência para a primitiva.
  */
 class MetodoPrimitiva extends chamavel_1.Chamavel {
-    constructor(primitiva, metodo) {
+    constructor(nome, primitiva, metodo) {
         super();
+        this.nome = nome;
         this.primitiva = primitiva;
         this.metodo = metodo;
         this.valorAridade = metodo.length - 1;
     }
     async chamar(interpretador, argumentos = []) {
-        return await this.metodo(interpretador, this.primitiva, ...argumentos);
+        return await this.metodo(interpretador, this.nome, this.primitiva, ...argumentos);
     }
     /**
      * Método utilizado por Delégua para inspecionar este método em depuração.
@@ -12419,6 +12433,23 @@ class InterpretadorBase {
         };
         this.pilhaEscoposExecucao.empilhar(escopoExecucao);
         (0, comum_1.carregarBibliotecasGlobais)(this.pilhaEscoposExecucao);
+    }
+    /**
+     * Usado para chamadas de métodos de primitiva.
+     * Sendo uma variável ou constante, a primitiva precisa atualizar a referência
+     * para o objeto que está sendo acessado.
+     * @param {Construto} objetoAcessado O objeto que está sendo acessado.
+     * @returns O nome desse objeto, se ele for uma variável ou constante.
+     * @see resolverValor
+     */
+    resolverNomeObjectoAcessado(objetoAcessado) {
+        if (objetoAcessado instanceof construtos_1.Variavel) {
+            return objetoAcessado.simbolo.lexema;
+        }
+        if (objetoAcessado instanceof construtos_1.Constante) {
+            return objetoAcessado.simbolo.lexema;
+        }
+        return '';
     }
     resolverValor(objeto) {
         if (objeto === null || objeto === undefined) {
@@ -13511,7 +13542,7 @@ class InterpretadorBase {
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivas_dicionario_1.default) {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
-                return new metodo_primitiva_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new metodo_primitiva_1.MetodoPrimitiva("", objeto, metodoDePrimitivaDicionario);
             }
             return objeto[expressao.simbolo.lexema];
         }
@@ -13970,6 +14001,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         }, 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.', expressao.linha));
     }
     async visitarExpressaoAcessoMetodo(expressao) {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         let variavelObjeto = await this.avaliar(expressao.objeto);
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -13986,7 +14018,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto.constructor === Object) {
             if (expressao.nomeMetodo in primitivas_dicionario_1.default) {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.nomeMetodo].implementacao;
-                return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
             return objeto[expressao.nomeMetodo] || null;
         }
@@ -14019,13 +14051,13 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.NÚMERO:
                 const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case delegua_1.default.TEXTO:
                 const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
                 }
                 break;
             case delegua_1.default.VETOR:
@@ -14034,7 +14066,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.VETOR_TEXTO:
                 const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.nomeMetodo].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -14053,6 +14085,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
      * @returns A primitiva encontrada.
      */
     async visitarExpressaoAcessoMetodoOuPropriedade(expressao) {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         let variavelObjeto = await this.avaliar(expressao.objeto);
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -14069,7 +14102,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivas_dicionario_1.default) {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
-                return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
             return objeto[expressao.simbolo.lexema];
         }
@@ -14091,13 +14124,13 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.NÚMERO:
                 const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaNumero);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case delegua_1.default.TEXTO:
                 const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaTexto);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
                 }
                 break;
             case delegua_1.default.VETOR:
@@ -14110,7 +14143,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.VETOR_TEXTO:
                 const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
-                    return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaVetor);
+                    return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
                 }
                 break;
         }
@@ -14123,6 +14156,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Método ou propriedade para objeto ou primitiva não encontrado: ${expressao.simbolo.lexema}.`, expressao.linha));
     }
     async visitarExpressaoAcessoPropriedade(expressao) {
+        const nomeObjeto = this.resolverNomeObjectoAcessado(expressao.objeto);
         let variavelObjeto = await this.avaliar(expressao.objeto);
         // Este caso acontece quando há encadeamento de métodos.
         // Por exemplo, `objeto1.metodo1().metodo2()`.
@@ -14142,7 +14176,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto.constructor === Object) {
             if (expressao.nomePropriedade in primitivas_dicionario_1.default) {
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.nomePropriedade].implementacao;
-                return new estruturas_1.MetodoPrimitiva(objeto, metodoDePrimitivaDicionario);
+                return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
             return objeto[expressao.nomePropriedade] || null;
         }
