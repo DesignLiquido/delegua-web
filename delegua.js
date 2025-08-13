@@ -10558,7 +10558,8 @@ class FormatadorDelegua {
             this.visitarExpressaoBinaria(expressao.valor);
         }
         else {
-            this.codigoFormatado += `${this.formatarDeclaracaoOuConstruto(expressao.alvo)} = `;
+            this.formatarDeclaracaoOuConstruto(expressao.alvo);
+            this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
         this.codigoFormatado += `${this.quebraLinha}`;
@@ -10903,7 +10904,11 @@ class FormatadorDelegua {
         if (expressao.parametros.length > 0) {
             this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
-        this.codigoFormatado += `) `;
+        this.codigoFormatado += `)`;
+        if (expressao.tipoExplicito && expressao.tipo) {
+            this.codigoFormatado += `: ${expressao.tipo}`;
+        }
+        this.codigoFormatado += ' ';
         this.formatarBlocoOuVetorDeclaracoes(expressao.corpo);
     }
     visitarExpressaoIsto(expressao) {
@@ -10975,6 +10980,12 @@ class FormatadorDelegua {
                 break;
             case delegua_1.default.DECREMENTAR:
                 operador = `--`;
+                break;
+            case delegua_1.default.NEGACAO:
+                operador = `!`;
+                break;
+            case delegua_1.default.SUBTRACAO:
+                operador = `-`;
                 break;
         }
         switch (expressao.incidenciaOperador) {
