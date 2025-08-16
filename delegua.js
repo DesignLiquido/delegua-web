@@ -3713,15 +3713,17 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         do {
             identificadores.push(this.consumir(delegua_2.default.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.VIRGULA));
+        let tipoExplicito = false;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
         if (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.IGUAL)) {
             // Inicialização de variáveis sem valor.
             for (let identificador of identificadores.values()) {
                 this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(identificador.lexema, tipo));
-                retorno.push(new declaracoes_1.Var(identificador, null, tipo, Array.from(this.pilhaDecoradores)));
+                retorno.push(new declaracoes_1.Var(identificador, null, tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
             }
             this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
             this.pilhaDecoradores = [];
@@ -3737,7 +3739,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         for (let [indice, identificador] of identificadores.entries()) {
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
             this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(identificador.lexema, tipo));
-            retorno.push(new declaracoes_1.Var(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
+            retorno.push(new declaracoes_1.Var(identificador, inicializadores[indice], tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
         }
         this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
         this.pilhaDecoradores = [];
@@ -3775,8 +3777,10 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         do {
             identificadores.push(this.consumir(delegua_2.default.IDENTIFICADOR, 'Esperado nome da constante.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.VIRGULA));
+        let tipoExplicito = false;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
         this.consumir(delegua_2.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
@@ -3792,7 +3796,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             // Se tipo ainda não foi definido, infere.
             tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
             this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(identificador.lexema, tipo));
-            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice], tipo, Array.from(this.pilhaDecoradores)));
+            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice], tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
         }
         this.pilhaDecoradores = [];
         this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
@@ -9989,18 +9993,17 @@ const declaracao_1 = require("./declaracao");
  * Uma declaração de constante.
  */
 class Const extends declaracao_1.Declaracao {
-    constructor(simbolo, inicializador, tipo = 'qualquer', decoradores = []) {
+    constructor(simbolo, inicializador, tipo = 'qualquer', tipoExplicito = false, decoradores = []) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
         if (tipo !== 'qualquer') {
             this.tipo = tipo;
-            this.tipoExplicito = true;
         }
         else {
             this.tipo = (inicializador === null || inicializador === void 0 ? void 0 : inicializador.tipo) || tipo;
-            this.tipoExplicito = false;
         }
+        this.tipoExplicito = tipoExplicito;
     }
     async aceitar(visitante) {
         return await visitante.visitarDeclaracaoConst(this);
@@ -10467,18 +10470,17 @@ const declaracao_1 = require("./declaracao");
  * Uma declaração de variável.
  */
 class Var extends declaracao_1.Declaracao {
-    constructor(simbolo, inicializador, tipo = 'qualquer', decoradores = []) {
+    constructor(simbolo, inicializador, tipo = 'qualquer', tipoExplicito = false, decoradores = []) {
         super(Number(simbolo.linha), simbolo.hashArquivo, decoradores);
         this.simbolo = simbolo;
         this.inicializador = inicializador;
         if (tipo !== 'qualquer') {
             this.tipo = tipo;
-            this.tipoExplicito = true;
         }
         else {
             this.tipo = (inicializador === null || inicializador === void 0 ? void 0 : inicializador.tipo) || tipo;
-            this.tipoExplicito = false;
         }
+        this.tipoExplicito = tipoExplicito;
         this.referencia = false;
         this.desestruturacao = false;
     }
@@ -10689,7 +10691,9 @@ class FormatadorDelegua {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(expressao.valor);
         }
-        this.codigoFormatado += `${this.quebraLinha}`;
+        if (this.devePularLinha) {
+            this.codigoFormatado += `${this.quebraLinha}`;
+        }
     }
     visitarDeclaracaoDeExpressao(declaracao) {
         this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
@@ -10737,6 +10741,10 @@ class FormatadorDelegua {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escreva(`;
         for (let argumento of declaracao.argumentos) {
             this.formatarDeclaracaoOuConstruto(argumento);
+            this.codigoFormatado += ', ';
+        }
+        if (declaracao.argumentos.length > 0) {
+            this.codigoFormatado = this.codigoFormatado.slice(0, -2);
         }
         this.codigoFormatado += `)${this.quebraLinha}`;
     }
@@ -10842,6 +10850,9 @@ class FormatadorDelegua {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}`;
         }
         this.codigoFormatado += `var ${declaracao.simbolo.lexema}`;
+        if (declaracao.tipoExplicito && declaracao.tipo) {
+            this.codigoFormatado += `: ${declaracao.tipo}`;
+        }
         if (declaracao.inicializador) {
             this.codigoFormatado += ` = `;
             this.formatarDeclaracaoOuConstruto(declaracao.inicializador);
@@ -14378,6 +14389,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 objeto.push(null);
             }
             objeto[indice] = valor;
+            this.pilhaEscoposExecucao.atribuirVariavel(expressao.objeto.simbolo, objeto);
         }
         else if (objeto.constructor === Object ||
             objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
