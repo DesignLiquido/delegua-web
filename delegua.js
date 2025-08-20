@@ -8264,6 +8264,7 @@ exports.default = {
 },{"../informacao-variavel-ou-constante":134}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-constante");
 exports.default = {
     absoluto: {
         tipoRetorno: 'número',
@@ -8313,9 +8314,39 @@ exports.default = {
             '\n\n## Formas de uso\n',
         exemploCodigo: 'numero.arredondarParaCima()'
     },
+    formatar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante('opcoesFormatacao', 'dicionário', false, [], 'Dicionário com opções de formatação, como número de casas decimais.')
+        ],
+        implementacao: (interpretador, nomePrimitiva, valor, opcoes) => {
+            let minimoCasasDecimais = 2;
+            if (opcoes && opcoes.casasDecimais !== undefined) {
+                minimoCasasDecimais = opcoes.casasDecimais;
+            }
+            let maximoCasasDecimais = 2;
+            if (opcoes && opcoes.maximoCasasDecimais !== undefined) {
+                maximoCasasDecimais = opcoes.maximoCasasDecimais;
+            }
+            return Promise.resolve(valor.toLocaleString('pt-BR', {
+                minimumFractionDigits: minimoCasasDecimais,
+                maximumFractionDigits: maximoCasasDecimais
+            }));
+        },
+        assinaturaFormato: 'número.formatar(opcoesFormatacao)',
+        documentacao: '# `número.formatar(opcoesFormatacao)`\n\n' +
+            'Formata um número para o padrão brasileiro, com separador de milhar e vírgula como separador decimal.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var n = 1234.56\n' +
+            'escreva(n.formatar()) // 1.234,56\n' +
+            'escreva(n.formatar({ minimoCasasDecimais: 2, maximoCasasDecimais: 3 })) // 1.234,568\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'numero.formatar({ maximoCasasDecimais: 2 })'
+    }
 };
 
-},{}],46:[function(require,module,exports){
+},{"../informacao-variavel-ou-constante":134}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_variavel_ou_constante_1 = require("../informacao-variavel-ou-constante");
@@ -14156,11 +14187,11 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obterMetodo(expressao.nomeMetodo) || null;
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -14240,11 +14271,11 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obter(expressao.simbolo);
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -14311,14 +14342,14 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
-            objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse') {
             return objeto.obterMetodo(expressao.nomePropriedade) || null;
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
