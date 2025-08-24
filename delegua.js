@@ -13869,7 +13869,7 @@ class InterpretadorBase {
         for (let i = 0; i < expressao.valores.length; i++) {
             valores.push(await this.avaliar(expressao.valores[i]));
         }
-        return valores.filter(v => v);
+        return valores.filter(v => v !== null && v !== undefined);
     }
     visitarExpressaoSuper(expressao) {
         const objeto = this.pilhaEscoposExecucao.obterVariavelPorNome('isto');
