@@ -7325,24 +7325,20 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
 
                 return new Dicionario(-1, Number(this.linha), chaves, valores); */
             // TODO: Verificar se vamos usar isso.
-            /* case tiposDeSimbolos.COLCHETE_ESQUERDO:
+            case delegua_1.default.COLCHETE_ESQUERDO:
                 this.avancarEDevolverAnterior();
                 valores = [];
-
-                if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    return new Vetor(-1, Number(this.linha), []);
+                if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_DIREITO)) {
+                    return new construtos_1.Vetor(-1, Number(this.linha), []);
                 }
-
-                while (!this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.COLCHETE_DIREITO)) {
-                    const valor = this.atribuir();
+                while (!this.verificarSeSimboloAtualEIgualA(delegua_1.default.COLCHETE_DIREITO)) {
+                    const valor = this.declaracao();
                     valores.push(valor);
-                    if (this.simbolos[this.atual].tipo !== tiposDeSimbolos.COLCHETE_DIREITO) {
-                        this.consumir(tiposDeSimbolos.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
+                    if (this.simbolos[this.atual].tipo !== delegua_1.default.COLCHETE_DIREITO) {
+                        this.consumir(delegua_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                     }
                 }
-
-                return new Vetor(-1, Number(this.linha), valores);
-            */
+                return new construtos_1.Vetor(-1, Number(this.linha), valores);
             case delegua_1.default.FALSO:
                 this.avancarEDevolverAnterior();
                 return new construtos_1.Literal(-1, Number(this.linha), false);
@@ -14166,17 +14162,6 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             retornoVetor += ']';
             return retornoVetor;
         }
-        switch (objeto.constructor.name) {
-            case 'Object':
-                if ('tipo' in objeto) {
-                    switch (objeto.tipo) {
-                        case 'dicionário':
-                            return JSON.stringify(objeto.valor);
-                        default:
-                            return objeto.valor;
-                    }
-                }
-        }
         if (typeof objeto === primitivos_1.default.OBJETO) {
             const objetoEscrita = {};
             for (const propriedade in objeto) {
@@ -14190,6 +14175,17 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 objetoEscrita[propriedade] = valor;
             }
             return JSON.stringify(objetoEscrita);
+        }
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
         }
         return objeto.toString();
     }
@@ -17555,6 +17551,14 @@ class MicroLexador {
                 break;
             case ')':
                 this.adicionarSimbolo(delegua_1.default.PARENTESE_DIREITO);
+                this.atual++;
+                break;
+            case '[':
+                this.adicionarSimbolo(delegua_1.default.COLCHETE_ESQUERDO);
+                this.atual++;
+                break;
+            case ']':
+                this.adicionarSimbolo(delegua_1.default.COLCHETE_DIREITO);
                 this.atual++;
                 break;
             case ',':
