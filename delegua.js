@@ -5154,50 +5154,6 @@ class AvaliadorSintaticoPitugues {
         this.consumir(pitugues_2.default.PARENTESE_DIREITO, "Esperado ')' após os valores em leia.");
         return new construtos_1.Leia(simboloLeia, argumentos);
     }
-    declaracaoDeConstantes() {
-        const identificadores = [];
-        let tipo = 'qualquer';
-        // TODO: Desestruturação em Python não requer chaves.
-        // Exemplo: const a, b, c = vetor;
-        // Pensar em algo equivalente para Pituguês.
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.CHAVE_ESQUERDA)) {
-            return this.declaracaoDesestruturacaoConstante();
-        } */
-        do {
-            identificadores.push(this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome da constante.'));
-        } while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VIRGULA));
-        // TODO: Discutir com comunidade como seria melhor fazer
-        // dicas de tipos.
-        /* if (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.DOIS_PONTOS)) {
-            tipo = this.verificarDefinicaoTipoAtual();
-            this.avancarEDevolverAnterior();
-        } */
-        this.consumir(pitugues_2.default.IGUAL, "Esperado '=' após identificador em instrução 'constante'.");
-        const inicializadores = [];
-        do {
-            inicializadores.push(this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VIRGULA));
-        // TODO: Muito provavelmente, com desestruturação, essa validação
-        // não será necessária.
-        /* if (identificadores.length !== inicializadores.length) {
-            throw this.erro(
-                this.simbolos[this.atual],
-                'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.'
-            );
-        } */
-        let retorno = [];
-        for (let [indice, identificador] of identificadores.entries()) {
-            // Se tipo ainda não foi definido, infere.
-            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo);
-            this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(identificador.lexema, tipo));
-            retorno.push(new declaracoes_1.Const(identificador, inicializadores[indice], tipo
-            // TODO: Discutir decoradores com comunidade.
-            // Array.from(this.pilhaDecoradores)
-            ));
-        }
-        // this.pilhaDecoradores = [];
-        return retorno;
-    }
     declaracaoDeVariavel() {
         throw new Error('Método não implementado.');
     }
@@ -5800,9 +5756,6 @@ class AvaliadorSintaticoPitugues {
     }
     resolverDeclaracao() {
         switch (this.simbolos[this.atual].tipo) {
-            case pitugues_2.default.CONSTANTE:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeConstantes();
             case pitugues_2.default.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
@@ -5939,10 +5892,11 @@ class AvaliadorSintaticoPitugues {
     declaracaoDeClasse() {
         const simbolo = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome da classe.');
         let superClasse = null;
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.HERDA)) {
+        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.PARENTESE_ESQUERDO)) {
             const simboloSuperclasse = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome da Superclasse.');
             this.superclasseAtual = simboloSuperclasse.lexema;
             superClasse = new construtos_1.Variavel(this.hashArquivo, this.simboloAnterior());
+            this.consumir(pitugues_2.default.PARENTESE_DIREITO, "Esperado ')' após declaração.");
         }
         this.consumir(pitugues_2.default.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
         const metodos = [];
@@ -17767,8 +17721,6 @@ exports.palavrasReservadas = {
     como: pitugues_1.default.COMO,
     construtor: pitugues_1.default.CONSTRUTOR,
     continua: pitugues_1.default.CONTINUA,
-    constante: pitugues_1.default.CONSTANTE,
-    const: pitugues_1.default.CONSTANTE,
     de: pitugues_1.default.DE,
     e: pitugues_1.default.E,
     em: pitugues_1.default.EM,
@@ -17779,10 +17731,8 @@ exports.palavrasReservadas = {
     falso: pitugues_1.default.FALSO,
     fazer: pitugues_1.default.FAZER,
     finalmente: pitugues_1.default.FINALMENTE,
-    fixo: pitugues_1.default.CONSTANTE,
     funcao: pitugues_1.default.FUNCAO,
     função: pitugues_1.default.FUNÇÃO,
-    herda: pitugues_1.default.HERDA,
     importar: pitugues_1.default.IMPORTAR,
     imprima: pitugues_1.default.IMPRIMA,
     isto: pitugues_1.default.ISTO,
@@ -19312,7 +19262,6 @@ exports.default = {
     COLCHETE_DIREITO: 'COLCHETE_DIREITO',
     COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
     COMO: 'COMO',
-    CONSTANTE: 'CONSTANTE',
     CONSTRUTOR: 'CONSTRUTOR',
     CONTINUA: 'CONTINUA',
     DE: 'DE',
@@ -19336,7 +19285,6 @@ exports.default = {
     FINALMENTE: 'FINALMENTE',
     FUNCAO: 'FUNCAO',
     FUNÇÃO: 'FUNÇÃO',
-    HERDA: 'HERDA',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IMPORTAR: 'IMPORTAR',
     ISTO: 'ISTO',
