@@ -51,7 +51,7 @@ const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatic
 const analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 const tradutores_1 = require("@designliquido/delegua/tradutores");
-const informacao_variavel_ou_constante_1 = require("@designliquido/delegua/informacao-variavel-ou-constante");
+const informacao_elemento_sintatico_1 = require("@designliquido/delegua/informacao-elemento-sintatico");
 const estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 const fisica = __importStar(require("@designliquido/delegua-fisica"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
@@ -96,7 +96,7 @@ class DeleguaWeb {
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
-            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_variavel_ou_constante_1.InformacaoVariavelOuConstante(nomeComponente, 'qualquer', true, []);
+            primitivasConhecidas[nomeModulo][nomeComponente] = new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeComponente, 'qualquer', true, []);
         }
     }
     montarModulo(moduloDelegua, ...modulosNode) {
@@ -144,7 +144,7 @@ class DeleguaWeb {
         });
     }
     versao() {
-        return "0.42 (web)";
+        return "0.54 (web)";
     }
     reportar(linha, onde, mensagem) {
         if (this.nomeArquivo)
