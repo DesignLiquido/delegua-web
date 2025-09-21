@@ -12,7 +12,7 @@ import {
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/interpretador/estruturas";
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
 import { Declaracao } from "@designliquido/delegua/declaracoes";
-import { InformacaoVariavelOuConstante } from "@designliquido/delegua/informacao-variavel-ou-constante";
+import { InformacaoElementoSintatico } from "@designliquido/delegua/informacao-elemento-sintatico";
 
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
@@ -81,11 +81,11 @@ export class DeleguaWeb {
         );
 
         (this.avaliadorSintatico as any).tiposDefinidosEmCodigo[nomeModulo] = 'módulo';
-        const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoVariavelOuConstante }} = (this.avaliadorSintatico as any).primitivasConhecidas;
+        const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoElementoSintatico }} = (this.avaliadorSintatico as any).primitivasConhecidas;
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
-            primitivasConhecidas[nomeModulo][nomeComponente] = new InformacaoVariavelOuConstante(nomeComponente, 'qualquer', true, []);
+            primitivasConhecidas[nomeModulo][nomeComponente] = new InformacaoElementoSintatico(nomeComponente, 'qualquer', true, []);
         }
     }
 
@@ -155,7 +155,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.42 (web)";
+        return "0.54 (web)";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {
