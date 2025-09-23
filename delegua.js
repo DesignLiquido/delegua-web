@@ -2512,13 +2512,13 @@ const informacao_escopo_1 = require("./informacao-escopo");
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
 const comum_1 = require("./comum");
 const montao_tipos_1 = require("./montao-tipos");
+const elemento_montao_tipos_1 = require("./elemento-montao-tipos");
 const delegua_1 = __importDefault(require("../tipos-de-dados/delegua"));
 const delegua_2 = __importDefault(require("../tipos-de-simbolos/delegua"));
 const primitivas_dicionario_1 = __importDefault(require("../bibliotecas/primitivas-dicionario"));
 const primitivas_numero_1 = __importDefault(require("../bibliotecas/primitivas-numero"));
 const primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
 const primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
-const elemento_montao_tipos_1 = require("./elemento-montao-tipos");
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -4433,8 +4433,8 @@ function logicaDescobertaRetornoFuncao(avaliadorSintatico, declaracoesDaFuncao, 
 }
 function registrarPrimitiva(primitivasConhecidas, tipo, catalogoPrimitivas) {
     primitivasConhecidas[tipo] = {};
-    for (const [nomePrimitivaDicionario, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
-        primitivasConhecidas[tipo][nomePrimitivaDicionario] = new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomePrimitivaDicionario, tipo, true, dadosPrimitiva.argumentos);
+    for (const [nomePrimitiva, dadosPrimitiva] of Object.entries(catalogoPrimitivas)) {
+        primitivasConhecidas[tipo][nomePrimitiva] = new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomePrimitiva, dadosPrimitiva.tipoRetorno, true, dadosPrimitiva.argumentos);
     }
 }
 
@@ -13543,7 +13543,7 @@ class InterpretadorBase {
         for (const elemento of interpolacoes) {
             // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
             let valor = elemento === null || elemento === void 0 ? void 0 : elemento.valor;
-            if (valor.hasOwnProperty('valorRetornado')) {
+            if (valor.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
                 valor = valor.valorRetornado;
             }
             if (valor.tipo === delegua_2.default.LOGICO) {
@@ -14837,17 +14837,19 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto instanceof quebras_1.RetornoQuebra) {
             return this.resolverValor(objeto.valor);
         }
-        if (objeto.hasOwnProperty && objeto.hasOwnProperty('valorRetornado')) {
-            return this.resolverValor(objeto.valorRetornado);
-        }
-        if (objeto.hasOwnProperty('valor')) {
-            if (Array.isArray(objeto.valor)) {
-                return this.resolverValor(objeto.valor);
+        if (objeto.hasOwnProperty) {
+            if (objeto.hasOwnProperty('valorRetornado')) {
+                return this.resolverValor(objeto.valorRetornado);
             }
-            if (objeto.valor instanceof estruturas_1.ReferenciaMontao) {
-                return this.resolverReferenciaMontao(objeto.valor);
+            if (objeto.hasOwnProperty('valor')) {
+                if (Array.isArray(objeto.valor)) {
+                    return this.resolverValor(objeto.valor);
+                }
+                if (objeto.valor instanceof estruturas_1.ReferenciaMontao) {
+                    return this.resolverReferenciaMontao(objeto.valor);
+                }
+                return objeto.valor;
             }
-            return objeto.valor;
         }
         return objeto;
     }
@@ -14859,7 +14861,8 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         }
         if (objeto.valor instanceof estruturas_1.ObjetoPadrao)
             return objeto.valor.paraTexto();
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse || objeto instanceof estruturas_1.DeleguaFuncao)
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+            objeto instanceof estruturas_1.DeleguaFuncao)
             return objeto.paraTexto();
         if (objeto instanceof quebras_1.RetornoQuebra) {
             if (typeof objeto.valor === 'boolean')
