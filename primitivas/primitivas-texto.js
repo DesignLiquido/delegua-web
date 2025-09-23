@@ -1,4 +1,7 @@
-const primitivasTexto = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.primitivasTexto = void 0;
+exports.primitivasTexto = [
     {
         nome: 'aparar',
         documentacao: '### Descrição \n \n' +

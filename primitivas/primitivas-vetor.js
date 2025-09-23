@@ -1,4 +1,7 @@
-const primitivasVetor = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.primitivasVetor = void 0;
+exports.primitivasVetor = [
     {
         nome: 'mapear',
         documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.',

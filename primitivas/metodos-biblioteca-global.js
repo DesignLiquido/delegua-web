@@ -1,4 +1,7 @@
-const metodosBibliotecaGlobal = [
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.metodosBibliotecaGlobal = void 0;
+exports.metodosBibliotecaGlobal = [
     {
         nome: 'aleatorio',
         documentacao: '### Descrição \n \n' +
