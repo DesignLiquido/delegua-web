@@ -482,30 +482,25 @@ const configurarLinguagemDelegua = function () {
         mimetypes: ['application/delegua'],
     });
 
-    Monaco?.languages?.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
 
-    Monaco?.languages?.registerCompletionItemProvider('delegua', {
+    Monaco.languages.registerCompletionItemProvider('delegua', {
         provideCompletionItems: () => {
-            // var suggestions = [{
-            //   label: 'escreva',
-            //   kind: this.Monaco.languages.CompletionItemKind.Text,
-            //   insertText: 'escreva(\'\')'
-            // }];
             const formatoPrimitivas = primitivas.filter(p => p.exemploCodigo).map(({ nome, exemploCodigo: exemplo }) => {
                 return {
-                label: nome,
-                kind: 17, // Keyword,
-                insertText: exemplo,
-                insertTextRules: 4 // InsertAsSnippet
+                    label: nome,
+                    kind: 17, // Keyword,
+                    insertText: exemplo.split('.')[1],
+                    insertTextRules: 4 // InsertAsSnippet
                 }
             });
-            const formatoSnippets = deleguaCodeSnippets?.map(({ prefix, body, description }) => {
+            const formatoSnippets = deleguaCodeSnippets?.map(({ prefixo, corpo, descricao }) => {
                 return {
-                label: prefix,
-                kind: 15, // Snippet,
-                insertText: body.join('\n'),
-                documentation: description,
-                insertTextRules: 4 // InsertAsSnippet
+                    label: prefixo,
+                    kind: 15, // Snippet,
+                    insertText: corpo.join('\n'),
+                    documentation: descricao,
+                    insertTextRules: 4 // InsertAsSnippet
                 }
             })
             const sugestoes = [...formatoPrimitivas, ...formatoSnippets]
@@ -513,7 +508,7 @@ const configurarLinguagemDelegua = function () {
         }
     });
 
-    Monaco.languages?.registerHoverProvider('delegua', {
+    Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
             const palavra = model.getWordAtPosition(position);
             const primitiva = primitivas.find(p => p.nome === palavra?.word)
