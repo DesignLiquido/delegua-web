@@ -474,6 +474,7 @@ const configurarAtualizacaoAutomatica = function () {
 };
 
 const configurarLinguagemDelegua = function () {
+    const primitivas = (globalThis as any).primitivas;
     Monaco.languages?.register({
         id: 'delegua',
         extensions: ['.delegua'],

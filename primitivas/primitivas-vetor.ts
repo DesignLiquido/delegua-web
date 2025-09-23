@@ -1,6 +1,8 @@
+import { IPrimitiva } from "./primitiva-interface";
+
 type PrimitivaVetor = IPrimitiva[];
 
-const primitivasVetor: PrimitivaVetor = [
+export const primitivasVetor: PrimitivaVetor = [
     {
         nome: 'mapear',
         documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.',

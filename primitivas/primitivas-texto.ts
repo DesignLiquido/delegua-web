@@ -1,6 +1,8 @@
+import { IPrimitiva } from "./primitiva-interface";
+
 type PrimitivaTexto = IPrimitiva[];
 
-const primitivasTexto: PrimitivaTexto = [
+export const primitivasTexto: PrimitivaTexto = [
     {
         nome: 'aparar',
         documentacao: '### Descrição \n \n' +

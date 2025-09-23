@@ -1,6 +1,8 @@
+import { IPrimitiva } from "./primitiva-interface";
+
 type MetodosBibliotecaGlobal = IPrimitiva[];
 
-const metodosBibliotecaGlobal: MetodosBibliotecaGlobal = [
+export const metodosBibliotecaGlobal: MetodosBibliotecaGlobal = [
     {
         nome: 'aleatorio',
         documentacao: '### Descrição \n \n' +

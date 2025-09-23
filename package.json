@@ -6,7 +6,7 @@
         "empacotar": "yarn del-cli ./dist && yarn gerar-css && yarn gerar-web && yarn copiar-arquivos",
         "gerar-css": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css",
         "gerar-css:tempo-real": "yarn sass scss/estilos.scss:./dist/estilos.css scss/codigos.scss:./dist/codigos.css --watch",
-        "gerar-web": "yarn tsc && yarn browserify dist/index.js --s Delegua -o dist/delegua.js",
+        "gerar-web": "yarn tsc && yarn browserify dist/index.js --s Delegua -o dist/delegua.js && yarn browserify dist/primitivas/index.js --s PrimitivasDelegua -o dist/primitivas.js",
         "publicar": "yarn empacotar && yarn gh-pages -d dist",
         "servir": "yarn http-server -o ./dist -c-1",
         "testar": "yarn empacotar && yarn servir"
