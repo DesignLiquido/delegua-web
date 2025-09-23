@@ -430,7 +430,7 @@ const configurarAtualizacaoAutomatica = function () {
     });
 };
 const configurarLinguagemDelegua = function () {
-    var _a, _b, _c, _d;
+    var _a;
     const primitivas = globalThis.primitivas;
     (_a = Monaco.languages) === null || _a === void 0 ? void 0 : _a.register({
         id: 'delegua',
@@ -438,28 +438,23 @@ const configurarLinguagemDelegua = function () {
         aliases: ['delegua', 'language-generation'],
         mimetypes: ['application/delegua'],
     });
-    (_b = Monaco === null || Monaco === void 0 ? void 0 : Monaco.languages) === null || _b === void 0 ? void 0 : _b.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
-    (_c = Monaco === null || Monaco === void 0 ? void 0 : Monaco.languages) === null || _c === void 0 ? void 0 : _c.registerCompletionItemProvider('delegua', {
+    Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    Monaco.languages.registerCompletionItemProvider('delegua', {
         provideCompletionItems: () => {
-            // var suggestions = [{
-            //   label: 'escreva',
-            //   kind: this.Monaco.languages.CompletionItemKind.Text,
-            //   insertText: 'escreva(\'\')'
-            // }];
             const formatoPrimitivas = primitivas.filter(p => p.exemploCodigo).map(({ nome, exemploCodigo: exemplo }) => {
                 return {
                     label: nome,
                     kind: 17, // Keyword,
-                    insertText: exemplo,
+                    insertText: exemplo.split('.')[1],
                     insertTextRules: 4 // InsertAsSnippet
                 };
             });
-            const formatoSnippets = deleguaCodeSnippets === null || deleguaCodeSnippets === void 0 ? void 0 : deleguaCodeSnippets.map(({ prefix, body, description }) => {
+            const formatoSnippets = deleguaCodeSnippets === null || deleguaCodeSnippets === void 0 ? void 0 : deleguaCodeSnippets.map(({ prefixo, corpo, descricao }) => {
                 return {
-                    label: prefix,
+                    label: prefixo,
                     kind: 15, // Snippet,
-                    insertText: body.join('\n'),
-                    documentation: description,
+                    insertText: corpo.join('\n'),
+                    documentation: descricao,
                     insertTextRules: 4 // InsertAsSnippet
                 };
             });
@@ -467,7 +462,7 @@ const configurarLinguagemDelegua = function () {
             return { suggestions: sugestoes };
         }
     });
-    (_d = Monaco.languages) === null || _d === void 0 ? void 0 : _d.registerHoverProvider('delegua', {
+    Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
             const palavra = model.getWordAtPosition(position);
             const primitiva = primitivas.find(p => p.nome === (palavra === null || palavra === void 0 ? void 0 : palavra.word));
