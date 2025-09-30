@@ -3045,6 +3045,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
      * @returns A entidade chamada resolvida, se as validações passarem.
      */
     resolverEntidadeChamada(entidadeChamada, argumentos, tipoPrimitiva = undefined) {
+        if (entidadeChamada.constructor === construtos_1.AcessoMetodoOuPropriedade) {
+            return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(entidadeChamada);
+        }
         if (entidadeChamada.constructor === construtos_1.Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada;
             if (tipoPrimitiva === 'qualquer') {
@@ -3076,9 +3079,6 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 return new construtos_1.ReferenciaFuncao(entidadeChamadaResolvidaVariavel.hashArquivo, entidadeChamadaResolvidaVariavel.linha, entidadeChamadaResolvidaVariavel.simbolo, entidadeChamadaResolvidaVariavel.tipo, possivelReferencia.id);
             }
             return new construtos_1.ArgumentoReferenciaFuncao(entidadeChamadaResolvidaVariavel.hashArquivo, entidadeChamadaResolvidaVariavel.linha, entidadeChamadaResolvidaVariavel.simbolo);
-        }
-        if (entidadeChamada.constructor === construtos_1.AcessoMetodoOuPropriedade) {
-            return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(entidadeChamada);
         }
         return entidadeChamada;
     }
@@ -3487,7 +3487,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         if (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.DE, delegua_2.default.EM)) {
             throw this.erro(this.simbolos[this.atual], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'.");
         }
-        const vetor = this.expressao();
+        let vetor = this.expressao();
+        if (vetor.constructor === construtos_1.AcessoIndiceVariavel) {
+            const construtoAcessoIndiceVariavel = vetor;
+            if (construtoAcessoIndiceVariavel.entidadeChamada.tipo === 'dicionário') {
+                // A avaliação sintática não deve verificar valores de dicionários.
+                // Aqui se supõe que o programador sabe o que está fazendo.
+                // TODO: Talvez pensar numa forma melhor de fazer isso.
+                vetor.tipo = 'vetor';
+            }
+        }
         if (!vetor.hasOwnProperty('tipo')) {
             throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
         }
@@ -3808,7 +3817,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 switch (entidadeChamadaChamada.constructor) {
                     case construtos_1.AcessoMetodo:
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada;
-                        return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
+                        const tipoRetornoAcessoMetodoResolvido = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace('<T>', entidadeChamadaAcessoMetodo.objeto.tipo);
+                        return tipoRetornoAcessoMetodoResolvido;
                     case construtos_1.AcessoMetodoOuPropriedade:
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
                         // e a chamada normalmente é feita para uma primitiva.
@@ -8572,7 +8582,7 @@ exports.default = {
         assinaturaFormato: `dicionário.remover(chave: qualquer)`,
     },
     valores: {
-        tipoRetorno: 'qualquer[]',
+        tipoRetorno: '<T>[]',
         argumentos: [],
         implementacao: (interpretador, nomePrimitiva, valor) => {
             return Promise.resolve(Object.values(valor));
@@ -14796,6 +14806,7 @@ const estruturas_1 = require("./estruturas");
 const interpretador_base_1 = require("./interpretador-base");
 const inferenciador_1 = require("../inferenciador");
 const excecoes_1 = require("../excecoes");
+const declaracoes_1 = require("../declaracoes");
 const quebras_1 = require("../quebras");
 const montao_1 = require("./montao");
 const primitivas_dicionario_1 = __importDefault(require("../bibliotecas/primitivas-dicionario"));
@@ -14900,7 +14911,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 if (typeof valor === primitivos_1.default.BOOLEANO) {
                     valor = valor ? 'verdadeiro' : 'falso';
                 }
-                if (valor instanceof estruturas_1.ReferenciaMontao) {
+                if (valor instanceof estruturas_1.ReferenciaMontao || ((valor === null || valor === void 0 ? void 0 : valor.hasOwnProperty) && (valor === null || valor === void 0 ? void 0 : valor.hasOwnProperty('tipo')))) {
                     valor = this.resolverValor(valor);
                 }
                 objetoEscrita[propriedade] = valor;
@@ -15293,6 +15304,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Objeto simples do JavaScript, ou dicionário de Delégua.
         if (objeto.constructor === Object) {
             if (expressao.simbolo.lexema in primitivas_dicionario_1.default) {
+                if (!(expressao.simbolo.lexema in primitivas_numero_1.default)) {
+                    throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo dicionário.`);
+                }
                 const metodoDePrimitivaDicionario = primitivas_dicionario_1.default[expressao.simbolo.lexema].implementacao;
                 return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaDicionario);
             }
@@ -15314,12 +15328,18 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.INTEIRO:
             case delegua_1.default.NUMERO:
             case delegua_1.default.NÚMERO:
+                if (!(expressao.simbolo.lexema in primitivas_numero_1.default)) {
+                    throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
                 const metodoDePrimitivaNumero = primitivas_numero_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaNumero) {
                     return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaNumero);
                 }
                 break;
             case delegua_1.default.TEXTO:
+                if (!(expressao.simbolo.lexema in primitivas_texto_1.default)) {
+                    throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
                 const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaTexto) {
                     return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
@@ -15333,6 +15353,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             case delegua_1.default.VETOR_NÚMERO:
             case delegua_1.default.VETOR_QUALQUER:
             case delegua_1.default.VETOR_TEXTO:
+                if (!(expressao.simbolo.lexema in primitivas_vetor_1.default)) {
+                    throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`);
+                }
                 const metodoDePrimitivaVetor = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
                 if (metodoDePrimitivaVetor) {
                     return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaVetor);
@@ -15584,41 +15607,42 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
     }
     async visitarExpressaoTipoDe(expressao) {
         let valorTipoDe = expressao.valor;
-        switch (valorTipoDe.constructor.name) {
-            case 'AcessoIndiceVariavel':
-            case 'Agrupamento':
-            case 'Binario':
-            case 'Chamada':
-            case 'Dicionario':
-            case 'Unario':
+        switch (valorTipoDe.constructor) {
+            case construtos_1.AcessoIndiceVariavel:
+            case construtos_1.Agrupamento:
+            case construtos_1.Binario:
+            case construtos_1.Chamada:
+            case construtos_1.Dicionario:
+            case construtos_1.Unario:
                 valorTipoDe = await this.avaliar(valorTipoDe);
                 if (valorTipoDe instanceof estruturas_1.ReferenciaMontao) {
                     valorTipoDe = this.montao.obterReferencia(this.hashArquivoDeclaracaoAtual, this.linhaDeclaracaoAtual, valorTipoDe.endereco);
                 }
                 return valorTipoDe.tipo || (0, inferenciador_1.inferirTipoVariavel)(valorTipoDe);
-            case 'AcessoMetodo':
+            case construtos_1.AcessoMetodo:
                 const acessoMetodo = valorTipoDe;
-                return `método<${acessoMetodo.tipoRetornoMetodo}>`;
-            case 'AcessoPropriedade':
+                const tipoRetornoMetodoResolvido = acessoMetodo.tipoRetornoMetodo.replace('<T>', acessoMetodo.objeto.tipo);
+                return `método<${tipoRetornoMetodoResolvido}>`;
+            case construtos_1.AcessoPropriedade:
                 const acessoPropriedade = valorTipoDe;
                 return acessoPropriedade.tipoRetornoPropriedade;
-            case 'AcessoMetodoOuPropriedade':
+            case construtos_1.AcessoMetodoOuPropriedade:
                 // TODO: Deve ser removido mais futuramente.
                 // Apenas `AcessoMetodo` e `AcessoPropriedade` devem funcionar aqui.
                 throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, 'Não deveria cair aqui.');
-            case 'Escreva':
+            case declaracoes_1.Escreva:
                 return 'função<vazio>';
-            case 'Leia':
+            case construtos_1.Leia:
                 return 'função<texto>';
-            case 'Literal':
+            case construtos_1.Literal:
                 const tipoLiteral = valorTipoDe;
                 return tipoLiteral.tipo;
-            case 'TipoDe':
+            case construtos_1.TipoDe:
                 const alvoTipoDe = await this.avaliar(valorTipoDe);
                 return `tipo de<${alvoTipoDe}>`;
-            case 'Variavel':
+            case construtos_1.Variavel:
                 return valorTipoDe.tipo;
-            case 'Vetor':
+            case construtos_1.Vetor:
                 const vetor = valorTipoDe;
                 const apenasValores = vetor.valores.filter((v) => !['ComentarioComoConstruto', 'Separador'].includes(v.constructor.name));
                 return (0, inferenciador_1.inferirTipoVariavel)(apenasValores);
@@ -15700,7 +15724,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
 }
 exports.Interpretador = Interpretador;
 
-},{"../bibliotecas/primitivas-dicionario":46,"../bibliotecas/primitivas-numero":47,"../bibliotecas/primitivas-texto":48,"../bibliotecas/primitivas-vetor":49,"../construtos":75,"../excecoes":132,"../inferenciador":138,"../quebras":202,"../tipos-de-dados/delegua":203,"../tipos-de-dados/primitivos":205,"./estruturas":171,"./interpretador-base":178,"./montao":180}],180:[function(require,module,exports){
+},{"../bibliotecas/primitivas-dicionario":46,"../bibliotecas/primitivas-numero":47,"../bibliotecas/primitivas-texto":48,"../bibliotecas/primitivas-vetor":49,"../construtos":75,"../declaracoes":119,"../excecoes":132,"../inferenciador":138,"../quebras":202,"../tipos-de-dados/delegua":203,"../tipos-de-dados/primitivos":205,"./estruturas":171,"./interpretador-base":178,"./montao":180}],180:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Montao = void 0;
