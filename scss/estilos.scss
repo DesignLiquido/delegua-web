@@ -24,7 +24,7 @@ nav {
     .navbar-direita {
         display: flex;
         width: 300px;
-        justify-content: space-around;
+        gap: 15px;
 
         div{
             display: flex;
@@ -97,6 +97,7 @@ nav {
 }
 
 #botaoTraduzir,
+#botaoCompartilhar,
 #botaoExecutar {
     cursor: pointer;
     background-color: transparent;
@@ -233,4 +234,36 @@ textarea {
     margin-right: auto;
     width: 25%;
     height: 55%;
+}
+
+.toast-notificacao {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    &.mostrar {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .fechar-toast {
+        margin-left: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.7;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }

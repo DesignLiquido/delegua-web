@@ -1,5 +1,6 @@
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
+const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
 
 const Delegua = (window as any).Delegua;
@@ -132,6 +133,63 @@ const executarCodigo = async function () {
     } catch (error) {
         const erro = "Erro: " + error
         mostrarResultadoExecutar(erro)
+    }
+};
+
+const mostrarToastNotificacao = function(mensagem: string, sucesso: boolean = true) {
+    const toastExistente = document.querySelector('.toast-notificacao');
+    if (toastExistente) {
+        toastExistente.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-notificacao';
+    if (!sucesso) {
+        toast.style.backgroundColor = '#f44336';
+    }
+
+    toast.innerHTML = `
+        ${mensagem}
+        <span class="fechar-toast" onclick="this.parentElement.remove()">×</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('mostrar');
+    }, 10);
+
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.remove('mostrar');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }
+    }, 3000);
+};
+
+const compartilharCodigo = function () {
+    try {
+        const editor = Monaco?.editor.getEditors()[0];
+        const modelo = Monaco.editor.getModels()[0];
+        const codigo = modelo.getValue();
+
+        const codigoBase64 = btoa(codigo);
+
+        const baseUrl = window.location.origin + window.location.pathname;
+        const linkCompartilhamento = `${baseUrl}?codigo=${codigoBase64}`;
+
+        navigator.clipboard.writeText(linkCompartilhamento).then(() => {
+            mostrarToastNotificacao("✓ Link copiado para área de transferência!", true);
+        }).catch(() => {
+            mostrarToastNotificacao("Link: " + linkCompartilhamento, true);
+        });
+
+    } catch (error) {
+        mostrarToastNotificacao("Erro ao gerar link de compartilhamento", false);
     }
 };
 
@@ -553,6 +611,10 @@ window.addEventListener("load", () => {
 botaoTraduzir.addEventListener("click", function () {
     limparResultadoEditor();
     executarTradutor();
+});
+
+botaoCompartilhar.addEventListener("click", function () {
+    compartilharCodigo();
 });
 
 botaoExecutar.addEventListener("click", function () {
