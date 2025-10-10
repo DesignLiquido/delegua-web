@@ -155,8 +155,8 @@ const mostrarToastNotificacao = function (mensagem, sucesso = true) {
 };
 const compartilharCodigo = function () {
     try {
-        const editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
-        const modelo = Monaco.editor.getModels()[0];
+        const editor = Monaco.editor.getEditors()[0];
+        const modelo = editor.getModels()[0];
         const codigo = modelo.getValue();
         const codigoBase64 = btoa(codigo);
         const baseUrl = window.location.origin + window.location.pathname;
