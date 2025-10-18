@@ -12150,7 +12150,13 @@ class FormatadorDelegua {
     }
     visitarExpressaoLiteral(expressao) {
         if (typeof expressao.valor === 'string') {
-            this.codigoFormatado += `'${expressao.valor}'`;
+            const valorStr = expressao.valor
+                .replace(/\\/g, '\\\\')
+                .replace(/\r/g, '\\r')
+                .replace(/\n/g, '\\n')
+                .replace(/\t/g, '\\t')
+                .replace(/'/g, "\\'");
+            this.codigoFormatado += `'${valorStr}'`;
             return;
         }
         if (['logico', 'lógico'].includes(expressao.tipo)) {
@@ -15735,6 +15741,14 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             }
             return objeto[expressao.simbolo.lexema];
         }
+        // String do JavaScript, ou seja, primitiva de texto.
+        if (objeto.constructor === String) {
+            if (!(expressao.simbolo.lexema in primitivas_texto_1.default)) {
+                throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo texto.`);
+            }
+            const metodoDePrimitivaTexto = primitivas_texto_1.default[expressao.simbolo.lexema].implementacao;
+            return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTexto);
+        }
         // A partir daqui, presume-se que o objeto é uma das estruturas
         // de Delégua.
         if (objeto instanceof estruturas_1.DeleguaModulo) {
@@ -18807,7 +18821,7 @@ class Lexador {
             const caractere = this.simboloAtual();
             if (caractere === delimitador) {
                 this.avancar();
-                this.adicionarSimbolo(delegua_1.default.TEXTO, textoCompleto);
+                this.adicionarSimbolo(delegua_1.default.TEXTO, textoCompleto.replace(/\\n/g, '\n'));
                 return;
             }
             if (caractere === '\0' && this.eUltimaLinha()) {
