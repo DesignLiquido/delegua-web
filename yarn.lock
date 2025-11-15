@@ -33,10 +33,10 @@
   dependencies:
     dayjs "^1.11.13"
 
-"@designliquido/delegua@^0.59.0":
-  version "0.59.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.59.0.tgz#58fda2a37a7e6106c80f622e802af9139d343a3e"
-  integrity sha512-VVU24qALDepawKaS06vwbbxN9RJ0ue2qHFq2PmsiTUBRD6AZyfJS2rXouTiKKtg44hyFazRGqvraWqGzKl2NpA==
+"@designliquido/delegua@^0.59.1":
+  version "0.59.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.59.1.tgz#78f6a8c105778efd3815dca4bc2101eb49a1dba9"
+  integrity sha512-3osn07S2oYMbgRjFPDOu6X0NT+33YOKAEtI/1YZ3oA0M5XreC0gtHNxhCZHOk+z8tNpKm0FV8sYk73Mz/fBPyg==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
