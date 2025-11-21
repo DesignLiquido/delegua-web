@@ -1571,6 +1571,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
 class Logico {
     constructor(hashArquivo, esquerda, operador, direita) {
+        this.negado = false;
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;

@@ -2684,7 +2684,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         throw this.erro(simboloPara, 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.');
     }
     paraTradicionalComoConstruto(simboloPara) {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
         return new construtos_1.ParaComoConstruto(simboloPara.hashArquivo, simboloPara.linha, inicializador, condicao, incrementar, corpo);
     }
     /**
@@ -2969,7 +2969,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 return this.resolverCadeiaChamadas(chamada);
             case delegua_2.default.PONTO:
                 this.avancarEDevolverAnterior();
-                const nome = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado nome de método ou propriedade após '.'.");
+                this.verificarSeSimboloAtualEIgualA();
+                const nome = this.avancarEDevolverAnterior();
                 let tipoInferido = expressaoAnterior.tipo;
                 // Se não for um dicionário anônimo (ou seja, ser variável ou constante com nome)
                 if (expressaoAnterior.tipo === 'dicionário' &&
@@ -3162,7 +3163,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         return construtoChamada;
     }
     unario() {
-        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.NEGACAO, delegua_2.default.SUBTRACAO, delegua_2.default.BIT_NOT, delegua_2.default.INCREMENTAR, delegua_2.default.DECREMENTAR)) {
+        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.NAO, delegua_2.default.NEGACAO, delegua_2.default.SUBTRACAO, delegua_2.default.BIT_NOT, delegua_2.default.INCREMENTAR, delegua_2.default.DECREMENTAR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new construtos_1.Unario(this.hashArquivo, operador, direito, 'ANTES');
@@ -3262,10 +3263,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     em() {
         let expressao = this.comparacaoIgualdade();
-        while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.EM)) {
-            const operador = this.simbolos[this.atual - 1];
+        while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.EM, delegua_2.default.CONTEM, delegua_2.default.NAO)) {
+            let operador = this.simbolos[this.atual - 1];
+            let negado = false;
+            if (operador.tipo === delegua_2.default.NAO) {
+                operador = this.consumir(delegua_2.default.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                negado = true;
+            }
             const direito = this.comparacaoIgualdade();
             expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
+            expressao.negado = negado;
         }
         return expressao;
     }
@@ -3649,7 +3656,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         throw this.erro(simboloPara, 'Identificador de iteração deve ser ou um par chave-valor, ou um nome de variável.');
     }
-    logicaComumPara(simboloPara) {
+    logicaComumPara() {
         const comParenteses = this.verificarSeSimboloAtualEIgualA(delegua_2.default.PARENTESE_ESQUERDO);
         let inicializador;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA)) {
@@ -3688,7 +3695,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         };
     }
     declaracaoParaTradicional(simboloPara) {
-        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara(simboloPara);
+        const { inicializador, condicao, incrementar, corpo } = this.logicaComumPara();
         return new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
     }
     declaracaoRetorna() {
@@ -3702,6 +3709,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             delegua_2.default.FUNÇÃO,
             delegua_2.default.IDENTIFICADOR,
             delegua_2.default.ISTO,
+            delegua_2.default.NAO,
             delegua_2.default.NEGACAO,
             delegua_2.default.NUMERO,
             delegua_2.default.NULO,
@@ -5910,10 +5918,16 @@ class AvaliadorSintaticoPitugues {
     }
     em() {
         let expressao = this.comparacaoIgualdade();
-        while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.EM)) {
-            const operador = this.simboloAnterior();
+        while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.EM, pitugues_2.default.CONTEM, pitugues_2.default.NAO)) {
+            let operador = this.simboloAnterior();
+            let negado = false;
+            if (operador.tipo === pitugues_2.default.NAO) {
+                operador = this.consumir(pitugues_2.default.CONTEM, `Esperado palavra reservada 'contém' ou 'contem' após palavra reservada ${operador.lexema}.`);
+                negado = true;
+            }
             const direito = this.comparacaoIgualdade();
             expressao = new construtos_1.Logico(this.hashArquivo, expressao, operador, direito);
+            expressao.negado = negado;
         }
         return expressao;
     }
@@ -6097,54 +6111,27 @@ class AvaliadorSintaticoPitugues {
             this.blocos -= 1;
         }
     }
-    declaracaoParaCada(simboloPara) {
-        const nomeVariavelIteracao = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado identificador de variável de iteração para instrução 'para cada'.");
-        if (!this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DE, pitugues_2.default.EM)) {
-            throw this.erro(this.simbolos[this.atual], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'.");
-        }
-        const vetor = this.expressao();
-        if (!vetor.hasOwnProperty('tipo')) {
-            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
-        }
-        const tipoVetor = vetor.tipo;
-        if (!tipoVetor.endsWith('[]') && !['qualquer', 'vetor'].includes(tipoVetor)) {
-            throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`);
-        }
-        this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
-        // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo = this.resolverDeclaracao();
-        return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Variavel(this.hashArquivo, nomeVariavelIteracao), vetor, corpo);
-    }
-    declaracaoParaTradicional(simboloPara) {
-        let inicializador;
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.PONTO_E_VIRGULA)) {
-            inicializador = null;
-        }
-        else if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VARIAVEL)) {
-            inicializador = this.declaracaoDeVariaveis();
-        }
-        else {
-            inicializador = this.declaracaoExpressao();
-        }
-        let condicao = null;
-        if (!this.verificarTipoSimboloAtual(pitugues_2.default.PONTO_E_VIRGULA)) {
-            condicao = this.expressao();
-        }
-        let incrementar = null;
-        if (this.simbolos[this.atual].tipo !== pitugues_2.default.DOIS_PONTOS) {
-            incrementar = this.expressao();
-        }
-        const corpo = this.resolverDeclaracao();
-        return new declaracoes_1.Para(this.hashArquivo, Number(simboloPara.linha), inicializador, condicao, incrementar, corpo);
-    }
     declaracaoPara() {
         try {
             const simboloPara = this.simboloAnterior();
             this.blocos += 1;
-            if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.CADA)) {
-                return this.declaracaoParaCada(simboloPara);
+            this.consumir(pitugues_2.default.CADA, `Esperado palavra reservada 'cada' após 'para'. Atual: ${this.simbolos[this.atual].lexema}.`);
+            const nomeVariavelIteracao = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado identificador de variável de iteração para instrução 'para cada'.");
+            if (!this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DE, pitugues_2.default.EM)) {
+                throw this.erro(this.simbolos[this.atual], "Esperado palavras reservadas 'em' ou 'de' após variável de iteração em instrução 'para cada'.");
             }
-            return this.declaracaoParaTradicional(simboloPara);
+            const vetor = this.expressao();
+            if (!vetor.hasOwnProperty('tipo')) {
+                throw this.erro(simboloPara, `Variável ou constante em 'para cada' não parece possuir um tipo iterável.`);
+            }
+            const tipoVetor = vetor.tipo;
+            if (!tipoVetor.endsWith('[]') && !['qualquer', 'texto', 'vetor'].includes(tipoVetor)) {
+                throw this.erro(simboloPara, `Variável ou constante em 'para cada' não é iterável. Tipo resolvido: ${tipoVetor}.`);
+            }
+            this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
+            // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
+            const corpo = this.resolverDeclaracao();
+            return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Variavel(this.hashArquivo, nomeVariavelIteracao), vetor, corpo);
         }
         catch (erro) {
             throw erro;
@@ -10912,6 +10899,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
 class Logico {
     constructor(hashArquivo, esquerda, operador, direita) {
+        this.negado = false;
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
@@ -15085,18 +15073,31 @@ class InterpretadorBase {
     async visitarDeclaracaoDeExpressao(declaracao) {
         return await this.avaliar(declaracao.expressao);
     }
+    logicaContemOuEm(esquerda, direita, expressao) {
+        const valorDireitoResolvido = this.resolverValor(direita);
+        if (Array.isArray(valorDireitoResolvido) || typeof valorDireitoResolvido === primitivos_1.default.TEXTO) {
+            const avaliacao = valorDireitoResolvido.includes(esquerda);
+            return expressao.negado ? !avaliacao : avaliacao;
+        }
+        if (valorDireitoResolvido !== null && typeof valorDireitoResolvido === 'object') {
+            const avaliacao = esquerda in valorDireitoResolvido;
+            return expressao.negado ? !avaliacao : avaliacao;
+        }
+        throw new excecoes_1.ErroEmTempoDeExecucao(esquerda, `Tipo de chamada inválida com '${expressao.operador.tipo}'.`, expressao.linha);
+    }
     async visitarExpressaoLogica(expressao) {
         const esquerda = await this.avaliar(expressao.esquerda);
-        if (expressao.operador.tipo === delegua_1.default.EM) {
+        if ([delegua_1.default.EM, delegua_1.default.CONTEM].includes(expressao.operador.tipo)) {
             const direita = await this.avaliar(expressao.direita);
-            if (Array.isArray(direita) || typeof direita === primitivos_1.default.TEXTO) {
-                return direita.includes(esquerda);
+            // `3 em lista` é igual a `lista contém 3`.
+            // Portanto, precisamos inverter os operandos de acordo com a 
+            // palavra reservada usada.
+            switch (expressao.operador.tipo) {
+                case delegua_1.default.EM:
+                    return this.logicaContemOuEm(esquerda, direita, expressao);
+                case delegua_1.default.CONTEM:
+                    return this.logicaContemOuEm(direita, esquerda, expressao);
             }
-            else if (direita !== null && typeof direita === 'object') {
-                return (esquerda in direita ||
-                    (direita.valor !== undefined && esquerda in direita.valor));
-            }
-            throw new excecoes_1.ErroEmTempoDeExecucao(esquerda, "Tipo de chamada inválida com 'em'.", expressao.linha);
         }
         // se um estado for verdadeiro, retorna verdadeiro
         if (expressao.operador.tipo === delegua_1.default.OU) {
@@ -18045,9 +18046,9 @@ class LexadorPitugues {
             this.analisarIndentacao();
         }
     }
-    adicionarSimbolo(tipo, literal = null) {
+    adicionarSimbolo(tipo, literal = null, linha = null) {
         const texto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        this.simbolos.push(new simbolo_1.Simbolo(tipo, texto, literal, this.linha + 1, this.hashArquivo));
+        this.simbolos.push(new simbolo_1.Simbolo(tipo, texto, literal, linha || this.linha + 1, this.hashArquivo));
     }
     simboloAtual() {
         if (this.eFinalDaLinha())
@@ -18148,8 +18149,8 @@ class LexadorPitugues {
         else {
             textoPalavraChave = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
-        const tipo = textoPalavraChave in pitugues_1.palavrasReservadas
-            ? pitugues_1.palavrasReservadas[textoPalavraChave]
+        const tipo = textoPalavraChave in pitugues_1.palavrasReservadasPitugues
+            ? pitugues_1.palavrasReservadasPitugues[textoPalavraChave]
             : pitugues_2.default.IDENTIFICADOR;
         this.simbolos.push(new simbolo_1.Simbolo(tipo, textoPalavraChave, null, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
@@ -18172,8 +18173,8 @@ class LexadorPitugues {
             ultimoAtual = this.atual;
             this.avancar();
         }
-        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual);
-        this.adicionarSimbolo(pitugues_2.default.COMENTARIO, conteudo.trim());
+        const conteudo = this.codigo[linhaAtual].substring(this.inicioSimbolo + 2, ultimoAtual + 1);
+        this.adicionarSimbolo(pitugues_2.default.COMENTARIO, conteudo.trim(), linhaAtual + 1);
     }
     avancarParaProximaLinha() {
         this.linha++;
@@ -19125,14 +19126,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.palavrasReservadasMicroGramatica = exports.palavrasReservadas = void 0;
+exports.palavrasReservadasMicroGramatica = exports.palavrasReservadasPitugues = void 0;
 const pitugues_1 = __importDefault(require("../../../tipos-de-simbolos/pitugues"));
-exports.palavrasReservadas = {
+exports.palavrasReservadasPitugues = {
     cada: pitugues_1.default.CADA,
     caso: pitugues_1.default.CASO,
     classe: pitugues_1.default.CLASSE,
     como: pitugues_1.default.COMO,
     construtor: pitugues_1.default.CONSTRUTOR,
+    contem: pitugues_1.default.CONTEM,
+    contém: pitugues_1.default.CONTEM,
     continua: pitugues_1.default.CONTINUA,
     de: pitugues_1.default.DE,
     e: pitugues_1.default.E,
@@ -19150,6 +19153,8 @@ exports.palavrasReservadas = {
     imprima: pitugues_1.default.IMPRIMA,
     isto: pitugues_1.default.ISTO,
     leia: pitugues_1.default.LEIA,
+    nao: pitugues_1.default.NAO,
+    não: pitugues_1.default.NAO,
     nulo: pitugues_1.default.NULO,
     ou: pitugues_1.default.OU,
     padrao: pitugues_1.default.PADRAO,
@@ -19667,8 +19672,8 @@ class Lexador {
             this.avancar();
         }
         const codigo = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
-        const tipo = codigo in palavras_reservadas_1.palavrasReservadas
-            ? palavras_reservadas_1.palavrasReservadas[codigo]
+        const tipo = codigo in palavras_reservadas_1.palavrasReservadasDelegua
+            ? palavras_reservadas_1.palavrasReservadasDelegua[codigo]
             : delegua_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
     }
@@ -20191,17 +20196,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.palavrasReservadasMicroGramatica = exports.palavrasReservadas = void 0;
+exports.palavrasReservadasMicroGramatica = exports.palavrasReservadasDelegua = void 0;
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
-exports.palavrasReservadas = {
+exports.palavrasReservadasDelegua = {
     cada: delegua_1.default.CADA,
     caso: delegua_1.default.CASO,
     classe: delegua_1.default.CLASSE,
     como: delegua_1.default.COMO,
     construtor: delegua_1.default.CONSTRUTOR,
-    continua: delegua_1.default.CONTINUA,
     constante: delegua_1.default.CONSTANTE,
     const: delegua_1.default.CONSTANTE,
+    contem: delegua_1.default.CONTEM,
+    contém: delegua_1.default.CONTEM,
+    continua: delegua_1.default.CONTINUA,
     de: delegua_1.default.DE,
     e: delegua_1.default.E,
     em: delegua_1.default.EM,
@@ -20219,6 +20226,8 @@ exports.palavrasReservadas = {
     importar: delegua_1.default.IMPORTAR,
     isto: delegua_1.default.ISTO,
     leia: delegua_1.default.LEIA,
+    nao: delegua_1.default.NAO,
+    não: delegua_1.default.NAO,
     nulo: delegua_1.default.NULO,
     ou: delegua_1.default.OU,
     padrao: delegua_1.default.PADRAO,
@@ -20464,6 +20473,7 @@ exports.default = {
     COMO: 'COMO',
     CONSTANTE: 'CONSTANTE',
     CONSTRUTOR: 'CONSTRUTOR',
+    CONTEM: 'CONTEM',
     CONTINUA: 'CONTINUA',
     DE: 'DE',
     DECREMENTAR: 'DECREMENTAR',
@@ -20510,6 +20520,7 @@ exports.default = {
     MODULO_IGUAL: 'MODULO_IGUAL',
     MULTIPLICACAO: 'MULTIPLICACAO',
     MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
+    NAO: 'NAO',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
     NUMERO: 'NUMERO',
@@ -20650,6 +20661,7 @@ exports.default = {
     CHAVE_ESQUERDA: 'CHAVE_ESQUERDA',
     COLCHETE_DIREITO: 'COLCHETE_DIREITO',
     COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    CONTEM: 'CONTEM',
     DECREMENTAR: 'DECREMENTAR',
     DIFERENTE: 'DIFERENTE',
     DIVISAO: 'DIVISAO',
@@ -20674,6 +20686,7 @@ exports.default = {
     MENOR_MENOR: 'MENOR_MENOR',
     MODULO: 'MODULO',
     MULTIPLICACAO: 'MULTIPLICACAO',
+    NAO: 'NAO',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
     NUMERO: 'NUMERO',
@@ -20707,6 +20720,7 @@ exports.default = {
     COMENTARIO: 'COMENTARIO',
     COMO: 'COMO',
     CONSTRUTOR: 'CONSTRUTOR',
+    CONTEM: 'CONTEM',
     CONTINUA: 'CONTINUA',
     DE: 'DE',
     DIFERENTE: 'DIFERENTE',
@@ -20743,6 +20757,7 @@ exports.default = {
     MENOR_MENOR: 'MENOR_MENOR',
     MODULO: 'MODULO',
     MULTIPLICACAO: 'MULTIPLICACAO',
+    NAO: 'NAO',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
     NUMERO: 'NUMERO',
