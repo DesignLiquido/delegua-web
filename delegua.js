@@ -2346,11 +2346,16 @@ class AvaliadorSintaticoBase {
         }
         return this.chamar();
     }
+    /**
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
+     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
+     */
     exponenciacao() {
         let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(comum_1.default.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -3170,19 +3175,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         return this.chamar();
     }
-    elvis() {
-        let expressao = this.unario();
-        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.ELVIS)) {
-            const direito = this.unario();
-            return new construtos_1.Elvis(this.hashArquivo, expressao, direito);
-        }
-        return expressao;
-    }
+    /**
+     * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
+     * Por isso `direito` chama `exponenciacao()`, e não `unario()`.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
+     */
     exponenciacao() {
-        let expressao = this.elvis();
+        let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -3285,8 +3287,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         return expressao;
     }
+    elvis() {
+        let expressao = this.ou();
+        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.ELVIS)) {
+            const direito = this.ou();
+            return new construtos_1.Elvis(this.hashArquivo, expressao, direito);
+        }
+        return expressao;
+    }
     seTernario() {
-        let expressaoOuCondicao = this.ou();
+        let expressaoOuCondicao = this.elvis();
         while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.INTERROGACAO)) {
             const operador = this.simbolos[this.atual - 1];
             const expressaoEntao = this.seTernario();
@@ -5036,6 +5046,11 @@ class AvaliadorSintaticoEguaClassico {
         }
         return this.chamar();
     }
+    /**
+     * A exponenciacão de Égua [é implementada com resolução à esquerda](https://github.com/eguadev/egua/blob/main/src/parser.js#L230).
+     * Por isso esse dialeto resolve `direito` chamando `unario()`, e não `exponenciacao()` como os demais.
+     * @returns {Binario} A expressão binária na forma do construto `Binario`.
+     */
     exponenciacao() {
         let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.EXPONENCIACAO)) {
@@ -5848,7 +5863,7 @@ class AvaliadorSintaticoPitugues {
         let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.EXPONENCIACAO)) {
             const operador = this.simboloAnterior();
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -7863,7 +7878,7 @@ class MicroAvaliadorSintaticoBase {
         let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(comum_1.default.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new construtos_1.Binario(-1, expressao, operador, direito);
         }
         return expressao;
@@ -8059,19 +8074,11 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
         }
         return this.chamar();
     }
-    elvis() {
-        let expressao = this.unario();
-        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.ELVIS)) {
-            const direito = this.unario();
-            return new construtos_1.Elvis(-1, expressao, direito);
-        }
-        return expressao;
-    }
     exponenciacao() {
-        let expressao = this.elvis();
+        let expressao = this.unario();
         while (this.verificarSeSimboloAtualEIgualA(delegua_1.default.EXPONENCIACAO)) {
             const operador = this.simbolos[this.atual - 1];
-            const direito = this.unario();
+            const direito = this.exponenciacao();
             expressao = new construtos_1.Binario(-1, expressao, operador, direito);
         }
         return expressao;
@@ -8129,6 +8136,17 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
             expressao = new construtos_1.Logico(-1, expressao, operador, direito);
         }
         return expressao;
+    }
+    elvis() {
+        let expressao = this.ou();
+        if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.ELVIS)) {
+            const direito = this.ou();
+            return new construtos_1.Elvis(-1, expressao, direito);
+        }
+        return expressao;
+    }
+    declaracao() {
+        return this.elvis();
     }
     analisar(retornoLexador, linha) {
         this.erros = [];
@@ -14824,7 +14842,8 @@ class InterpretadorBase {
         switch (expressao.operador.tipo) {
             case delegua_1.default.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Math.pow(valorEsquerdo, valorDireito);
+                const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
+                return resultadoExponenciacao;
             case delegua_1.default.MAIOR:
                 if (this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)) {
