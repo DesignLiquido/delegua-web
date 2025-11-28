@@ -14,6 +14,7 @@ import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@des
 import { Declaracao } from "@designliquido/delegua/declaracoes";
 import { InformacaoElementoSintatico } from "@designliquido/delegua/informacao-elemento-sintatico";
 
+import * as criptografia from "@designliquido/delegua-criptografia";
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
@@ -64,6 +65,7 @@ export class DeleguaWeb {
             }
         }
 
+        this.registrarModuloComPrimitivas("criptografia", criptografia);
         this.registrarModuloComPrimitivas("estatistica", estatistica);
         this.registrarModuloComPrimitivas("fisica", fisica);
         this.registrarModuloComPrimitivas("json", json);
@@ -137,7 +139,7 @@ export class DeleguaWeb {
                 if (erroInterpretador.simbolo) {
                     this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
                 } else {
-                    const erroEmJavaScript: any = erroInterpretador as any;
+                    const erroEmJavaScript: any = erroInterpretador.erroInterno as any;
                     console.error(
                         `Erro em JavaScript: ` + `${erroEmJavaScript.message}`
                     );
@@ -155,7 +157,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.54 (web)";
+        return "0.61 (web)";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

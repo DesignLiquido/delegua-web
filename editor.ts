@@ -188,8 +188,8 @@ const compartilharCodigo = function () {
             mostrarToastNotificacao("Link: " + linkCompartilhamento, true);
         });
 
-    } catch (error) {
-        mostrarToastNotificacao("Erro ao gerar link de compartilhamento", false);
+    } catch (erro) {
+        mostrarToastNotificacao(`Erro ao gerar link de compartilhamento: ${erro}`, false);
     }
 };
 
@@ -501,7 +501,7 @@ function definirLinguagemDelegua() {
   };
 }
 
-let tempoEsperaMudancas;
+let tempoEsperaMudancas: any;
 const configurarAtualizacaoAutomatica = function () {
     let editor = Monaco?.editor.getEditors()[0];
     if (!editor) {
