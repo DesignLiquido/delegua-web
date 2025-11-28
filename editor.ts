@@ -5,9 +5,6 @@ const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
 
-const Delegua = (window as any).Delegua;
-const Monaco = (window as any).monaco;
-
 enum MarkerSeverity {
     Hint = 1,
     Info = 2,
@@ -15,12 +12,17 @@ enum MarkerSeverity {
     Error = 8
 }
 
+const Delegua = (window as any).Delegua;
+const Monaco = (window as any).monaco;
+
 const mostrarResultadoExecutar = function (codigo: string) {
     const paragrafo: any = document.createElement("p");
     paragrafo.textContent = codigo;
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv?.appendChild(paragrafo);
 };
+
+const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 
 const limparResultadoEditor = function () {
     resultadoEditorDiv.innerHTML = "";
@@ -71,8 +73,6 @@ const mapearAvisos = function (avisos: any[]) {
 }
 
 const executarTradutor = function () {
-    const deleguaWeb = new Delegua.DeleguaWeb("");
-
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
     //ts-ignore
@@ -102,7 +102,6 @@ const executarTradutor = function () {
 
 const executarCodigo = async function () {
     try {
-        const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
         const editor = Monaco?.editor.getEditors()[0];
         const modelo = Monaco.editor.getModels()[0];
         const codigo = modelo.getValue().split("\n");
@@ -196,7 +195,6 @@ const compartilharCodigo = function () {
 };
 
 const analisarCodigo = function () {
-    const deleguaWeb = new Delegua.DeleguaWeb("");
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
 
     const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
@@ -502,7 +500,7 @@ function definirLinguagemDelegua() {
   };
 }
 
-let tempoEsperaMudancas: any;
+let tempoEsperaMudancas: any = null;
 const configurarAtualizacaoAutomatica = function () {
     let editor = Monaco?.editor.getEditors()[0];
     if (!editor) {
@@ -524,8 +522,7 @@ const configurarAtualizacaoAutomatica = function () {
             clearTimeout(tempoEsperaMudancas);
         }
 
-        tempoEsperaMudancas = setInterval(function () {
-            clearTimeout(tempoEsperaMudancas);
+        tempoEsperaMudancas = setTimeout(function () {
             tempoEsperaMudancas = null;
             analisarCodigo();
         }, 500);
@@ -545,24 +542,33 @@ const configurarLinguagemDelegua = function () {
 
     Monaco.languages.registerCompletionItemProvider('delegua', {
         provideCompletionItems: () => {
-            const formatoPrimitivas = primitivas.filter(p => p.exemploCodigo).map(({ nome, exemploCodigo: exemplo }) => {
-                return {
-                    label: nome,
-                    kind: 17, // Keyword,
-                    insertText: exemplo.split('.')[1],
-                    insertTextRules: 4 // InsertAsSnippet
-                }
-            });
-            const formatoSnippets = deleguaCodeSnippets?.map(({ prefixo, corpo, descricao }) => {
-                return {
-                    label: prefixo,
-                    kind: 15, // Snippet,
-                    insertText: corpo.join('\n'),
-                    documentation: descricao,
-                    insertTextRules: 4 // InsertAsSnippet
-                }
-            })
-            const sugestoes = [...formatoPrimitivas, ...formatoSnippets]
+            const formatoPrimitivas = primitivas
+                .filter(p => p.exemploCodigo && p.nome)
+                .map(({ nome, exemploCodigo: exemplo }) => {
+                    const insertText = exemplo.includes('.') ? exemplo.split('.')[1] : exemplo;
+                    return {
+                        label: nome,
+                        kind: 17, // Keyword,
+                        insertText: insertText || nome,
+                        insertTextRules: 4 // InsertAsSnippet
+                    }
+                });
+            
+            const formatoSnippets = (typeof deleguaCodeSnippets !== 'undefined' && deleguaCodeSnippets) 
+                ? deleguaCodeSnippets
+                    .filter(s => s.prefixo && s.corpo)
+                    .map(({ prefixo, corpo, descricao }) => {
+                        return {
+                            label: prefixo,
+                            kind: 15, // Snippet,
+                            insertText: Array.isArray(corpo) ? corpo.join('\n') : corpo,
+                            documentation: descricao || '',
+                            insertTextRules: 4 // InsertAsSnippet
+                        }
+                    })
+                : [];
+            
+            const sugestoes = [...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
             return { suggestions: sugestoes };
         }
     });
