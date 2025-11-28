@@ -1,3 +1,5 @@
+import { IPrimitiva } from "./primitivas/primitiva-interface";
+
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
@@ -69,7 +71,7 @@ const mapearAvisos = function (avisos: any[]) {
 }
 
 const executarTradutor = function () {
-    const delegua = new Delegua.DeleguaWeb("");
+    const deleguaWeb = new Delegua.DeleguaWeb("");
 
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
@@ -77,14 +79,14 @@ const executarTradutor = function () {
     const linguagem = (<HTMLInputElement>document.querySelector("#linguagem")).value.toLowerCase()
 
     const funcoes = {
-        "python": { tradutor: delegua.tradutorPython, linguagem: "python" },
-        "javascript": { tradutor: delegua.tradutorJavascript, linguagem: "javascript" },
+        "python": { tradutor: deleguaWeb.tradutorPython, linguagem: "python" },
+        "javascript": { tradutor: deleguaWeb.tradutorJavascript, linguagem: "javascript" },
         // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
     }
     if (codigo[0]) {
-        const retornoLexador = delegua.lexador.mapear(codigo, -1);
+        const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
-            delegua.avaliadorSintatico.analisar(retornoLexador);
+            deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
 
         const funcao = funcoes[linguagem]
         const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
@@ -100,27 +102,27 @@ const executarTradutor = function () {
 
 const executarCodigo = async function () {
     try {
-        const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
+        const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
         const editor = Monaco?.editor.getEditors()[0];
         const modelo = Monaco.editor.getModels()[0];
         const codigo = modelo.getValue().split("\n");
         Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
 
-        const retornoLexador = delegua.lexador.mapear(codigo, -1);
+        const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
-            delegua.avaliadorSintatico.analisar(retornoLexador);
+            deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
         if (retornoAvaliadorSintatico.erros.length > 0) {
             return mapearErros(retornoAvaliadorSintatico.erros);
         }
 
-        const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+        const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
         if (errosAnaliseSemantica?.length) {
             mapearAvisos(errosAnaliseSemantica);
         }
 
-        const respostaInterpretador = await delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+        const respostaInterpretador = await deleguaWeb.executar({ retornoLexador, retornoAvaliadorSintatico });
         const errosInterpretacao = respostaInterpretador.erros;
         if (errosInterpretacao) {
             errosInterpretacao.forEach((erro: any) => {
@@ -130,9 +132,9 @@ const executarCodigo = async function () {
                 }
             });
         }
-    } catch (error) {
-        const erro = "Erro: " + error
-        mostrarResultadoExecutar(erro)
+    } catch (erro) {
+        const erroFormatado = "Erro: " + erro
+        mostrarResultadoExecutar(erroFormatado)
     }
 };
 
@@ -194,16 +196,16 @@ const compartilharCodigo = function () {
 };
 
 const analisarCodigo = function () {
-    const delegua = new Delegua.DeleguaWeb("");
+    const deleguaWeb = new Delegua.DeleguaWeb("");
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
 
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
     if (retornoAvaliadorSintatico.erros.length > 0) {
         return mapearErros(retornoAvaliadorSintatico.erros);
     }
 
-    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
     mapearAvisos(errosAnaliseSemantica);
@@ -215,8 +217,6 @@ function definirLinguagemDelegua() {
     tokenPostfix: '.delegua',
 
     keywords: [
-      // Should match the keys of textToKeywordObj in
-      // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
       'cada',
       'caso',
       'classe',
@@ -240,6 +240,8 @@ function definirLinguagemDelegua() {
       'isto',
       'leia',
       'nulo',
+      'numero',
+      'número',
       'padrão',
       'padrao',
       'para',
@@ -250,9 +252,7 @@ function definirLinguagemDelegua() {
       'real[]',
       'retorna',
       'se',
-      'senão se',
       'senão',
-      'senao se',
       'senao',
       'sustar',
       'tente',
@@ -302,6 +302,7 @@ function definirLinguagemDelegua() {
       'encontrar',
       'escreva',
       'filtrarPor',
+      'inclui',
       'incluido',
       'incluído',
       'inteiro',
@@ -532,7 +533,7 @@ const configurarAtualizacaoAutomatica = function () {
 };
 
 const configurarLinguagemDelegua = function () {
-    const primitivas = (globalThis as any).primitivas;
+    const primitivas: IPrimitiva[] = (globalThis as any).primitivas;
     Monaco.languages?.register({
         id: 'delegua',
         extensions: ['.delegua'],

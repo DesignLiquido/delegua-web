@@ -15,6 +15,8 @@ import { Declaracao } from "@designliquido/delegua/declaracoes";
 import { InformacaoElementoSintatico } from "@designliquido/delegua/informacao-elemento-sintatico";
 
 import * as criptografia from "@designliquido/delegua-criptografia";
+import { DeleguaModuloCriptografia } from "@designliquido/delegua-criptografia/delegua-modulo";
+
 import * as estatistica from "@designliquido/delegua-estatistica";
 import * as fisica from "@designliquido/delegua-fisica";
 import * as matematica from "@designliquido/delegua-matematica";
@@ -39,6 +41,8 @@ export class DeleguaWeb {
     avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
     analisadorSemantico: AnalisadorSemantico;
     funcaoDeRetorno: Function;
+
+    documentacoesBibliotecas: {[biblioteca: string]: any};
 
     tradutorJavascript = new TradutorJavaScript();
     tradutorPython = new TradutorPython();
@@ -65,7 +69,10 @@ export class DeleguaWeb {
             }
         }
 
+        this.documentacoesBibliotecas = {};
+
         this.registrarModuloComPrimitivas("criptografia", criptografia);
+        this.documentacoesBibliotecas["criptografia"] = DeleguaModuloCriptografia;
         this.registrarModuloComPrimitivas("estatistica", estatistica);
         this.registrarModuloComPrimitivas("fisica", fisica);
         this.registrarModuloComPrimitivas("json", json);
