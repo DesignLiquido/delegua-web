@@ -52,6 +52,8 @@ const analisador_semantico_1 = require("@designliquido/delegua/analisador-semant
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 const tradutores_1 = require("@designliquido/delegua/tradutores");
 const informacao_elemento_sintatico_1 = require("@designliquido/delegua/informacao-elemento-sintatico");
+const criptografia = __importStar(require("@designliquido/delegua-criptografia"));
+const delegua_modulo_1 = require("@designliquido/delegua-criptografia/delegua-modulo");
 const estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 const fisica = __importStar(require("@designliquido/delegua-fisica"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
@@ -80,6 +82,9 @@ class DeleguaWeb {
                 callback(resposta);
             }
         };
+        this.documentacoesBibliotecas = {};
+        this.registrarModuloComPrimitivas("criptografia", criptografia);
+        this.documentacoesBibliotecas["criptografia"] = delegua_modulo_1.DeleguaModuloCriptografia;
         this.registrarModuloComPrimitivas("estatistica", estatistica);
         this.registrarModuloComPrimitivas("fisica", fisica);
         this.registrarModuloComPrimitivas("json", json);
@@ -131,7 +136,7 @@ class DeleguaWeb {
                         this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
                     }
                     else {
-                        const erroEmJavaScript = erroInterpretador;
+                        const erroEmJavaScript = erroInterpretador.erroInterno;
                         console.error(`Erro em JavaScript: ` + `${erroEmJavaScript.message}`);
                         console.error(`Pilha de execução: ` + `${erroEmJavaScript.stack}`);
                     }
@@ -144,7 +149,7 @@ class DeleguaWeb {
         });
     }
     versao() {
-        return "0.54 (web)";
+        return "0.61 (web)";
     }
     reportar(linha, onde, mensagem) {
         if (this.nomeArquivo)

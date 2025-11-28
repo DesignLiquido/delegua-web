@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const resultadoEditorDiv = document.getElementById("resultadoEditor");
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
@@ -26,6 +28,7 @@ const mostrarResultadoExecutar = function (codigo) {
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
 };
+const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 const limparResultadoEditor = function () {
     resultadoEditorDiv.innerHTML = "";
 };
@@ -67,18 +70,17 @@ const mapearAvisos = function (avisos) {
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _avisos);
 };
 const executarTradutor = function () {
-    const delegua = new Delegua.DeleguaWeb("");
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
     //ts-ignore
     const linguagem = document.querySelector("#linguagem").value.toLowerCase();
     const funcoes = {
-        "python": { tradutor: delegua.tradutorPython, linguagem: "python" },
-        "javascript": { tradutor: delegua.tradutorJavascript, linguagem: "javascript" },
+        "python": { tradutor: deleguaWeb.tradutorPython, linguagem: "python" },
+        "javascript": { tradutor: deleguaWeb.tradutorJavascript, linguagem: "javascript" },
         // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
     };
     if (codigo[0]) {
-        const retornoLexador = delegua.lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+        const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
         const funcao = funcoes[linguagem];
         const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
         if (retornoTradutor) {
@@ -92,22 +94,21 @@ const executarTradutor = function () {
 const executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const delegua = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
             const editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
             const modelo = Monaco.editor.getModels()[0];
             const codigo = modelo.getValue().split("\n");
             Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
-            const retornoLexador = delegua.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+            const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
             if (retornoAvaliadorSintatico.erros.length > 0) {
                 return mapearErros(retornoAvaliadorSintatico.erros);
             }
-            const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+            const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
             const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
             if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length) {
                 mapearAvisos(errosAnaliseSemantica);
             }
-            const respostaInterpretador = yield delegua.executar({ retornoLexador, retornoAvaliadorSintatico });
+            const respostaInterpretador = yield deleguaWeb.executar({ retornoLexador, retornoAvaliadorSintatico });
             const errosInterpretacao = respostaInterpretador.erros;
             if (errosInterpretacao) {
                 errosInterpretacao.forEach((erro) => {
@@ -118,9 +119,9 @@ const executarCodigo = function () {
                 });
             }
         }
-        catch (error) {
-            const erro = "Erro: " + error;
-            mostrarResultadoExecutar(erro);
+        catch (erro) {
+            const erroFormatado = "Erro: " + erro;
+            mostrarResultadoExecutar(erroFormatado);
         }
     });
 };
@@ -167,19 +168,18 @@ const compartilharCodigo = function () {
             mostrarToastNotificacao("Link: " + linkCompartilhamento, true);
         });
     }
-    catch (error) {
-        mostrarToastNotificacao("Erro ao gerar link de compartilhamento", false);
+    catch (erro) {
+        mostrarToastNotificacao(`Erro ao gerar link de compartilhamento: ${erro}`, false);
     }
 };
 const analisarCodigo = function () {
-    const delegua = new Delegua.DeleguaWeb("");
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
-    const retornoLexador = delegua.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico = delegua.avaliadorSintatico.analisar(retornoLexador);
+    const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+    const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
     if (retornoAvaliadorSintatico.erros.length > 0) {
         return mapearErros(retornoAvaliadorSintatico.erros);
     }
-    const analisadorSemantico = delegua.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
     mapearAvisos(errosAnaliseSemantica);
 };
@@ -188,8 +188,6 @@ function definirLinguagemDelegua() {
         defaultToken: 'invalid',
         tokenPostfix: '.delegua',
         keywords: [
-            // Should match the keys of textToKeywordObj in
-            // https://github.com/microsoft/TypeScript/blob/master/src/compiler/scanner.ts
             'cada',
             'caso',
             'classe',
@@ -213,6 +211,8 @@ function definirLinguagemDelegua() {
             'isto',
             'leia',
             'nulo',
+            'numero',
+            'número',
             'padrão',
             'padrao',
             'para',
@@ -223,9 +223,7 @@ function definirLinguagemDelegua() {
             'real[]',
             'retorna',
             'se',
-            'senão se',
             'senão',
-            'senao se',
             'senao',
             'sustar',
             'tente',
@@ -272,6 +270,7 @@ function definirLinguagemDelegua() {
             'encontrar',
             'escreva',
             'filtrarPor',
+            'inclui',
             'incluido',
             'incluído',
             'inteiro',
@@ -450,7 +449,7 @@ function definirLinguagemDelegua() {
         }
     };
 }
-let tempoEsperaMudancas;
+let tempoEsperaMudancas = null;
 const configurarAtualizacaoAutomatica = function () {
     var _a;
     let editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
@@ -470,16 +469,49 @@ const configurarAtualizacaoAutomatica = function () {
         if (tempoEsperaMudancas !== null) {
             clearTimeout(tempoEsperaMudancas);
         }
-        tempoEsperaMudancas = setInterval(function () {
-            clearTimeout(tempoEsperaMudancas);
+        tempoEsperaMudancas = setTimeout(function () {
             tempoEsperaMudancas = null;
             analisarCodigo();
         }, 500);
     });
 };
+// Informações sobre os módulos disponíveis
+const informacoesModulos = {
+    'criptografia': {
+        descricao: 'Módulo para operações criptográficas, incluindo hashing, criptografia simétrica e assimétrica, codificação Base64 e geração de chaves.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-criptografia',
+        metodosDestaque: ['md5', 'sha256', 'criptografarAes256', 'gerarParChavesRsa', 'codificarBase64']
+    },
+    'estatistica': {
+        descricao: 'Módulo para cálculos estatísticos.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-estatistica',
+        metodosDestaque: []
+    },
+    'fisica': {
+        descricao: 'Módulo para cálculos e constantes físicas.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-fisica',
+        metodosDestaque: []
+    },
+    'matematica': {
+        descricao: 'Módulo para operações matemáticas avançadas.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-matematica',
+        metodosDestaque: []
+    },
+    'tempo': {
+        descricao: 'Módulo para manipulação de datas e tempo.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-tempo',
+        metodosDestaque: []
+    },
+    'json': {
+        descricao: 'Módulo para manipulação de dados JSON.',
+        repositorio: null,
+        metodosDestaque: []
+    }
+};
 const configurarLinguagemDelegua = function () {
     var _a;
     const primitivas = globalThis.primitivas;
+    const documentacoesBibliotecas = deleguaWeb.documentacoesBibliotecas;
     (_a = Monaco.languages) === null || _a === void 0 ? void 0 : _a.register({
         id: 'delegua',
         extensions: ['.delegua'],
@@ -487,33 +519,149 @@ const configurarLinguagemDelegua = function () {
         mimetypes: ['application/delegua'],
     });
     Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    Monaco.languages.registerSignatureHelpProvider('delegua', {
+        signatureHelpTriggerCharacters: ['(', ','],
+        signatureHelpRetriggerCharacters: [','],
+        provideSignatureHelp: (model, position) => {
+            const linha = model.getLineContent(position.lineNumber);
+            const textoAntesCursor = linha.substring(0, position.column - 1);
+            // Encontrar a chamada de função mais recente antes do cursor
+            // Match pattern: biblioteca.metodo( ou apenas metodo(
+            const matchFuncao = textoAntesCursor.match(/(\w+)\.(\w+)\([^)]*$/);
+            if (matchFuncao) {
+                const nomeBiblioteca = matchFuncao[1];
+                const nomeMetodo = matchFuncao[2];
+                const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                if (documentacaoBiblioteca) {
+                    const metodo = documentacaoBiblioteca[nomeMetodo];
+                    if (metodo && metodo.argumentos) {
+                        // Contar quantos argumentos já foram digitados (contando vírgulas)
+                        const dentroParenteses = textoAntesCursor.split('(').pop();
+                        const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
+                        const parametroAtivo = numeroVirgulas;
+                        // Construir o label e calcular os ranges para cada parâmetro
+                        const prefixo = `${nomeBiblioteca}.${nomeMetodo}(`;
+                        let labelCompleto = prefixo;
+                        const parametros = [];
+                        metodo.argumentos.forEach((arg, index) => {
+                            const inicioParam = labelCompleto.length;
+                            const nomeParam = `${arg.nome}${arg.opcional ? '?' : ''}`;
+                            labelCompleto += nomeParam;
+                            const fimParam = labelCompleto.length;
+                            parametros.push({
+                                label: [inicioParam, fimParam], // Range do parâmetro no label
+                                documentation: arg.descricao || `${arg.nome}: ${arg.tipo || 'qualquer'}`
+                            });
+                            // Adicionar vírgula se não for o último parâmetro
+                            if (index < metodo.argumentos.length - 1) {
+                                labelCompleto += ', ';
+                            }
+                        });
+                        const retornoTexto = metodo.tipoRetorno ? ` → ${metodo.tipoRetorno}` : '';
+                        labelCompleto += `)${retornoTexto}`;
+                        // Extrair apenas a primeira descrição do markdown (após o título)
+                        let descricaoSimples = '';
+                        if (metodo.documentacao) {
+                            const linhas = metodo.documentacao.split('\n');
+                            // Pular o título (primeira linha) e linhas vazias, pegar a primeira linha de conteúdo
+                            for (let i = 1; i < linhas.length; i++) {
+                                const linha = linhas[i].trim();
+                                if (linha && !linha.startsWith('#') && !linha.startsWith('```')) {
+                                    descricaoSimples = linha;
+                                    break;
+                                }
+                            }
+                        }
+                        return {
+                            value: {
+                                signatures: [{
+                                        label: labelCompleto,
+                                        documentation: descricaoSimples,
+                                        parameters: parametros
+                                    }],
+                                activeSignature: 0,
+                                activeParameter: Math.min(parametroAtivo, parametros.length - 1)
+                            },
+                            dispose: () => { }
+                        };
+                    }
+                }
+            }
+            return {
+                value: { signatures: [], activeSignature: 0, activeParameter: 0 },
+                dispose: () => { }
+            };
+        }
+    });
     Monaco.languages.registerCompletionItemProvider('delegua', {
-        provideCompletionItems: () => {
-            const formatoPrimitivas = primitivas.filter(p => p.exemploCodigo).map(({ nome, exemploCodigo: exemplo }) => {
+        triggerCharacters: ['.'],
+        provideCompletionItems: (model, position) => {
+            const linha = model.getLineContent(position.lineNumber);
+            const textoAntesCursor = linha.substring(0, position.column - 1);
+            // Verificar se estamos após um ponto (ex: criptografia.)
+            const matchBiblioteca = textoAntesCursor.match(/(\w+)\.(\w*)$/);
+            if (matchBiblioteca) {
+                const nomeBiblioteca = matchBiblioteca[1];
+                const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                if (documentacaoBiblioteca) {
+                    const sugestoesMetodos = Object.keys(documentacaoBiblioteca).map(nomeMetodo => {
+                        const metodo = documentacaoBiblioteca[nomeMetodo];
+                        const argumentos = metodo.argumentos || [];
+                        const argsTexto = argumentos
+                            .map((arg, index) => {
+                            const placeholder = `\${${index + 1}:${arg.nome}}`;
+                            return arg.opcional ? placeholder : placeholder;
+                        })
+                            .join(', ');
+                        return {
+                            label: nomeMetodo,
+                            kind: 1, // Method
+                            insertText: `${nomeMetodo}(${argsTexto})`,
+                            insertTextRules: 4, // InsertAsSnippet
+                            documentation: metodo.documentacao || '',
+                            detail: metodo.tipoRetorno ? `→ ${metodo.tipoRetorno}` : ''
+                        };
+                    });
+                    return { suggestions: sugestoesMetodos };
+                }
+            }
+            // Sugestões padrão (primitivas e snippets)
+            const formatoPrimitivas = primitivas
+                .filter(p => p.exemploCodigo && p.nome)
+                .map(({ nome, exemploCodigo: exemplo }) => {
+                const insertText = exemplo.includes('.') ? exemplo.split('.')[1] : exemplo;
                 return {
                     label: nome,
                     kind: 17, // Keyword,
-                    insertText: exemplo.split('.')[1],
+                    insertText: insertText || nome,
                     insertTextRules: 4 // InsertAsSnippet
                 };
             });
-            const formatoSnippets = deleguaCodeSnippets === null || deleguaCodeSnippets === void 0 ? void 0 : deleguaCodeSnippets.map(({ prefixo, corpo, descricao }) => {
-                return {
-                    label: prefixo,
-                    kind: 15, // Snippet,
-                    insertText: corpo.join('\n'),
-                    documentation: descricao,
-                    insertTextRules: 4 // InsertAsSnippet
-                };
-            });
-            const sugestoes = [...formatoPrimitivas, ...formatoSnippets];
+            const formatoSnippets = (typeof deleguaCodeSnippets !== 'undefined' && deleguaCodeSnippets)
+                ? deleguaCodeSnippets
+                    .filter(s => s.prefixo && s.corpo)
+                    .map(({ prefixo, corpo, descricao }) => {
+                    return {
+                        label: prefixo,
+                        kind: 15, // Snippet,
+                        insertText: Array.isArray(corpo) ? corpo.join('\n') : corpo,
+                        documentation: descricao || '',
+                        insertTextRules: 4 // InsertAsSnippet
+                    };
+                })
+                : [];
+            const sugestoes = [...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
             return { suggestions: sugestoes };
         }
     });
     Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
+            var _a;
             const palavra = model.getWordAtPosition(position);
-            const primitiva = primitivas.find(p => p.nome === (palavra === null || palavra === void 0 ? void 0 : palavra.word));
+            if (!palavra)
+                return { contents: [] };
+            // Verificar primitivas nativas
+            const primitiva = primitivas.find(p => p.nome === palavra.word);
             if (primitiva) {
                 return {
                     contents: [
@@ -522,6 +670,68 @@ const configurarLinguagemDelegua = function () {
                         { value: `    ${primitiva.exemploCodigo}    ` }
                     ]
                 };
+            }
+            // Verificar métodos de bibliotecas (ex: criptografia.md5)
+            // Precisamos verificar se há um ponto antes da palavra atual
+            const linha = model.getLineContent(position.lineNumber);
+            const inicioColuna = palavra.startColumn - 1;
+            // Verificar se há um ponto antes da palavra
+            if (inicioColuna > 0 && linha[inicioColuna - 1] === '.') {
+                // Procurar o nome da biblioteca antes do ponto
+                const textoAntesPonto = linha.substring(0, inicioColuna - 1);
+                const matchBiblioteca = textoAntesPonto.match(/(\w+)$/);
+                if (matchBiblioteca) {
+                    const nomeBiblioteca = matchBiblioteca[1];
+                    const nomeMetodo = palavra.word;
+                    const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                    if (documentacaoBiblioteca && nomeMetodo) {
+                        const metodo = documentacaoBiblioteca[nomeMetodo];
+                        if (metodo) {
+                            const contents = [
+                                { value: `**${nomeBiblioteca}.${nomeMetodo}**` }
+                            ];
+                            if (metodo.documentacao) {
+                                contents.push({ value: metodo.documentacao });
+                            }
+                            if (metodo.exemploCodigo) {
+                                contents.push({ value: `\`\`\`delegua\n${metodo.exemploCodigo}\n\`\`\`` });
+                            }
+                            return { contents };
+                        }
+                    }
+                }
+            }
+            // Verificar se é o nome de um módulo (sem ponto depois)
+            const nomeModulo = palavra.word;
+            const infoModulo = informacoesModulos[nomeModulo];
+            const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo];
+            if (infoModulo || documentacaoBiblioteca) {
+                const contents = [
+                    { value: `**${nomeModulo}** _(módulo)_` }
+                ];
+                if (infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.descricao) {
+                    contents.push({ value: infoModulo.descricao });
+                }
+                // Listar métodos disponíveis
+                if (documentacaoBiblioteca) {
+                    const metodos = Object.keys(documentacaoBiblioteca);
+                    const metodosExibir = ((_a = infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.metodosDestaque) === null || _a === void 0 ? void 0 : _a.length) > 0
+                        ? infoModulo.metodosDestaque
+                        : metodos.slice(0, 5);
+                    if (metodosExibir.length > 0) {
+                        const listaMetodos = metodosExibir.map(m => `- \`${nomeModulo}.${m}()\``).join('\n');
+                        const sufixo = metodos.length > metodosExibir.length
+                            ? `\n\n_...e mais ${metodos.length - metodosExibir.length} métodos_`
+                            : '';
+                        contents.push({
+                            value: `**Métodos disponíveis:**\n${listaMetodos}${sufixo}`
+                        });
+                    }
+                }
+                if (infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.repositorio) {
+                    contents.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
+                }
+                return { contents };
             }
             return { contents: [] };
         }

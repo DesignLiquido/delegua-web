@@ -16,25 +16,38 @@ class InterpretadorWeb extends delegua_1.Interpretador {
     constructor(diretorioBase, performance = false, funcaoDeRetorno = null, funcaoDeRetornoMesmaLinha = null) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
     }
-    visitarDeclaracaoImportar(declaracao) {
+    logicaComumImportar(caminho, linha) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Resolver isso não considerando que é um Literal.
-            const caminhoResolvido = declaracao.caminho;
-            switch (caminhoResolvido.valor) {
+            switch (caminho.valor) {
+                case 'criptografia':
                 case 'estatistica':
                 case 'fisica':
                 case 'json':
                 case 'matematica':
                 case 'tempo':
-                    const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminhoResolvido.valor);
+                    const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminho.valor);
                     const moduloResolvido = variavelDoModulo.valor;
-                    return moduloResolvido;
+                    return Promise.resolve(moduloResolvido);
                 default:
                     throw new excecoes_1.ErroEmTempoDeExecucao({
                         hashArquivo: -1,
-                        linha: declaracao.linha,
-                    }, `Biblioteca ${caminhoResolvido.valor} não está disponível neste módulo Web. Para suporte a mais bibliotecas, por favor verifique a solução completa, em https://github.com/DesignLiquido/delegua-completo.`, declaracao.linha);
+                        linha: linha,
+                    }, `Biblioteca ${caminho.valor} não está disponível neste módulo Web. Para suporte a mais bibliotecas, por favor verifique a solução completa, em https://github.com/DesignLiquido/delegua-completo.`, linha);
             }
+        });
+    }
+    visitarDeclaracaoImportar(declaracao) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // TODO: Resolver isso não considerando que é um Literal.
+            const caminhoResolvido = declaracao.caminho;
+            return this.logicaComumImportar(caminhoResolvido, declaracao.linha);
+        });
+    }
+    visitarExpressaoImportar(expressao) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // TODO: Resolver isso não considerando que é um Literal.
+            const caminhoResolvido = expressao.caminho;
+            return this.logicaComumImportar(caminhoResolvido, expressao.linha);
         });
     }
 }

@@ -32,56 +32,172 @@ exports.metodosBibliotecaGlobal = void 0;
 exports.metodosBibliotecaGlobal = [
     {
         nome: 'aleatorio',
-        documentacao: '### Descrição \n \n' +
+        documentacao: '### Descrição\n\n' +
             'Retorna um número aleatório entre 0 e 1.' +
-            '\n\n ### Exemplo de Códig  o ' +
-            '\n    var numeroAleatorio = aleatorio();    ' +
-            '\n    escreva(numeroAleatorio);    ' +
-            '\n    // 0.8540051495195808    ' +
-            '\n \n ### Formas de uso  \n',
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeroAleatorio = aleatorio();\n' +
+            'escreva(numeroAleatorio); // 0.8540051495195808\n' +
+            '```',
         exemploCodigo: 'aleatorio()'
     },
     {
         nome: 'aleatorioEntre',
-        documentacao: '### Descrição \n \n' +
-            'Retorna um número inteiro aleatório entre os valores passados para a função.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var numeroAleatorio = aleatorioEntre(1, 9);    ' +
-            '\n    escreva(numeroAleatorio); // Retornará um valor entre 1 e 8.    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'aleatorioEntre(numero minimo, numero maximo)'
+        documentacao: '### Descrição\n\n' +
+            'Retorna um número inteiro aleatório entre os valores passados para a função. O primeiro parâmetro é o número mínimo e o segundo é o máximo. ' +
+            'O valor gerado aleatoriamente nunca será igual ao número máximo passado para a função: sempre será uma unidade a menos que o máximo.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeroAleatorio = aleatorioEntre(1, 9);\n' +
+            'escreva(numeroAleatorio); // Retorna um valor entre 1 e 8\n' +
+            '```',
+        exemploCodigo: 'aleatorioEntre(minimo, maximo)'
+    },
+    {
+        nome: 'clonar',
+        documentacao: '### Descrição\n\n' +
+            'Cria uma cópia profunda de uma variável ou constante. Diferente de uma atribuição simples, a clonagem profunda garante que modificações na cópia não afetem o valor original, ' +
+            'mesmo quando se trata de estruturas de dados aninhadas como vetores, dicionários ou objetos.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var original = [1, [2, 3], 4];\n' +
+            'var copia = clonar(original);\n' +
+            'var subVetor = copia[1];\n' +
+            'subVetor[0] = 99;\n' +
+            'escreva(original[1][0]); // 2\n' +
+            'escreva(copia[1][0]); // 99\n' +
+            '```',
+        exemploCodigo: 'clonar(valor)'
+    },
+    {
+        nome: 'algum',
+        documentacao: '### Descrição\n\n' +
+            'Verifica se pelo menos um elemento do vetor satisfaz a condição fornecida pela função de teste.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [1, 2, 3, 4, 5];\n' +
+            'funcao ehPar(valor) { retorna valor % 2 == 0; }\n' +
+            'escreva(algum(numeros, ehPar)); // verdadeiro\n' +
+            '```',
+        exemploCodigo: 'algum(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'encontrar',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o primeiro elemento do vetor que satisfaz a função de teste fornecida.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [5, 12, 8, 130, 44];\n' +
+            'funcao maiorQue10(valor) { retorna valor > 10; }\n' +
+            'escreva(encontrar(numeros, maiorQue10)); // 12\n' +
+            '```',
+        exemploCodigo: 'encontrar(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'encontrarIndice',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o índice do primeiro elemento do vetor que satisfaz a função de teste fornecida.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [5, 12, 8, 130, 44];\n' +
+            'funcao maiorQue10(valor) { retorna valor > 10; }\n' +
+            'escreva(encontrarIndice(numeros, maiorQue10)); // 1\n' +
+            '```',
+        exemploCodigo: 'encontrarIndice(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'encontrarUltimo',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o último elemento do vetor que satisfaz a função de teste fornecida, percorrendo o vetor do fim para o início.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [5, 12, 8, 130, 44];\n' +
+            'funcao maiorQue10(valor) { retorna valor > 10; }\n' +
+            'escreva(encontrarUltimo(numeros, maiorQue10)); // 44\n' +
+            '```',
+        exemploCodigo: 'encontrarUltimo(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'encontrarUltimoIndice',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o índice do último elemento do vetor que satisfaz a função de teste fornecida.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [5, 12, 8, 130, 44];\n' +
+            'funcao maiorQue10(valor) { retorna valor > 10; }\n' +
+            'escreva(encontrarUltimoIndice(numeros, maiorQue10)); // 4\n' +
+            '```',
+        exemploCodigo: 'encontrarUltimoIndice(vetor, funcaoTeste)'
     },
     {
         nome: 'escreva',
-        documentacao: 'Escreve um ou mais argumentos na saída padrão da aplicação. \n' +
-            '## Interpolação \n' +
-            'Delégua suporta interpolação de variáveis: \n \n' +
-            '    var comidaFavorita = \'strogonoff\'     \n' +
-            '    escreva("Minha comida favorita é ${comidaFavorita}")     ',
-        exemploCodigo: 'função escreva(...argumentos)'
+        documentacao: '### Descrição\n\n' +
+            'Escreve um ou mais argumentos na saída padrão da aplicação.\n\n' +
+            '### Interpolação\n\n' +
+            'Delégua suporta interpolação de variáveis:\n' +
+            '```delegua\n' +
+            'var comidaFavorita = "strogonoff";\n' +
+            'escreva("Minha comida favorita é ${comidaFavorita}");\n' +
+            '```',
+        exemploCodigo: 'escreva(...argumentos)'
     },
     {
         nome: 'filtrarPor',
-        documentacao: '### Descrição \n \n' +
-            'Retorna uma lista de elementos filtrados de um vetor.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    javascript var listaDeIdades = [91, 32, 15, 44, 12, 18, 101];     ' +
-            '\n    funcao checarIdade(idade) { retorna(idade >= 18); }    ' +
-            '\n    escreva(filtrarPor(listaDeIdades, checarIdade)); // [91, 32, 44, 18, 101]     ' +
-            +'\n\n     ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'filtrarPor(meuVetor, minhaFuncaoParaValidar)'
+        documentacao: '### Descrição\n\n' +
+            'Percorre um vetor executando uma função para cada item. Se o valor retornado pela função é verdadeiro, o valor testado é acumulado em um novo vetor.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var vetor = [1, 2, 3, 4, 5, 6];\n' +
+            'var fn = funcao(valor) { retorna valor % 2 == 0; };\n' +
+            'escreva(filtrarPor(vetor, fn)); // [2, 4, 6]\n' +
+            '```',
+        exemploCodigo: 'filtrarPor(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'inclui',
+        documentacao: '### Descrição\n\n' +
+            'Verifica se um elemento está presente em um vetor ou texto.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var frutas = ["maçã", "banana", "laranja"];\n' +
+            'escreva(inclui(frutas, "banana")); // verdadeiro\n' +
+            'escreva(inclui("Olá Mundo", "Mundo")); // verdadeiro\n' +
+            '```',
+        exemploCodigo: 'inclui(vetor, elemento)'
+    },
+    {
+        nome: 'incluido',
+        documentacao: '### Descrição\n\n' +
+            'Sinônimo de `inclui`. Verifica se um elemento está presente em um vetor ou texto.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [1, 2, 3, 4, 5];\n' +
+            'escreva(incluido(numeros, 3)); // verdadeiro\n' +
+            '```',
+        exemploCodigo: 'incluido(vetor, elemento)'
+    },
+    {
+        nome: 'incluído',
+        documentacao: '### Descrição\n\n' +
+            'Sinônimo de `inclui`. Verifica se um elemento está presente em um vetor ou texto.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [1, 2, 3, 4, 5];\n' +
+            'escreva(incluído(numeros, 3)); // verdadeiro\n' +
+            '```',
+        exemploCodigo: 'incluído(vetor, elemento)'
     },
     {
         nome: 'inteiro',
-        documentacao: '### Descrição \n \n' +
-            'Converte um número flutuante ou texto, que não apresente letras, em um número inteiro.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var testeTexto = "111";    ' +
-            '\n    escreva(111 + inteiro(testeTexto));    ' +
-            '\n    // 222    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'inteiro("123")'
+        documentacao: '### Descrição\n\n' +
+            'Converte um número flutuante ou texto em um número inteiro.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var testeTexto = "111";\n' +
+            'escreva(111 + inteiro(testeTexto)); // 222\n' +
+            'escreva(inteiro(3.7)); // 3\n' +
+            '```',
+        exemploCodigo: 'inteiro(valor)'
     },
     {
         nome: 'numero',
@@ -96,13 +212,14 @@ exports.metodosBibliotecaGlobal = [
                 ]
             }
         ],
-        documentacao: '### Descrição \n \n' +
-            'Converte um número inteiro, ou texto, que não apresente letras, em um número com porção decimal.' +
-            '\n\n ### Exemplo de Código\n' +
-            '\n\n```delegua\nvar testeTexto = "111.11";' +
-            '\n\nescreva(111 + numero(testeTexto)); // 222.11\n```' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'função numero("123.45")',
+        documentacao: '### Descrição\n\n' +
+            'Converte um número inteiro ou texto em um número com porção decimal.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var testeTexto = "111.11";\n' +
+            'escreva(111 + numero(testeTexto)); // 222.11\n' +
+            '```',
+        exemploCodigo: 'numero(valor)'
     },
     {
         nome: 'número',
@@ -117,34 +234,117 @@ exports.metodosBibliotecaGlobal = [
                 ]
             }
         ],
-        documentacao: '### Descrição \n \n' +
-            'Converte um número inteiro, ou texto, que não apresente letras, em um número com porção decimal.' +
-            '\n\n ### Exemplo de Código\n' +
-            '\n\n```delegua\nvar testeTexto = "111.11";' +
-            '\n\nescreva(111 + número(testeTexto)); // 222.11\n```' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'função número("123.45")',
+        documentacao: '### Descrição\n\n' +
+            'Converte um número inteiro ou texto em um número com porção decimal.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var testeTexto = "111.11";\n' +
+            'escreva(111 + número(testeTexto)); // 222.11\n' +
+            '```',
+        exemploCodigo: 'número(valor)'
+    },
+    {
+        nome: 'paraCada',
+        documentacao: '### Descrição\n\n' +
+            'Percorre um vetor executando uma função para cada item. Diferentemente de filtrar e mapear, o retorno da função não é observado.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var vetor = [1, 2, 3];\n' +
+            'var fn = funcao(valor) { escreva(valor * 2); };\n' +
+            'paraCada(vetor, fn);\n' +
+            '// 2\n' +
+            '// 4\n' +
+            '// 6\n' +
+            '```',
+        exemploCodigo: 'paraCada(vetor, funcao)'
+    },
+    {
+        nome: 'primeiroEmCondicao',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o primeiro elemento do vetor que satisfaz a condição fornecida.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [5, 12, 8, 130, 44];\n' +
+            'funcao maiorQue10(valor) { retorna valor > 10; }\n' +
+            'escreva(primeiroEmCondicao(numeros, maiorQue10)); // 12\n' +
+            '```',
+        exemploCodigo: 'primeiroEmCondicao(vetor, funcaoCondicao)'
     },
     {
         nome: 'real',
-        documentacao: '### Descrição \n \n' +
-            'Converte um número inteiro ou texto, que não apresente letras, em um número flutuante.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var testeTexto = "504.69";    ' +
-            '\n    escreva(0.01 + real(testeTexto));    ' +
-            '\n    // 504.7    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'real(texto)'
+        documentacao: '### Descrição\n\n' +
+            'Converte um número inteiro ou texto em um número flutuante (real).' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var testeTexto = "504.69";\n' +
+            'escreva(0.01 + real(testeTexto)); // 504.7\n' +
+            '```',
+        exemploCodigo: 'real(valor)'
+    },
+    {
+        nome: 'reduzir',
+        documentacao: '### Descrição\n\n' +
+            'Executa uma função redutora para cada elemento do vetor, resultando em um único valor.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [1, 2, 3, 4, 5];\n' +
+            'funcao somar(acumulador, valor) { retorna acumulador + valor; }\n' +
+            'escreva(reduzir(numeros, somar, 0)); // 15\n' +
+            '```',
+        exemploCodigo: 'reduzir(vetor, funcaoRedutora, valorInicial)'
+    },
+    {
+        nome: 'tamanho',
+        documentacao: '### Descrição\n\n' +
+            'Retorna o número de elementos que compõem um vetor ou o número de caracteres de um texto.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var vetorNomes = ["Lucas", "Heictor", "Julio", "Brennus", "Arleson"];\n' +
+            'escreva(tamanho(vetorNomes)); // 5\n' +
+            '\n' +
+            'var texto = "Egua";\n' +
+            'escreva(tamanho(texto)); // 4\n' +
+            '```',
+        exemploCodigo: 'tamanho(vetor)'
     },
     {
         nome: 'texto',
-        documentacao: '### Descrição \n \n' +
+        documentacao: '### Descrição\n\n' +
             'Transforma números flutuantes ou inteiros em texto.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    texto(7)    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto(1234)'
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numero = 7;\n' +
+            'escreva(texto(numero) + " é um número"); // "7 é um número"\n' +
+            '```',
+        exemploCodigo: 'texto(valor)'
     },
+    {
+        nome: 'todos',
+        documentacao: '### Descrição\n\n' +
+            'Verifica se todos os elementos do vetor satisfazem a condição fornecida pela função de teste.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var numeros = [2, 4, 6, 8, 10];\n' +
+            'funcao ehPar(valor) { retorna valor % 2 == 0; }\n' +
+            'escreva(todos(numeros, ehPar)); // verdadeiro\n' +
+            '```',
+        exemploCodigo: 'todos(vetor, funcaoTeste)'
+    },
+    {
+        nome: 'todosEmCondicao',
+        documentacao: '### Descrição\n\n' +
+            'Retorna verdadeiro se todos os elementos do vetor retornam verdadeiro ao serem aplicados como argumentos da função passada como segundo parâmetro. Retorna falso em caso contrário.' +
+            '\n\n### Exemplo de Código\n' +
+            '```delegua\n' +
+            'var meuVetor = [1, 2, 3, 4, 5, 6];\n' +
+            'var f1 = funcao(x) { retorna x < 10; };\n' +
+            'escreva(todosEmCondicao(meuVetor, f1)); // verdadeiro\n' +
+            '\n' +
+            'var f2 = funcao(x) { retorna x % 2 == 0; };\n' +
+            'escreva(todosEmCondicao(meuVetor, f2)); // falso\n' +
+            '```',
+        exemploCodigo: 'todosEmCondicao(vetor, funcaoCondicao)'
+    }
 ];
 
 },{}],3:[function(require,module,exports){
@@ -189,299 +389,45 @@ for (const [nomePrimitiva, conteudo] of Object.entries(primitivas_numero_1.defau
 
 },{"@designliquido/delegua/bibliotecas/primitivas-numero":8}],5:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.primitivasTexto = void 0;
-exports.primitivasTexto = [
-    {
-        nome: 'aparar',
-        documentacao: '### Descrição \n \n' +
-            'Remover espaços em branco no início e no fim de um texto.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
-            '\n    escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.aparar()'
-    },
-    {
-        nome: 'apararFim',
-        documentacao: '### Descrição \n \n' +
-            'Remover espaços em branco no no fim de um texto.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
-            '\n    escreva("|" + t.apararFim() + "|") // "|   meu texto com espaços no início e no fim|"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.apararFim()'
-    },
-    {
-        nome: 'apararInicio',
-        documentacao: '### Descrição \n \n' +
-            'Remover espaços em branco no início e no fim de um texto.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "   meu texto com espaços no início e no fim       "    ' +
-            '\n    escreva("|" + t.apararInicio() + "|") // "|meu texto com espaços no início e no fim       |"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.apararInicio()'
-    },
-    {
-        nome: 'concatenar',
-        documentacao: '### Descrição \n \n' +
-            'Realiza a junção de palavras/textos.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t1 = "um"     ' +
-            '\n    var t2 = "dois três"    ' +
-            '\n    escreva(t1.concatenar(t2)) // "umdois três"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.concatenar(Outro texto)'
-    },
-    {
-        nome: 'dividir',
-        documentacao: '### Descrição \n \n' +
-            'Divide o texto pelo separador passado como parâmetro.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "um dois três"    ' +
-            '\n    t.dividir(\' \') // [\'um\',\'dois\',\'três\']    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.dividir(\'<delimitador (, ; \' \')>\')'
-    },
-    {
-        nome: 'fatiar',
-        documentacao: '### Descrição \n \n' +
-            'Extrai uma fatia do texto, dadas posições de início e fim.' +
-            '\n\n ### Exemplo de Código ' +
-            '    var t = "Um dois três quatro"    ' +
-            '\n    t.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.    ' +
-            '\n    t.fatiar(2, 7) // "dois"    ' +
-            '\n    t.fatiar(8, 12) // "três"    ' +
-            '\n    t.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.fatiar(início,final)' +
-            '\n    texto.fatiar(a partir da posicao)    '
-    },
-    {
-        nome: 'inclui',
-        documentacao: '### Descrição \n \n' +
-            'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "um dois três"    ' +
-            '\n    t.inclui("dois") // verdadeiro    ' +
-            '\n    t.inclui("quatro") // falso    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.inclui(\'palavra\')'
-    },
-    {
-        nome: 'maiusculo',
-        documentacao: '### Descrição \n \n' +
-            'Converte todos os caracteres alfabéticos para maiúsculas.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "tudo em minúsculo"    ' +
-            '\n    escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.maiusculo()'
-    },
-    {
-        nome: 'minusculo',
-        documentacao: '### Descrição \n \n' +
-            'Converte todos os caracteres alfabéticos para minúsculas.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "TUDO EM MAIÚSCULO"    ' +
-            '\n    escreva(t.minusculo()) // "tudo em maiúsculo"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.minusculo()'
-    },
-    {
-        nome: 'substituir',
-        documentacao: '### Descrição \n \n' +
-            'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "Eu gosto de caju"    ' +
-            '\n    t.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.substituir(\'palavra a ser substituída\', \'nova palavra\')'
-    },
-    {
-        nome: 'subtexto',
-        documentacao: '### Descrição \n \n' +
-            'Extrai uma fatia do texto, dadas posições de início e fim.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "Eu gosto de caju e de graviola"    ' +
-            '\n    t.subtexto(3, 16) // Resultado será "gosto de caju"    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.subtexto(posição inicial, posição final)'
-    },
-    {
-        nome: 'tamanho',
-        documentacao: '### Descrição \n \n' +
-            'Devolve um número inteiro com o número de caracteres do texto.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var t = "Um dois três quatro"    ' +
-            '\n    t.tamanho() // 19    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'texto.tamanho()'
-    },
-];
+const primitivas_texto_1 = __importDefault(require("@designliquido/delegua/bibliotecas/primitivas-texto"));
+exports.primitivasTexto = [];
+for (const [nomePrimitiva, conteudo] of Object.entries(primitivas_texto_1.default)) {
+    exports.primitivasTexto.push({
+        nome: nomePrimitiva,
+        documentacao: String(conteudo.documentacao),
+        exemploCodigo: String(conteudo.exemploCodigo),
+        assinaturas: [
+            conteudo.assinaturaFormato
+        ]
+    });
+}
 
-},{}],6:[function(require,module,exports){
+},{"@designliquido/delegua/bibliotecas/primitivas-texto":9}],6:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.primitivasVetor = void 0;
-exports.primitivasVetor = [
-    {
-        nome: 'mapear',
-        documentacao: 'Percorre um vetor executando uma função para cada item desse mesmo vetor.',
-        exemploCodigo: null
-    },
-    {
-        nome: 'adicionar',
-        documentacao: '### Descrição \n \n' +
-            'Escreve um ou mais argumentos na saída padrão da aplicação.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    v.adicionar(7)    ' +
-            '\n    v.adicionar(5)    ' +
-            '\n    v.adicionar(3)    ' +
-            '\n    escreva(v) // [7, 5, 3]    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.adicionar(elemento)'
-    },
-    {
-        nome: 'concatenar',
-        documentacao: '### Descrição \n \n' +
-            'Adiciona ao conteúdo do vetor um ou mais elementos' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var v = [7, 5, 3]    ' +
-            '\n    escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.concatenar(...argumentos)'
-    },
-    {
-        nome: 'empilhar',
-        documentacao: '### Descrição \n \n' +
-            'Adiciona um elemento ao final do vetor.' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var v = []     ' +
-            '\n    v.empilhar(7)    ' +
-            '\n    v.empilhar(5)    ' +
-            '\n    v.empilhar(3)    ' +
-            '\n    escreva(v) // [7, 5, 3]     ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.empilhar(conteúdo)'
-    },
-    {
-        nome: 'fatiar',
-        documentacao: '### Descrição \n \n' +
-            'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var v = [1, 2, 3, 4, 5]     ' +
-            '\n    escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.     ' +
-            '\n    escreva(v.fatiar(2, 4)) // "[3, 4]"    ' +
-            '\n    escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, seleciona tudo da posição 3 até o final do vetor.     ' +
-            '\n \n ### Formas de uso  \n' +
-            'Fatiar suporta sobrecarga do método\n \n',
-        exemploCodigo: 'vetor.fatiar(a partir desta posicao)\n\n' +
-            '    vetor.fatiar(a partir desta posicao, ate esta posicao)    '
-    },
-    {
-        nome: 'inclui',
-        documentacao: '### Descrição \n \n' +
-            'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var v = [1, 2, 3]    ' +
-            '\n    escreva(v.inclui(2)) // verdadeiro    ' +
-            '\n    escreva(v.inclui(4)) // falso    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.inclui(elemento)'
-    },
-    {
-        nome: 'inverter',
-        documentacao: '### Descrição \n \n' +
-            'Inverte a ordem dos elementos de um vetor.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var v = [1, 2, 3]     ' +
-            '\n    escreva(v.inverter()) // [3, 2, 1]     ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.inverter()'
-    },
-    {
-        nome: 'ordenar',
-        documentacao: '### Descrição \n \n' +
-            'Ordena valores em ordem crescente. Esta função só aceita vetores.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    // A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.    ' +
-            '\n    var v = [4, 2, 12, 5]     ' +
-            '\n    escreva(v.ordenar()) // [2, 4, 5, 12]     ' +
-            '\n    // Para o caso de textos, a ordenação é feita em ordem alfabética, caractere a caractere.    ' +
-            '\n    var v = ["aaa", "a", "aba", "abb", "abc"]    ' +
-            '\n    escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.ordenar()'
-    },
-    {
-        nome: 'remover',
-        documentacao: '### Descrição \n \n' +
-            'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [1, 2, 3]     ' +
-            '\n    vetor.remover(2)     ' +
-            '\n    escreva(vetor) // [1, 3]     ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.remover(elemento)'
-    },
-    {
-        nome: 'removerPrimeiro',
-        documentacao: '### Descrição \n \n' +
-            'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [1, 2, 3]    ' +
-            '\n    var primeiroElemento = vetor.removerPrimeiro()    ' +
-            '\n    escreva(primeiroElemento) // 1    ' +
-            '\n    escreva(vetor) // [2, 3]    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.removerPrimeiro()'
-    },
-    {
-        nome: 'removerUltimo',
-        documentacao: '### Descrição \n \n' +
-            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [1, 2, 3]    ' +
-            '\n    var ultimoElemento = vetor.removerUltimo()    ' +
-            '\n    escreva(ultimoElemento) // 3    ' +
-            '\n    escreva(vetor) // [1, 2]    ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.removerUltimo()'
-    },
-    {
-        nome: 'somar',
-        documentacao: '### Descrição \n \n' +
-            'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [1, 2, 3, 4, 5]    ' +
-            '\n    escreva(vetor.somar()) // 15      ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.somar()'
-    },
-    {
-        nome: 'tamanho',
-        documentacao: '### Descrição \n \n' +
-            'Retorna o número de elementos que compõem o vetor.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [0, 1, 2, 3, 4]     ' +
-            '\n    escreva(vetor.tamanho()) // 5     ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.tamanho()'
-    },
-    {
-        nome: 'juntar',
-        documentacao: '### Descrição \n \n' +
-            'Junta os elementos de um vetor em um literal de texto, separando os elementos pelo separados passado como parâmetro.\n' +
-            '\n\n ### Exemplo de Código ' +
-            '\n    var vetor = [\'maçã\', \'laranja\', \'banana\', \'morango\']     ' +
-            '\n    escreva(vetor.juntar(\', \')) // maçã, laranja, banana, morango      ' +
-            '\n \n ### Formas de uso  \n',
-        exemploCodigo: 'vetor.juntar(separador)'
-    },
-];
+const primitivas_vetor_1 = __importDefault(require("@designliquido/delegua/bibliotecas/primitivas-vetor"));
+exports.primitivasVetor = [];
+for (const [nomePrimitiva, conteudo] of Object.entries(primitivas_vetor_1.default)) {
+    exports.primitivasVetor.push({
+        nome: nomePrimitiva,
+        documentacao: String(conteudo.documentacao),
+        exemploCodigo: String(conteudo.exemploCodigo),
+        assinaturas: [
+            conteudo.assinaturaFormato
+        ]
+    });
+}
 
-},{}],7:[function(require,module,exports){
+},{"@designliquido/delegua/bibliotecas/primitivas-vetor":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const construtos_1 = require("../construtos");
@@ -563,7 +509,7 @@ exports.default = {
     }
 };
 
-},{"../construtos":36,"../informacao-elemento-sintatico":65}],8:[function(require,module,exports){
+},{"../construtos":38,"../informacao-elemento-sintatico":67}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -648,7 +594,654 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":65}],9:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":67}],9:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
+exports.default = {
+    aparar: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trim()),
+        assinaturaFormato: 'texto.aparar()',
+        documentacao: '# `texto.aparar()` \n \n' +
+            'Remove espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.aparar() + "|") // "|meu texto com espaços no início e no fim|"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.aparar()',
+    },
+    apararFim: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trimEnd()),
+        assinaturaFormato: 'texto.apararFim()',
+        documentacao: '# `texto.apararFim()` \n \n' +
+            'Remove espaços em branco no no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararFim() + "|") // "|   meu texto com espaços no início e no fim|"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararFim()',
+    },
+    apararInicio: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.trimStart()),
+        assinaturaFormato: 'texto.apararInicio()',
+        documentacao: '# `texto.apararInicio()` \n \n' +
+            'Remover espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararInicio() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararInicio()',
+    },
+    concatenar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('outroTexto', 'texto', true, [], 'O texto a ser concatenado.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, ...texto) => Promise.resolve(''.concat(...texto)),
+        assinaturaFormato: 'texto.concatenar(...outroTexto: texto)',
+        documentacao: '# `texto.concatenar(outroTexto)` \n \n' +
+            'Realiza a junção de palavras/textos.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "um"\n' +
+            'var t2 = "dois três"\n' +
+            'escreva(t1.concatenar(t2)) // "umdois três"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.concatenar(outroTexto)',
+    },
+    dividir: {
+        tipoRetorno: 'texto[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('delimitador', 'texto', true, [], 'O delimitador usado para dividir o texto.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('limite', 'número', false, [], '(Opcional) Número limite de elementos a serem retornados.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, divisor, limite) => {
+            if (limite) {
+                return Promise.resolve(texto.split(divisor, limite));
+            }
+            return Promise.resolve(texto.split(divisor));
+        },
+        assinaturaFormato: 'texto.dividir(delimitador: texto, limite?: inteiro)',
+        documentacao: '# `texto.dividir(delimitador)` \n \n' +
+            'Divide o texto pelo separador passado como parâmetro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            "t.dividir(' ') // ['um','dois','três']\n```" +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: "texto.dividir('<delimitador (, ; ' ')>')",
+    },
+    encontrar: {
+        tipoRetorno: 'inteiro',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('subtexto', 'texto', true, [], 'O texto que deve ser buscado.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('indiceInicio', 'número', false, [], '(Opcional) O índice opcional para iniciar a busca.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, subtexto, indiceInicio) => {
+            if (indiceInicio !== undefined) {
+                return Promise.resolve(texto.indexOf(subtexto, indiceInicio));
+            }
+            return Promise.resolve(texto.indexOf(subtexto));
+        },
+        assinaturaFormato: 'texto.encontrar(subtexto: texto, indiceInicio?: número)',
+        documentacao: '# `texto.encontrar(subtexto, indiceInicio)` \n \n' +
+            'Retorna o índice inicial de um subtexto. Retorna -1 caso não encontre.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.encontrar("dois") // 3\n' +
+            't.encontrar("quatro") // -1\n' +
+            't.encontrar("dois", 4) // -1\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.encontre(subtexto, indiceInicio?)',
+    },
+    fatiar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inicio', 'número', true, [], 'A posição inicial da fatia.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('fim', 'número', false, [], '(Opcional) A posição final da fatia. Se não fornecido, seleciona até o final do texto.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        assinaturaFormato: 'texto.fatiar(inicio: número, fim?: número)',
+        documentacao: '# `texto.fatiar(inicio)` \n \n' +
+            'Extrai uma fatia do texto, dadas posições de início e fim.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            't.fatiar() // "um dois três quatro", ou seja, não faz coisa alguma.\n' +
+            't.fatiar(2, 7) // "dois"\n' +
+            't.fatiar(8, 12) // "três"\n' +
+            't.fatiar(8) // "três quatro", ou seja, seleciona tudo da posição 8 até o final do texto.\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.fatiar(início, final)\n' + 'texto.fatiar(aPartirDaPosicao)',
+    },
+    inclui: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'texto', true, [], 'O elemento a ser verificado se está contido no texto.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, elemento) => Promise.resolve(texto.includes(elemento)),
+        assinaturaFormato: 'inclui(elemento: texto)',
+        documentacao: '# `texto.inclui(elemento)` \n \n' +
+            'Devolve verdadeiro se elemento passado por parâmetro está contido no texto, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.inclui("dois") // verdadeiro\n' +
+            't.inclui("quatro") // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: "texto.inclui('palavra')",
+    },
+    inverter: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.split('').reduce((texto, caracter) => (texto = caracter + texto), '')),
+        assinaturaFormato: 'texto.inverter()',
+        documentacao: '# `texto.inverter()` \n \n' +
+            'Inverte as letras de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "um dois três"\n' +
+            't.inverter() // "sêrt siod mu"```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.inverter()',
+    },
+    maiusculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.toUpperCase()),
+        assinaturaFormato: 'texto.maiusculo()',
+        documentacao: '# `texto.maiusculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            'escreva(t.maiusculo()) // "TUDO EM MINÚSCULO"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.maiusculo()',
+    },
+    minusculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.toLowerCase()),
+        assinaturaFormato: 'texto.minusculo()',
+        documentacao: '# `texto.minusculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            'escreva(t.minusculo()) // "tudo em maiúsculo"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.minusculo()',
+    },
+    substituir: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('textoASerSubstituido', 'texto', true, [], 'Texto a ser substituído.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('substituto', 'texto', true, [], 'A substituição'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, elemento, substituto) => Promise.resolve(texto.replace(elemento, substituto)),
+        assinaturaFormato: 'texto.substituir(textoASerSubstituido: texto, substituto: texto)',
+        documentacao: '# `texto.substituir(textoASerSubstituido, substituto)` \n \n' +
+            'Substitui a primeira ocorrência no texto do primeiro parâmetro pelo segundo parâmetro.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Eu gosto de caju"\n' +
+            't.substituir("caju", "graviola") // Resultado será "Eu gosto de graviola"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: "texto.substituir('palavra a ser substituída','nova palavra')",
+    },
+    subtexto: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inicio', 'inteiro', true, [], 'A posição de início do texto a ser extraído.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('fim', 'inteiro', true, [], 'A posição de fim do texto a ser extraído.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, inicio, fim) => Promise.resolve(texto.slice(inicio, fim)),
+        assinaturaFormato: 'texto.subtexto(inicio: inteiro, fim: inteiro)',
+        documentacao: '# `texto.subtexto(inicio, fim)` \n\n' +
+            'Extrai uma fatia do texto, dadas posições de início e fim.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Eu gosto de caju e de graviola"\n' +
+            't.subtexto(3, 16) // Resultado será "gosto de caju"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.subtexto(posiçãoInicial, posiçãoFinal)',
+    },
+    tamanho: {
+        tipoRetorno: 'inteiro',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto.length),
+        assinaturaFormato: 'texto.tamanho()',
+        documentacao: '# `texto.tamanho()` \n\n' +
+            'Devolve um número inteiro com o número de caracteres do texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "Um dois três quatro"\n' +
+            't.tamanho() // 19\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tamanho()',
+    },
+    terminaCom: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('sufixo', 'texto', true, [], 'O sufixo a ser verificado no final do texto.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, texto, sufixo) => Promise.resolve(texto.endsWith(sufixo)),
+        assinaturaFormato: 'texto.terminaCom(sufixo: texto)',
+        documentacao: '# `texto.terminaCom(sufixo)` \n \n' +
+            'Verifica se um texto termina com o sufixo especificado e retorna um valor lógico (verdadeiro ou falso).' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar mensagem = "Olá, bem-vindo ao meu mundo."\n' +
+            'escreva(mensagem.terminaCom(".")) // verdadeiro\n' +
+            'escreva(mensagem.terminaCom("mundo")) // falso\n' +
+            'escreva(mensagem.terminaCom("mundo.")) // verdadeiro\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.terminaCom(sufixo)',
+    },
+    tudoMaiusculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto === texto.toUpperCase()),
+        assinaturaFormato: 'texto.tudoMaiusculo()',
+        documentacao: '# `texto.tudoMaiusculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            'var t2 = "Tudo em Maiúsculo"\n' +
+            't1.tudoMaiusculo() // verdadeiro\n' +
+            't2.tudoMaiusculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMaiusculo()',
+    },
+    tudoMinusculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, texto) => Promise.resolve(texto === texto.toLowerCase()),
+        assinaturaFormato: 'texto.tudoMinusculo()',
+        documentacao: '# `texto.tudoMinusculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            'var t2 = "Tudo em Minúsculo"\n' +
+            't1.tudoMinusculo() // verdadeiro\n' +
+            't2.tudoMinusculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMinusculo()',
+    },
+};
+
+},{"../informacao-elemento-sintatico":67}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
+exports.default = {
+    adicionar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer', true, [], 'Os elementos a serem adicionados ao vetor.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
+            vetor.push(elemento);
+            // TODO: Será que apenas isso é suficiente aqui?
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel({ lexema: nomePrimitiva }, vetor);
+            }
+            return Promise.resolve(vetor);
+        },
+        assinaturaFormato: 'vetor.adicionar(...elemento: qualquer)',
+        documentacao: '# `vetor.adicionar(elemento)` \n \n' +
+            'Adiciona um ou mais elementos em um vetor.' +
+            '\n\n ## Exemplo de Código\n' +
+            '```delegua\nv.adicionar(7)\n' +
+            'v.adicionar(5)\n' +
+            'v.adicionar(3)\n' +
+            'escreva(v) // [7, 5, 3]\n```' +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: 'vetor.adicionar(elemento)',
+    },
+    concatenar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('outroVetor', 'qualquer[]', true, [], 'O outro vetorm ou outros vetores, a serem concatenados a este vetor.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, outroVetor) => {
+            return Promise.resolve(vetor.concat(outroVetor));
+        },
+        assinaturaFormato: 'vetor.concatenar(...outroVetor: qualquer[])',
+        documentacao: '# `vetor.concatenar(outroVetor)` \n \n' +
+            'Adiciona ao conteúdo do vetor um ou mais elementos' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [7, 5, 3]\n' +
+            'escreva(v.concatenar([1, 2, 4])) // [7, 5, 3, 1, 2, 4]\n```' +
+            '\n\n ### Formas de uso  \n',
+        exemploCodigo: 'vetor.concatenar(...argumentos)',
+    },
+    empilhar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer', true, [], '')],
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
+            vetor.push(elemento);
+            return Promise.resolve(vetor);
+        },
+        assinaturaFormato: 'vetor.empilhar(elemento: qualquer)',
+        documentacao: '# `vetor.empilhar(elemento)` \n \n' +
+            'Adiciona um elemento ao final do vetor, como se o vetor fosse uma pilha na vertical.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = []\n' +
+            'v.empilhar(7)\n' +
+            'v.empilhar(5)\n' +
+            'v.empilhar(3)\n' +
+            'escreva(v) // [7, 5, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.empilhar(elemento)',
+    },
+    encaixar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inicio', 'inteiro'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('excluirQuantidade', 'número'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('itens', 'qualquer[]'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, posicaoInicial, quantidadeExclusao, ...itens) => {
+            let elementos = [];
+            if (quantidadeExclusao || quantidadeExclusao === 0) {
+                elementos = !itens.length
+                    ? vetor.splice(posicaoInicial, quantidadeExclusao)
+                    : vetor.splice(posicaoInicial, quantidadeExclusao, ...itens);
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel({ lexema: nomePrimitiva }, vetor);
+                }
+                return Promise.resolve(elementos);
+            }
+            else {
+                elementos = !itens.length
+                    ? vetor.splice(posicaoInicial)
+                    : vetor.splice(posicaoInicial, ...itens);
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel({ lexema: nomePrimitiva }, elementos);
+                }
+                return Promise.resolve(vetor);
+            }
+        },
+        assinaturaFormato: 'vetor.encaixar(posicaoInicial?: número, quantidadeExclusao?: número, itens?: qualquer[])',
+        documentacao: '# `vetor.encaixar(posicaoInicial, quantidadeExclusao, itens)` \n \n' +
+            'Encaixa um vetor em outro, dadas posições de início e quantidade de ítens a serem excluídos do vetor original. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'escreva(v.encaixar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
+            `var v1 = v.encaixar(2)\n` +
+            'escreva(v) // "[3, 4, 5]", ou seja, a posição 2, onde fica o 3, passa a ser a nova posição inicial do vetor.\n' +
+            'escreva(v1) // "[1, 2]", ou seja, o retorno de `encaixar()` são as posições removidas do vetor original.\n' +
+            'var v2 = [1, 2, 3, 4, 5]\n' +
+            'escreva(v2.encaixar(2, 1)) // "[3]"\n' +
+            'escreva(v2) // "[1, 2, 4, 5]"\n```' +
+            'var v3 = [1, 2, 3, 4, 5]\n' +
+            'escreva(v3.encaixar(2, 1, "teste")) // "[3]"\n' +
+            'escreva(v3) // "[1, 2, "teste", 4, 5]"\n```' +
+            '\n\n ### Formas de uso \n' +
+            '`encaixar` suporta sobrecarga do método.\n\n',
+        exemploCodigo: 'vetor.encaixar(<nova posição inicial>)\n' +
+            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>)\n' +
+            'vetor.encaixar(<a partir desta posição>, <exclua esta quantidade de elementos>, <adicione estes elementos>)',
+    },
+    fatiar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inicio', 'número', false, [], 'A posição de início do vetor a ser fatiado. Se não fornecido, retorna o vetor inteiro.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('fim', 'número', false, [], 'A posição de fim do vetor a ser fatiado.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, inicio, fim) => Promise.resolve(vetor.slice(inicio, fim)),
+        assinaturaFormato: 'vetor.fatiar(inicio?: número, fim?: número)',
+        documentacao: '# `vetor.fatiar(inicio, fim)` \n \n' +
+            'Extrai uma fatia do vetor, dadas posições de início e fim. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'escreva(v.fatiar()) // "[1, 2, 3, 4, 5]", ou seja, não faz coisa alguma.\n' +
+            'escreva(v.fatiar(2, 4)) // "[3, 4]"\n' +
+            'escreva(v.fatiar(2)) // "[3, 4, 5]", ou seja, extrai trecho da 3ª posição até o final do vetor.\n```' +
+            '\n\n ### Formas de uso \n' +
+            'Fatiar suporta sobrecarga do método.\n\n',
+        exemploCodigo: 'vetor.fatiar(<a partir desta posição>)\n' +
+            'vetor.fatiar(<a partir desta posição>, <até esta posição>)',
+    },
+    filtrarPor: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcao', 'função', true, [], 'A função de filtragem.'),
+        ],
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcao) => {
+            if (funcao === undefined || funcao === null) {
+                return Promise.reject("É necessário passar uma função para o método 'filtrarPor'");
+            }
+            const retorno = [];
+            for (let elemento of vetor) {
+                const resultadoChamada = await funcao.chamar(interpretador, [elemento]);
+                if (resultadoChamada.hasOwnProperty('valorRetornado') &&
+                    resultadoChamada.valorRetornado.valor === true) {
+                    retorno.push(elemento);
+                }
+            }
+            return retorno;
+        },
+        assinaturaFormato: 'vetor.filtrarPor(funcao: função)',
+        documentacao: '# `vetor.filtrarPor(funcao)` \n \n' +
+            'Devolve todos os elementos de um vetor cujo resultado da execução de uma função, passada por parâmetro, seja verdadeiro.\n' +
+            '\n\n ### Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'var funcaoNumerosImpares = funcao (n) { retorna n % 2 > 0 }\n' +
+            'escreva(v.filtrarPor(funcaoNumerosImpares)) // "[1, 3, 5]"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.filtrarPor(funcao (argumento) { <corpo da função com retorna> })',
+    },
+    inclui: {
+        tipoRetorno: 'lógico',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer', true, [], 'O elemento a ser verificado se está presente no vetor.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => Promise.resolve(vetor.includes(elemento)),
+        assinaturaFormato: 'vetor.inclui(elemento: qualquer)',
+        documentacao: '# `vetor.inclui(elemento)` \n \n' +
+            'Verifica se o elemento existe no vetor. Devolve `verdadeiro` se existe, e `falso` em caso contrário.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.inclui(2)) // verdadeiro\n' +
+            'escreva(v.inclui(4)) // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.inclui(elemento)',
+    },
+    inverter: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => Promise.resolve(vetor.reverse()),
+        assinaturaFormato: 'vetor.inverter()',
+        documentacao: '# `vetor.inverter()` \n \n' +
+            'Inverte a ordem dos elementos de um vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.inverter()) // [3, 2, 1]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.inverter()',
+    },
+    juntar: {
+        tipoRetorno: 'texto',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('separador', 'texto', true, [], 'O separador entre elementos do vetor para o texto.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, separador) => Promise.resolve(vetor.join(separador)),
+        assinaturaFormato: 'vetor.juntar(separador: texto)',
+        documentacao: '# `vetor.juntar(separador = ",")` \n \n' +
+            'Junta todos os elementos de um vetor em um texto, separando cada elemento pelo separador passado como parâmetro.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3]\n' +
+            'escreva(v.juntar(":")) // "1:2:3"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.juntar()\n' + 'vetor.juntar(<separador>)',
+    },
+    mapear: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcao', 'função', true, [], 'A função que transforma cada elemento de um vetor em outro elemento a ser retornado em um novo vetor.'),
+        ],
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcao) => {
+            if (funcao === undefined || funcao === null) {
+                return Promise.reject("É necessário passar uma função para o método 'mapear'");
+            }
+            const retorno = [];
+            for (let elemento of vetor) {
+                let resultado = await funcao.chamar(interpretador, [elemento]);
+                retorno.push(resultado);
+            }
+            return retorno;
+        },
+        assinaturaFormato: 'vetor.mapear(funcao: função)',
+        documentacao: '# `vetor.mapear(funcao)`\n\n' +
+            'Dada uma função passada como parâmetro, executa essa função para cada elemento do vetor. \n' +
+            'Cada elemento retornado por esta função é adicionado ao vetor resultante. \n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar v = [1, 2, 3, 4, 5]\n' +
+            'var funcaoPotenciasDeDois = funcao (n) { retorna n ** 2 }\n' +
+            'escreva(v.mapear(funcaoPotenciasDeDois)) // [1, 4, 9, 16, 25]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.mapear(funcao (argumento) { <corpo da função com retorna> })',
+    },
+    ordenar: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoOrdenacao', 'função', false, [], '(Opcional) Função para guiar a ordenação.'),
+        ],
+        implementacao: async (interpretador, nomePrimitiva, vetor, funcaoOrdenacao) => {
+            if (funcaoOrdenacao !== undefined && funcaoOrdenacao !== null) {
+                for (let i = 0; i < vetor.length - 1; i++) {
+                    for (let j = 1; j < vetor.length; j++) {
+                        const valorComparacao = await funcaoOrdenacao.chamar(interpretador, [
+                            vetor[j - 1],
+                            vetor[j],
+                        ]);
+                        const valorComparacaoResolvido = interpretador.resolverValor(valorComparacao);
+                        if (valorComparacaoResolvido > 0) {
+                            const aux = vetor[j];
+                            vetor[j] = vetor[j - 1];
+                            vetor[j - 1] = aux;
+                        }
+                    }
+                }
+                if (nomePrimitiva !== '') {
+                    interpretador.pilhaEscoposExecucao.atribuirVariavel({
+                        lexema: nomePrimitiva,
+                    }, vetor);
+                }
+                return vetor;
+            }
+            if (!vetor.every((v) => typeof v === 'number')) {
+                vetor.sort();
+            }
+            else {
+                vetor.sort((a, b) => a - b);
+            }
+            if (nomePrimitiva !== '') {
+                interpretador.pilhaEscoposExecucao.atribuirVariavel({
+                    lexema: nomePrimitiva,
+                }, vetor);
+            }
+            return vetor;
+        },
+        assinaturaFormato: 'vetor.ordenar()',
+        documentacao: '# `vetor.ordenar()` \n \n' +
+            'Ordena valores de um vetor em ordem crescente.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n// A ordenação padrão é ascendente, ou seja, para o caso de números, a ordem fica do menor para o maior.\n' +
+            'var v = [4, 2, 12, 5]\n' +
+            'escreva(v.ordenar()) // [2, 4, 5, 12]\n' +
+            '// Para o caso de textos, a ordenação é feita em ordem alfabética, caractere a caractere.\n' +
+            'var v = ["aaa", "a", "aba", "abb", "abc"]\n' +
+            'escreva(v.ordenar()) // ["a", "aaa", "aba", "abb", "abc"]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.ordenar()',
+    },
+    remover: {
+        tipoRetorno: 'qualquer[]',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer', true, [], 'O elemento a ser removido do vetor.'),
+        ],
+        implementacao: (interpretador, nomePrimitiva, vetor, elemento) => {
+            const index = vetor.indexOf(elemento);
+            if (index !== -1)
+                vetor.splice(index, 1);
+            return Promise.resolve(vetor);
+        },
+        assinaturaFormato: 'vetor.remover(elemento: qualquer)',
+        documentacao: '# `vetor.remover(elemento)` \n \n' +
+            'Remove um elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'vetor.remover(2)\n' +
+            'escreva(vetor) // [1, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.remover(elemento)',
+    },
+    removerPrimeiro: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
+            let elemento = vetor.shift();
+            return Promise.resolve(elemento);
+        },
+        assinaturaFormato: 'vetor.removerPrimeiro()',
+        documentacao: '# `vetor.removerPrimeiro()` \n \n' +
+            'Remove o primeiro elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var primeiroElemento = vetor.removerPrimeiro()\n' +
+            'escreva(primeiroElemento) // 1\n' +
+            'escreva(vetor) // [2, 3]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerPrimeiro()',
+    },
+    removerUltimo: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
+            let elemento = vetor.pop();
+            return Promise.resolve(elemento);
+        },
+        assinaturaFormato: 'vetor.removerUltimo()',
+        documentacao: '# `vetor.removerUltimo()` \n \n' +
+            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.removerUltimo()\n' +
+            'escreva(ultimoElemento) // 3\n' +
+            'escreva(vetor) // [1, 2]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerUltimo()',
+    },
+    somar: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
+            return Promise.resolve(vetor.reduce((acc, item) => acc + (typeof item === 'number' ? item : item.valor), 0));
+        },
+        assinaturaFormato: 'vetor.somar()',
+        documentacao: '# `vetor.somar()` \n \n' +
+            'Soma ou concatena todos os elementos do vetor (de acordo com o tipo de dados desses elementos) e retorna o resultado.\n' +
+            '\n\n ### Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3, 4, 5]\n' +
+            'escreva(vetor.somar()) // 15\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.somar()',
+    },
+    tamanho: {
+        tipoRetorno: 'número',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => Promise.resolve(vetor.length),
+        assinaturaFormato: 'vetor.tamanho()',
+        documentacao: '# `vetor.tamanho()` \n \n' +
+            'Retorna o número de elementos que compõem o vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [0, 1, 2, 3, 4]\n' +
+            'escreva(vetor.tamanho()) // 5\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.tamanho()',
+    },
+};
+
+},{"../informacao-elemento-sintatico":67}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -676,7 +1269,7 @@ class AcessoElementoMatriz {
 }
 exports.AcessoElementoMatriz = AcessoElementoMatriz;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -706,7 +1299,7 @@ class AcessoIndiceVariavel {
 }
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodoOuPropriedade = void 0;
@@ -738,7 +1331,7 @@ class AcessoMetodoOuPropriedade {
 }
 exports.AcessoMetodoOuPropriedade = AcessoMetodoOuPropriedade;
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodo = void 0;
@@ -763,7 +1356,7 @@ class AcessoMetodo {
 }
 exports.AcessoMetodo = AcessoMetodo;
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoPropriedade = void 0;
@@ -787,7 +1380,7 @@ class AcessoPropriedade {
 }
 exports.AcessoPropriedade = AcessoPropriedade;
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
@@ -815,7 +1408,7 @@ class Agrupamento {
 }
 exports.Agrupamento = Agrupamento;
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArgumentoReferenciaFuncao = void 0;
@@ -842,7 +1435,7 @@ class ArgumentoReferenciaFuncao {
 }
 exports.ArgumentoReferenciaFuncao = ArgumentoReferenciaFuncao;
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndice = void 0;
@@ -869,7 +1462,7 @@ class AtribuicaoPorIndice {
 }
 exports.AtribuicaoPorIndice = AtribuicaoPorIndice;
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndicesMatriz = void 0;
@@ -898,7 +1491,7 @@ class AtribuicaoPorIndicesMatriz {
 }
 exports.AtribuicaoPorIndicesMatriz = AtribuicaoPorIndicesMatriz;
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
@@ -937,7 +1530,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
@@ -1005,7 +1598,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
@@ -1034,7 +1627,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":64}],21:[function(require,module,exports){
+},{"../geracao-identificadores":66}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -1061,7 +1654,7 @@ class ComentarioComoConstruto {
 }
 exports.ComentarioComoConstruto = ComentarioComoConstruto;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteLinguagem = void 0;
@@ -1087,7 +1680,7 @@ class ComponenteLinguagem {
 }
 exports.ComponenteLinguagem = ComponenteLinguagem;
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constante = void 0;
@@ -1112,11 +1705,11 @@ class Constante {
 }
 exports.Constante = Constante;
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Decorador = void 0;
@@ -1144,7 +1737,7 @@ class Decorador {
 }
 exports.Decorador = Decorador;
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
@@ -1168,7 +1761,7 @@ class DefinirValor {
 }
 exports.DefinirValor = DefinirValor;
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
@@ -1192,7 +1785,7 @@ class Dicionario {
 }
 exports.Dicionario = Dicionario;
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Elvis = void 0;
@@ -1217,7 +1810,7 @@ class Elvis {
 }
 exports.Elvis = Elvis;
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnquantoComoConstruto = void 0;
@@ -1240,7 +1833,7 @@ class EnquantoComoConstruto {
 }
 exports.EnquantoComoConstruto = EnquantoComoConstruto;
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpressaoRegular = void 0;
@@ -1263,7 +1856,7 @@ class ExpressaoRegular {
 }
 exports.ExpressaoRegular = ExpressaoRegular;
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FazerComoConstruto = void 0;
@@ -1286,7 +1879,7 @@ class FazerComoConstruto {
 }
 exports.FazerComoConstruto = FazerComoConstruto;
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FimPara = void 0;
@@ -1319,7 +1912,7 @@ class FimPara {
 }
 exports.FimPara = FimPara;
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatacaoEscrita = void 0;
@@ -1348,7 +1941,7 @@ class FormatacaoEscrita {
 }
 exports.FormatacaoEscrita = FormatacaoEscrita;
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
@@ -1374,7 +1967,7 @@ class FuncaoConstruto {
 }
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportarComoConstruto = void 0;
@@ -1400,7 +1993,7 @@ class ImportarComoConstruto {
 }
 exports.ImportarComoConstruto = ImportarComoConstruto;
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1463,7 +2056,7 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./acesso-elemento-matriz":9,"./acesso-indice-variavel":10,"./acesso-metodo":12,"./acesso-metodo-ou-propriedade":11,"./acesso-propriedade":13,"./agrupamento":14,"./argumento-referencia-funcao":15,"./atribuicao-por-indice":16,"./atribuicao-por-indices-matriz":17,"./atribuir":18,"./binario":19,"./chamada":20,"./comentario-como-construto":21,"./componente-linguagem":22,"./constante":23,"./construto":24,"./decorador":25,"./definir-valor":26,"./dicionario":27,"./elvis":28,"./enquanto-como-construto":29,"./expressao-regular":30,"./fazer-como-construto":31,"./fim-para":32,"./formatacao-escrita":33,"./funcao":34,"./importar-como-construto":35,"./isto":37,"./leia":38,"./lista-compreensao":39,"./literal":40,"./logico":41,"./para-cada-como-construto":42,"./para-como-construto":43,"./referencia-biblioteca-global":44,"./referencia-funcao":45,"./se-ternario":46,"./separador":47,"./super":48,"./tipo-de":49,"./tupla":50,"./tuplas":53,"./unario":61,"./variavel":62,"./vetor":63}],37:[function(require,module,exports){
+},{"./acesso-elemento-matriz":11,"./acesso-indice-variavel":12,"./acesso-metodo":14,"./acesso-metodo-ou-propriedade":13,"./acesso-propriedade":15,"./agrupamento":16,"./argumento-referencia-funcao":17,"./atribuicao-por-indice":18,"./atribuicao-por-indices-matriz":19,"./atribuir":20,"./binario":21,"./chamada":22,"./comentario-como-construto":23,"./componente-linguagem":24,"./constante":25,"./construto":26,"./decorador":27,"./definir-valor":28,"./dicionario":29,"./elvis":30,"./enquanto-como-construto":31,"./expressao-regular":32,"./fazer-como-construto":33,"./fim-para":34,"./formatacao-escrita":35,"./funcao":36,"./importar-como-construto":37,"./isto":39,"./leia":40,"./lista-compreensao":41,"./literal":42,"./logico":43,"./para-cada-como-construto":44,"./para-como-construto":45,"./referencia-biblioteca-global":46,"./referencia-funcao":47,"./se-ternario":48,"./separador":49,"./super":50,"./tipo-de":51,"./tupla":52,"./tuplas":55,"./unario":63,"./variavel":64,"./vetor":65}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -1485,7 +2078,7 @@ class Isto {
 }
 exports.Isto = Isto;
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -1514,7 +2107,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":64}],39:[function(require,module,exports){
+},{"../geracao-identificadores":66}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -1539,7 +2132,7 @@ class ListaCompreensao {
 }
 exports.ListaCompreensao = ListaCompreensao;
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
@@ -1565,7 +2158,7 @@ class Literal {
 }
 exports.Literal = Literal;
 
-},{}],41:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
@@ -1592,7 +2185,7 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCadaComoConstruto = void 0;
@@ -1617,7 +2210,7 @@ class ParaCadaComoConstruto {
 }
 exports.ParaCadaComoConstruto = ParaCadaComoConstruto;
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaComoConstruto = void 0;
@@ -1645,7 +2238,7 @@ class ParaComoConstruto {
 }
 exports.ParaComoConstruto = ParaComoConstruto;
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaBibliotecaGlobal = void 0;
@@ -1671,7 +2264,7 @@ class ReferenciaBibliotecaGlobal {
 }
 exports.ReferenciaBibliotecaGlobal = ReferenciaBibliotecaGlobal;
 
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaFuncao = void 0;
@@ -1695,7 +2288,7 @@ class ReferenciaFuncao {
 }
 exports.ReferenciaFuncao = ReferenciaFuncao;
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SeTernario = void 0;
@@ -1720,7 +2313,7 @@ class SeTernario {
 }
 exports.SeTernario = SeTernario;
 
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Separador = void 0;
@@ -1742,7 +2335,7 @@ class Separador {
 }
 exports.Separador = Separador;
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
@@ -1765,7 +2358,7 @@ class Super {
 }
 exports.Super = Super;
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoDe = void 0;
@@ -1792,7 +2385,7 @@ class TipoDe {
 }
 exports.TipoDe = TipoDe;
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tupla = void 0;
@@ -1803,7 +2396,7 @@ class Tupla {
 }
 exports.Tupla = Tupla;
 
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Deceto = void 0;
@@ -1854,7 +2447,7 @@ class Deceto extends tupla_1.Tupla {
 }
 exports.Deceto = Deceto;
 
-},{"../tupla":50}],52:[function(require,module,exports){
+},{"../tupla":52}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dupla = void 0;
@@ -1876,7 +2469,7 @@ class Dupla extends tupla_1.Tupla {
 }
 exports.Dupla = Dupla;
 
-},{"../tupla":50}],53:[function(require,module,exports){
+},{"../tupla":52}],55:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1944,7 +2537,7 @@ class SeletorTuplas {
 }
 exports.SeletorTuplas = SeletorTuplas;
 
-},{"./deceto":51,"./dupla":52,"./noneto":54,"./octeto":55,"./quarteto":56,"./quinteto":57,"./septeto":58,"./sexteto":59,"./trio":60}],54:[function(require,module,exports){
+},{"./deceto":53,"./dupla":54,"./noneto":56,"./octeto":57,"./quarteto":58,"./quinteto":59,"./septeto":60,"./sexteto":61,"./trio":62}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Noneto = void 0;
@@ -1986,7 +2579,7 @@ class Noneto extends tupla_1.Tupla {
 }
 exports.Noneto = Noneto;
 
-},{"../tupla":50}],55:[function(require,module,exports){
+},{"../tupla":52}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Octeto = void 0;
@@ -2026,7 +2619,7 @@ class Octeto extends tupla_1.Tupla {
 }
 exports.Octeto = Octeto;
 
-},{"../tupla":50}],56:[function(require,module,exports){
+},{"../tupla":52}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quarteto = void 0;
@@ -2052,7 +2645,7 @@ class Quarteto extends tupla_1.Tupla {
 }
 exports.Quarteto = Quarteto;
 
-},{"../tupla":50}],57:[function(require,module,exports){
+},{"../tupla":52}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quinteto = void 0;
@@ -2080,7 +2673,7 @@ class Quinteto extends tupla_1.Tupla {
 }
 exports.Quinteto = Quinteto;
 
-},{"../tupla":50}],58:[function(require,module,exports){
+},{"../tupla":52}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Septeto = void 0;
@@ -2118,7 +2711,7 @@ class Septeto extends tupla_1.Tupla {
 }
 exports.Septeto = Septeto;
 
-},{"../tupla":50}],59:[function(require,module,exports){
+},{"../tupla":52}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sexteto = void 0;
@@ -2148,7 +2741,7 @@ class Sexteto extends tupla_1.Tupla {
 }
 exports.Sexteto = Sexteto;
 
-},{"../tupla":50}],60:[function(require,module,exports){
+},{"../tupla":52}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trio = void 0;
@@ -2172,7 +2765,7 @@ class Trio extends tupla_1.Tupla {
 }
 exports.Trio = Trio;
 
-},{"../tupla":50}],61:[function(require,module,exports){
+},{"../tupla":52}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
@@ -2196,7 +2789,7 @@ class Unario {
 }
 exports.Unario = Unario;
 
-},{}],62:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
@@ -2219,7 +2812,7 @@ class Variavel {
 }
 exports.Variavel = Variavel;
 
-},{}],63:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
@@ -2248,7 +2841,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{}],64:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
@@ -2292,7 +2885,7 @@ function uuidv4() {
     });
 }
 
-},{}],65:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
