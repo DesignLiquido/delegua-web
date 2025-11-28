@@ -5,15 +5,15 @@ const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
 
+const Delegua = (window as any).Delegua;
+const Monaco = (window as any).monaco;
+
 enum MarkerSeverity {
     Hint = 1,
     Info = 2,
     Warning = 4,
     Error = 8
 }
-
-const Delegua = (window as any).Delegua;
-const Monaco = (window as any).monaco;
 
 const mostrarResultadoExecutar = function (codigo: string) {
     const paragrafo: any = document.createElement("p");
@@ -529,8 +529,44 @@ const configurarAtualizacaoAutomatica = function () {
     });
 };
 
+// Informações sobre os módulos disponíveis
+const informacoesModulos = {
+    'criptografia': {
+        descricao: 'Módulo para operações criptográficas, incluindo hashing, criptografia simétrica e assimétrica, codificação Base64 e geração de chaves.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-criptografia',
+        metodosDestaque: ['md5', 'sha256', 'criptografarAes256', 'gerarParChavesRsa', 'codificarBase64']
+    },
+    'estatistica': {
+        descricao: 'Módulo para cálculos estatísticos.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-estatistica',
+        metodosDestaque: []
+    },
+    'fisica': {
+        descricao: 'Módulo para cálculos e constantes físicas.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-fisica',
+        metodosDestaque: []
+    },
+    'matematica': {
+        descricao: 'Módulo para operações matemáticas avançadas.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-matematica',
+        metodosDestaque: []
+    },
+    'tempo': {
+        descricao: 'Módulo para manipulação de datas e tempo.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-tempo',
+        metodosDestaque: []
+    },
+    'json': {
+        descricao: 'Módulo para manipulação de dados JSON.',
+        repositorio: null,
+        metodosDestaque: []
+    }
+};
+
 const configurarLinguagemDelegua = function () {
     const primitivas: IPrimitiva[] = (globalThis as any).primitivas;
+    const documentacoesBibliotecas = deleguaWeb.documentacoesBibliotecas;
+    
     Monaco.languages?.register({
         id: 'delegua',
         extensions: ['.delegua'],
@@ -576,7 +612,10 @@ const configurarLinguagemDelegua = function () {
     Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
             const palavra = model.getWordAtPosition(position);
-            const primitiva = primitivas.find(p => p.nome === palavra?.word)
+            if (!palavra) return { contents: [] };
+            
+            // Verificar primitivas nativas
+            const primitiva = primitivas.find(p => p.nome === palavra.word);
             if (primitiva) {
                 return {
                     contents: [
@@ -584,11 +623,88 @@ const configurarLinguagemDelegua = function () {
                         { value: primitiva.documentacao },
                         { value: `    ${primitiva.exemploCodigo}    ` }
                     ]
+                };
+            }
+            
+            // Verificar métodos de bibliotecas (ex: criptografia.md5)
+            // Precisamos verificar se há um ponto antes da palavra atual
+            const linha = model.getLineContent(position.lineNumber);
+            const inicioColuna = palavra.startColumn - 1;
+            
+            // Verificar se há um ponto antes da palavra
+            if (inicioColuna > 0 && linha[inicioColuna - 1] === '.') {
+                // Procurar o nome da biblioteca antes do ponto
+                const textoAntesPonto = linha.substring(0, inicioColuna - 1);
+                const matchBiblioteca = textoAntesPonto.match(/(\w+)$/);
+                
+                if (matchBiblioteca) {
+                    const nomeBiblioteca = matchBiblioteca[1];
+                    const nomeMetodo = palavra.word;
+                    const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                    
+                    if (documentacaoBiblioteca && nomeMetodo) {
+                        const metodo = documentacaoBiblioteca[nomeMetodo];
+                        if (metodo) {
+                            const contents = [
+                                { value: `**${nomeBiblioteca}.${nomeMetodo}**` }
+                            ];
+                            
+                            if (metodo.documentacao) {
+                                contents.push({ value: metodo.documentacao });
+                            }
+                            
+                            if (metodo.exemploCodigo) {
+                                contents.push({ value: `\`\`\`delegua\n${metodo.exemploCodigo}\n\`\`\`` });
+                            }
+                            
+                            return { contents };
+                        }
+                    }
                 }
             }
-            return { contents: [] }
+            
+            // Verificar se é o nome de um módulo (sem ponto depois)
+            const nomeModulo = palavra.word;
+            const infoModulo = informacoesModulos[nomeModulo];
+            const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo];
+            
+            if (infoModulo || documentacaoBiblioteca) {
+                const contents = [
+                    { value: `**${nomeModulo}** _(módulo)_` }
+                ];
+                
+                if (infoModulo?.descricao) {
+                    contents.push({ value: infoModulo.descricao });
+                }
+                
+                // Listar métodos disponíveis
+                if (documentacaoBiblioteca) {
+                    const metodos = Object.keys(documentacaoBiblioteca);
+                    const metodosExibir = infoModulo?.metodosDestaque?.length > 0 
+                        ? infoModulo.metodosDestaque 
+                        : metodos.slice(0, 5);
+                    
+                    if (metodosExibir.length > 0) {
+                        const listaMetodos = metodosExibir.map(m => `- \`${nomeModulo}.${m}()\``).join('\n');
+                        const sufixo = metodos.length > metodosExibir.length 
+                            ? `\n\n_...e mais ${metodos.length - metodosExibir.length} métodos_` 
+                            : '';
+                        contents.push({ 
+                            value: `**Métodos disponíveis:**\n${listaMetodos}${sufixo}` 
+                        });
+                    }
+                }
+                
+                if (infoModulo?.repositorio) {
+                    contents.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
+                }
+                
+                return { contents };
+            }
+            
+            return { contents: [] };
         }
-    })
+    });
 }
 
 window.addEventListener("load", () => {
