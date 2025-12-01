@@ -1946,7 +1946,7 @@ exports.FormatacaoEscrita = FormatacaoEscrita;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
 class FuncaoConstruto {
-    constructor(hashArquivo, linha, parametros, corpo, tipoRetorno, tipoExplicito) {
+    constructor(hashArquivo, linha, parametros, corpo, tipoRetorno, tipoExplicito, documentacao) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.parametros = parametros;
