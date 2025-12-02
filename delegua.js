@@ -946,20 +946,23 @@ async function criptografarAes256(interpretador, texto, chave, vetorInicializaca
  * @returns Texto descriptografado
  */
 async function descriptografarAes256(interpretador, textoCriptografado, chave, iv, authTag) {
+    const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
+    const chaveResolvida = interpretador.resolverValor(chave);
+    const ivResolvido = interpretador.resolverValor(iv);
     if (isNode && nodeCrypto) {
         const chaveBuffer = Buffer.alloc(32);
-        chaveBuffer.write(chave.slice(0, 32));
-        const ivBuffer = Buffer.from(iv, 'hex');
+        chaveBuffer.write(chaveResolvida.slice(0, 32));
+        const ivBuffer = Buffer.from(ivResolvido, 'hex');
         // Se authTag não foi fornecido, assume que está concatenado no textoCriptografado
         let dados;
         let tag;
         if (authTag) {
-            dados = Buffer.from(textoCriptografado, 'base64');
+            dados = Buffer.from(textoCriptografadoResolvido, 'base64');
             tag = Buffer.from(authTag, 'hex');
         }
         else {
             // Tenta separar dados e tag (último elemento após split pode ser authTag)
-            dados = Buffer.from(textoCriptografado, 'base64');
+            dados = Buffer.from(textoCriptografadoResolvido, 'base64');
             tag = Buffer.alloc(16); // Tag vazia, não será usada neste caso
         }
         const decipher = nodeCrypto.createDecipheriv('aes-256-gcm', chaveBuffer, ivBuffer);
@@ -971,10 +974,10 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
         return descriptografado;
     }
     if (isBrowser && crypto.subtle) {
-        const chaveBuffer = stringToBuffer(chave.slice(0, 32).padEnd(32, '0'));
+        const chaveBuffer = stringToBuffer(chaveResolvida.slice(0, 32).padEnd(32, '0'));
         const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['decrypt']);
-        const ivBuffer = new Uint8Array(iv.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografado), c => c.charCodeAt(0));
+        const ivBuffer = new Uint8Array(ivResolvido.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
         const descriptografado = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBuffer }, cryptoKey, criptografadoBuffer.buffer);
         return bufferToString(descriptografado);
     }
@@ -1031,13 +1034,15 @@ async function criptografarRsa(interpretador, texto, chavePublica) {
  * @returns Texto descriptografado
  */
 async function descriptografarRsa(interpretador, textoCriptografado, chavePrivada) {
-    if (isNode && nodeCrypto && typeof chavePrivada === 'string') {
-        const buffer = Buffer.from(textoCriptografado, 'base64');
-        const descriptografado = nodeCrypto.privateDecrypt(chavePrivada, buffer);
+    const chavePrivadaResolvida = interpretador.resolverValor(chavePrivada);
+    const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
+    if (isNode && nodeCrypto) {
+        const buffer = Buffer.from(textoCriptografadoResolvido, 'base64');
+        const descriptografado = nodeCrypto.privateDecrypt(chavePrivadaResolvida, buffer);
         return descriptografado.toString('utf8');
     }
     if (isBrowser && crypto.subtle) {
-        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografado), c => c.charCodeAt(0));
+        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
         const descriptografado = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, chavePrivada, criptografadoBuffer.buffer);
         return bufferToString(descriptografado);
     }
