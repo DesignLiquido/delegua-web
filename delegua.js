@@ -2643,7 +2643,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             if (['vetor', 'qualquer[]', 'inteiro[]', 'texto[]'].includes(declaracao.tipo)) {
                 if (declaracao.inicializador instanceof construtos_1.Vetor) {
                     const vetor = declaracao.inicializador;
-                    const vetorSemSeparadores = vetor.valores.filter((v) => v.constructor.name !== 'Separador');
+                    const vetorSemSeparadores = vetor.valores.filter((v) => v.constructor !== construtos_1.Separador);
                     if (declaracao.tipo === 'inteiro[]') {
                         const apenasValores = vetorSemSeparadores.find((v) => typeof (v === null || v === void 0 ? void 0 : v.valor) !== 'number');
                         if (apenasValores) {
@@ -2682,16 +2682,16 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return this.verificarTipoDe(expressao.valor);
     }
     verificarTipoDe(valor) {
-        switch (valor.constructor.name) {
-            case 'Agrupamento':
+        switch (valor.constructor) {
+            case construtos_1.Agrupamento:
                 const valorAgrupamento = valor;
                 return this.verificarTipoDe(valorAgrupamento.expressao);
-            case 'Binario':
+            case construtos_1.Binario:
                 const valorBinario = valor;
                 this.verificarTipoDe(valorBinario.direita);
                 this.verificarTipoDe(valorBinario.esquerda);
                 break;
-            case 'Variavel':
+            case construtos_1.Variavel:
                 const valorVariavel = valor;
                 return this.verificarVariavel(valorVariavel);
         }
@@ -2760,16 +2760,16 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.comparacaoArgumentosContraParametrosFuncao(entidadeChamadaVariavel.simbolo, funcao.parametros, argumentos);
     }
     visitarExpressaoDeChamada(expressao) {
-        switch (expressao.entidadeChamada.constructor.name) {
-            case 'ArgumentoReferenciaFuncao':
+        switch (expressao.entidadeChamada.constructor) {
+            case construtos_1.ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao = expressao.entidadeChamada;
                 this.visitarChamadaPorArgumentoReferenciaFuncao(entidadeChamadaArgumentoReferenciaFuncao, expressao.argumentos);
                 break;
-            case 'ReferenciaFuncao':
+            case construtos_1.ReferenciaFuncao:
                 const entidadeChamadaReferenciaFuncao = expressao.entidadeChamada;
                 this.visitarChamadaPorReferenciaFuncao(entidadeChamadaReferenciaFuncao, expressao.argumentos);
                 break;
-            case 'Variavel':
+            case construtos_1.Variavel:
                 const entidadeChamadaVariavel = expressao.entidadeChamada;
                 this.visitarChamadaPorVariavel(entidadeChamadaVariavel, expressao.argumentos);
                 break;
@@ -2779,13 +2779,13 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     visitarExpressaoDeAtribuicao(expressao) {
         // TODO: Readaptar para trabalhar com `expressao.alvo` sendo um construto.
         let simboloAlvo;
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case construtos_1.Variavel:
                 const alvoVariavel = expressao.alvo;
                 simboloAlvo = alvoVariavel.simbolo;
                 break;
             default:
-                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor.name}.`);
+                // throw new Error(`Implementar atribuição para ${expressao.alvo.constructor}.`);
                 return Promise.resolve();
         }
         let valor = this.variaveis[simboloAlvo.lexema];
@@ -2820,7 +2820,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 }
             }
             if (expressao.valor instanceof construtos_1.Vetor) {
-                let valoresSemSeparador = expressao.valor.valores.filter((v) => v.constructor.name !== 'Separador');
+                let valoresSemSeparador = expressao.valor.valores.filter((v) => v.constructor !== construtos_1.Separador);
                 if (!['qualquer[]'].includes(valor.tipo)) {
                     if (valor.tipo === 'texto[]') {
                         if (!valoresSemSeparador.every((v) => typeof v.valor === 'string')) {
@@ -2855,8 +2855,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         const tipo = identificadorOuLiteral.tipo;
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
-                switch (condicao.constructor.name) {
-                    case 'Literal':
+                switch (condicao.constructor) {
+                    case construtos_1.Literal:
                         const condicaoLiteral = condicao;
                         if (condicaoLiteral.tipo !== tipo) {
                             this.erro({
@@ -2867,7 +2867,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                             }, `'caso ${condicaoLiteral.valor}:' não é do mesmo tipo esperado em 'escolha' (esperado: ${tipo}, atual: ${condicaoLiteral.tipo}).`);
                         }
                         break;
-                    case 'Variavel':
+                    case construtos_1.Variavel:
                         const condicaoVariavel = condicao;
                         this.verificarVariavel(condicaoVariavel);
                         const variavelHipotetica = this.variaveis[condicaoVariavel.simbolo.lexema];
@@ -2937,8 +2937,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             }
         }
         if (binario.operador.tipo === 'DIVISAO') {
-            switch (binario.direita.constructor.name) {
-                case 'Variavel':
+            switch (binario.direita.constructor) {
+                case construtos_1.Variavel:
                     const operadorDireitoLiteral = binario.direita;
                     if (((_c = this.variaveis[operadorDireitoLiteral.simbolo.lexema]) === null || _c === void 0 ? void 0 : _c.valor) === 0) {
                         this.erro(binario.operador, `Divisão por zero.`);
@@ -2963,8 +2963,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return Promise.resolve();
     }
     verificarChamada(chamada) {
-        switch (chamada.entidadeChamada.constructor.name) {
-            case 'Variavel':
+        switch (chamada.entidadeChamada.constructor) {
+            case construtos_1.Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada;
                 if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
                     this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`);
@@ -3039,8 +3039,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     visitarDeclaracaoVar(declaracao) {
         this.verificarTipoAtribuido(declaracao);
         if (declaracao.inicializador) {
-            switch (declaracao.inicializador.constructor.name) {
-                case 'FuncaoConstruto':
+            switch (declaracao.inicializador.constructor) {
+                case construtos_1.FuncaoConstruto:
                     const funcaoConstruto = declaracao.inicializador;
                     if (funcaoConstruto.parametros.length >= 255) {
                         this.erro(declaracao.simbolo, 'Função não pode ter mais de 255 parâmetros.');
@@ -3108,8 +3108,6 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return Promise.resolve();
     }
     analisar(declaracoes) {
-        // this.pilhaVariaveis = new PilhaVariaveis();
-        // this.pilhaVariaveis.empilhar()
         this.variaveis = {};
         this.atual = 0;
         this.diagnosticos = [];
@@ -3714,7 +3712,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                         elementoSeparador = true;
                     }
                 }
-                const valoresSemSeparadores = valoresSemComentarios.filter((v) => v.constructor.name !== 'Separador');
+                const valoresSemSeparadores = valoresSemComentarios.filter((v) => v.constructor !== construtos_1.Separador);
                 const tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresSemSeparadores);
                 return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), valores, valores.length, tipoVetor);
             case delegua_2.default.ENQUANTO:
@@ -3822,7 +3820,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 else {
                     construto = this.expressao();
                 }
-                if (construto.constructor.name === 'AcessoMetodoOuPropriedade') {
+                if (construto.constructor === construtos_1.AcessoMetodoOuPropriedade) {
                     const construtoTipado = construto;
                     switch (construtoTipado.tipo) {
                         case delegua_1.default.DICIONARIO:
@@ -4812,11 +4810,11 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         const simboloNomeVariavel = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado nome do identificador em declaração 'tendo'.");
         this.consumir(delegua_2.default.CHAVE_ESQUERDA, "Esperado chave esquerda para abertura de bloco em declaração 'tendo'.");
         let tipoInicializacao = 'qualquer';
-        switch (expressaoInicializacao.constructor.name) {
-            case 'Chamada':
+        switch (expressaoInicializacao.constructor) {
+            case construtos_1.Chamada:
                 const construtoChamada = expressaoInicializacao;
-                switch (construtoChamada.entidadeChamada.constructor.name) {
-                    case 'Variavel':
+                switch (construtoChamada.entidadeChamada.constructor) {
+                    case construtos_1.Variavel:
                         const entidadeChamadaVariavel = construtoChamada.entidadeChamada;
                         tipoInicializacao = entidadeChamadaVariavel.tipo;
                         break;
@@ -4951,7 +4949,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         if (construto instanceof construtos_1.Literal) {
             return construto.valor;
         }
-        throw this.erro({ hashArquivo: construto.hashArquivo, linha: construto.linha }, `Construto do tipo ${construto.constructor.name} não possui um mapeamento de valor.`);
+        throw this.erro({ hashArquivo: construto.hashArquivo, linha: construto.linha }, `Construto do tipo ${construto.constructor} não possui um mapeamento de valor.`);
     }
     resolverInformacaoElementoSintaticoDeDicionario(construto) {
         let retorno;
@@ -5440,10 +5438,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.buscarRetornos = buscarRetornos;
 exports.logicaDescobertaRetornoFuncao = logicaDescobertaRetornoFuncao;
 exports.registrarPrimitiva = registrarPrimitiva;
+const declaracoes_1 = require("../declaracoes");
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
 function* buscarRetornosEmBloco(construtoBloco) {
     for (const declaracao of construtoBloco.declaracoes) {
-        if (declaracao.constructor.name === 'Retorna') {
+        if (declaracao.constructor === declaracoes_1.Retorna) {
             yield declaracao;
         }
     }
@@ -5451,25 +5450,25 @@ function* buscarRetornosEmBloco(construtoBloco) {
 function* buscarRetornosEmSe(construtoSe) {
     const blocoEntao = construtoSe.caminhoEntao;
     for (const declaracao of buscarRetornosEmBloco(blocoEntao)) {
-        if (declaracao.constructor.name === 'Retorna') {
+        if (declaracao.constructor === declaracoes_1.Retorna) {
             yield declaracao;
         }
     }
     if (!construtoSe.caminhoSenao)
         return;
-    switch (construtoSe.caminhoSenao.constructor.name) {
-        case 'Bloco':
+    switch (construtoSe.caminhoSenao.constructor) {
+        case declaracoes_1.Bloco:
             const blocoSenao = construtoSe.caminhoSenao;
             for (const declaracao of blocoSenao.declaracoes) {
-                if (declaracao.constructor.name === 'Retorna') {
+                if (declaracao.constructor === declaracoes_1.Retorna) {
                     yield declaracao;
                 }
             }
             break;
-        case 'Se':
+        case declaracoes_1.Se:
             const senaoSe = construtoSe.caminhoSenao;
             for (const declaracao of buscarRetornosEmSe(senaoSe)) {
-                if (declaracao.constructor.name === 'Retorna') {
+                if (declaracao.constructor === declaracoes_1.Retorna) {
                     yield declaracao;
                 }
             }
@@ -5478,11 +5477,11 @@ function* buscarRetornosEmSe(construtoSe) {
 }
 function buscarRetornos(declaracao) {
     let retornasEncontrados = [];
-    switch (declaracao.constructor.name) {
-        case 'Retorna':
+    switch (declaracao.constructor) {
+        case declaracoes_1.Retorna:
             retornasEncontrados.push(declaracao);
             break;
-        case 'Se':
+        case declaracoes_1.Se:
             for (const retorna of buscarRetornosEmSe(declaracao)) {
                 retornasEncontrados.push(retorna);
             }
@@ -5534,7 +5533,7 @@ function registrarPrimitiva(primitivasConhecidas, tipo, catalogoPrimitivas) {
     }
 }
 
-},{"../informacao-elemento-sintatico":145}],32:[function(require,module,exports){
+},{"../declaracoes":124,"../informacao-elemento-sintatico":145}],32:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6474,7 +6473,7 @@ class AvaliadorSintaticoPitugues {
                 const entidadeChamadaAcessoIndiceVariavel = inicializador
                     .entidadeChamada;
                 // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor.name === 'AcessoIndiceVariavel') {
+                if (entidadeChamadaAcessoIndiceVariavel.constructor === construtos_1.AcessoIndiceVariavel) {
                     return this.logicaComumInferenciaTiposVariaveisEConstantes(entidadeChamadaAcessoIndiceVariavel, tipo);
                 }
                 if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
@@ -8800,7 +8799,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
      * @returns A entidade chamada resolvida, se as validações passarem.
      */
     resolverEntidadeChamada(entidadeChamada, argumentos, tipoPrimitiva = undefined) {
-        if (entidadeChamada.constructor.name === 'Variavel') {
+        if (entidadeChamada.constructor === construtos_1.Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada;
             if (tipoPrimitiva === undefined) {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
@@ -8831,7 +8830,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
             }
             return new construtos_1.ArgumentoReferenciaFuncao(entidadeChamada.hashArquivo, entidadeChamada.linha, entidadeChamadaResolvidaVariavel.simbolo);
         }
-        if (entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (entidadeChamada.constructor === construtos_1.AcessoMetodoOuPropriedade) {
             return this.resolverEntidadeChamadaAcessoMetodoOuPropriedade(entidadeChamada);
         }
         return entidadeChamada;
@@ -8974,13 +8973,13 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         if (this.verificarSeSimboloAtualEIgualA(tenda_1.default.IGUAL)) {
             const igual = this.simbolos[this.atual - 1];
             const valor = this.expressao();
-            switch (expressao.constructor.name) {
-                case 'Variavel':
+            switch (expressao.constructor) {
+                case construtos_1.Variavel:
                     return new construtos_1.Atribuir(this.hashArquivo, expressao, valor);
-                case 'AcessoMetodoOuPropriedade':
+                case construtos_1.AcessoMetodoOuPropriedade:
                     const expressaoAcessoMetodoOuPropriedade = expressao;
                     return new construtos_1.DefinirValor(this.hashArquivo, igual.linha, expressaoAcessoMetodoOuPropriedade.objeto, expressaoAcessoMetodoOuPropriedade.simbolo, valor);
-                case 'AcessoIndiceVariavel':
+                case construtos_1.AcessoIndiceVariavel:
                     const expressaoAcessoIndiceVariavel = expressao;
                     return new construtos_1.AtribuicaoPorIndice(this.hashArquivo, expressaoAcessoIndiceVariavel.linha, expressaoAcessoIndiceVariavel.entidadeChamada, expressaoAcessoIndiceVariavel.indice, valor);
             }
@@ -9079,12 +9078,10 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         // tradicional de Delégua, com variável de controle e passo positivo, incrementado em 1.
         const literalOuVariavelInicio = this.adicaoOuSubtracao();
         this.blocos -= 1;
-        switch (literalOuVariavelInicio.constructor.name) {
-            case 'Literal':
+        switch (literalOuVariavelInicio.constructor) {
+            case construtos_1.Literal:
                 return this.declaracaoParaTradicional(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
             // TODO: Terminar
-            case 'Variavel':
-            case 'Vetor':
             default:
                 return this.declaracaoParaCada(simboloPara, nomeVariavelIteracao, literalOuVariavelInicio);
         }
@@ -9225,18 +9222,18 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         return this.declaracaoExpressao();
     }
     logicaComumInferenciaTiposVariaveis(inicializador) {
-        switch (inicializador.constructor.name) {
-            case 'AcessoIndiceVariavel':
+        switch (inicializador.constructor) {
+            case construtos_1.AcessoIndiceVariavel:
                 const entidadeChamadaAcessoIndiceVariavel = inicializador
                     .entidadeChamada;
                 return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
-            case 'Chamada':
+            case construtos_1.Chamada:
                 const entidadeChamadaChamada = inicializador.entidadeChamada;
-                switch (entidadeChamadaChamada.constructor.name) {
-                    case 'AcessoMetodo':
+                switch (entidadeChamadaChamada.constructor) {
+                    case construtos_1.AcessoMetodo:
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada;
                         return entidadeChamadaAcessoMetodo.tipoRetornoMetodo;
-                    case 'AcessoMetodoOuPropriedade':
+                    case construtos_1.AcessoMetodoOuPropriedade:
                         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
                         // e a chamada normalmente é feita para uma primitiva.
                         // A inferência, portanto, ocorre pelo uso da primitiva.
@@ -9245,38 +9242,38 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
                             return this.primitivasConhecidas[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
                         }
                         throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamadaAcessoMetodoOuPropriedade.simbolo, `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`);
-                    case 'AcessoPropriedade':
+                    case construtos_1.AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
-                    case 'ArgumentoReferenciaFuncao':
+                    case construtos_1.ArgumentoReferenciaFuncao:
                         // TODO: Voltar aqui se necessário.
                         return 'qualquer';
-                    case 'ReferenciaFuncao':
+                    case construtos_1.ReferenciaFuncao:
                         const entidadeChamadaReferenciaFuncao = entidadeChamadaChamada;
                         return entidadeChamadaReferenciaFuncao.tipo;
-                    case 'Variavel':
+                    case construtos_1.Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada;
                         return entidadeChamadaVariavel.tipo;
                 }
                 break;
-            case 'FuncaoConstruto':
+            case construtos_1.FuncaoConstruto:
                 const funcaoConstruto = inicializador;
                 return `função<${funcaoConstruto.tipo}>`;
-            case 'Leia':
+            case construtos_1.Leia:
                 return 'texto';
-            case 'Dupla':
-            case 'Trio':
-            case 'Quarteto':
-            case 'Quinteto':
-            case 'Sexteto':
-            case 'Septeto':
-            case 'Octeto':
-            case 'Noneto':
-            case 'Deceto':
+            case tuplas_1.Dupla:
+            case tuplas_1.Trio:
+            case tuplas_1.Quarteto:
+            case tuplas_1.Quinteto:
+            case tuplas_1.Sexteto:
+            case tuplas_1.Septeto:
+            case tuplas_1.Octeto:
+            case tuplas_1.Noneto:
+            case tuplas_1.Deceto:
                 return delegua_1.default.TUPLA;
-            case 'ImportarBiblioteca':
+            /* case 'ImportarBiblioteca':
             case 'ModuloDeclaracoes':
-                return 'módulo';
+                return 'módulo'; */
             default:
                 return inicializador.tipo;
         }
@@ -9340,7 +9337,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         // Se o corpo for uma `Expressao`, corpo é convertido para `Retorna`.
         // Tenda trabalha com retornos implícitos.
         let corpoResolvido = [];
-        if (corpo.constructor.name === 'Expressao') {
+        if (corpo.constructor === declaracoes_1.Expressao) {
             const expressaoComoRetorna = new declaracoes_1.Retorna(new simbolo_1.Simbolo(tenda_1.default.RETORNA, 'retorna', 'retorna', parenteseEsquerdo.linha, this.hashArquivo), corpo.expressao);
             corpoResolvido.push(expressaoComoRetorna);
         }
@@ -10084,7 +10081,7 @@ async function algum(interpretador, vetor, funcaoPesquisa) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10321,7 +10318,7 @@ async function encontrar(interpretador, vetor, funcaoPesquisa) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10353,7 +10350,7 @@ async function encontrarIndice(interpretador, vetor, funcaoPesquisa) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10385,7 +10382,7 @@ async function encontrarUltimo(interpretador, vetor, funcaoPesquisa) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10416,7 +10413,7 @@ async function encontrarUltimoIndice(interpretador, vetor, funcaoPesquisa) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoPesquisa.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoPesquisa.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10452,8 +10449,7 @@ async function filtrarPor(interpretador, vetor, funcaoFiltragem) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função filtrarPor() deve ser um vetor.'));
     }
-    const construtorResolvido = valorFuncaoFiltragem.constructor.name.replaceAll('_', '');
-    if (construtorResolvido !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10574,8 +10570,7 @@ async function mapear(interpretador, vetor, funcaoMapeamento) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função mapear() deve ser um vetor.'));
     }
-    const nomeConstrutorFuncaoMapeamento = valorFuncaoMapeamento.constructor.name.replaceAll('_', '');
-    if (nomeConstrutorFuncaoMapeamento !== 'DeleguaFuncao') {
+    if (valorFuncaoMapeamento.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10669,7 +10664,7 @@ async function paraCada(interpretador, vetor, funcaoFiltragem) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função paraCada() deve ser um vetor.'));
     }
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10702,7 +10697,7 @@ async function primeiroEmCondicao(interpretador, vetor, funcaoFiltragem) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função primeiroEmCondicao() deve ser um vetor.'));
     }
-    if (valorFuncaoFiltragem.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoFiltragem.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10756,7 +10751,7 @@ async function reduzir(interpretador, vetor, funcaoReducao, valorInicial = null)
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função deve ser um vetor.'));
     }
-    if (valorFuncaoReducao.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoReducao.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -10843,7 +10838,7 @@ async function todosEmCondicao(interpretador, vetor, funcaoCondicional) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'Parâmetro inválido. O primeiro parâmetro da função todosEmCondicao() deve ser um vetor.'));
     }
-    if (valorFuncaoCondicional.constructor.name !== 'DeleguaFuncao') {
+    if (valorFuncaoCondicional.constructor !== estruturas_1.DeleguaFuncao) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
@@ -14634,7 +14629,7 @@ class FormatadorDelegua {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}retorna`;
         if (declaracao.valor) {
             this.codigoFormatado += ` `;
-            if (declaracao.valor.constructor.name === 'FuncaoConstruto') {
+            if (declaracao.valor.constructor === construtos_1.FuncaoConstruto) {
                 this.codigoFormatado += `função`;
             }
             this.formatarDeclaracaoOuConstruto(declaracao.valor);
@@ -17004,24 +16999,24 @@ class InterpretadorBase {
         if (expressao.indice) {
             indice = await this.avaliar(expressao.indice);
         }
-        switch (expressao.alvo.constructor.name) {
-            case 'Variavel':
+        switch (expressao.alvo.constructor) {
+            case construtos_1.Variavel:
                 const alvoVariavel = expressao.alvo;
                 this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
                 break;
-            case 'AcessoMetodoOuPropriedade':
+            case construtos_1.AcessoMetodoOuPropriedade:
                 // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
                 const objeto = this.resolverValor(variavelObjeto);
                 const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 }
                 break;
             default:
-                throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
+                throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`);
         }
         return valorResolvido;
     }
@@ -17534,11 +17529,11 @@ class InterpretadorBase {
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
         const objeto = this.resolverValor(variavelObjeto);
-        if (objeto.constructor.name !== 'ObjetoDeleguaClasse' && objeto.constructor !== Object) {
+        if (objeto.constructor !== estruturas_1.ObjetoDeleguaClasse && objeto.constructor !== Object) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.nome, 'Somente instâncias e dicionários podem possuir campos.', expressao.linha));
         }
         const valor = await this.avaliar(expressao.valor);
-        if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+        if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
             objeto.definir(expressao.nome, valor);
             return valor;
         }
@@ -17600,7 +17595,7 @@ class InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor === quebras_1.RetornoQuebra) {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
@@ -17760,8 +17755,8 @@ class InterpretadorBase {
             retornoVetor += ']';
             return retornoVetor;
         }
-        switch (objeto.constructor.name) {
-            case 'Object':
+        switch (objeto.constructor) {
+            case Object:
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
@@ -18066,8 +18061,8 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             }
             return JSON.stringify(objetoEscrita);
         }
-        switch (objeto.constructor.name) {
-            case 'Object':
+        switch (objeto.constructor) {
+            case Object:
                 if ('tipo' in objeto) {
                     switch (objeto.tipo) {
                         case 'dicionário':
@@ -18364,7 +18359,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor === quebras_1.RetornoQuebra) {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
@@ -18541,14 +18536,13 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Por exemplo, `objeto1.metodo1().metodo2()`.
         // Como `RetornoQuebra` também possui `valor`, precisamos extrair o
         // valor dele primeiro.
-        if (variavelObjeto.constructor && variavelObjeto.constructor.name === 'RetornoQuebra') {
+        if (variavelObjeto.constructor === quebras_1.RetornoQuebra) {
             variavelObjeto = variavelObjeto.valor;
         }
         const objeto = this.resolverValor(variavelObjeto);
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
-            (objeto.constructor && objeto.constructor.name === 'ObjetoDeleguaClasse')) {
+        if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
             return objeto.obterMetodo(expressao.nomePropriedade) || null;
         }
         // Objeto simples do JavaScript, ou dicionário de Delégua.
@@ -18672,7 +18666,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
                 const objeto = this.resolverValor(variavelObjeto);
                 const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor.name === 'ObjetoDeleguaClasse') {
+                if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
                     const objetoDeleguaClasse = objeto;
                     objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor);
                 }
@@ -18682,7 +18676,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 }
                 break;
             default:
-                throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${expressao.alvo.constructor.name}.`);
+                throw new excecoes_1.ErroEmTempoDeExecucao(null, `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`);
         }
         return valorResolvido;
     }
