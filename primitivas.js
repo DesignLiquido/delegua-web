@@ -1953,6 +1953,7 @@ class FuncaoConstruto {
         this.corpo = corpo;
         this.tipo = tipoRetorno;
         this.tipoExplicito = tipoExplicito || false;
+        this.documentacao = documentacao;
     }
     async aceitar(visitante) {
         return Promise.resolve(visitante.visitarExpressaoFuncaoConstruto(this));
@@ -2061,10 +2062,10 @@ __exportStar(require("./vetor"), exports);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
 class Isto {
-    constructor(hashArquivo, linha, palavraChave) {
+    constructor(hashArquivo, linha, simboloChave) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
-        this.palavraChave = palavraChave;
+        this.simboloChave = simboloChave;
     }
     async aceitar(visitante) {
         return Promise.resolve(visitante.visitarExpressaoIsto(this));
