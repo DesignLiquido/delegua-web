@@ -175,7 +175,7 @@ class DeleguaWeb {
         });
     }
     versao() {
-        return "0.61 (web)";
+        return "0.63 (web)";
     }
     reportar(linha, onde, mensagem) {
         if (this.nomeArquivo)
@@ -414,7 +414,7 @@ exports.DeleguaModuloCriptografia = {
         exemploCodigo: 'criptografia.decodificarBase64("VGV4dG8gY29kaWZpY2Fkbw==")'
     },
     criptografarAes256: {
-        tipoRetorno: 'texto',
+        tipoRetorno: 'dicionário',
         funcao: index_1.criptografarAes256,
         argumentos: [
             { nome: 'texto', tipo: 'texto' },
@@ -454,7 +454,7 @@ exports.DeleguaModuloCriptografia = {
         exemploCodigo: 'criptografia.descriptografarAes256(textoCriptografado, chave, iv)'
     },
     gerarParChavesRsa: {
-        tipoRetorno: 'objeto',
+        tipoRetorno: 'dicionário',
         funcao: index_1.gerarParChavesRsa,
         argumentos: [{ nome: 'tamanhoChave', tipo: 'numero' }],
         documentacao: `# \`criptografia.gerarParChavesRsa(tamanhoChave)\`\n\n` +
@@ -465,6 +465,22 @@ exports.DeleguaModuloCriptografia = {
             'var par = criptografia.gerarParChavesRsa(2048)\n' +
             `escreva(par.chavePublica) // Chave pública em formato PEM\n` +
             `escreva(par.chavePrivada) // Chave privada em formato PEM\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
+    },
+    gerarParChavesRsaAssinatura: {
+        tipoRetorno: 'dicionário',
+        funcao: index_1.gerarParChavesRsaAssinatura,
+        argumentos: [{ nome: 'tamanhoModulo', tipo: 'numero' }],
+        documentacao: `# \`criptografia.gerarParChavesRsaAssinatura(tamanhoModulo)\`\n\n` +
+            'Gera um par de chaves RSA (pública e privada) para assinatura digital.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsaAssinatura(2048)\n' +
+            'var documento = "Texto importante"\n' +
+            'var assinatura = criptografia.assinarRsa(documento, par.chavePrivada)\n' +
+            'var valida = criptografia.verificarAssinaturaRsa(documento, assinatura, par.chavePublica)\n' +
+            `escreva(valida) // verdadeiro\n` +
             '```\n',
         exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
     },
@@ -533,11 +549,11 @@ exports.DeleguaModuloCriptografia = {
         argumentos: [
             { nome: 'senha', tipo: 'texto' },
             { nome: 'sal', tipo: 'texto' },
-            { nome: 'iteracoes', tipo: 'numero', opcional: true },
-            { nome: 'tamanhoChave', tipo: 'numero', opcional: true }
+            { nome: 'iteracoes', tipo: 'número', opcional: true, valorPadrao: 100000 },
+            { nome: 'tamanhoChave', tipo: 'número', opcional: true, valorPadrao: 32 }
         ],
         documentacao: `# \`criptografia.derivarChavePbkdf2(senha, sal, iteracoes?, tamanhoChave?)\`\n\n` +
-            'Deriva uma chave a partir de uma senha usando PBKDF2 (Password-Based Key Derivation Function 2).\n' +
+            'Deriva uma chave a partir de uma senha usando PBKDF2 (Password-Based Key Derivation Function 2, ou Função de Derivação de Chave Baseada em Senha versão 2).\n' +
             '\n\n ## Exemplo de Código\n' +
             '\n\n```delegua\n' +
             'var criptografia = importar("criptografia")\n' +
@@ -552,7 +568,7 @@ exports.DeleguaModuloCriptografia = {
         tipoRetorno: 'texto',
         funcao: index_1.gerarSalt,
         argumentos: [
-            { nome: 'tamanho', tipo: 'numero', opcional: true }
+            { nome: 'tamanho', tipo: 'numero', opcional: true, valorPadrao: 16 }
         ],
         documentacao: `# \`criptografia.gerarSalt(tamanho?)\`\n\n` +
             'Gera um salt (valor aleatório) para uso em derivação de chaves.\n' +
@@ -583,13 +599,14 @@ exports.sha512 = sha512;
 exports.hmacSha256 = hmacSha256;
 exports.hmacSha512 = hmacSha512;
 exports.gerarBytesAleatorios = gerarBytesAleatorios;
-exports.gerarStringAleatoria = gerarStringAleatoria;
+exports.gerarTextoAleatorio = gerarTextoAleatorio;
 exports.gerarUuid = gerarUuid;
 exports.codificarBase64 = codificarBase64;
 exports.decodificarBase64 = decodificarBase64;
 exports.criptografarAes256 = criptografarAes256;
 exports.descriptografarAes256 = descriptografarAes256;
 exports.gerarParChavesRsa = gerarParChavesRsa;
+exports.gerarParChavesRsaAssinatura = gerarParChavesRsaAssinatura;
 exports.criptografarRsa = criptografarRsa;
 exports.descriptografarRsa = descriptografarRsa;
 exports.assinarRsa = assinarRsa;
@@ -597,11 +614,11 @@ exports.verificarAssinaturaRsa = verificarAssinaturaRsa;
 exports.gerarSalt = gerarSalt;
 exports.derivarChavePbkdf2 = derivarChavePbkdf2;
 // Detecta o ambiente
-const isNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
-const isBrowser = typeof globalThis !== 'undefined' && typeof globalThis.window !== 'undefined';
+const noNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+const noNavegador = typeof globalThis !== 'undefined' && typeof globalThis.window !== 'undefined';
 // Importa crypto do Node.js apenas se estiver em ambiente Node
 let nodeCrypto = null;
-if (isNode) {
+if (noNode) {
     nodeCrypto = require('crypto');
 }
 /**
@@ -630,11 +647,11 @@ function bufferToString(buffer) {
 /**
  * Implementação pura de MD5 em TypeScript
  */
-function md5Pure(text) {
+function md5Puro(texto) {
     // Converte string para bytes UTF-8
     const utf8Bytes = [];
-    for (let i = 0; i < text.length; i++) {
-        let charCode = text.charCodeAt(i);
+    for (let i = 0; i < texto.length; i++) {
+        let charCode = texto.charCodeAt(i);
         if (charCode < 0x80) {
             utf8Bytes.push(charCode);
         }
@@ -646,7 +663,7 @@ function md5Pure(text) {
         }
         else {
             i++;
-            charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (text.charCodeAt(i) & 0x3ff));
+            charCode = 0x10000 + (((charCode & 0x3ff) << 10) | (texto.charCodeAt(i) & 0x3ff));
             utf8Bytes.push(0xf0 | (charCode >> 18), 0x80 | ((charCode >> 12) & 0x3f), 0x80 | ((charCode >> 6) & 0x3f), 0x80 | (charCode & 0x3f));
         }
     }
@@ -736,11 +753,11 @@ function md5Pure(text) {
  * @returns Hash MD5 em formato hexadecimal
  */
 function md5(interpretador, texto) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHash('md5').update(texto).digest('hex');
     }
     // Implementação pura para navegadores
-    return md5Pure(texto);
+    return md5Puro(texto);
 }
 /**
  * Gera um hash SHA-1 de uma string.
@@ -748,10 +765,10 @@ function md5(interpretador, texto) {
  * @returns Hash SHA-1 em formato hexadecimal
  */
 async function sha1(interpretador, texto) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHash('sha1').update(texto).digest('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const buffer = stringToBuffer(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
         return bufferToHex(hashBuffer);
@@ -764,10 +781,10 @@ async function sha1(interpretador, texto) {
  * @returns Hash SHA-256 em formato hexadecimal
  */
 async function sha256(interpretador, texto) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHash('sha256').update(texto).digest('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const buffer = stringToBuffer(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
         return bufferToHex(hashBuffer);
@@ -780,10 +797,10 @@ async function sha256(interpretador, texto) {
  * @returns Hash SHA-512 em formato hexadecimal
  */
 async function sha512(interpretador, texto) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHash('sha512').update(texto).digest('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const buffer = stringToBuffer(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-512', buffer);
         return bufferToHex(hashBuffer);
@@ -797,10 +814,10 @@ async function sha512(interpretador, texto) {
  * @returns HMAC em formato hexadecimal
  */
 async function hmacSha256(interpretador, texto, chave) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHmac('sha256', chave).update(texto).digest('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const keyBuffer = stringToBuffer(chave);
         const cryptoKey = await crypto.subtle.importKey('raw', keyBuffer, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
         const textBuffer = stringToBuffer(texto);
@@ -816,10 +833,10 @@ async function hmacSha256(interpretador, texto, chave) {
  * @returns HMAC em formato hexadecimal
  */
 async function hmacSha512(interpretador, texto, chave) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return nodeCrypto.createHmac('sha512', chave).update(texto).digest('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const keyBuffer = stringToBuffer(chave);
         const cryptoKey = await crypto.subtle.importKey('raw', keyBuffer, { name: 'HMAC', hash: 'SHA-512' }, false, ['sign']);
         const textBuffer = stringToBuffer(texto);
@@ -834,10 +851,10 @@ async function hmacSha512(interpretador, texto, chave) {
  * @returns Array de bytes aleatórios
  */
 function gerarBytesAleatorios(interpretador, tamanho) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         return new Uint8Array(nodeCrypto.randomBytes(tamanho));
     }
-    if (isBrowser && crypto.getRandomValues) {
+    if (noNavegador && crypto.getRandomValues) {
         const buffer = new Uint8Array(tamanho);
         crypto.getRandomValues(buffer);
         return buffer;
@@ -849,7 +866,7 @@ function gerarBytesAleatorios(interpretador, tamanho) {
  * @param tamanho Número de bytes (o resultado terá o dobro de caracteres)
  * @returns String hexadecimal aleatória
  */
-function gerarStringAleatoria(interpretador, tamanho) {
+function gerarTextoAleatorio(interpretador, tamanho) {
     const bytes = gerarBytesAleatorios(interpretador, tamanho);
     return Array.from(bytes)
         .map(b => b.toString(16).padStart(2, '0'))
@@ -860,10 +877,10 @@ function gerarStringAleatoria(interpretador, tamanho) {
  * @returns UUID no formato padrão (ex: 'f47ac10b-58cc-4372-a567-0e02b2c3d479')
  */
 function gerarUuid() {
-    if (isNode && nodeCrypto && nodeCrypto.randomUUID) {
+    if (noNode && nodeCrypto && nodeCrypto.randomUUID) {
         return nodeCrypto.randomUUID();
     }
-    if (isBrowser && crypto.randomUUID) {
+    if (noNavegador && crypto.randomUUID) {
         return crypto.randomUUID();
     }
     // Fallback: gera UUID v4 manualmente
@@ -879,10 +896,10 @@ function gerarUuid() {
  * @returns String em formato Base64
  */
 function codificarBase64(interpretador, texto) {
-    if (isNode) {
+    if (noNode) {
         return Buffer.from(texto, 'utf8').toString('base64');
     }
-    if (isBrowser) {
+    if (noNavegador) {
         return btoa(unescape(encodeURIComponent(texto)));
     }
     throw new Error('Codificação Base64 não disponível neste ambiente');
@@ -893,10 +910,10 @@ function codificarBase64(interpretador, texto) {
  * @returns Texto decodificado
  */
 function decodificarBase64(interpretador, textoBase64) {
-    if (isNode) {
+    if (noNode) {
         return Buffer.from(textoBase64, 'base64').toString('utf8');
     }
-    if (isBrowser) {
+    if (noNavegador) {
         return decodeURIComponent(escape(atob(textoBase64)));
     }
     throw new Error('Decodificação Base64 não disponível neste ambiente');
@@ -909,7 +926,7 @@ function decodificarBase64(interpretador, textoBase64) {
  * @returns Objeto contendo o texto criptografado em Base64 e o IV usado
  */
 async function criptografarAes256(interpretador, texto, chave, vetorInicializacao) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         const chaveBuffer = Buffer.alloc(32);
         chaveBuffer.write(chave.slice(0, 32));
         const iv = vetorInicializacao || nodeCrypto.randomBytes(12);
@@ -923,7 +940,7 @@ async function criptografarAes256(interpretador, texto, chave, vetorInicializaca
             authTag: authTag.toString('hex')
         };
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const chaveBuffer = stringToBuffer(chave.slice(0, 32).padEnd(32, '0'));
         const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['encrypt']);
         const iv = vetorInicializacao || crypto.getRandomValues(new Uint8Array(12));
@@ -949,7 +966,7 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
     const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
     const chaveResolvida = interpretador.resolverValor(chave);
     const ivResolvido = interpretador.resolverValor(iv);
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         const chaveBuffer = Buffer.alloc(32);
         chaveBuffer.write(chaveResolvida.slice(0, 32));
         const ivBuffer = Buffer.from(ivResolvido, 'hex');
@@ -973,7 +990,7 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
         descriptografado += decipher.final('utf8');
         return descriptografado;
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const chaveBuffer = stringToBuffer(chaveResolvida.slice(0, 32).padEnd(32, '0'));
         const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['decrypt']);
         const ivBuffer = new Uint8Array(ivResolvido.match(/.{2}/g).map(byte => parseInt(byte, 16)));
@@ -985,11 +1002,12 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
 }
 /**
  * Gera um par de chaves RSA (pública e privada).
+ * No Node.js, retorna strings PEM. No navegador, retorna CryptoKey objects.
  * @param tamanhoModulo Tamanho do módulo em bits (padrão: 2048)
  * @returns Objeto contendo as chaves pública e privada
  */
 async function gerarParChavesRsa(interpretador, tamanhoModulo = 2048) {
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('rsa', {
             modulusLength: tamanhoModulo,
             publicKeyEncoding: { type: 'spki', format: 'pem' },
@@ -997,7 +1015,8 @@ async function gerarParChavesRsa(interpretador, tamanhoModulo = 2048) {
         });
         return { chavePublica: publicKey, chavePrivada: privateKey };
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
+        // Para navegadores, geramos chaves RSA-OAEP para criptografia
         const keyPair = await crypto.subtle.generateKey({
             name: 'RSA-OAEP',
             modulusLength: tamanhoModulo,
@@ -1009,18 +1028,45 @@ async function gerarParChavesRsa(interpretador, tamanhoModulo = 2048) {
     throw new Error('Geração de chaves RSA não disponível neste ambiente');
 }
 /**
+ * Gera um par de chaves RSA para assinatura digital.
+ * No Node.js, retorna strings PEM. No navegador, retorna CryptoKey objects.
+ * @param tamanhoModulo Tamanho do módulo em bits (padrão: 2048)
+ * @returns Objeto contendo as chaves pública e privada para assinatura
+ */
+async function gerarParChavesRsaAssinatura(interpretador, tamanhoModulo = 2048) {
+    if (noNode && nodeCrypto) {
+        const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('rsa', {
+            modulusLength: tamanhoModulo,
+            publicKeyEncoding: { type: 'spki', format: 'pem' },
+            privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+        });
+        return { chavePublica: publicKey, chavePrivada: privateKey };
+    }
+    if (noNavegador && crypto.subtle) {
+        // Para navegadores, geramos chaves RSA-PSS para assinatura
+        const keyPair = await crypto.subtle.generateKey({
+            name: 'RSA-PSS',
+            modulusLength: tamanhoModulo,
+            publicExponent: new Uint8Array([1, 0, 1]),
+            hash: 'SHA-256'
+        }, true, ['sign', 'verify']);
+        return { chavePublica: keyPair.publicKey, chavePrivada: keyPair.privateKey };
+    }
+    throw new Error('Geração de chaves RSA para assinatura não disponível neste ambiente');
+}
+/**
  * Criptografa um texto usando uma chave pública RSA.
  * @param texto Texto a ser criptografado
  * @param chavePublica Chave pública RSA em formato PEM (Node.js) ou CryptoKey (Browser)
  * @returns Texto criptografado em Base64
  */
 async function criptografarRsa(interpretador, texto, chavePublica) {
-    if (isNode && nodeCrypto && typeof chavePublica === 'string') {
+    if (noNode && nodeCrypto && typeof chavePublica === 'string') {
         const buffer = Buffer.from(texto, 'utf8');
         const criptografado = nodeCrypto.publicEncrypt(chavePublica, buffer);
         return criptografado.toString('base64');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const textoBuffer = stringToBuffer(texto);
         const criptografado = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, chavePublica, textoBuffer);
         return btoa(String.fromCharCode(...new Uint8Array(criptografado)));
@@ -1036,33 +1082,37 @@ async function criptografarRsa(interpretador, texto, chavePublica) {
 async function descriptografarRsa(interpretador, textoCriptografado, chavePrivada) {
     const chavePrivadaResolvida = interpretador.resolverValor(chavePrivada);
     const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
-    if (isNode && nodeCrypto) {
+    if (noNode && nodeCrypto) {
         const buffer = Buffer.from(textoCriptografadoResolvido, 'base64');
         const descriptografado = nodeCrypto.privateDecrypt(chavePrivadaResolvida, buffer);
         return descriptografado.toString('utf8');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
-        const descriptografado = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, chavePrivada, criptografadoBuffer.buffer);
+        const descriptografado = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, chavePrivadaResolvida, criptografadoBuffer.buffer);
         return bufferToString(descriptografado);
     }
     throw new Error('Descriptografia RSA não disponível neste ambiente');
 }
 /**
  * Assina digitalmente um texto usando uma chave privada RSA.
+ * IMPORTANTE: Para navegadores, use chaves geradas com gerarParChavesRsaAssinatura()
  * @param texto Texto a ser assinado
  * @param chavePrivada Chave privada RSA em formato PEM (Node.js) ou CryptoKey (Browser)
  * @returns Assinatura digital em Base64
  */
 async function assinarRsa(interpretador, texto, chavePrivada) {
-    if (isNode && nodeCrypto && typeof chavePrivada === 'string') {
+    if (noNode && nodeCrypto && typeof chavePrivada === 'string') {
         const sign = nodeCrypto.createSign('SHA256');
         sign.update(texto);
         sign.end();
         return sign.sign(chavePrivada, 'base64');
     }
-    if (isBrowser && crypto.subtle) {
-        // Para assinatura em navegadores, precisa gerar chaves com o algoritmo correto
+    if (noNavegador && crypto.subtle) {
+        // Verifica se a chave é do tipo correto (RSA-PSS)
+        if (chavePrivada.algorithm && chavePrivada.algorithm.name !== 'RSA-PSS') {
+            throw new Error('Para assinatura em navegadores, use chaves geradas com gerarParChavesRsaAssinatura()');
+        }
         const textoBuffer = stringToBuffer(texto);
         const assinatura = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, chavePrivada, textoBuffer);
         return btoa(String.fromCharCode(...new Uint8Array(assinatura)));
@@ -1071,19 +1121,24 @@ async function assinarRsa(interpretador, texto, chavePrivada) {
 }
 /**
  * Verifica uma assinatura digital usando uma chave pública RSA.
+ * IMPORTANTE: Para navegadores, use chaves geradas com gerarParChavesRsaAssinatura()
  * @param texto Texto original
  * @param assinatura Assinatura digital em Base64
  * @param chavePublica Chave pública RSA em formato PEM (Node.js) ou CryptoKey (Browser)
  * @returns true se a assinatura for válida, false caso contrário
  */
 async function verificarAssinaturaRsa(interpretador, texto, assinatura, chavePublica) {
-    if (isNode && nodeCrypto && typeof chavePublica === 'string') {
+    if (noNode && nodeCrypto && typeof chavePublica === 'string') {
         const verify = nodeCrypto.createVerify('SHA256');
         verify.update(texto);
         verify.end();
         return verify.verify(chavePublica, assinatura, 'base64');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
+        // Verifica se a chave é do tipo correto (RSA-PSS)
+        if (chavePublica.algorithm && chavePublica.algorithm.name !== 'RSA-PSS') {
+            throw new Error('Para verificação em navegadores, use chaves geradas com gerarParChavesRsaAssinatura()');
+        }
         const textoBuffer = stringToBuffer(texto);
         const assinaturaBuffer = Uint8Array.from(atob(assinatura), c => c.charCodeAt(0));
         try {
@@ -1101,7 +1156,10 @@ async function verificarAssinaturaRsa(interpretador, texto, assinatura, chavePub
  * @returns Salt em formato hexadecimal
  */
 function gerarSalt(interpretador, tamanho = 16) {
-    return gerarStringAleatoria(interpretador, tamanho);
+    if (!tamanho) {
+        tamanho = 16;
+    }
+    return gerarTextoAleatorio(interpretador, tamanho);
 }
 /**
  * Deriva uma chave a partir de uma senha usando PBKDF2.
@@ -1112,10 +1170,16 @@ function gerarSalt(interpretador, tamanho = 16) {
  * @returns Chave derivada em formato hexadecimal
  */
 async function derivarChavePbkdf2(interpretador, senha, sal, iteracoes = 100000, tamanhoChave = 32) {
-    if (isNode && nodeCrypto) {
+    if (!iteracoes) {
+        iteracoes = 100000;
+    }
+    if (!tamanhoChave) {
+        tamanhoChave = 32;
+    }
+    if (noNode && nodeCrypto) {
         return nodeCrypto.pbkdf2Sync(senha, sal, iteracoes, tamanhoChave, 'sha256').toString('hex');
     }
-    if (isBrowser && crypto.subtle) {
+    if (noNavegador && crypto.subtle) {
         const senhaBuffer = stringToBuffer(senha);
         const salBuffer = stringToBuffer(sal);
         const baseKey = await crypto.subtle.importKey('raw', senhaBuffer, 'PBKDF2', false, ['deriveBits']);
@@ -1138,13 +1202,14 @@ exports.default = {
     hmacSha256,
     hmacSha512,
     gerarBytesAleatorios,
-    gerarStringAleatoria,
+    gerarTextoAleatorio,
     gerarUuid,
     codificarBase64,
     decodificarBase64,
     criptografarAes256,
     descriptografarAes256,
     gerarParChavesRsa,
+    gerarParChavesRsaAssinatura,
     criptografarRsa,
     descriptografarRsa,
     assinarRsa,

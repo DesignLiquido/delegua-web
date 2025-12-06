@@ -624,6 +624,25 @@ const configurarLinguagemDelegua = function () {
                     return { suggestions: sugestoesMetodos };
                 }
             }
+            // Extrair variáveis definidas no código (como módulos importados)
+            const textoCompleto = model.getValue();
+            const regexVariaveis = /(?:var|variavel|variável|const|constante|fixo)\s+(\w+)\s*=/g;
+            const variaveisEncontradas = new Set();
+            let match;
+            while ((match = regexVariaveis.exec(textoCompleto)) !== null) {
+                variaveisEncontradas.add(match[1]);
+            }
+            // Criar sugestões para variáveis/módulos
+            const sugestoesVariaveis = Array.from(variaveisEncontradas).map((nomeVar) => {
+                const ehBiblioteca = documentacoesBibliotecas[nomeVar];
+                return {
+                    label: nomeVar,
+                    kind: ehBiblioteca ? 9 : 6, // Module (9) ou Variable (6)
+                    insertText: nomeVar,
+                    documentation: ehBiblioteca ? `Módulo ${nomeVar}` : `Variável ${nomeVar}`,
+                    sortText: `0${nomeVar}` // Priorizar na lista
+                };
+            });
             // Sugestões padrão (primitivas e snippets)
             const formatoPrimitivas = primitivas
                 .filter(p => p.exemploCodigo && p.nome)
@@ -649,7 +668,7 @@ const configurarLinguagemDelegua = function () {
                     };
                 })
                 : [];
-            const sugestoes = [...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
+            const sugestoes = [...sugestoesVariaveis, ...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
             return { suggestions: sugestoes };
         }
     });

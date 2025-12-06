@@ -149,7 +149,7 @@ class DeleguaWeb {
         });
     }
     versao() {
-        return "0.61 (web)";
+        return "0.63 (web)";
     }
     reportar(linha, onde, mensagem) {
         if (this.nomeArquivo)
