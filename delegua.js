@@ -135,6 +135,10 @@ class DeleguaWeb {
             const chaves = Object.keys(moduloNode);
             for (let i = 0; i < chaves.length; i++) {
                 const funcao = moduloNode[chaves[i]];
+                if (!funcao || typeof funcao !== 'function') {
+                    console.warn(`O componente '${chaves[i]}' do módulo '${moduloDelegua.nome}' não é uma função e será ignorado na importação. Valor resolvido: ${JSON.stringify(funcao)}.`);
+                    continue;
+                }
                 moduloDelegua.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
             }
         }
@@ -203,7 +207,7 @@ class DeleguaWeb {
 }
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"./bibliotecas/delegua-json":1,"./interpretador-web":3,"@designliquido/delegua-criptografia":5,"@designliquido/delegua-criptografia/delegua-modulo":4,"@designliquido/delegua-estatistica":8,"@designliquido/delegua-fisica":10,"@designliquido/delegua-matematica":18,"@designliquido/delegua-tempo":23,"@designliquido/delegua-tempo/objeto-data":24,"@designliquido/delegua/analisador-semantico":27,"@designliquido/delegua/avaliador-sintatico":41,"@designliquido/delegua/informacao-elemento-sintatico":145,"@designliquido/delegua/interpretador/estruturas":179,"@designliquido/delegua/lexador":205,"@designliquido/delegua/tipos-de-simbolos/delegua":218,"@designliquido/delegua/tradutores":226}],3:[function(require,module,exports){
+},{"./bibliotecas/delegua-json":1,"./interpretador-web":3,"@designliquido/delegua-criptografia":11,"@designliquido/delegua-criptografia/delegua-modulo":8,"@designliquido/delegua-estatistica":18,"@designliquido/delegua-fisica":20,"@designliquido/delegua-matematica":28,"@designliquido/delegua-tempo":33,"@designliquido/delegua-tempo/objeto-data":34,"@designliquido/delegua/analisador-semantico":37,"@designliquido/delegua/avaliador-sintatico":51,"@designliquido/delegua/informacao-elemento-sintatico":155,"@designliquido/delegua/interpretador/estruturas":189,"@designliquido/delegua/lexador":215,"@designliquido/delegua/tipos-de-simbolos/delegua":228,"@designliquido/delegua/tradutores":236}],3:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -259,367 +263,196 @@ class InterpretadorWeb extends delegua_1.Interpretador {
 }
 exports.InterpretadorWeb = InterpretadorWeb;
 
-},{"@designliquido/delegua":143,"@designliquido/delegua/excecoes":138}],4:[function(require,module,exports){
+},{"@designliquido/delegua":153,"@designliquido/delegua/excecoes":148}],4:[function(require,module,exports){
+(function (Buffer){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleguaModuloCriptografia = void 0;
-const index_1 = require("./index");
-exports.DeleguaModuloCriptografia = {
-    md5: {
-        tipoRetorno: 'texto',
-        funcao: index_1.md5,
-        argumentos: [{ nome: 'texto', tipo: 'texto' }],
-        documentacao: `# \`criptografia.md5(texto)\`\n\n` +
-            'Gera uma dispersão (_hash_) MD5 de um texto.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var meuTexto = "Olá Mundo"\n' +
-            `escreva(criptografia.md5(meuTexto)) // "7141e6862d77e5c2a8e2f60a77a153cd"\n`,
-        exemploCodigo: 'criptografia.md5("Meu texto")',
-    },
-    sha1: {
-        tipoRetorno: 'texto',
-        funcao: index_1.sha1,
-        argumentos: [{ nome: 'texto', tipo: 'texto' }],
-        documentacao: `# \`criptografia.sha1(texto)\`\n\n` +
-            'Gera uma dispersão (_hash_) SHA-1 de um texto.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var meuTexto = "Olá Mundo"\n' +
-            `escreva(criptografia.sha1(meuTexto)) // Gera um hash SHA-1\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.sha1("Meu texto")'
-    },
-    sha256: {
-        tipoRetorno: 'texto',
-        funcao: index_1.sha256,
-        argumentos: [{ nome: 'texto', tipo: 'texto' }],
-        documentacao: `# \`criptografia.sha256(texto)\`\n\n` +
-            'Gera uma dispersão (_hash_) SHA-256 de um texto.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var meuTexto = "Olá Mundo"\n' +
-            `escreva(criptografia.sha256(meuTexto)) // Gera um hash SHA-256\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.sha256("Meu texto")'
-    },
-    sha512: {
-        tipoRetorno: 'texto',
-        funcao: index_1.sha512,
-        argumentos: [{ nome: 'texto', tipo: 'texto' }],
-        documentacao: `# \`criptografia.sha512(texto)\`\n\n` +
-            'Gera uma dispersão (_hash_) SHA-512 de um texto.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var meuTexto = "Olá Mundo"\n' +
-            `escreva(criptografia.sha512(meuTexto)) // Gera um hash SHA-512\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.sha512("Meu texto")'
-    },
-    hmacSha256: {
-        tipoRetorno: 'texto',
-        funcao: index_1.hmacSha256,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'chave', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.hmacSha256(texto, chave)\`\n\n` +
-            'Gera um código de autenticação de mensagem (HMAC) usando SHA-256.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var mensagem = "mensagem"\n' +
-            'var chave = "chave-secreta"\n' +
-            `escreva(criptografia.hmacSha256(mensagem, chave)) // Gera um HMAC SHA-256\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.hmacSha256("mensagem", "chave-secreta")'
-    },
-    hmacSha512: {
-        tipoRetorno: 'texto',
-        funcao: index_1.hmacSha512,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'chave', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.hmacSha512(texto, chave)\`\n\n` +
-            'Gera um código de autenticação de mensagem (HMAC) usando SHA-512.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var mensagem = "mensagem"\n' +
-            'var chave = "chave-secreta"\n' +
-            `escreva(criptografia.hmacSha512(mensagem, chave)) // Gera um HMAC SHA-512\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.hmacSha512("mensagem", "chave-secreta")'
-    },
-    gerarBytesAleatorios: {
-        tipoRetorno: 'bytes',
-        funcao: index_1.gerarBytesAleatorios,
-        argumentos: [{ nome: 'tamanho', tipo: 'numero' }],
-        documentacao: `# \`criptografia.gerarBytesAleatorios(tamanho)\`\n\n` +
-            'Gera bytes aleatórios criptograficamente seguros.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var bytes = criptografia.gerarBytesAleatorios(16)\n' +
-            `escreva(bytes) // Gera 16 bytes aleatórios\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.gerarBytesAleatorios(16)'
-    },
-    gerarUuid: {
-        tipoRetorno: 'texto',
-        funcao: index_1.gerarUuid,
-        argumentos: [],
-        documentacao: `# \`criptografia.gerarUuid()\`\n\n` +
-            'Gera um identificador único universal (UUID) versão 4.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var uuid = criptografia.gerarUuid()\n' +
-            `escreva(uuid) // Ex: "f47ac10b-58cc-4372-a567-0e02b2c3d479"\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.gerarUuid()'
-    },
-    codificarBase64: {
-        tipoRetorno: 'texto',
-        funcao: index_1.codificarBase64,
-        argumentos: [{ nome: 'texto', tipo: 'texto' }],
-        documentacao: `# \`criptografia.codificarBase64(texto)\`\n\n` +
-            'Codifica um texto em formato Base64.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var texto = "Texto para codificar"\n' +
-            `escreva(criptografia.codificarBase64(texto)) // Retorna texto em Base64\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.codificarBase64("Texto para codificar")'
-    },
-    decodificarBase64: {
-        tipoRetorno: 'texto',
-        funcao: index_1.decodificarBase64,
-        argumentos: [{ nome: 'textoBase64', tipo: 'texto' }],
-        documentacao: `# \`criptografia.decodificarBase64(textoBase64)\`\n\n` +
-            'Decodifica um texto em formato Base64.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var codificado = criptografia.codificarBase64("Olá")\n' +
-            `var decodificado = criptografia.decodificarBase64(codificado)\n` +
-            `escreva(decodificado) // "Olá"\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.decodificarBase64("VGV4dG8gY29kaWZpY2Fkbw==")'
-    },
-    criptografarAes256: {
-        tipoRetorno: 'dicionário',
-        funcao: index_1.criptografarAes256,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'chave', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.criptografarAes256(texto, chave)\`\n\n` +
-            'Criptografa um texto usando AES-256-CBC.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var texto = "Mensagem secreta"\n' +
-            'var chave = "minha-chave-super-secreta-aqui!"\n' +
-            `var resultado = criptografia.criptografarAes256(texto, chave)\n` +
-            `escreva(resultado.textoCriptografado) // Texto criptografado\n` +
-            `escreva(resultado.iv) // Vetor de inicialização\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.criptografarAes256("Mensagem secreta", "chave-de-32-caracteres-exatos!")'
-    },
-    descriptografarAes256: {
-        tipoRetorno: 'texto',
-        funcao: index_1.descriptografarAes256,
-        argumentos: [
-            { nome: 'textoCriptografado', tipo: 'texto' },
-            { nome: 'chave', tipo: 'texto' },
-            { nome: 'iv', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.descriptografarAes256(textoCriptografado, chave, iv)\`\n\n` +
-            'Descriptografa um texto criptografado com AES-256-CBC.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var chave = "minha-chave-super-secreta-aqui!"\n' +
-            'var resultado = criptografia.criptografarAes256("Mensagem secreta", chave)\n' +
-            `var descriptografado = criptografia.descriptografarAes256(resultado.textoCriptografado, chave, resultado.iv)\n` +
-            `escreva(descriptografado) // "Mensagem secreta"\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.descriptografarAes256(textoCriptografado, chave, iv)'
-    },
-    gerarParChavesRsa: {
-        tipoRetorno: 'dicionário',
-        funcao: index_1.gerarParChavesRsa,
-        argumentos: [{ nome: 'tamanhoChave', tipo: 'numero' }],
-        documentacao: `# \`criptografia.gerarParChavesRsa(tamanhoChave)\`\n\n` +
-            'Gera um par de chaves RSA (pública e privada).\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var par = criptografia.gerarParChavesRsa(2048)\n' +
-            `escreva(par.chavePublica) // Chave pública em formato PEM\n` +
-            `escreva(par.chavePrivada) // Chave privada em formato PEM\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
-    },
-    gerarParChavesRsaAssinatura: {
-        tipoRetorno: 'dicionário',
-        funcao: index_1.gerarParChavesRsaAssinatura,
-        argumentos: [{ nome: 'tamanhoModulo', tipo: 'numero' }],
-        documentacao: `# \`criptografia.gerarParChavesRsaAssinatura(tamanhoModulo)\`\n\n` +
-            'Gera um par de chaves RSA (pública e privada) para assinatura digital.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var par = criptografia.gerarParChavesRsaAssinatura(2048)\n' +
-            'var documento = "Texto importante"\n' +
-            'var assinatura = criptografia.assinarRsa(documento, par.chavePrivada)\n' +
-            'var valida = criptografia.verificarAssinaturaRsa(documento, assinatura, par.chavePublica)\n' +
-            `escreva(valida) // verdadeiro\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
-    },
-    criptografarRsa: {
-        tipoRetorno: 'texto',
-        funcao: index_1.criptografarRsa,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'chavePublica', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.criptografarRsa(texto, chavePublica)\`\n\n` +
-            'Criptografa um texto usando uma chave pública RSA.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var par = criptografia.gerarParChavesRsa(2048)\n' +
-            'var texto = "Mensagem confidencial"\n' +
-            `var criptografado = criptografia.criptografarRsa(texto, par.chavePublica)\n` +
-            `escreva(criptografado) // Texto criptografado em Base64\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.criptografarRsa("Mensagem confidencial", chavePublica)'
-    },
-    assinarRsa: {
-        tipoRetorno: 'texto',
-        funcao: index_1.assinarRsa,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'chavePrivada', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.assinarRsa(texto, chavePrivada)\`\n\n` +
-            'Assina digitalmente um texto usando uma chave privada RSA.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var par = criptografia.gerarParChavesRsa(2048)\n' +
-            'var texto = "Documento importante"\n' +
-            `var assinatura = criptografia.assinarRsa(texto, par.chavePrivada)\n` +
-            `escreva(assinatura) // Assinatura em Base64\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.assinarRsa("Documento importante", chavePrivada)'
-    },
-    verificarAssinaturaRsa: {
-        tipoRetorno: 'lógico',
-        funcao: index_1.verificarAssinaturaRsa,
-        argumentos: [
-            { nome: 'texto', tipo: 'texto' },
-            { nome: 'assinatura', tipo: 'texto' },
-            { nome: 'chavePublica', tipo: 'texto' }
-        ],
-        documentacao: `# \`criptografia.verificarAssinaturaRsa(texto, assinatura, chavePublica)\`\n\n` +
-            'Verifica uma assinatura digital usando uma chave pública RSA.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var par = criptografia.gerarParChavesRsa(2048)\n' +
-            'var texto = "Documento importante"\n' +
-            'var assinatura = criptografia.assinarRsa(texto, par.chavePrivada)\n' +
-            `var valida = criptografia.verificarAssinaturaRsa(texto, assinatura, par.chavePublica)\n` +
-            `escreva(valida) // verdadeiro\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.verificarAssinaturaRsa(texto, assinatura, chavePublica)'
-    },
-    derivarChavePbkdf2: {
-        tipoRetorno: 'texto',
-        funcao: index_1.derivarChavePbkdf2,
-        argumentos: [
-            { nome: 'senha', tipo: 'texto' },
-            { nome: 'sal', tipo: 'texto' },
-            { nome: 'iteracoes', tipo: 'número', opcional: true, valorPadrao: 100000 },
-            { nome: 'tamanhoChave', tipo: 'número', opcional: true, valorPadrao: 32 }
-        ],
-        documentacao: `# \`criptografia.derivarChavePbkdf2(senha, sal, iteracoes?, tamanhoChave?)\`\n\n` +
-            'Deriva uma chave a partir de uma senha usando PBKDF2 (Password-Based Key Derivation Function 2, ou Função de Derivação de Chave Baseada em Senha versão 2).\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var senha = "minha_senha"\n' +
-            'var sal = criptografia.gerarSalt()\n' +
-            `var chave = criptografia.derivarChavePbkdf2(senha, sal)\n` +
-            `escreva(chave) // Chave derivada em hexadecimal\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.derivarChavePbkdf2("minha_senha", sal)'
-    },
-    gerarSalt: {
-        tipoRetorno: 'texto',
-        funcao: index_1.gerarSalt,
-        argumentos: [
-            { nome: 'tamanho', tipo: 'numero', opcional: true, valorPadrao: 16 }
-        ],
-        documentacao: `# \`criptografia.gerarSalt(tamanho?)\`\n\n` +
-            'Gera um salt (valor aleatório) para uso em derivação de chaves.\n' +
-            '\n\n ## Exemplo de Código\n' +
-            '\n\n```delegua\n' +
-            'var criptografia = importar("criptografia")\n' +
-            'var salt = criptografia.gerarSalt()\n' +
-            `escreva(salt) // Salt aleatório em hexadecimal\n` +
-            'var saltCustomizado = criptografia.gerarSalt(32)\n' +
-            `escreva(saltCustomizado) // Salt de 32 bytes em hexadecimal\n` +
-            '```\n',
-        exemploCodigo: 'criptografia.gerarSalt()'
-    }
-};
-
-},{"./index":5}],5:[function(require,module,exports){
-(function (process,Buffer){(function (){
-"use strict";
+exports.criptografarAes256 = criptografarAes256;
+exports.descriptografarAes256 = descriptografarAes256;
+const comum_1 = require("./comum");
 /**
- * Biblioteca de criptografia para Delégua.
- * Compatível com Node.js e navegadores.
+ * Criptografa um texto usando AES-256-GCM (mais seguro que CBC).
+ * @param texto Texto a ser criptografado
+ * @param chave Chave de criptografia (deve ter 32 caracteres para AES-256)
+ * @param vetorInicializacao Vetor de inicialização (IV) com 12 bytes. Se não fornecido, será gerado automaticamente.
+ * @returns Objeto contendo o texto criptografado em Base64 e o IV usado
  */
+async function criptografarAes256(interpretador, texto, chave, vetorInicializacao) {
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        const chaveBuffer = Buffer.alloc(32);
+        chaveBuffer.write(chave.slice(0, 32));
+        const iv = vetorInicializacao || comum_1.nodeCrypto.randomBytes(12);
+        const cipher = comum_1.nodeCrypto.createCipheriv('aes-256-gcm', chaveBuffer, iv);
+        let encrypted = cipher.update(texto, 'utf8');
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        const authTag = cipher.getAuthTag();
+        // Combina dados criptografados + authTag (igual aos navegadores)
+        const combined = Buffer.concat([encrypted, authTag]);
+        return {
+            textoCriptografado: combined.toString('base64'),
+            iv: Buffer.from(iv).toString('hex')
+        };
+    }
+    if (comum_1.noNavegador && crypto.subtle) {
+        const chaveBuffer = (0, comum_1.stringToBuffer)(chave.slice(0, 32).padEnd(32, '0'));
+        const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['encrypt']);
+        const iv = vetorInicializacao || crypto.getRandomValues(new Uint8Array(12));
+        const textoBuffer = (0, comum_1.stringToBuffer)(texto);
+        const criptografado = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, cryptoKey, textoBuffer);
+        const criptografadoBase64 = btoa(String.fromCharCode(...new Uint8Array(criptografado)));
+        return {
+            textoCriptografado: criptografadoBase64,
+            iv: (0, comum_1.bufferToHex)(iv)
+        };
+    }
+    throw new Error('Criptografia AES-256 não disponível neste ambiente');
+}
+/**
+ * Descriptografa um texto usando AES-256-GCM.
+ * @param textoCriptografado Texto criptografado em Base64
+ * @param chave Chave de descriptografia (deve ter 32 caracteres)
+ * @param iv Vetor de inicialização em formato hexadecimal
+ * @returns Texto descriptografado
+ */
+async function descriptografarAes256(interpretador, textoCriptografado, chave, iv) {
+    const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
+    const chaveResolvida = interpretador.resolverValor(chave);
+    const ivResolvido = interpretador.resolverValor(iv);
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        const chaveBuffer = Buffer.alloc(32);
+        chaveBuffer.write(chaveResolvida.slice(0, 32));
+        const ivBuffer = Buffer.from(ivResolvido, 'hex');
+        // O textoCriptografado contém: dados + authTag (últimos 16 bytes)
+        const combined = Buffer.from(textoCriptografadoResolvido, 'base64');
+        const authTagLength = 16;
+        const dados = combined.slice(0, combined.length - authTagLength);
+        const authTag = combined.slice(combined.length - authTagLength);
+        const decipher = comum_1.nodeCrypto.createDecipheriv('aes-256-gcm', chaveBuffer, ivBuffer);
+        decipher.setAuthTag(authTag);
+        let descriptografado = decipher.update(dados, undefined, 'utf8');
+        descriptografado += decipher.final('utf8');
+        return descriptografado;
+    }
+    if (comum_1.noNavegador && crypto.subtle) {
+        const chaveBuffer = (0, comum_1.stringToBuffer)(chaveResolvida.slice(0, 32).padEnd(32, '0'));
+        const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['decrypt']);
+        const ivBuffer = new Uint8Array(ivResolvido.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
+        const descriptografado = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBuffer }, cryptoKey, criptografadoBuffer.buffer);
+        return (0, comum_1.bufferToString)(descriptografado);
+    }
+    throw new Error('Descriptografia AES-256 não disponível neste ambiente');
+}
+
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"./comum":7,"buffer":465}],5:[function(require,module,exports){
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.md5 = md5;
-exports.sha1 = sha1;
-exports.sha256 = sha256;
-exports.sha512 = sha512;
-exports.hmacSha256 = hmacSha256;
-exports.hmacSha512 = hmacSha512;
 exports.gerarBytesAleatorios = gerarBytesAleatorios;
 exports.gerarTextoAleatorio = gerarTextoAleatorio;
 exports.gerarUuid = gerarUuid;
+const comum_1 = require("./comum");
+/**
+ * Gera bytes aleatórios criptograficamente seguros.
+ * @param tamanho Número de bytes a serem gerados
+ * @returns Array de bytes aleatórios
+ */
+function gerarBytesAleatorios(interpretador, tamanho) {
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return new Uint8Array(comum_1.nodeCrypto.randomBytes(tamanho));
+    }
+    if (comum_1.noNavegador && crypto.getRandomValues) {
+        const buffer = new Uint8Array(tamanho);
+        crypto.getRandomValues(buffer);
+        return buffer;
+    }
+    throw new Error('Geração de bytes aleatórios não disponível neste ambiente');
+}
+/**
+ * Gera uma string aleatória em formato hexadecimal.
+ * @param tamanho Número de bytes (o resultado terá o dobro de caracteres)
+ * @returns String hexadecimal aleatória
+ */
+function gerarTextoAleatorio(interpretador, tamanho) {
+    const bytes = gerarBytesAleatorios(interpretador, tamanho);
+    return Array.from(bytes)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+/**
+ * Gera um UUID (Universally Unique Identifier) versão 4.
+ * @returns UUID no formato padrão (ex: 'f47ac10b-58cc-4372-a567-0e02b2c3d479')
+ */
+function gerarUuid() {
+    if (comum_1.noNode && comum_1.nodeCrypto && comum_1.nodeCrypto.randomUUID) {
+        return comum_1.nodeCrypto.randomUUID();
+    }
+    if (comum_1.noNavegador && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    // Fallback: gera UUID v4 manualmente
+    const bytes = gerarBytesAleatorios(null, 16);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40; // Versão 4
+    bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variante RFC4122
+    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+},{"./comum":7}],6:[function(require,module,exports){
+(function (Buffer){(function (){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.codificarBase64 = codificarBase64;
 exports.decodificarBase64 = decodificarBase64;
-exports.criptografarAes256 = criptografarAes256;
-exports.descriptografarAes256 = descriptografarAes256;
-exports.gerarParChavesRsa = gerarParChavesRsa;
-exports.gerarParChavesRsaAssinatura = gerarParChavesRsaAssinatura;
-exports.criptografarRsa = criptografarRsa;
-exports.descriptografarRsa = descriptografarRsa;
-exports.assinarRsa = assinarRsa;
-exports.verificarAssinaturaRsa = verificarAssinaturaRsa;
-exports.gerarSalt = gerarSalt;
-exports.derivarChavePbkdf2 = derivarChavePbkdf2;
+const comum_1 = require("./comum");
+/**
+ * Codifica uma string em Base64.
+ * @param texto Texto a ser codificado
+ * @returns String em formato Base64
+ */
+function codificarBase64(interpretador, texto) {
+    if (comum_1.noNode) {
+        return Buffer.from(texto, 'utf8').toString('base64');
+    }
+    if (comum_1.noNavegador) {
+        return btoa(unescape(encodeURIComponent(texto)));
+    }
+    throw new Error('Codificação Base64 não disponível neste ambiente');
+}
+/**
+ * Decodifica uma string Base64.
+ * @param textoBase64 String em formato Base64
+ * @returns Texto decodificado
+ */
+function decodificarBase64(interpretador, textoBase64) {
+    if (comum_1.noNode) {
+        return Buffer.from(textoBase64, 'base64').toString('utf8');
+    }
+    if (comum_1.noNavegador) {
+        return decodeURIComponent(escape(atob(textoBase64)));
+    }
+    throw new Error('Decodificação Base64 não disponível neste ambiente');
+}
+
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"./comum":7,"buffer":465}],7:[function(require,module,exports){
+(function (process){(function (){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.nodeCrypto = exports.noNavegador = exports.noNode = void 0;
+exports.bufferToHex = bufferToHex;
+exports.stringToBuffer = stringToBuffer;
+exports.bufferToString = bufferToString;
 // Detecta o ambiente
 const noNode = typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+exports.noNode = noNode;
 const noNavegador = typeof globalThis !== 'undefined' && typeof globalThis.window !== 'undefined';
+exports.noNavegador = noNavegador;
 // Importa crypto do Node.js apenas se estiver em ambiente Node
 let nodeCrypto = null;
+exports.nodeCrypto = nodeCrypto;
 if (noNode) {
-    nodeCrypto = require('crypto');
+    exports.nodeCrypto = nodeCrypto = require('crypto');
 }
 /**
  * Converte ArrayBuffer para string hexadecimal
@@ -644,6 +477,632 @@ function bufferToString(buffer) {
     const decoder = new TextDecoder();
     return decoder.decode(buffer);
 }
+
+}).call(this)}).call(this,require('_process'))
+},{"_process":598,"crypto":481}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DeleguaModuloCriptografia = void 0;
+const hashes_1 = require("./hashes");
+const aleatorios_1 = require("./aleatorios");
+const base64_1 = require("./base64");
+const aes_1 = require("./aes");
+const rsa_1 = require("./rsa");
+const pbkdf2_1 = require("./pbkdf2");
+const educacionais_1 = require("./educacionais");
+const salt_1 = require("./salt");
+const menino_do_acre_1 = require("./menino-do-acre");
+exports.DeleguaModuloCriptografia = {
+    md5: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.md5,
+        argumentos: [{ nome: 'texto', tipo: 'texto' }],
+        documentacao: `# \`criptografia.md5(texto)\`\n\n` +
+            'Gera uma dispersão (_hash_) MD5 de um texto.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var meuTexto = "Olá Mundo"\n' +
+            `escreva(criptografia.md5(meuTexto)) // "7141e6862d77e5c2a8e2f60a77a153cd"\n`,
+        exemploCodigo: 'criptografia.md5("Meu texto")',
+    },
+    sha1: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.sha1,
+        argumentos: [{ nome: 'texto', tipo: 'texto' }],
+        documentacao: `# \`criptografia.sha1(texto)\`\n\n` +
+            'Gera uma dispersão (_hash_) SHA-1 de um texto.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var meuTexto = "Olá Mundo"\n' +
+            `escreva(criptografia.sha1(meuTexto)) // Gera um hash SHA-1\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.sha1("Meu texto")'
+    },
+    sha256: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.sha256,
+        argumentos: [{ nome: 'texto', tipo: 'texto' }],
+        documentacao: `# \`criptografia.sha256(texto)\`\n\n` +
+            'Gera uma dispersão (_hash_) SHA-256 de um texto.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var meuTexto = "Olá Mundo"\n' +
+            `escreva(criptografia.sha256(meuTexto)) // Gera um hash SHA-256\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.sha256("Meu texto")'
+    },
+    sha512: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.sha512,
+        argumentos: [{ nome: 'texto', tipo: 'texto' }],
+        documentacao: `# \`criptografia.sha512(texto)\`\n\n` +
+            'Gera uma dispersão (_hash_) SHA-512 de um texto.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var meuTexto = "Olá Mundo"\n' +
+            `escreva(criptografia.sha512(meuTexto)) // Gera um hash SHA-512\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.sha512("Meu texto")'
+    },
+    hmacSha256: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.hmacSha256,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.hmacSha256(texto, chave)\`\n\n` +
+            'Gera um código de autenticação de mensagem (HMAC) usando SHA-256.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var mensagem = "mensagem"\n' +
+            'var chave = "chave-secreta"\n' +
+            `escreva(criptografia.hmacSha256(mensagem, chave)) // Gera um HMAC SHA-256\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.hmacSha256("mensagem", "chave-secreta")'
+    },
+    hmacSha512: {
+        tipoRetorno: 'texto',
+        funcao: hashes_1.hmacSha512,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.hmacSha512(texto, chave)\`\n\n` +
+            'Gera um código de autenticação de mensagem (HMAC) usando SHA-512.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var mensagem = "mensagem"\n' +
+            'var chave = "chave-secreta"\n' +
+            `escreva(criptografia.hmacSha512(mensagem, chave)) // Gera um HMAC SHA-512\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.hmacSha512("mensagem", "chave-secreta")'
+    },
+    gerarBytesAleatorios: {
+        tipoRetorno: 'bytes',
+        funcao: aleatorios_1.gerarBytesAleatorios,
+        argumentos: [{ nome: 'tamanho', tipo: 'numero' }],
+        documentacao: `# \`criptografia.gerarBytesAleatorios(tamanho)\`\n\n` +
+            'Gera bytes aleatórios criptograficamente seguros.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var bytes = criptografia.gerarBytesAleatorios(16)\n' +
+            `escreva(bytes) // Gera 16 bytes aleatórios\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarBytesAleatorios(16)'
+    },
+    gerarTextoAleatorio: {
+        tipoRetorno: 'texto',
+        funcao: aleatorios_1.gerarTextoAleatorio,
+        argumentos: [{ nome: 'tamanho', tipo: 'numero' }],
+        documentacao: `# \`criptografia.gerarTextoAleatorio(tamanho)\`\n\n` +
+            'Gera uma string aleatória em formato hexadecimal.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var textoAleatorio = criptografia.gerarTextoAleatorio(16)\n' +
+            `escreva(textoAleatorio) // Gera texto hexadecimal aleatório de 16 bytes\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarTextoAleatorio(16)'
+    },
+    gerarUuid: {
+        tipoRetorno: 'texto',
+        funcao: aleatorios_1.gerarUuid,
+        argumentos: [],
+        documentacao: `# \`criptografia.gerarUuid()\`\n\n` +
+            'Gera um identificador único universal (UUID) versão 4.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var uuid = criptografia.gerarUuid()\n' +
+            `escreva(uuid) // Ex: "f47ac10b-58cc-4372-a567-0e02b2c3d479"\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarUuid()'
+    },
+    codificarBase64: {
+        tipoRetorno: 'texto',
+        funcao: base64_1.codificarBase64,
+        argumentos: [{ nome: 'texto', tipo: 'texto' }],
+        documentacao: `# \`criptografia.codificarBase64(texto)\`\n\n` +
+            'Codifica um texto em formato Base64.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "Texto para codificar"\n' +
+            `escreva(criptografia.codificarBase64(texto)) // Retorna texto em Base64\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.codificarBase64("Texto para codificar")'
+    },
+    decodificarBase64: {
+        tipoRetorno: 'texto',
+        funcao: base64_1.decodificarBase64,
+        argumentos: [{ nome: 'textoBase64', tipo: 'texto' }],
+        documentacao: `# \`criptografia.decodificarBase64(textoBase64)\`\n\n` +
+            'Decodifica um texto em formato Base64.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var codificado = criptografia.codificarBase64("Olá")\n' +
+            `var decodificado = criptografia.decodificarBase64(codificado)\n` +
+            `escreva(decodificado) // "Olá"\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.decodificarBase64("VGV4dG8gY29kaWZpY2Fkbw==")'
+    },
+    criptografarAes256: {
+        tipoRetorno: 'dicionário',
+        funcao: aes_1.criptografarAes256,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.criptografarAes256(texto, chave)\`\n\n` +
+            'Criptografa um texto usando AES-256-GCM (modo autenticado).\n' + // Changed: CBC → GCM
+            'O authTag é automaticamente incluído no resultado para garantir segurança em ambos os ambientes.\n\n' + // Added
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "Mensagem secreta"\n' +
+            'var chave = "minha-chave-super-secreta-aqui!" // 32 caracteres\n' +
+            `var resultado = criptografia.criptografarAes256(texto, chave)\n` +
+            `escreva(resultado.textoCriptografado) // Texto criptografado (com authTag embutido)\n` + // Changed
+            `escreva(resultado.iv) // Vetor de inicialização\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.criptografarAes256("Mensagem secreta", "chave-de-32-caracteres-exatos!")'
+    },
+    descriptografarAes256: {
+        tipoRetorno: 'texto',
+        funcao: aes_1.descriptografarAes256,
+        argumentos: [
+            { nome: 'textoCriptografado', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' },
+            { nome: 'iv', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.descriptografarAes256(textoCriptografado, chave, iv)\`\n\n` +
+            'Descriptografa um texto criptografado com AES-256-GCM.\n' + // Changed: CBC → GCM
+            'O authTag é automaticamente extraído do texto criptografado - não é necessário passá-lo separadamente.\n' + // Added
+            'API unificada: funciona identicamente em Node.js e navegadores.\n\n' + // Added
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var chave = "minha-chave-super-secreta-aqui!"\n' +
+            'var resultado = criptografia.criptografarAes256("Mensagem secreta", chave)\n' +
+            '\n' + // Added line break for clarity
+            '// Descriptografar - mesma API em Node.js e navegador!\n' + // Added
+            `var descriptografado = criptografia.descriptografarAes256(\n` + // Changed: multiline
+            `    resultado.textoCriptografado,\n` +
+            `    chave,\n` +
+            `    resultado.iv\n` +
+            `)\n` +
+            `escreva(descriptografado) // "Mensagem secreta"\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.descriptografarAes256(textoCriptografado, chave, iv)'
+    },
+    gerarParChavesRsa: {
+        tipoRetorno: 'dicionário',
+        funcao: rsa_1.gerarParChavesRsa,
+        argumentos: [{ nome: 'tamanhoChave', tipo: 'numero' }],
+        documentacao: `# \`criptografia.gerarParChavesRsa(tamanhoChave)\`\n\n` +
+            'Gera um par de chaves RSA (pública e privada).\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsa(2048)\n' +
+            `escreva(par.chavePublica) // Chave pública em formato PEM\n` +
+            `escreva(par.chavePrivada) // Chave privada em formato PEM\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
+    },
+    gerarParChavesRsaAssinatura: {
+        tipoRetorno: 'dicionário',
+        funcao: rsa_1.gerarParChavesRsaAssinatura,
+        argumentos: [{ nome: 'tamanhoModulo', tipo: 'numero' }],
+        documentacao: `# \`criptografia.gerarParChavesRsaAssinatura(tamanhoModulo)\`\n\n` +
+            'Gera um par de chaves RSA (pública e privada) para assinatura digital.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsaAssinatura(2048)\n' +
+            'var documento = "Texto importante"\n' +
+            'var assinatura = criptografia.assinarRsa(documento, par.chavePrivada)\n' +
+            'var valida = criptografia.verificarAssinaturaRsa(documento, assinatura, par.chavePublica)\n' +
+            `escreva(valida) // verdadeiro\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarParChavesRsa(2048)'
+    },
+    criptografarRsa: {
+        tipoRetorno: 'texto',
+        funcao: rsa_1.criptografarRsa,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chavePublica', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.criptografarRsa(texto, chavePublica)\`\n\n` +
+            'Criptografa um texto usando uma chave pública RSA.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsa(2048)\n' +
+            'var texto = "Mensagem confidencial"\n' +
+            `var criptografado = criptografia.criptografarRsa(texto, par.chavePublica)\n` +
+            `escreva(criptografado) // Texto criptografado em Base64\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.criptografarRsa("Mensagem confidencial", chavePublica)'
+    },
+    assinarRsa: {
+        tipoRetorno: 'texto',
+        funcao: rsa_1.assinarRsa,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chavePrivada', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.assinarRsa(texto, chavePrivada)\`\n\n` +
+            'Assina digitalmente um texto usando uma chave privada RSA.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsa(2048)\n' +
+            'var texto = "Documento importante"\n' +
+            `var assinatura = criptografia.assinarRsa(texto, par.chavePrivada)\n` +
+            `escreva(assinatura) // Assinatura em Base64\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.assinarRsa("Documento importante", chavePrivada)'
+    },
+    verificarAssinaturaRsa: {
+        tipoRetorno: 'lógico',
+        funcao: rsa_1.verificarAssinaturaRsa,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'assinatura', tipo: 'texto' },
+            { nome: 'chavePublica', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.verificarAssinaturaRsa(texto, assinatura, chavePublica)\`\n\n` +
+            'Verifica uma assinatura digital usando uma chave pública RSA.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var par = criptografia.gerarParChavesRsa(2048)\n' +
+            'var texto = "Documento importante"\n' +
+            'var assinatura = criptografia.assinarRsa(texto, par.chavePrivada)\n' +
+            `var valida = criptografia.verificarAssinaturaRsa(texto, assinatura, par.chavePublica)\n` +
+            `escreva(valida) // verdadeiro\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.verificarAssinaturaRsa(texto, assinatura, chavePublica)'
+    },
+    derivarChavePbkdf2: {
+        tipoRetorno: 'texto',
+        funcao: pbkdf2_1.derivarChavePbkdf2,
+        argumentos: [
+            { nome: 'senha', tipo: 'texto' },
+            { nome: 'sal', tipo: 'texto' },
+            { nome: 'iteracoes', tipo: 'número', opcional: true, valorPadrao: 100000 },
+            { nome: 'tamanhoChave', tipo: 'número', opcional: true, valorPadrao: 32 }
+        ],
+        documentacao: `# \`criptografia.derivarChavePbkdf2(senha, sal, iteracoes?, tamanhoChave?)\`\n\n` +
+            'Deriva uma chave a partir de uma senha usando PBKDF2 (Password-Based Key Derivation Function 2, ou Função de Derivação de Chave Baseada em Senha versão 2).\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var senha = "minha_senha"\n' +
+            'var sal = criptografia.gerarSalt()\n' +
+            `var chave = criptografia.derivarChavePbkdf2(senha, sal)\n` +
+            `escreva(chave) // Chave derivada em hexadecimal\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.derivarChavePbkdf2("minha_senha", sal)'
+    },
+    gerarSalt: {
+        tipoRetorno: 'texto',
+        funcao: salt_1.gerarSalt,
+        argumentos: [
+            { nome: 'tamanho', tipo: 'numero', opcional: true, valorPadrao: 16 }
+        ],
+        documentacao: `# \`criptografia.gerarSalt(tamanho?)\`\n\n` +
+            'Gera um salt (valor aleatório) para uso em derivação de chaves.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var salt = criptografia.gerarSalt()\n' +
+            `escreva(salt) // Salt aleatório em hexadecimal\n` +
+            'var saltCustomizado = criptografia.gerarSalt(32)\n' +
+            `escreva(saltCustomizado) // Salt de 32 bytes em hexadecimal\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.gerarSalt()'
+    },
+    // Cifras Clássicas (Educacionais)
+    cifrarXor: {
+        tipoRetorno: 'texto',
+        funcao: educacionais_1.cifrarXor,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.cifrarXor(texto, chave)\`\n\n` +
+            'Cifra um texto usando operação XOR bit a bit.\n' +
+            '⚠️ ATENÇÃO: Apenas para fins educacionais! NÃO é segura para dados sensíveis.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "Mensagem secreta"\n' +
+            'var chave = "minhaChave"\n' +
+            'var cifrado = criptografia.cifrarXor(texto, chave)\n' +
+            'escreva(cifrado) // Retorna em hexadecimal\n' +
+            'var original = criptografia.decifrarXor(cifrado, chave)\n' +
+            'escreva(original) // "Mensagem secreta"\n' +
+            '```\n',
+        exemploCodigo: 'criptografia.cifrarXor("Hello", "key")'
+    },
+    decifrarXor: {
+        tipoRetorno: 'texto',
+        funcao: educacionais_1.decifrarXor,
+        argumentos: [
+            { nome: 'textoHex', tipo: 'texto' },
+            { nome: 'chave', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.decifrarXor(textoHex, chave)\`\n\n` +
+            'Decifra um texto que foi cifrado com XOR.\n' +
+            'Como XOR é uma operação simétrica, usar a mesma chave reverte a cifragem.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var cifrado = "2e0b1c..." // Resultado de cifrarXor\n' +
+            'var chave = "minhaChave"\n' +
+            'var original = criptografia.decifrarXor(cifrado, chave)\n' +
+            'escreva(original)\n' +
+            '```\n',
+        exemploCodigo: 'criptografia.decifrarXor(textoCifrado, "key")'
+    },
+    rot13: {
+        tipoRetorno: 'texto',
+        funcao: educacionais_1.rot13,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' }
+        ],
+        documentacao: `# \`criptografia.rot13(texto)\`\n\n` +
+            'Aplica a cifra ROT13 que desloca cada letra em 13 posições no alfabeto.\n' +
+            '⚠️ ATENÇÃO: Apenas para fins educacionais! Muito fácil de quebrar.\n' +
+            'Como ROT13 desloca 13 posições em um alfabeto de 26 letras, ' +
+            'aplicar duas vezes retorna o texto original.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "Hello World"\n' +
+            'var cifrado = criptografia.rot13(texto)\n' +
+            'escreva(cifrado) // "Uryyb Jbeyq"\n' +
+            '// Aplicar novamente para decifrar\n' +
+            'var original = criptografia.rot13(cifrado)\n' +
+            'escreva(original) // "Hello World"\n' +
+            '```\n',
+        exemploCodigo: 'criptografia.rot13("Hello World")'
+    },
+    rotN: {
+        tipoRetorno: 'texto',
+        funcao: educacionais_1.rotN,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'deslocamento', tipo: 'numero' }
+        ],
+        documentacao: `# \`criptografia.rotN(texto, deslocamento)\`\n\n` +
+            'Cifra de César - desloca letras por N posições no alfabeto.\n' +
+            '⚠️ ATENÇÃO: Apenas para fins educacionais!\n' +
+            'Generalização do ROT13 que permite escolher o deslocamento.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "ABC"\n' +
+            'var cifrado = criptografia.rotN(texto, 3)\n' +
+            'escreva(cifrado) // "DEF"\n' +
+            '// Decifrar com deslocamento negativo\n' +
+            'var original = criptografia.rotN(cifrado, -3)\n' +
+            'escreva(original) // "ABC"\n' +
+            '```\n',
+        exemploCodigo: 'criptografia.rotN("Hello", 5)'
+    },
+    decifrarRotN: {
+        tipoRetorno: 'texto',
+        funcao: educacionais_1.decifrarRotN,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'deslocamento', tipo: 'numero' }
+        ],
+        documentacao: `# \`criptografia.decifrarRotN(texto, deslocamento)\`\n\n` +
+            'Decifra um texto cifrado com ROT-N (Cifra de César).\n' +
+            'Aplica o deslocamento inverso para recuperar o texto original.\n\n' +
+            '## Exemplo de Código\n\n' +
+            '```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var cifrado = "Khoor" // "Hello" com ROT-3\n' +
+            'var original = criptografia.decifrarRotN(cifrado, 3)\n' +
+            'escreva(original) // "Hello"\n' +
+            '```\n',
+        exemploCodigo: 'criptografia.decifrarRotN(textoCifrado, 5)'
+    },
+    criptografarEmMeninoDoAcre: {
+        tipoRetorno: 'texto',
+        funcao: menino_do_acre_1.criptografarEmMeninoDoAcre,
+        argumentos: [
+            { nome: 'texto', tipo: 'texto' },
+            { nome: 'opcoes', tipo: 'dicionário', opcional: true }
+        ],
+        documentacao: `# \`criptografia.criptografarEmMeninoDoAcre(texto)\`\n\n` +
+            'Criptografa texto latino (a–z, A–Z) em símbolos do tema escolhido (rúnico ou alquímico).' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var texto = "Busquem conhecimento"\n' +
+            `var cifrado = criptografia.criptografarEmMeninoDoAcre(texto, {"tema": "alquimico"})\n` +
+            `escreva(cifrado) // Texto criptografado em símbolos\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.criptografarEmMeninoDoAcre(texto)'
+    },
+    descriptografarDeMeninoDoAcre: {
+        tipoRetorno: 'texto',
+        funcao: menino_do_acre_1.descriptografarDeMeninoDoAcre,
+        argumentos: [
+            { nome: 'textoCifrado', tipo: 'texto' },
+            { nome: 'opcoes', tipo: 'dicionário', opcional: true }
+        ],
+        documentacao: `# \`criptografia.descriptografarDeMeninoDoAcre(textoCifrado)\`\n\n` +
+            'Descriptografa texto cifrado em símbolos do tema escolhido (rúnico ou alquímico) de volta para texto latino.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var criptografia = importar("criptografia")\n' +
+            'var cifrado = "⚛️🔺..." // Texto cifrado em símbolos\n' +
+            `var original = criptografia.descriptografarDeMeninoDoAcre(cifrado, {"tema": "alquimico"})\n` +
+            `escreva(original) // "Busquem conhecimento"\n` +
+            '```\n',
+        exemploCodigo: 'criptografia.descriptografarDeMeninoDoAcre(textoCifrado)'
+    }
+};
+
+},{"./aes":4,"./aleatorios":5,"./base64":6,"./educacionais":9,"./hashes":10,"./menino-do-acre":12,"./pbkdf2":13,"./rsa":14,"./salt":15}],9:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cifrarXor = cifrarXor;
+exports.decifrarXor = decifrarXor;
+exports.rot13 = rot13;
+exports.rotN = rotN;
+exports.decifrarRotN = decifrarRotN;
+const comum_1 = require("./comum");
+/**
+ * Cifra XOR - Criptografia simétrica simples usando operação XOR bit a bit.
+ * ATENÇÃO: Apenas para fins educacionais, NÃO é segura para dados sensíveis!
+ * @param texto Texto a ser cifrado/decifrado
+ * @param chave Chave para a operação XOR (pode ser qualquer tamanho)
+ * @returns Texto cifrado/decifrado em formato hexadecimal
+ */
+function cifrarXor(interpretador, texto, chave) {
+    if (!chave || chave.length === 0) {
+        throw new Error('A chave não pode estar vazia');
+    }
+    const textoBytes = (0, comum_1.stringToBuffer)(texto);
+    const chaveBytes = (0, comum_1.stringToBuffer)(chave);
+    const resultado = [];
+    for (let i = 0; i < textoBytes.length; i++) {
+        // XOR com a chave (repetindo a chave se necessário)
+        const xor = textoBytes[i] ^ chaveBytes[i % chaveBytes.length];
+        resultado.push(xor);
+    }
+    // Retorna em hexadecimal para facilitar visualização
+    return resultado.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+/**
+ * Decifra XOR - Decifra texto que foi cifrado com XOR.
+ * Como XOR é simétrico, a operação é idêntica à cifragem.
+ * @param textoHex Texto cifrado em formato hexadecimal
+ * @param chave Chave usada na cifragem
+ * @returns Texto original
+ */
+function decifrarXor(interpretador, textoHex, chave) {
+    if (!chave || chave.length === 0) {
+        throw new Error('A chave não pode estar vazia');
+    }
+    // Converte hexadecimal para bytes
+    const textoBytes = [];
+    for (let i = 0; i < textoHex.length; i += 2) {
+        textoBytes.push(parseInt(textoHex.substr(i, 2), 16));
+    }
+    const chaveBytes = (0, comum_1.stringToBuffer)(chave);
+    const resultado = [];
+    for (let i = 0; i < textoBytes.length; i++) {
+        // XOR com a chave (operação simétrica)
+        const xor = textoBytes[i] ^ chaveBytes[i % chaveBytes.length];
+        resultado.push(xor);
+    }
+    // Converte bytes de volta para string
+    return (0, comum_1.bufferToString)(new Uint8Array(resultado));
+}
+/**
+ * ROT13 - Cifra de substituição simples que desloca letras em 13 posições.
+ * Apenas para fins educacionais, NÃO é segura!
+ * Como ROT13 desloca 13 posições no alfabeto de 26 letras, aplicar duas vezes
+ * retorna o texto original (é sua própria inversa).
+ * @param texto Texto a ser cifrado/decifrado
+ * @returns Texto com ROT13 aplicado
+ */
+function rot13(interpretador, texto) {
+    return texto.replace(/[a-zA-Z]/g, (char) => {
+        const codigo = char.charCodeAt(0);
+        // Letras maiúsculas (A-Z: 65-90)
+        if (codigo >= 65 && codigo <= 90) {
+            return String.fromCharCode(((codigo - 65 + 13) % 26) + 65);
+        }
+        // Letras minúsculas (a-z: 97-122)
+        if (codigo >= 97 && codigo <= 122) {
+            return String.fromCharCode(((codigo - 97 + 13) % 26) + 97);
+        }
+        return char;
+    });
+}
+/**
+ * ROT-N - Generalização do ROT13 que permite deslocamento customizado.
+ * Cifra de César com deslocamento configurável.
+ * ATENÇÃO: Apenas para fins educacionais!
+ * @param texto Texto a ser cifrado
+ * @param deslocamento Número de posições para deslocar (padrão: 13)
+ * @returns Texto cifrado
+ */
+function rotN(interpretador, texto, deslocamento = 13) {
+    // Normaliza o deslocamento para estar entre 0-25
+    deslocamento = ((deslocamento % 26) + 26) % 26;
+    return texto.replace(/[a-zA-Z]/g, (char) => {
+        const codigo = char.charCodeAt(0);
+        // Letras maiúsculas (A-Z: 65-90)
+        if (codigo >= 65 && codigo <= 90) {
+            return String.fromCharCode(((codigo - 65 + deslocamento) % 26) + 65);
+        }
+        // Letras minúsculas (a-z: 97-122)
+        if (codigo >= 97 && codigo <= 122) {
+            return String.fromCharCode(((codigo - 97 + deslocamento) % 26) + 97);
+        }
+        return char;
+    });
+}
+/**
+ * Decifra ROT-N - Decifra texto cifrado com ROT-N.
+ * @param texto Texto cifrado
+ * @param deslocamento Deslocamento usado na cifragem
+ * @returns Texto original
+ */
+function decifrarRotN(interpretador, texto, deslocamento = 13) {
+    // Para decifrar, basta aplicar o deslocamento negativo
+    return rotN(interpretador, texto, -deslocamento);
+}
+
+},{"./comum":7}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.md5 = md5;
+exports.sha1 = sha1;
+exports.sha256 = sha256;
+exports.sha512 = sha512;
+exports.hmacSha256 = hmacSha256;
+exports.hmacSha512 = hmacSha512;
+const comum_1 = require("./comum");
 /**
  * Implementação pura de MD5 em TypeScript
  */
@@ -753,8 +1212,8 @@ function md5Puro(texto) {
  * @returns Hash MD5 em formato hexadecimal
  */
 function md5(interpretador, texto) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHash('md5').update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHash('md5').update(texto).digest('hex');
     }
     // Implementação pura para navegadores
     return md5Puro(texto);
@@ -765,13 +1224,13 @@ function md5(interpretador, texto) {
  * @returns Hash SHA-1 em formato hexadecimal
  */
 async function sha1(interpretador, texto) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHash('sha1').update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHash('sha1').update(texto).digest('hex');
     }
-    if (noNavegador && crypto.subtle) {
-        const buffer = stringToBuffer(texto);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const buffer = (0, comum_1.stringToBuffer)(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-1', buffer);
-        return bufferToHex(hashBuffer);
+        return (0, comum_1.bufferToHex)(hashBuffer);
     }
     throw new Error('SHA-1 não disponível neste ambiente');
 }
@@ -781,13 +1240,13 @@ async function sha1(interpretador, texto) {
  * @returns Hash SHA-256 em formato hexadecimal
  */
 async function sha256(interpretador, texto) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHash('sha256').update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHash('sha256').update(texto).digest('hex');
     }
-    if (noNavegador && crypto.subtle) {
-        const buffer = stringToBuffer(texto);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const buffer = (0, comum_1.stringToBuffer)(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-        return bufferToHex(hashBuffer);
+        return (0, comum_1.bufferToHex)(hashBuffer);
     }
     throw new Error('SHA-256 não disponível neste ambiente');
 }
@@ -797,13 +1256,13 @@ async function sha256(interpretador, texto) {
  * @returns Hash SHA-512 em formato hexadecimal
  */
 async function sha512(interpretador, texto) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHash('sha512').update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHash('sha512').update(texto).digest('hex');
     }
-    if (noNavegador && crypto.subtle) {
-        const buffer = stringToBuffer(texto);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const buffer = (0, comum_1.stringToBuffer)(texto);
         const hashBuffer = await crypto.subtle.digest('SHA-512', buffer);
-        return bufferToHex(hashBuffer);
+        return (0, comum_1.bufferToHex)(hashBuffer);
     }
     throw new Error('SHA-512 não disponível neste ambiente');
 }
@@ -814,15 +1273,15 @@ async function sha512(interpretador, texto) {
  * @returns HMAC em formato hexadecimal
  */
 async function hmacSha256(interpretador, texto, chave) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHmac('sha256', chave).update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHmac('sha256', chave).update(texto).digest('hex');
     }
-    if (noNavegador && crypto.subtle) {
-        const keyBuffer = stringToBuffer(chave);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const keyBuffer = (0, comum_1.stringToBuffer)(chave);
         const cryptoKey = await crypto.subtle.importKey('raw', keyBuffer, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-        const textBuffer = stringToBuffer(texto);
+        const textBuffer = (0, comum_1.stringToBuffer)(texto);
         const signature = await crypto.subtle.sign('HMAC', cryptoKey, textBuffer);
-        return bufferToHex(signature);
+        return (0, comum_1.bufferToHex)(signature);
     }
     throw new Error('HMAC-SHA256 não disponível neste ambiente');
 }
@@ -833,173 +1292,172 @@ async function hmacSha256(interpretador, texto, chave) {
  * @returns HMAC em formato hexadecimal
  */
 async function hmacSha512(interpretador, texto, chave) {
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.createHmac('sha512', chave).update(texto).digest('hex');
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.createHmac('sha512', chave).update(texto).digest('hex');
     }
-    if (noNavegador && crypto.subtle) {
-        const keyBuffer = stringToBuffer(chave);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const keyBuffer = (0, comum_1.stringToBuffer)(chave);
         const cryptoKey = await crypto.subtle.importKey('raw', keyBuffer, { name: 'HMAC', hash: 'SHA-512' }, false, ['sign']);
-        const textBuffer = stringToBuffer(texto);
+        const textBuffer = (0, comum_1.stringToBuffer)(texto);
         const signature = await crypto.subtle.sign('HMAC', cryptoKey, textBuffer);
-        return bufferToHex(signature);
+        return (0, comum_1.bufferToHex)(signature);
     }
     throw new Error('HMAC-SHA512 não disponível neste ambiente');
 }
+
+},{"./comum":7}],11:[function(require,module,exports){
+"use strict";
 /**
- * Gera bytes aleatórios criptograficamente seguros.
- * @param tamanho Número de bytes a serem gerados
- * @returns Array de bytes aleatórios
- */
-function gerarBytesAleatorios(interpretador, tamanho) {
-    if (noNode && nodeCrypto) {
-        return new Uint8Array(nodeCrypto.randomBytes(tamanho));
+ * Biblioteca de criptografia para Delégua.
+ * Compatível com Node.js e navegadores.
+*/
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
     }
-    if (noNavegador && crypto.getRandomValues) {
-        const buffer = new Uint8Array(tamanho);
-        crypto.getRandomValues(buffer);
-        return buffer;
-    }
-    throw new Error('Geração de bytes aleatórios não disponível neste ambiente');
-}
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./aes"), exports);
+__exportStar(require("./aleatorios"), exports);
+__exportStar(require("./base64"), exports);
+__exportStar(require("./educacionais"), exports);
+__exportStar(require("./hashes"), exports);
+__exportStar(require("./menino-do-acre"), exports);
+__exportStar(require("./pbkdf2"), exports);
+__exportStar(require("./rsa"), exports);
+__exportStar(require("./salt"), exports);
+
+},{"./aes":4,"./aleatorios":5,"./base64":6,"./educacionais":9,"./hashes":10,"./menino-do-acre":12,"./pbkdf2":13,"./rsa":14,"./salt":15}],12:[function(require,module,exports){
+"use strict";
+/*
+  delegua-criptografia: tema híbrido inspirado no "Menino do Acre"
+  Vogais → Runic (U+16A0–U+16FF)
+  Consoantes → Alchemical Symbols (U+1F700–U+1F77F)
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.criptografarEmMeninoDoAcre = criptografarEmMeninoDoAcre;
+exports.descriptografarDeMeninoDoAcre = descriptografarDeMeninoDoAcre;
+// --- Mapas ---
+const vogais = ['a', 'e', 'i', 'o', 'u'];
+// --- Mapeamento Rúnico ---
+const mapaRunico = {
+    a: "ᚠ", b: "ᚢ", c: "ᚦ", d: "ᚨ", e: "ᚱ", f: "ᚲ", g: "ᚷ",
+    h: "ᚹ", i: "ᚺ", j: "ᚾ", k: "ᛁ", l: "ᛃ", m: "ᛇ", n: "ᛈ",
+    o: "ᛉ", p: "ᛋ", q: "ᛏ", r: "ᛒ", s: "ᛖ", t: "ᛗ", u: "ᛚ",
+    v: "ᛜ", w: "ᛞ", x: "ᛟ", y: "ᚤ", z: "ᚣ",
+};
+// --- Mapeamento Alquímico ---
+const mapaAlquimico = {
+    a: "🜁", b: "🜂", c: "🜃", d: "🜄", e: "🜅", f: "🜆", g: "🜇",
+    h: "🜈", i: "🜉", j: "🜊", k: "🜋", l: "🜌", m: "🜍", n: "🜎",
+    o: "🜏", p: "🜐", q: "🜑", r: "🜒", s: "🜓", t: "🜔", u: "🜕",
+    v: "🜖", w: "🜗", x: "🜘", y: "🜙", z: "🜚",
+};
+// --- Reversos ---
+const mapaRunicoReverso = Object.fromEntries(Object.entries(mapaRunico).map(([lat, rune]) => [rune, lat]));
+const mapaAlquimicoReverso = Object.fromEntries(Object.entries(mapaAlquimico).map(([lat, simb]) => [simb, lat]));
 /**
- * Gera uma string aleatória em formato hexadecimal.
- * @param tamanho Número de bytes (o resultado terá o dobro de caracteres)
- * @returns String hexadecimal aleatória
+ * Criptografa texto latino (a–z, A–Z) em símbolos do tema escolhido.
  */
-function gerarTextoAleatorio(interpretador, tamanho) {
-    const bytes = gerarBytesAleatorios(interpretador, tamanho);
-    return Array.from(bytes)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-}
-/**
- * Gera um UUID (Universally Unique Identifier) versão 4.
- * @returns UUID no formato padrão (ex: 'f47ac10b-58cc-4372-a567-0e02b2c3d479')
- */
-function gerarUuid() {
-    if (noNode && nodeCrypto && nodeCrypto.randomUUID) {
-        return nodeCrypto.randomUUID();
-    }
-    if (noNavegador && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
-    // Fallback: gera UUID v4 manualmente
-    const bytes = gerarBytesAleatorios(null, 16);
-    bytes[6] = (bytes[6] & 0x0f) | 0x40; // Versão 4
-    bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variante RFC4122
-    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-/**
- * Codifica uma string em Base64.
- * @param texto Texto a ser codificado
- * @returns String em formato Base64
- */
-function codificarBase64(interpretador, texto) {
-    if (noNode) {
-        return Buffer.from(texto, 'utf8').toString('base64');
-    }
-    if (noNavegador) {
-        return btoa(unescape(encodeURIComponent(texto)));
-    }
-    throw new Error('Codificação Base64 não disponível neste ambiente');
-}
-/**
- * Decodifica uma string Base64.
- * @param textoBase64 String em formato Base64
- * @returns Texto decodificado
- */
-function decodificarBase64(interpretador, textoBase64) {
-    if (noNode) {
-        return Buffer.from(textoBase64, 'base64').toString('utf8');
-    }
-    if (noNavegador) {
-        return decodeURIComponent(escape(atob(textoBase64)));
-    }
-    throw new Error('Decodificação Base64 não disponível neste ambiente');
-}
-/**
- * Criptografa um texto usando AES-256-GCM (mais seguro que CBC).
- * @param texto Texto a ser criptografado
- * @param chave Chave de criptografia (deve ter 32 caracteres para AES-256)
- * @param vetorInicializacao Vetor de inicialização (IV) com 12 bytes. Se não fornecido, será gerado automaticamente.
- * @returns Objeto contendo o texto criptografado em Base64 e o IV usado
- */
-async function criptografarAes256(interpretador, texto, chave, vetorInicializacao) {
-    if (noNode && nodeCrypto) {
-        const chaveBuffer = Buffer.alloc(32);
-        chaveBuffer.write(chave.slice(0, 32));
-        const iv = vetorInicializacao || nodeCrypto.randomBytes(12);
-        const cipher = nodeCrypto.createCipheriv('aes-256-gcm', chaveBuffer, iv);
-        let criptografado = cipher.update(texto, 'utf8', 'base64');
-        criptografado += cipher.final('base64');
-        const authTag = cipher.getAuthTag();
-        return {
-            textoCriptografado: criptografado,
-            iv: Buffer.from(iv).toString('hex'),
-            authTag: authTag.toString('hex')
-        };
-    }
-    if (noNavegador && crypto.subtle) {
-        const chaveBuffer = stringToBuffer(chave.slice(0, 32).padEnd(32, '0'));
-        const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['encrypt']);
-        const iv = vetorInicializacao || crypto.getRandomValues(new Uint8Array(12));
-        const textoBuffer = stringToBuffer(texto);
-        const criptografado = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, cryptoKey, textoBuffer);
-        const criptografadoBase64 = btoa(String.fromCharCode(...new Uint8Array(criptografado)));
-        return {
-            textoCriptografado: criptografadoBase64,
-            iv: bufferToHex(iv)
-        };
-    }
-    throw new Error('Criptografia AES-256 não disponível neste ambiente');
-}
-/**
- * Descriptografa um texto usando AES-256-GCM.
- * @param textoCriptografado Texto criptografado em Base64
- * @param chave Chave de descriptografia (deve ter 32 caracteres)
- * @param iv Vetor de inicialização em formato hexadecimal
- * @param authTag Tag de autenticação em formato hexadecimal (Node.js apenas)
- * @returns Texto descriptografado
- */
-async function descriptografarAes256(interpretador, textoCriptografado, chave, iv, authTag) {
-    const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
-    const chaveResolvida = interpretador.resolverValor(chave);
-    const ivResolvido = interpretador.resolverValor(iv);
-    if (noNode && nodeCrypto) {
-        const chaveBuffer = Buffer.alloc(32);
-        chaveBuffer.write(chaveResolvida.slice(0, 32));
-        const ivBuffer = Buffer.from(ivResolvido, 'hex');
-        // Se authTag não foi fornecido, assume que está concatenado no textoCriptografado
-        let dados;
-        let tag;
-        if (authTag) {
-            dados = Buffer.from(textoCriptografadoResolvido, 'base64');
-            tag = Buffer.from(authTag, 'hex');
+function criptografarEmMeninoDoAcre(interpretador, texto, opcoes = {}) {
+    const { tema = 'runico', preservarMaiusculas = false, normalizar = false } = opcoes;
+    const src = normalizar ? texto.normalize("NFKC") : texto;
+    return [...src]
+        .map((ch) => {
+        const lower = ch.toLowerCase();
+        let simb;
+        if (tema === 'runico')
+            simb = mapaRunico[lower];
+        else if (tema === 'alquimico')
+            simb = mapaAlquimico[lower];
+        else if (tema === 'hibrido') {
+            simb = vogais.includes(lower) ? mapaRunico[lower] : mapaAlquimico[lower];
         }
-        else {
-            // Tenta separar dados e tag (último elemento após split pode ser authTag)
-            dados = Buffer.from(textoCriptografadoResolvido, 'base64');
-            tag = Buffer.alloc(16); // Tag vazia, não será usada neste caso
-        }
-        const decipher = nodeCrypto.createDecipheriv('aes-256-gcm', chaveBuffer, ivBuffer);
-        if (authTag) {
-            decipher.setAuthTag(tag);
-        }
-        let descriptografado = decipher.update(dados, undefined, 'utf8');
-        descriptografado += decipher.final('utf8');
-        return descriptografado;
-    }
-    if (noNavegador && crypto.subtle) {
-        const chaveBuffer = stringToBuffer(chaveResolvida.slice(0, 32).padEnd(32, '0'));
-        const cryptoKey = await crypto.subtle.importKey('raw', chaveBuffer, { name: 'AES-GCM' }, false, ['decrypt']);
-        const ivBuffer = new Uint8Array(ivResolvido.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-        const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
-        const descriptografado = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBuffer }, cryptoKey, criptografadoBuffer.buffer);
-        return bufferToString(descriptografado);
-    }
-    throw new Error('Descriptografia AES-256 não disponível neste ambiente');
+        if (simb)
+            return simb;
+        return preservarMaiusculas ? ch : ch;
+    })
+        .join("");
 }
+/**
+ * Descriptografa símbolos de volta para letras minúsculas latinas.
+ */
+function descriptografarDeMeninoDoAcre(interpretador, textoCriptografado, opcoes = {}) {
+    const { tema = 'runico', normalizar = false } = opcoes;
+    const src = normalizar ? textoCriptografado.normalize("NFKC") : textoCriptografado;
+    return [...src]
+        .map((ch) => {
+        let lat;
+        if (tema === 'runico')
+            lat = mapaRunicoReverso[ch];
+        else if (tema === 'alquimico')
+            lat = mapaAlquimicoReverso[ch];
+        else if (tema === 'hibrido') {
+            lat = mapaRunicoReverso[ch] ?? mapaAlquimicoReverso[ch];
+        }
+        return lat ?? ch;
+    })
+        .join("");
+}
+
+},{}],13:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.derivarChavePbkdf2 = derivarChavePbkdf2;
+const comum_1 = require("./comum");
+/**
+ * Deriva uma chave a partir de uma senha usando PBKDF2.
+ * @param senha Senha base
+ * @param sal Salt (valor aleatório para aumentar segurança)
+ * @param iteracoes Número de iterações (padrão: 100000)
+ * @param tamanhoChave Tamanho da chave derivada em bytes (padrão: 32)
+ * @returns Chave derivada em formato hexadecimal
+ */
+async function derivarChavePbkdf2(interpretador, senha, sal, iteracoes = 100000, tamanhoChave = 32) {
+    if (!iteracoes) {
+        iteracoes = 100000;
+    }
+    if (!tamanhoChave) {
+        tamanhoChave = 32;
+    }
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        return comum_1.nodeCrypto.pbkdf2Sync(senha, sal, iteracoes, tamanhoChave, 'sha256').toString('hex');
+    }
+    if (comum_1.noNavegador && crypto.subtle) {
+        const senhaBuffer = (0, comum_1.stringToBuffer)(senha);
+        const salBuffer = (0, comum_1.stringToBuffer)(sal);
+        const baseKey = await crypto.subtle.importKey('raw', senhaBuffer, 'PBKDF2', false, ['deriveBits']);
+        const derivedBits = await crypto.subtle.deriveBits({
+            name: 'PBKDF2',
+            salt: salBuffer,
+            iterations: iteracoes,
+            hash: 'SHA-256'
+        }, baseKey, tamanhoChave * 8);
+        return (0, comum_1.bufferToHex)(derivedBits);
+    }
+    throw new Error('PBKDF2 não disponível neste ambiente');
+}
+
+},{"./comum":7}],14:[function(require,module,exports){
+(function (Buffer){(function (){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.gerarParChavesRsa = gerarParChavesRsa;
+exports.gerarParChavesRsaAssinatura = gerarParChavesRsaAssinatura;
+exports.criptografarRsa = criptografarRsa;
+exports.descriptografarRsa = descriptografarRsa;
+exports.assinarRsa = assinarRsa;
+exports.verificarAssinaturaRsa = verificarAssinaturaRsa;
+const comum_1 = require("./comum");
 /**
  * Gera um par de chaves RSA (pública e privada).
  * No Node.js, retorna strings PEM. No navegador, retorna CryptoKey objects.
@@ -1007,15 +1465,15 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
  * @returns Objeto contendo as chaves pública e privada
  */
 async function gerarParChavesRsa(interpretador, tamanhoModulo = 2048) {
-    if (noNode && nodeCrypto) {
-        const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('rsa', {
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        const { publicKey, privateKey } = comum_1.nodeCrypto.generateKeyPairSync('rsa', {
             modulusLength: tamanhoModulo,
             publicKeyEncoding: { type: 'spki', format: 'pem' },
             privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         });
         return { chavePublica: publicKey, chavePrivada: privateKey };
     }
-    if (noNavegador && crypto.subtle) {
+    if (comum_1.noNavegador && crypto.subtle) {
         // Para navegadores, geramos chaves RSA-OAEP para criptografia
         const keyPair = await crypto.subtle.generateKey({
             name: 'RSA-OAEP',
@@ -1034,15 +1492,15 @@ async function gerarParChavesRsa(interpretador, tamanhoModulo = 2048) {
  * @returns Objeto contendo as chaves pública e privada para assinatura
  */
 async function gerarParChavesRsaAssinatura(interpretador, tamanhoModulo = 2048) {
-    if (noNode && nodeCrypto) {
-        const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('rsa', {
+    if (comum_1.noNode && comum_1.nodeCrypto) {
+        const { publicKey, privateKey } = comum_1.nodeCrypto.generateKeyPairSync('rsa', {
             modulusLength: tamanhoModulo,
             publicKeyEncoding: { type: 'spki', format: 'pem' },
             privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         });
         return { chavePublica: publicKey, chavePrivada: privateKey };
     }
-    if (noNavegador && crypto.subtle) {
+    if (comum_1.noNavegador && crypto.subtle) {
         // Para navegadores, geramos chaves RSA-PSS para assinatura
         const keyPair = await crypto.subtle.generateKey({
             name: 'RSA-PSS',
@@ -1061,13 +1519,13 @@ async function gerarParChavesRsaAssinatura(interpretador, tamanhoModulo = 2048) 
  * @returns Texto criptografado em Base64
  */
 async function criptografarRsa(interpretador, texto, chavePublica) {
-    if (noNode && nodeCrypto && typeof chavePublica === 'string') {
+    if (comum_1.noNode && comum_1.nodeCrypto && typeof chavePublica === 'string') {
         const buffer = Buffer.from(texto, 'utf8');
-        const criptografado = nodeCrypto.publicEncrypt(chavePublica, buffer);
+        const criptografado = comum_1.nodeCrypto.publicEncrypt(chavePublica, buffer);
         return criptografado.toString('base64');
     }
-    if (noNavegador && crypto.subtle) {
-        const textoBuffer = stringToBuffer(texto);
+    if (comum_1.noNavegador && crypto.subtle) {
+        const textoBuffer = (0, comum_1.stringToBuffer)(texto);
         const criptografado = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, chavePublica, textoBuffer);
         return btoa(String.fromCharCode(...new Uint8Array(criptografado)));
     }
@@ -1082,15 +1540,15 @@ async function criptografarRsa(interpretador, texto, chavePublica) {
 async function descriptografarRsa(interpretador, textoCriptografado, chavePrivada) {
     const chavePrivadaResolvida = interpretador.resolverValor(chavePrivada);
     const textoCriptografadoResolvido = interpretador.resolverValor(textoCriptografado);
-    if (noNode && nodeCrypto) {
+    if (comum_1.noNode && comum_1.nodeCrypto) {
         const buffer = Buffer.from(textoCriptografadoResolvido, 'base64');
-        const descriptografado = nodeCrypto.privateDecrypt(chavePrivadaResolvida, buffer);
+        const descriptografado = comum_1.nodeCrypto.privateDecrypt(chavePrivadaResolvida, buffer);
         return descriptografado.toString('utf8');
     }
-    if (noNavegador && crypto.subtle) {
+    if (comum_1.noNavegador && crypto.subtle) {
         const criptografadoBuffer = Uint8Array.from(atob(textoCriptografadoResolvido), c => c.charCodeAt(0));
         const descriptografado = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, chavePrivadaResolvida, criptografadoBuffer.buffer);
-        return bufferToString(descriptografado);
+        return (0, comum_1.bufferToString)(descriptografado);
     }
     throw new Error('Descriptografia RSA não disponível neste ambiente');
 }
@@ -1102,18 +1560,18 @@ async function descriptografarRsa(interpretador, textoCriptografado, chavePrivad
  * @returns Assinatura digital em Base64
  */
 async function assinarRsa(interpretador, texto, chavePrivada) {
-    if (noNode && nodeCrypto && typeof chavePrivada === 'string') {
-        const sign = nodeCrypto.createSign('SHA256');
+    if (comum_1.noNode && comum_1.nodeCrypto && typeof chavePrivada === 'string') {
+        const sign = comum_1.nodeCrypto.createSign('SHA256');
         sign.update(texto);
         sign.end();
         return sign.sign(chavePrivada, 'base64');
     }
-    if (noNavegador && crypto.subtle) {
+    if (comum_1.noNavegador && crypto.subtle) {
         // Verifica se a chave é do tipo correto (RSA-PSS)
         if (chavePrivada.algorithm && chavePrivada.algorithm.name !== 'RSA-PSS') {
             throw new Error('Para assinatura em navegadores, use chaves geradas com gerarParChavesRsaAssinatura()');
         }
-        const textoBuffer = stringToBuffer(texto);
+        const textoBuffer = (0, comum_1.stringToBuffer)(texto);
         const assinatura = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, chavePrivada, textoBuffer);
         return btoa(String.fromCharCode(...new Uint8Array(assinatura)));
     }
@@ -1128,18 +1586,18 @@ async function assinarRsa(interpretador, texto, chavePrivada) {
  * @returns true se a assinatura for válida, false caso contrário
  */
 async function verificarAssinaturaRsa(interpretador, texto, assinatura, chavePublica) {
-    if (noNode && nodeCrypto && typeof chavePublica === 'string') {
-        const verify = nodeCrypto.createVerify('SHA256');
+    if (comum_1.noNode && comum_1.nodeCrypto && typeof chavePublica === 'string') {
+        const verify = comum_1.nodeCrypto.createVerify('SHA256');
         verify.update(texto);
         verify.end();
         return verify.verify(chavePublica, assinatura, 'base64');
     }
-    if (noNavegador && crypto.subtle) {
+    if (comum_1.noNavegador && crypto.subtle) {
         // Verifica se a chave é do tipo correto (RSA-PSS)
         if (chavePublica.algorithm && chavePublica.algorithm.name !== 'RSA-PSS') {
             throw new Error('Para verificação em navegadores, use chaves geradas com gerarParChavesRsaAssinatura()');
         }
-        const textoBuffer = stringToBuffer(texto);
+        const textoBuffer = (0, comum_1.stringToBuffer)(texto);
         const assinaturaBuffer = Uint8Array.from(atob(assinatura), c => c.charCodeAt(0));
         try {
             return await crypto.subtle.verify({ name: 'RSA-PSS', saltLength: 32 }, chavePublica, assinaturaBuffer.buffer, textoBuffer);
@@ -1150,6 +1608,13 @@ async function verificarAssinaturaRsa(interpretador, texto, assinatura, chavePub
     }
     throw new Error('Verificação de assinatura RSA não disponível neste ambiente');
 }
+
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"./comum":7,"buffer":465}],15:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.gerarSalt = gerarSalt;
+const aleatorios_1 = require("./aleatorios");
 /**
  * Gera um salt aleatório para uso em derivação de chaves.
  * @param tamanho Tamanho do salt em bytes (padrão: 16)
@@ -1159,67 +1624,10 @@ function gerarSalt(interpretador, tamanho = 16) {
     if (!tamanho) {
         tamanho = 16;
     }
-    return gerarTextoAleatorio(interpretador, tamanho);
+    return (0, aleatorios_1.gerarTextoAleatorio)(interpretador, tamanho);
 }
-/**
- * Deriva uma chave a partir de uma senha usando PBKDF2.
- * @param senha Senha base
- * @param sal Salt (valor aleatório para aumentar segurança)
- * @param iteracoes Número de iterações (padrão: 100000)
- * @param tamanhoChave Tamanho da chave derivada em bytes (padrão: 32)
- * @returns Chave derivada em formato hexadecimal
- */
-async function derivarChavePbkdf2(interpretador, senha, sal, iteracoes = 100000, tamanhoChave = 32) {
-    if (!iteracoes) {
-        iteracoes = 100000;
-    }
-    if (!tamanhoChave) {
-        tamanhoChave = 32;
-    }
-    if (noNode && nodeCrypto) {
-        return nodeCrypto.pbkdf2Sync(senha, sal, iteracoes, tamanhoChave, 'sha256').toString('hex');
-    }
-    if (noNavegador && crypto.subtle) {
-        const senhaBuffer = stringToBuffer(senha);
-        const salBuffer = stringToBuffer(sal);
-        const baseKey = await crypto.subtle.importKey('raw', senhaBuffer, 'PBKDF2', false, ['deriveBits']);
-        const derivedBits = await crypto.subtle.deriveBits({
-            name: 'PBKDF2',
-            salt: salBuffer,
-            iterations: iteracoes,
-            hash: 'SHA-256'
-        }, baseKey, tamanhoChave * 8);
-        return bufferToHex(derivedBits);
-    }
-    throw new Error('PBKDF2 não disponível neste ambiente');
-}
-// Exportação padrão com todas as funções
-exports.default = {
-    md5,
-    sha1,
-    sha256,
-    sha512,
-    hmacSha256,
-    hmacSha512,
-    gerarBytesAleatorios,
-    gerarTextoAleatorio,
-    gerarUuid,
-    codificarBase64,
-    decodificarBase64,
-    criptografarAes256,
-    descriptografarAes256,
-    gerarParChavesRsa,
-    gerarParChavesRsaAssinatura,
-    criptografarRsa,
-    descriptografarRsa,
-    assinarRsa,
-    verificarAssinaturaRsa,
-    derivarChavePbkdf2,
-    gerarSalt
-};
 
-}).call(this)}).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":588,"buffer":455,"crypto":471}],6:[function(require,module,exports){
+},{"./aleatorios":5}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.max = max;
@@ -1360,7 +1768,7 @@ function moda(_, vetor) {
         .map((item) => Number(item));
 }
 
-},{"./excecoes":7,"@designliquido/delegua-matematica":18,"@designliquido/delegua-matematica/algebra-linear":11}],7:[function(require,module,exports){
+},{"./excecoes":17,"@designliquido/delegua-matematica":28,"@designliquido/delegua-matematica/algebra-linear":21}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstatisticaErroEmTempoDeExecucao = void 0;
@@ -1374,7 +1782,7 @@ class EstatisticaErroEmTempoDeExecucao extends Error {
 }
 exports.EstatisticaErroEmTempoDeExecucao = EstatisticaErroEmTempoDeExecucao;
 
-},{}],8:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1394,7 +1802,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./estatistica"), exports);
 __exportStar(require("./excecoes"), exports);
 
-},{"./estatistica":6,"./excecoes":7}],9:[function(require,module,exports){
+},{"./estatistica":16,"./excecoes":17}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.velocidadeMedia = velocidadeMedia;
@@ -1487,7 +1895,7 @@ function mruv(_, s0, s, a) {
     return vf;
 }
 
-},{}],10:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1506,7 +1914,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./cinematica"), exports);
 
-},{"./cinematica":9}],11:[function(require,module,exports){
+},{"./cinematica":19}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.somaElementosMatriz = somaElementosMatriz;
@@ -1543,7 +1951,7 @@ function gerarPontosAbscissa(_, distancia, valorPontoCentral, numeroPontos) {
     return vetor;
 }
 
-},{}],12:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.limite = limite;
@@ -1559,7 +1967,7 @@ function limite(_, valor, min, max) {
     return valor < min ? min : valor > max ? max : valor;
 }
 
-},{}],13:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatematicaErroEmTempoDeExecucao = void 0;
@@ -1573,7 +1981,7 @@ class MatematicaErroEmTempoDeExecucao extends Error {
 }
 exports.MatematicaErroEmTempoDeExecucao = MatematicaErroEmTempoDeExecucao;
 
-},{}],14:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.jurosSimples = jurosSimples;
@@ -1606,7 +2014,7 @@ function jurosCompostos(_, capital, taxaDeJuros, tempo) {
     return juros;
 }
 
-},{}],15:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exp = exp;
@@ -1663,7 +2071,7 @@ function raizQuadrada(_, valor) {
     return Math.sqrt(valor);
 }
 
-},{"./excecoes":13}],16:[function(require,module,exports){
+},{"./excecoes":23}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fun1 = fun1;
@@ -1773,7 +2181,7 @@ function linspace(_, valorInicial, valorDeParada, cardinalidade) {
     return lista;
 }
 
-},{"./funcoes-algebricas":15}],17:[function(require,module,exports){
+},{"./funcoes-algebricas":25}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.areaCirculo = areaCirculo;
@@ -1873,7 +2281,7 @@ function pontoMedio(_, x1, x2, y1, y2) {
     return [xm, ym];
 }
 
-},{"./funcoes-algebricas":15}],18:[function(require,module,exports){
+},{"./funcoes-algebricas":25}],28:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1900,7 +2308,7 @@ __exportStar(require("./miscelanea"), exports);
 __exportStar(require("./trigonometria"), exports);
 __exportStar(require("./vetores"), exports);
 
-},{"./algebra-linear":11,"./calculo-diferencial-integral":12,"./financeira":14,"./funcoes-algebricas":15,"./funcoes-primeiro-grau":16,"./geometria-plana":17,"./miscelanea":19,"./trigonometria":20,"./vetores":21}],19:[function(require,module,exports){
+},{"./algebra-linear":21,"./calculo-diferencial-integral":22,"./financeira":24,"./funcoes-algebricas":25,"./funcoes-primeiro-grau":26,"./geometria-plana":27,"./miscelanea":29,"./trigonometria":30,"./vetores":31}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.aprox = aprox;
@@ -1961,7 +2369,7 @@ function arredondarParaBaixo(_, valor) {
     return Math.floor(valor);
 }
 
-},{}],20:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pi = pi;
@@ -2080,7 +2488,7 @@ function radiano(_, angulo) {
     return angulo * (Math.PI / 180);
 }
 
-},{"./excecoes":13}],21:[function(require,module,exports){
+},{"./excecoes":23}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.comprimentoVetor = comprimentoVetor;
@@ -2105,7 +2513,7 @@ function numeroOcorrencias(_, vetor, valor) {
     return vetor.filter((v) => v === valor).length;
 }
 
-},{}],22:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TempoErroEmTempoDeExecucao = void 0;
@@ -2119,7 +2527,7 @@ class TempoErroEmTempoDeExecucao extends Error {
 }
 exports.TempoErroEmTempoDeExecucao = TempoErroEmTempoDeExecucao;
 
-},{}],23:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2269,7 +2677,7 @@ function textoParaData(_, dataComoTexto, formato = "DD/MM/YYYY") {
     return new objeto_data_1.ObjetoData(data);
 }
 
-},{"./excecoes":22,"./objeto-data":24,"dayjs":472,"dayjs/locale/pt-br":473,"dayjs/plugin/customParseFormat":475,"dayjs/plugin/weekOfYear":480,"dayjs/plugin/weekYear":481}],24:[function(require,module,exports){
+},{"./excecoes":32,"./objeto-data":34,"dayjs":482,"dayjs/locale/pt-br":483,"dayjs/plugin/customParseFormat":485,"dayjs/plugin/weekOfYear":490,"dayjs/plugin/weekYear":491}],34:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2468,7 +2876,7 @@ class ObjetoData {
 }
 exports.ObjetoData = ObjetoData;
 
-},{"dayjs":472,"dayjs/locale/pt":474,"dayjs/plugin/customParseFormat":475,"dayjs/plugin/localizedFormat":476,"dayjs/plugin/quarterOfYear":477,"dayjs/plugin/timezone":478,"dayjs/plugin/utc":479,"dayjs/plugin/weekOfYear":480,"dayjs/plugin/weekYear":481}],25:[function(require,module,exports){
+},{"dayjs":482,"dayjs/locale/pt":484,"dayjs/plugin/customParseFormat":485,"dayjs/plugin/localizedFormat":486,"dayjs/plugin/quarterOfYear":487,"dayjs/plugin/timezone":488,"dayjs/plugin/utc":489,"dayjs/plugin/weekOfYear":490,"dayjs/plugin/weekYear":491}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemanticoBase = void 0;
@@ -2667,7 +3075,7 @@ class AnalisadorSemanticoBase {
 }
 exports.AnalisadorSemanticoBase = AnalisadorSemanticoBase;
 
-},{"../interfaces":151}],26:[function(require,module,exports){
+},{"../interfaces":161}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemantico = void 0;
@@ -3187,7 +3595,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
 }
 exports.AnalisadorSemantico = AnalisadorSemantico;
 
-},{"../construtos":79,"../declaracoes":124,"../interfaces/erros":149,"./analisador-semantico-base":25,"./pilha-variaveis":28}],27:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../interfaces/erros":159,"./analisador-semantico-base":35,"./pilha-variaveis":38}],37:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3208,7 +3616,7 @@ __exportStar(require("./analisador-semantico"), exports);
 __exportStar(require("./analisador-semantico-base"), exports);
 __exportStar(require("./pilha-variaveis"), exports);
 
-},{"./analisador-semantico":26,"./analisador-semantico-base":25,"./pilha-variaveis":28}],28:[function(require,module,exports){
+},{"./analisador-semantico":36,"./analisador-semantico-base":35,"./pilha-variaveis":38}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaVariaveis = void 0;
@@ -3235,7 +3643,7 @@ class PilhaVariaveis {
 }
 exports.PilhaVariaveis = PilhaVariaveis;
 
-},{}],29:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3477,7 +3885,7 @@ class AvaliadorSintaticoBase {
 }
 exports.AvaliadorSintaticoBase = AvaliadorSintaticoBase;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/comum":217,"./erro-avaliador-sintatico":40}],30:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/comum":227,"./erro-avaliador-sintatico":50}],40:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5497,7 +5905,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../bibliotecas/primitivas-dicionario":48,"../bibliotecas/primitivas-numero":49,"../bibliotecas/primitivas-texto":50,"../bibliotecas/primitivas-vetor":51,"../construtos":79,"../construtos/tuplas":96,"../declaracoes":124,"../inferenciador":144,"../informacao-elemento-sintatico":145,"../tipos-de-dados/delegua":213,"../tipos-de-simbolos/delegua":218,"./avaliador-sintatico-base":29,"./comum":31,"./elemento-montao-tipos":39,"./erro-avaliador-sintatico":40,"./informacao-escopo":42,"./montao-tipos":45,"./pilha-escopos":46,"browser-process-hrtime":423}],31:[function(require,module,exports){
+},{"../bibliotecas/primitivas-dicionario":58,"../bibliotecas/primitivas-numero":59,"../bibliotecas/primitivas-texto":60,"../bibliotecas/primitivas-vetor":61,"../construtos":89,"../construtos/tuplas":106,"../declaracoes":134,"../inferenciador":154,"../informacao-elemento-sintatico":155,"../tipos-de-dados/delegua":223,"../tipos-de-simbolos/delegua":228,"./avaliador-sintatico-base":39,"./comum":41,"./elemento-montao-tipos":49,"./erro-avaliador-sintatico":50,"./informacao-escopo":52,"./montao-tipos":55,"./pilha-escopos":56,"browser-process-hrtime":433}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buscarRetornos = buscarRetornos;
@@ -5598,7 +6006,7 @@ function registrarPrimitiva(primitivasConhecidas, tipo, catalogoPrimitivas) {
     }
 }
 
-},{"../declaracoes":124,"../informacao-elemento-sintatico":145}],32:[function(require,module,exports){
+},{"../declaracoes":134,"../informacao-elemento-sintatico":155}],42:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -5824,7 +6232,7 @@ class AvaliadorSintaticoCalango extends avaliador_sintatico_base_1.AvaliadorSint
 }
 exports.AvaliadorSintaticoCalango = AvaliadorSintaticoCalango;
 
-},{"../../construtos":79,"../../declaracoes":124,"../../informacao-elemento-sintatico":145,"../../tipos-de-simbolos/calango":216,"../avaliador-sintatico-base":29,"../informacao-escopo":42,"../pilha-escopos":46}],33:[function(require,module,exports){
+},{"../../construtos":89,"../../declaracoes":134,"../../informacao-elemento-sintatico":155,"../../tipos-de-simbolos/calango":226,"../avaliador-sintatico-base":39,"../informacao-escopo":52,"../pilha-escopos":56}],43:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6484,7 +6892,7 @@ class AvaliadorSintaticoEguaClassico {
 }
 exports.AvaliadorSintaticoEguaClassico = AvaliadorSintaticoEguaClassico;
 
-},{"../../construtos":79,"../../declaracoes":124,"../../tipos-de-simbolos/egua-classico":219,"../erro-avaliador-sintatico":40}],34:[function(require,module,exports){
+},{"../../construtos":89,"../../declaracoes":134,"../../tipos-de-simbolos/egua-classico":229,"../erro-avaliador-sintatico":50}],44:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -7663,7 +8071,7 @@ class AvaliadorSintaticoPitugues {
 }
 exports.AvaliadorSintaticoPitugues = AvaliadorSintaticoPitugues;
 
-},{"../../bibliotecas/primitivas-dicionario":48,"../../bibliotecas/primitivas-numero":49,"../../bibliotecas/primitivas-texto":50,"../../bibliotecas/primitivas-vetor":51,"../../construtos":79,"../../declaracoes":124,"../../inferenciador":144,"../../informacao-elemento-sintatico":145,"../../lexador":205,"../../tipos-de-dados/dialetos/pitugues":214,"../../tipos-de-simbolos/pitugues":222,"../comum":31,"../erro-avaliador-sintatico":40,"../informacao-escopo":42,"../pilha-escopos":46,"browser-process-hrtime":423}],35:[function(require,module,exports){
+},{"../../bibliotecas/primitivas-dicionario":58,"../../bibliotecas/primitivas-numero":59,"../../bibliotecas/primitivas-texto":60,"../../bibliotecas/primitivas-vetor":61,"../../construtos":89,"../../declaracoes":134,"../../inferenciador":154,"../../informacao-elemento-sintatico":155,"../../lexador":215,"../../tipos-de-dados/dialetos/pitugues":224,"../../tipos-de-simbolos/pitugues":232,"../comum":41,"../erro-avaliador-sintatico":50,"../informacao-escopo":52,"../pilha-escopos":56,"browser-process-hrtime":433}],45:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -7837,7 +8245,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
 }
 exports.AvaliadorSintaticoPortugolIpt = AvaliadorSintaticoPortugolIpt;
 
-},{"../../construtos":79,"../../declaracoes":124,"../../tipos-de-simbolos/portugol-ipt":223,"../avaliador-sintatico-base":29}],36:[function(require,module,exports){
+},{"../../construtos":89,"../../declaracoes":134,"../../tipos-de-simbolos/portugol-ipt":233,"../avaliador-sintatico-base":39}],46:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -8552,7 +8960,7 @@ class AvaliadorSintaticoPrisma extends avaliador_sintatico_base_1.AvaliadorSinta
 }
 exports.AvaliadorSintaticoPrisma = AvaliadorSintaticoPrisma;
 
-},{"../../bibliotecas/primitivas-dicionario":48,"../../bibliotecas/primitivas-numero":49,"../../bibliotecas/primitivas-texto":50,"../../bibliotecas/primitivas-vetor":51,"../../construtos":79,"../../declaracoes":124,"../../inferenciador":144,"../../informacao-elemento-sintatico":145,"../../lexador":205,"../../tipos-de-simbolos/prisma":224,"../avaliador-sintatico-base":29,"../comum":31,"../erro-avaliador-sintatico":40,"../informacao-escopo":42,"../pilha-escopos":46,"browser-process-hrtime":423}],37:[function(require,module,exports){
+},{"../../bibliotecas/primitivas-dicionario":58,"../../bibliotecas/primitivas-numero":59,"../../bibliotecas/primitivas-texto":60,"../../bibliotecas/primitivas-vetor":61,"../../construtos":89,"../../declaracoes":134,"../../inferenciador":154,"../../informacao-elemento-sintatico":155,"../../lexador":215,"../../tipos-de-simbolos/prisma":234,"../avaliador-sintatico-base":39,"../comum":41,"../erro-avaliador-sintatico":50,"../informacao-escopo":52,"../pilha-escopos":56,"browser-process-hrtime":433}],47:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9538,7 +9946,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
 }
 exports.AvaliadorSintaticoTenda = AvaliadorSintaticoTenda;
 
-},{"../../bibliotecas/primitivas-dicionario":48,"../../bibliotecas/primitivas-numero":49,"../../bibliotecas/primitivas-texto":50,"../../bibliotecas/primitivas-vetor":51,"../../construtos":79,"../../construtos/tuplas":96,"../../declaracoes":124,"../../inferenciador":144,"../../informacao-elemento-sintatico":145,"../../lexador/simbolo":211,"../../tipos-de-dados/delegua":213,"../../tipos-de-simbolos/tenda":225,"../avaliador-sintatico-base":29,"./../erro-avaliador-sintatico":40,"./../informacao-escopo":42,"./../pilha-escopos":46,"browser-process-hrtime":423}],38:[function(require,module,exports){
+},{"../../bibliotecas/primitivas-dicionario":58,"../../bibliotecas/primitivas-numero":59,"../../bibliotecas/primitivas-texto":60,"../../bibliotecas/primitivas-vetor":61,"../../construtos":89,"../../construtos/tuplas":106,"../../declaracoes":134,"../../inferenciador":154,"../../informacao-elemento-sintatico":155,"../../lexador/simbolo":221,"../../tipos-de-dados/delegua":223,"../../tipos-de-simbolos/tenda":235,"../avaliador-sintatico-base":39,"./../erro-avaliador-sintatico":50,"./../informacao-escopo":52,"./../pilha-escopos":56,"browser-process-hrtime":433}],48:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9561,7 +9969,7 @@ __exportStar(require("./avaliador-sintatico-portugol-ipt"), exports);
 __exportStar(require("./avaliador-sintatico-prisma"), exports);
 __exportStar(require("./avaliador-sintatico-tenda"), exports);
 
-},{"./avaliador-sintatico-egua-classico":33,"./avaliador-sintatico-pitugues":34,"./avaliador-sintatico-portugol-ipt":35,"./avaliador-sintatico-prisma":36,"./avaliador-sintatico-tenda":37}],39:[function(require,module,exports){
+},{"./avaliador-sintatico-egua-classico":43,"./avaliador-sintatico-pitugues":44,"./avaliador-sintatico-portugol-ipt":45,"./avaliador-sintatico-prisma":46,"./avaliador-sintatico-tenda":47}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ElementoMontaoTipos = void 0;
@@ -9573,7 +9981,7 @@ class ElementoMontaoTipos {
 }
 exports.ElementoMontaoTipos = ElementoMontaoTipos;
 
-},{}],40:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -9588,7 +9996,7 @@ class ErroAvaliadorSintatico extends Error {
 }
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
-},{}],41:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -9613,7 +10021,7 @@ __exportStar(require("./informacao-escopo"), exports);
 __exportStar(require("./micro-avaliador-sintatico"), exports);
 __exportStar(require("./pilha-escopos"), exports);
 
-},{"./avaliador-sintatico":30,"./avaliador-sintatico-base":29,"./dialetos":38,"./erro-avaliador-sintatico":40,"./informacao-escopo":42,"./micro-avaliador-sintatico":44,"./pilha-escopos":46}],42:[function(require,module,exports){
+},{"./avaliador-sintatico":40,"./avaliador-sintatico-base":39,"./dialetos":48,"./erro-avaliador-sintatico":50,"./informacao-escopo":52,"./micro-avaliador-sintatico":54,"./pilha-escopos":56}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoEscopo = void 0;
@@ -9625,7 +10033,7 @@ class InformacaoEscopo {
 }
 exports.InformacaoEscopo = InformacaoEscopo;
 
-},{}],43:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9743,7 +10151,7 @@ class MicroAvaliadorSintaticoBase {
 }
 exports.MicroAvaliadorSintaticoBase = MicroAvaliadorSintaticoBase;
 
-},{"../construtos":79,"../tipos-de-simbolos/comum":217,"./erro-avaliador-sintatico":40}],44:[function(require,module,exports){
+},{"../construtos":89,"../tipos-de-simbolos/comum":227,"./erro-avaliador-sintatico":50}],54:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9965,7 +10373,7 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
 }
 exports.MicroAvaliadorSintatico = MicroAvaliadorSintatico;
 
-},{"../construtos":79,"../tipos-de-simbolos/microgramaticas/delegua":221,"./micro-avaliador-sintatico-base":43}],45:[function(require,module,exports){
+},{"../construtos":89,"../tipos-de-simbolos/microgramaticas/delegua":231,"./micro-avaliador-sintatico-base":53}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MontaoTipos = void 0;
@@ -10016,7 +10424,7 @@ class MontaoTipos {
 }
 exports.MontaoTipos = MontaoTipos;
 
-},{"../geracao-identificadores":142,"./erro-avaliador-sintatico":40}],46:[function(require,module,exports){
+},{"../geracao-identificadores":152,"./erro-avaliador-sintatico":50}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscopos = void 0;
@@ -10086,7 +10494,7 @@ class PilhaEscopos {
 }
 exports.PilhaEscopos = PilhaEscopos;
 
-},{"./elemento-montao-tipos":39}],47:[function(require,module,exports){
+},{"./elemento-montao-tipos":49}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.aleatorio = aleatorio;
@@ -11002,7 +11410,7 @@ async function tupla(interpretador, vetor) {
     }
 }
 
-},{"../construtos":79,"../excecoes":138,"../inferenciador":144,"../interpretador/estruturas":179,"../interpretador/estruturas/descritor-tipo-classe":177,"../interpretador/estruturas/funcao-padrao":178,"../interpretador/estruturas/objeto-delegua-classe":182,"../quebras":212}],48:[function(require,module,exports){
+},{"../construtos":89,"../excecoes":148,"../inferenciador":154,"../interpretador/estruturas":189,"../interpretador/estruturas/descritor-tipo-classe":187,"../interpretador/estruturas/funcao-padrao":188,"../interpretador/estruturas/objeto-delegua-classe":192,"../quebras":222}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const construtos_1 = require("../construtos");
@@ -11084,7 +11492,7 @@ exports.default = {
     }
 };
 
-},{"../construtos":79,"../informacao-elemento-sintatico":145}],49:[function(require,module,exports){
+},{"../construtos":89,"../informacao-elemento-sintatico":155}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -11169,7 +11577,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":145}],50:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":155}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -11441,7 +11849,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":145}],51:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":155}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -11816,7 +12224,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":145}],52:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":155}],62:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -11844,7 +12252,7 @@ class AcessoElementoMatriz {
 }
 exports.AcessoElementoMatriz = AcessoElementoMatriz;
 
-},{}],53:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -11874,7 +12282,7 @@ class AcessoIndiceVariavel {
 }
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],54:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodoOuPropriedade = void 0;
@@ -11906,7 +12314,7 @@ class AcessoMetodoOuPropriedade {
 }
 exports.AcessoMetodoOuPropriedade = AcessoMetodoOuPropriedade;
 
-},{}],55:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodo = void 0;
@@ -11931,7 +12339,7 @@ class AcessoMetodo {
 }
 exports.AcessoMetodo = AcessoMetodo;
 
-},{}],56:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoPropriedade = void 0;
@@ -11955,7 +12363,7 @@ class AcessoPropriedade {
 }
 exports.AcessoPropriedade = AcessoPropriedade;
 
-},{}],57:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
@@ -11983,7 +12391,7 @@ class Agrupamento {
 }
 exports.Agrupamento = Agrupamento;
 
-},{}],58:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArgumentoReferenciaFuncao = void 0;
@@ -12010,7 +12418,7 @@ class ArgumentoReferenciaFuncao {
 }
 exports.ArgumentoReferenciaFuncao = ArgumentoReferenciaFuncao;
 
-},{}],59:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndice = void 0;
@@ -12037,7 +12445,7 @@ class AtribuicaoPorIndice {
 }
 exports.AtribuicaoPorIndice = AtribuicaoPorIndice;
 
-},{}],60:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndicesMatriz = void 0;
@@ -12066,7 +12474,7 @@ class AtribuicaoPorIndicesMatriz {
 }
 exports.AtribuicaoPorIndicesMatriz = AtribuicaoPorIndicesMatriz;
 
-},{}],61:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
@@ -12105,7 +12513,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{}],62:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
@@ -12173,7 +12581,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],63:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
@@ -12202,7 +12610,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":142}],64:[function(require,module,exports){
+},{"../geracao-identificadores":152}],74:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -12229,7 +12637,7 @@ class ComentarioComoConstruto {
 }
 exports.ComentarioComoConstruto = ComentarioComoConstruto;
 
-},{}],65:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteLinguagem = void 0;
@@ -12255,7 +12663,7 @@ class ComponenteLinguagem {
 }
 exports.ComponenteLinguagem = ComponenteLinguagem;
 
-},{}],66:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constante = void 0;
@@ -12280,11 +12688,11 @@ class Constante {
 }
 exports.Constante = Constante;
 
-},{}],67:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],68:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Decorador = void 0;
@@ -12312,7 +12720,7 @@ class Decorador {
 }
 exports.Decorador = Decorador;
 
-},{}],69:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
@@ -12336,7 +12744,7 @@ class DefinirValor {
 }
 exports.DefinirValor = DefinirValor;
 
-},{}],70:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
@@ -12360,7 +12768,7 @@ class Dicionario {
 }
 exports.Dicionario = Dicionario;
 
-},{}],71:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Elvis = void 0;
@@ -12385,7 +12793,7 @@ class Elvis {
 }
 exports.Elvis = Elvis;
 
-},{}],72:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnquantoComoConstruto = void 0;
@@ -12408,7 +12816,7 @@ class EnquantoComoConstruto {
 }
 exports.EnquantoComoConstruto = EnquantoComoConstruto;
 
-},{}],73:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpressaoRegular = void 0;
@@ -12431,7 +12839,7 @@ class ExpressaoRegular {
 }
 exports.ExpressaoRegular = ExpressaoRegular;
 
-},{}],74:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FazerComoConstruto = void 0;
@@ -12454,7 +12862,7 @@ class FazerComoConstruto {
 }
 exports.FazerComoConstruto = FazerComoConstruto;
 
-},{}],75:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FimPara = void 0;
@@ -12487,7 +12895,7 @@ class FimPara {
 }
 exports.FimPara = FimPara;
 
-},{}],76:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatacaoEscrita = void 0;
@@ -12516,7 +12924,7 @@ class FormatacaoEscrita {
 }
 exports.FormatacaoEscrita = FormatacaoEscrita;
 
-},{}],77:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
@@ -12543,7 +12951,7 @@ class FuncaoConstruto {
 }
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],78:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportarComoConstruto = void 0;
@@ -12569,7 +12977,7 @@ class ImportarComoConstruto {
 }
 exports.ImportarComoConstruto = ImportarComoConstruto;
 
-},{}],79:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -12632,7 +13040,7 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./acesso-elemento-matriz":52,"./acesso-indice-variavel":53,"./acesso-metodo":55,"./acesso-metodo-ou-propriedade":54,"./acesso-propriedade":56,"./agrupamento":57,"./argumento-referencia-funcao":58,"./atribuicao-por-indice":59,"./atribuicao-por-indices-matriz":60,"./atribuir":61,"./binario":62,"./chamada":63,"./comentario-como-construto":64,"./componente-linguagem":65,"./constante":66,"./construto":67,"./decorador":68,"./definir-valor":69,"./dicionario":70,"./elvis":71,"./enquanto-como-construto":72,"./expressao-regular":73,"./fazer-como-construto":74,"./fim-para":75,"./formatacao-escrita":76,"./funcao":77,"./importar-como-construto":78,"./isto":80,"./leia":81,"./lista-compreensao":82,"./literal":83,"./logico":84,"./para-cada-como-construto":85,"./para-como-construto":86,"./referencia-biblioteca-global":87,"./referencia-funcao":88,"./se-ternario":89,"./separador":90,"./super":91,"./tipo-de":92,"./tupla":93,"./tuplas":96,"./unario":104,"./variavel":105,"./vetor":106}],80:[function(require,module,exports){
+},{"./acesso-elemento-matriz":62,"./acesso-indice-variavel":63,"./acesso-metodo":65,"./acesso-metodo-ou-propriedade":64,"./acesso-propriedade":66,"./agrupamento":67,"./argumento-referencia-funcao":68,"./atribuicao-por-indice":69,"./atribuicao-por-indices-matriz":70,"./atribuir":71,"./binario":72,"./chamada":73,"./comentario-como-construto":74,"./componente-linguagem":75,"./constante":76,"./construto":77,"./decorador":78,"./definir-valor":79,"./dicionario":80,"./elvis":81,"./enquanto-como-construto":82,"./expressao-regular":83,"./fazer-como-construto":84,"./fim-para":85,"./formatacao-escrita":86,"./funcao":87,"./importar-como-construto":88,"./isto":90,"./leia":91,"./lista-compreensao":92,"./literal":93,"./logico":94,"./para-cada-como-construto":95,"./para-como-construto":96,"./referencia-biblioteca-global":97,"./referencia-funcao":98,"./se-ternario":99,"./separador":100,"./super":101,"./tipo-de":102,"./tupla":103,"./tuplas":106,"./unario":114,"./variavel":115,"./vetor":116}],90:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -12654,7 +13062,7 @@ class Isto {
 }
 exports.Isto = Isto;
 
-},{}],81:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -12683,7 +13091,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":142}],82:[function(require,module,exports){
+},{"../geracao-identificadores":152}],92:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -12708,7 +13116,7 @@ class ListaCompreensao {
 }
 exports.ListaCompreensao = ListaCompreensao;
 
-},{}],83:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
@@ -12734,7 +13142,7 @@ class Literal {
 }
 exports.Literal = Literal;
 
-},{}],84:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
@@ -12761,7 +13169,7 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],85:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCadaComoConstruto = void 0;
@@ -12786,7 +13194,7 @@ class ParaCadaComoConstruto {
 }
 exports.ParaCadaComoConstruto = ParaCadaComoConstruto;
 
-},{}],86:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaComoConstruto = void 0;
@@ -12814,7 +13222,7 @@ class ParaComoConstruto {
 }
 exports.ParaComoConstruto = ParaComoConstruto;
 
-},{}],87:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaBibliotecaGlobal = void 0;
@@ -12840,7 +13248,7 @@ class ReferenciaBibliotecaGlobal {
 }
 exports.ReferenciaBibliotecaGlobal = ReferenciaBibliotecaGlobal;
 
-},{}],88:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaFuncao = void 0;
@@ -12864,7 +13272,7 @@ class ReferenciaFuncao {
 }
 exports.ReferenciaFuncao = ReferenciaFuncao;
 
-},{}],89:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SeTernario = void 0;
@@ -12889,7 +13297,7 @@ class SeTernario {
 }
 exports.SeTernario = SeTernario;
 
-},{}],90:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Separador = void 0;
@@ -12911,7 +13319,7 @@ class Separador {
 }
 exports.Separador = Separador;
 
-},{}],91:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
@@ -12934,7 +13342,7 @@ class Super {
 }
 exports.Super = Super;
 
-},{}],92:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoDe = void 0;
@@ -12961,7 +13369,7 @@ class TipoDe {
 }
 exports.TipoDe = TipoDe;
 
-},{}],93:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tupla = void 0;
@@ -12972,7 +13380,7 @@ class Tupla {
 }
 exports.Tupla = Tupla;
 
-},{}],94:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Deceto = void 0;
@@ -13023,7 +13431,7 @@ class Deceto extends tupla_1.Tupla {
 }
 exports.Deceto = Deceto;
 
-},{"../tupla":93}],95:[function(require,module,exports){
+},{"../tupla":103}],105:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dupla = void 0;
@@ -13045,7 +13453,7 @@ class Dupla extends tupla_1.Tupla {
 }
 exports.Dupla = Dupla;
 
-},{"../tupla":93}],96:[function(require,module,exports){
+},{"../tupla":103}],106:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -13113,7 +13521,7 @@ class SeletorTuplas {
 }
 exports.SeletorTuplas = SeletorTuplas;
 
-},{"./deceto":94,"./dupla":95,"./noneto":97,"./octeto":98,"./quarteto":99,"./quinteto":100,"./septeto":101,"./sexteto":102,"./trio":103}],97:[function(require,module,exports){
+},{"./deceto":104,"./dupla":105,"./noneto":107,"./octeto":108,"./quarteto":109,"./quinteto":110,"./septeto":111,"./sexteto":112,"./trio":113}],107:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Noneto = void 0;
@@ -13155,7 +13563,7 @@ class Noneto extends tupla_1.Tupla {
 }
 exports.Noneto = Noneto;
 
-},{"../tupla":93}],98:[function(require,module,exports){
+},{"../tupla":103}],108:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Octeto = void 0;
@@ -13195,7 +13603,7 @@ class Octeto extends tupla_1.Tupla {
 }
 exports.Octeto = Octeto;
 
-},{"../tupla":93}],99:[function(require,module,exports){
+},{"../tupla":103}],109:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quarteto = void 0;
@@ -13221,7 +13629,7 @@ class Quarteto extends tupla_1.Tupla {
 }
 exports.Quarteto = Quarteto;
 
-},{"../tupla":93}],100:[function(require,module,exports){
+},{"../tupla":103}],110:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quinteto = void 0;
@@ -13249,7 +13657,7 @@ class Quinteto extends tupla_1.Tupla {
 }
 exports.Quinteto = Quinteto;
 
-},{"../tupla":93}],101:[function(require,module,exports){
+},{"../tupla":103}],111:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Septeto = void 0;
@@ -13287,7 +13695,7 @@ class Septeto extends tupla_1.Tupla {
 }
 exports.Septeto = Septeto;
 
-},{"../tupla":93}],102:[function(require,module,exports){
+},{"../tupla":103}],112:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sexteto = void 0;
@@ -13317,7 +13725,7 @@ class Sexteto extends tupla_1.Tupla {
 }
 exports.Sexteto = Sexteto;
 
-},{"../tupla":93}],103:[function(require,module,exports){
+},{"../tupla":103}],113:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trio = void 0;
@@ -13341,7 +13749,7 @@ class Trio extends tupla_1.Tupla {
 }
 exports.Trio = Trio;
 
-},{"../tupla":93}],104:[function(require,module,exports){
+},{"../tupla":103}],114:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
@@ -13365,7 +13773,7 @@ class Unario {
 }
 exports.Unario = Unario;
 
-},{}],105:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
@@ -13388,7 +13796,7 @@ class Variavel {
 }
 exports.Variavel = Variavel;
 
-},{}],106:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
@@ -13417,7 +13825,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{}],107:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
@@ -13443,7 +13851,7 @@ class Bloco extends declaracao_1.Declaracao {
 }
 exports.Bloco = Bloco;
 
-},{"./declaracao":114}],108:[function(require,module,exports){
+},{"./declaracao":124}],118:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CabecalhoPrograma = void 0;
@@ -13465,7 +13873,7 @@ class CabecalhoPrograma extends declaracao_1.Declaracao {
 }
 exports.CabecalhoPrograma = CabecalhoPrograma;
 
-},{"./declaracao":114}],109:[function(require,module,exports){
+},{"./declaracao":124}],119:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
@@ -13500,7 +13908,7 @@ class Classe extends declaracao_1.Declaracao {
 }
 exports.Classe = Classe;
 
-},{"./declaracao":114}],110:[function(require,module,exports){
+},{"./declaracao":124}],120:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Comentario = void 0;
@@ -13525,7 +13933,7 @@ class Comentario extends declaracao_1.Declaracao {
 }
 exports.Comentario = Comentario;
 
-},{"./declaracao":114}],111:[function(require,module,exports){
+},{"./declaracao":124}],121:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstMultiplo = void 0;
@@ -13550,7 +13958,7 @@ class ConstMultiplo extends declaracao_1.Declaracao {
 }
 exports.ConstMultiplo = ConstMultiplo;
 
-},{"./declaracao":114}],112:[function(require,module,exports){
+},{"./declaracao":124}],122:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Const = void 0;
@@ -13580,7 +13988,7 @@ class Const extends declaracao_1.Declaracao {
 }
 exports.Const = Const;
 
-},{"./declaracao":114}],113:[function(require,module,exports){
+},{"./declaracao":124}],123:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
@@ -13598,7 +14006,7 @@ class Continua extends declaracao_1.Declaracao {
 }
 exports.Continua = Continua;
 
-},{"./declaracao":114}],114:[function(require,module,exports){
+},{"./declaracao":124}],124:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
@@ -13621,7 +14029,7 @@ class Declaracao {
 }
 exports.Declaracao = Declaracao;
 
-},{}],115:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
@@ -13642,7 +14050,7 @@ class Enquanto extends declaracao_1.Declaracao {
 }
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":114}],116:[function(require,module,exports){
+},{"./declaracao":124}],126:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
@@ -13667,7 +14075,7 @@ class Escolha extends declaracao_1.Declaracao {
 }
 exports.Escolha = Escolha;
 
-},{"./declaracao":114}],117:[function(require,module,exports){
+},{"./declaracao":124}],127:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscrevaMesmaLinha = void 0;
@@ -13686,7 +14094,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
 
-},{"./declaracao":114}],118:[function(require,module,exports){
+},{"./declaracao":124}],128:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
@@ -13705,7 +14113,7 @@ class Escreva extends declaracao_1.Declaracao {
 }
 exports.Escreva = Escreva;
 
-},{"./declaracao":114}],119:[function(require,module,exports){
+},{"./declaracao":124}],129:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
@@ -13724,7 +14132,7 @@ class Expressao extends declaracao_1.Declaracao {
 }
 exports.Expressao = Expressao;
 
-},{"./declaracao":114}],120:[function(require,module,exports){
+},{"./declaracao":124}],130:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Falhar = void 0;
@@ -13744,7 +14152,7 @@ class Falhar extends declaracao_1.Declaracao {
 }
 exports.Falhar = Falhar;
 
-},{"./declaracao":114}],121:[function(require,module,exports){
+},{"./declaracao":124}],131:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
@@ -13765,7 +14173,7 @@ class Fazer extends declaracao_1.Declaracao {
 }
 exports.Fazer = Fazer;
 
-},{"./declaracao":114}],122:[function(require,module,exports){
+},{"./declaracao":124}],132:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
@@ -13793,7 +14201,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"../geracao-identificadores":142,"./declaracao":114}],123:[function(require,module,exports){
+},{"../geracao-identificadores":152,"./declaracao":124}],133:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
@@ -13819,7 +14227,7 @@ class Importar extends declaracao_1.Declaracao {
 }
 exports.Importar = Importar;
 
-},{"./declaracao":114}],124:[function(require,module,exports){
+},{"./declaracao":124}],134:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -13867,7 +14275,7 @@ __exportStar(require("./texto-documentacao"), exports);
 __exportStar(require("./var"), exports);
 __exportStar(require("./var-multiplo"), exports);
 
-},{"./bloco":107,"./cabecalho-programa":108,"./classe":109,"./comentario":110,"./const":112,"./const-multiplo":111,"./continua":113,"./declaracao":114,"./enquanto":115,"./escolha":116,"./escreva":118,"./escreva-mesma-linha":117,"./expressao":119,"./falhar":120,"./fazer":121,"./funcao":122,"./importar":123,"./inicio-algoritmo":125,"./para":127,"./para-cada":126,"./propriedade-classe":128,"./retorna":129,"./se":130,"./sustar":131,"./tendo-como":132,"./tente":133,"./texto-documentacao":134,"./var":136,"./var-multiplo":135}],125:[function(require,module,exports){
+},{"./bloco":117,"./cabecalho-programa":118,"./classe":119,"./comentario":120,"./const":122,"./const-multiplo":121,"./continua":123,"./declaracao":124,"./enquanto":125,"./escolha":126,"./escreva":128,"./escreva-mesma-linha":127,"./expressao":129,"./falhar":130,"./fazer":131,"./funcao":132,"./importar":133,"./inicio-algoritmo":135,"./para":137,"./para-cada":136,"./propriedade-classe":138,"./retorna":139,"./se":140,"./sustar":141,"./tendo-como":142,"./tente":143,"./texto-documentacao":144,"./var":146,"./var-multiplo":145}],135:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InicioAlgoritmo = void 0;
@@ -13887,7 +14295,7 @@ class InicioAlgoritmo extends declaracao_1.Declaracao {
 }
 exports.InicioAlgoritmo = InicioAlgoritmo;
 
-},{"./declaracao":114}],126:[function(require,module,exports){
+},{"./declaracao":124}],136:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
@@ -13910,7 +14318,7 @@ class ParaCada extends declaracao_1.Declaracao {
 }
 exports.ParaCada = ParaCada;
 
-},{"./declaracao":114}],127:[function(require,module,exports){
+},{"./declaracao":124}],137:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
@@ -13947,7 +14355,7 @@ class Para extends declaracao_1.Declaracao {
 }
 exports.Para = Para;
 
-},{"./declaracao":114}],128:[function(require,module,exports){
+},{"./declaracao":124}],138:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropriedadeClasse = void 0;
@@ -13968,7 +14376,7 @@ class PropriedadeClasse extends declaracao_1.Declaracao {
 }
 exports.PropriedadeClasse = PropriedadeClasse;
 
-},{"./declaracao":114}],129:[function(require,module,exports){
+},{"./declaracao":124}],139:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
@@ -13994,7 +14402,7 @@ class Retorna extends declaracao_1.Declaracao {
 }
 exports.Retorna = Retorna;
 
-},{"./declaracao":114}],130:[function(require,module,exports){
+},{"./declaracao":124}],140:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
@@ -14017,7 +14425,7 @@ class Se extends declaracao_1.Declaracao {
 }
 exports.Se = Se;
 
-},{"./declaracao":114}],131:[function(require,module,exports){
+},{"./declaracao":124}],141:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
@@ -14035,7 +14443,7 @@ class Sustar extends declaracao_1.Declaracao {
 }
 exports.Sustar = Sustar;
 
-},{"./declaracao":114}],132:[function(require,module,exports){
+},{"./declaracao":124}],142:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TendoComo = void 0;
@@ -14062,7 +14470,7 @@ class TendoComo extends declaracao_1.Declaracao {
 }
 exports.TendoComo = TendoComo;
 
-},{"./declaracao":114}],133:[function(require,module,exports){
+},{"./declaracao":124}],143:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
@@ -14088,7 +14496,7 @@ class Tente extends declaracao_1.Declaracao {
 }
 exports.Tente = Tente;
 
-},{"./declaracao":114}],134:[function(require,module,exports){
+},{"./declaracao":124}],144:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TextoDocumentacao = void 0;
@@ -14110,7 +14518,7 @@ class TextoDocumentacao extends declaracao_1.Declaracao {
 }
 exports.TextoDocumentacao = TextoDocumentacao;
 
-},{"./declaracao":114}],135:[function(require,module,exports){
+},{"./declaracao":124}],145:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarMultiplo = void 0;
@@ -14136,7 +14544,7 @@ class VarMultiplo extends declaracao_1.Declaracao {
 }
 exports.VarMultiplo = VarMultiplo;
 
-},{"./declaracao":114}],136:[function(require,module,exports){
+},{"./declaracao":124}],146:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
@@ -14168,7 +14576,7 @@ class Var extends declaracao_1.Declaracao {
 }
 exports.Var = Var;
 
-},{"./declaracao":114}],137:[function(require,module,exports){
+},{"./declaracao":124}],147:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
@@ -14183,7 +14591,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],138:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -14202,7 +14610,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":137}],139:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":147}],149:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14946,7 +15354,7 @@ class FormatadorDelegua {
 }
 exports.FormatadorDelegua = FormatadorDelegua;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/delegua":218}],140:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/delegua":228}],150:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15345,7 +15753,7 @@ class FormatadorPitugues {
 }
 exports.FormatadorPitugues = FormatadorPitugues;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/pitugues":222}],141:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/pitugues":232}],151:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15365,7 +15773,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./formatador-delegua"), exports);
 __exportStar(require("./formatador-pitugues"), exports);
 
-},{"./formatador-delegua":139,"./formatador-pitugues":140}],142:[function(require,module,exports){
+},{"./formatador-delegua":149,"./formatador-pitugues":150}],152:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
@@ -15409,7 +15817,7 @@ function uuidv4() {
     });
 }
 
-},{}],143:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15436,7 +15844,7 @@ __exportStar(require("./interpretador"), exports);
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./tradutores"), exports);
 
-},{"./avaliador-sintatico":41,"./construtos":79,"./declaracoes":124,"./formatadores":141,"./geracao-identificadores":142,"./interfaces":151,"./interpretador":185,"./lexador":205,"./tradutores":226}],144:[function(require,module,exports){
+},{"./avaliador-sintatico":51,"./construtos":89,"./declaracoes":134,"./formatadores":151,"./geracao-identificadores":152,"./interfaces":161,"./interpretador":195,"./lexador":215,"./tradutores":236}],154:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15563,7 +15971,7 @@ function tipoInferenciaParaTipoDadosElementar(tipoInferencia) {
     }
 }
 
-},{"./tipos-de-dados/delegua":213,"./tipos-de-dados/primitivos":215,"./tipos-de-simbolos/delegua":218}],145:[function(require,module,exports){
+},{"./tipos-de-dados/delegua":223,"./tipos-de-dados/primitivos":225,"./tipos-de-simbolos/delegua":228}],155:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
@@ -15582,15 +15990,15 @@ class InformacaoElementoSintatico {
 }
 exports.InformacaoElementoSintatico = InformacaoElementoSintatico;
 
-},{}],146:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],147:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],148:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagnosticoSeveridade = void 0;
@@ -15602,7 +16010,7 @@ var DiagnosticoSeveridade;
     DiagnosticoSeveridade[DiagnosticoSeveridade["SUGESTAO"] = 3] = "SUGESTAO";
 })(DiagnosticoSeveridade || (exports.DiagnosticoSeveridade = DiagnosticoSeveridade = {}));
 
-},{}],149:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15621,11 +16029,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./diagnostico-analisador-semantico"), exports);
 
-},{"./diagnostico-analisador-semantico":148}],150:[function(require,module,exports){
+},{"./diagnostico-analisador-semantico":158}],160:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],151:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15662,66 +16070,7 @@ __exportStar(require("./construtos"), exports);
 __exportStar(require("./erros"), exports);
 __exportStar(require("./retornos"), exports);
 
-},{"./avaliador-sintatico-interface":146,"./construtos":147,"./erros":149,"./formatador-comum-interface":150,"./interpretador-com-depuracao-interface":152,"./interpretador-interface":153,"./lexador-interface":154,"./parametro-interface":155,"./pilha-interface":156,"./primitiva-interface":157,"./resolvedor-interface":158,"./resultado-parcial-interpretador-interface":159,"./retornos":160,"./retornos/retorno-execucao-interface":163,"./simbolo-interface":166,"./tradutor-interface":167,"./variavel-interface":168,"./visitante-comum-interface":169,"./visitante-delegua-interface":170}],152:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],153:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],154:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],155:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],156:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],157:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],158:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],159:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],160:[function(require,module,exports){
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./retorno-analisador-semantico"), exports);
-__exportStar(require("./retorno-avaliador-sintatico"), exports);
-__exportStar(require("./retorno-execucao-interface"), exports);
-__exportStar(require("./retorno-interpretador-interface"), exports);
-__exportStar(require("./retorno-lexador"), exports);
-
-},{"./retorno-analisador-semantico":161,"./retorno-avaliador-sintatico":162,"./retorno-execucao-interface":163,"./retorno-interpretador-interface":164,"./retorno-lexador":165}],161:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],162:[function(require,module,exports){
+},{"./avaliador-sintatico-interface":156,"./construtos":157,"./erros":159,"./formatador-comum-interface":160,"./interpretador-com-depuracao-interface":162,"./interpretador-interface":163,"./lexador-interface":164,"./parametro-interface":165,"./pilha-interface":166,"./primitiva-interface":167,"./resolvedor-interface":168,"./resultado-parcial-interpretador-interface":169,"./retornos":170,"./retornos/retorno-execucao-interface":173,"./simbolo-interface":176,"./tradutor-interface":177,"./variavel-interface":178,"./visitante-comum-interface":179,"./visitante-delegua-interface":180}],162:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -15755,9 +16104,68 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],170:[function(require,module,exports){
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./retorno-analisador-semantico"), exports);
+__exportStar(require("./retorno-avaliador-sintatico"), exports);
+__exportStar(require("./retorno-execucao-interface"), exports);
+__exportStar(require("./retorno-interpretador-interface"), exports);
+__exportStar(require("./retorno-lexador"), exports);
+
+},{"./retorno-analisador-semantico":171,"./retorno-avaliador-sintatico":172,"./retorno-execucao-interface":173,"./retorno-interpretador-interface":174,"./retorno-lexador":175}],171:[function(require,module,exports){
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],171:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],173:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],174:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],175:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],176:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],177:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],178:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],179:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],180:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],181:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15823,7 +16231,7 @@ function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('tupla', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.tupla));
 }
 
-},{"../bibliotecas/biblioteca-global":47,"./estruturas/funcao-padrao":178}],172:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":57,"./estruturas/funcao-padrao":188}],182:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoMemoria = void 0;
@@ -15848,7 +16256,7 @@ class EspacoMemoria {
 }
 exports.EspacoMemoria = EspacoMemoria;
 
-},{}],173:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -15862,7 +16270,7 @@ class Chamavel {
 }
 exports.Chamavel = Chamavel;
 
-},{}],174:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClasseDeModulo = void 0;
@@ -15883,7 +16291,7 @@ class ClasseDeModulo extends chamavel_1.Chamavel {
 }
 exports.ClasseDeModulo = ClasseDeModulo;
 
-},{"./chamavel":173}],175:[function(require,module,exports){
+},{"./chamavel":183}],185:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
@@ -15924,7 +16332,7 @@ class ClassePadrao extends chamavel_1.Chamavel {
 }
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":173}],176:[function(require,module,exports){
+},{"./chamavel":183}],186:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
@@ -16069,7 +16477,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
 }
 exports.DeleguaFuncao = DeleguaFuncao;
 
-},{"../../declaracoes":124,"../../quebras":212,"../espaco-memoria":172,"./chamavel":173}],177:[function(require,module,exports){
+},{"../../declaracoes":134,"../../quebras":222,"../espaco-memoria":182,"./chamavel":183}],187:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DescritorTipoClasse = void 0;
@@ -16150,7 +16558,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
 }
 exports.DescritorTipoClasse = DescritorTipoClasse;
 
-},{"../../excecoes":138,"./chamavel":173,"./objeto-delegua-classe":182}],178:[function(require,module,exports){
+},{"../../excecoes":148,"./chamavel":183,"./objeto-delegua-classe":192}],188:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -16187,7 +16595,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
 }
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":173}],179:[function(require,module,exports){
+},{"./chamavel":183}],189:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -16216,7 +16624,7 @@ __exportStar(require("./objeto-delegua-classe"), exports);
 __exportStar(require("./objeto-padrao"), exports);
 __exportStar(require("./referencia-montao"), exports);
 
-},{"./chamavel":173,"./classe-de-modulo":174,"./classe-padrao":175,"./delegua-funcao":176,"./descritor-tipo-classe":177,"./funcao-padrao":178,"./metodo-primitiva":180,"./modulo":181,"./objeto-delegua-classe":182,"./objeto-padrao":183,"./referencia-montao":184}],180:[function(require,module,exports){
+},{"./chamavel":183,"./classe-de-modulo":184,"./classe-padrao":185,"./delegua-funcao":186,"./descritor-tipo-classe":187,"./funcao-padrao":188,"./metodo-primitiva":190,"./modulo":191,"./objeto-delegua-classe":192,"./objeto-padrao":193,"./referencia-montao":194}],190:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
@@ -16262,7 +16670,7 @@ class MetodoPrimitiva extends chamavel_1.Chamavel {
 }
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":173}],181:[function(require,module,exports){
+},{"./chamavel":183}],191:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -16288,7 +16696,7 @@ class DeleguaModulo {
 }
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],182:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -16356,7 +16764,7 @@ class ObjetoDeleguaClasse {
 }
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../../excecoes":138}],183:[function(require,module,exports){
+},{"../../excecoes":148}],193:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -16390,7 +16798,7 @@ class ObjetoPadrao {
 }
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],184:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaMontao = void 0;
@@ -16415,7 +16823,7 @@ class ReferenciaMontao {
 }
 exports.ReferenciaMontao = ReferenciaMontao;
 
-},{}],185:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -16435,7 +16843,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./interpretador"), exports);
 __exportStar(require("./interpretador-base"), exports);
 
-},{"./interpretador":187,"./interpretador-base":186}],186:[function(require,module,exports){
+},{"./interpretador":197,"./interpretador-base":196}],196:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -18020,7 +18428,7 @@ class InterpretadorBase {
 exports.InterpretadorBase = InterpretadorBase;
 
 }).call(this)}).call(this,require('_process'))
-},{"../avaliador-sintatico":41,"../bibliotecas/primitivas-dicionario":48,"../bibliotecas/primitivas-vetor":51,"../construtos":79,"../excecoes":138,"../inferenciador":144,"../lexador":205,"../quebras":212,"../tipos-de-dados/delegua":213,"../tipos-de-dados/primitivos":215,"../tipos-de-simbolos/delegua":218,"./espaco-memoria":172,"./estruturas":179,"./estruturas/metodo-primitiva":180,"./pilha-escopos-execucao":189,"_process":588,"browser-process-hrtime":423}],187:[function(require,module,exports){
+},{"../avaliador-sintatico":51,"../bibliotecas/primitivas-dicionario":58,"../bibliotecas/primitivas-vetor":61,"../construtos":89,"../excecoes":148,"../inferenciador":154,"../lexador":215,"../quebras":222,"../tipos-de-dados/delegua":223,"../tipos-de-dados/primitivos":225,"../tipos-de-simbolos/delegua":228,"./espaco-memoria":182,"./estruturas":189,"./estruturas/metodo-primitiva":190,"./pilha-escopos-execucao":199,"_process":598,"browser-process-hrtime":433}],197:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19020,7 +19428,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
 }
 exports.Interpretador = Interpretador;
 
-},{"../bibliotecas/primitivas-dicionario":48,"../bibliotecas/primitivas-numero":49,"../bibliotecas/primitivas-texto":50,"../bibliotecas/primitivas-vetor":51,"../construtos":79,"../declaracoes":124,"../excecoes":138,"../inferenciador":144,"../quebras":212,"../tipos-de-dados/delegua":213,"../tipos-de-dados/primitivos":215,"./comum":171,"./estruturas":179,"./interpretador-base":186,"./montao":188}],188:[function(require,module,exports){
+},{"../bibliotecas/primitivas-dicionario":58,"../bibliotecas/primitivas-numero":59,"../bibliotecas/primitivas-texto":60,"../bibliotecas/primitivas-vetor":61,"../construtos":89,"../declaracoes":134,"../excecoes":148,"../inferenciador":154,"../quebras":222,"../tipos-de-dados/delegua":223,"../tipos-de-dados/primitivos":225,"./comum":181,"./estruturas":189,"./interpretador-base":196,"./montao":198}],198:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Montao = void 0;
@@ -19077,7 +19485,7 @@ class Montao {
 }
 exports.Montao = Montao;
 
-},{"../excecoes":138,"../geracao-identificadores":142}],189:[function(require,module,exports){
+},{"../excecoes":148,"../geracao-identificadores":152}],199:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19365,7 +19773,7 @@ class PilhaEscoposExecucao {
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../excecoes":138,"../inferenciador":144,"../lexador":205,"../tipos-de-dados/delegua":213,"./estruturas":179}],190:[function(require,module,exports){
+},{"../excecoes":148,"../inferenciador":154,"../lexador":215,"../tipos-de-dados/delegua":223,"./estruturas":189}],200:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -19390,7 +19798,7 @@ __exportStar(require("./lexador-portugol-ipt"), exports);
 __exportStar(require("./lexador-prisma"), exports);
 __exportStar(require("./lexador-tenda"), exports);
 
-},{"./lexador-calango":191,"./lexador-egua-classico":192,"./lexador-guarani":193,"./lexador-pitugues":194,"./lexador-portugol-ipt":195,"./lexador-prisma":196,"./lexador-tenda":197}],191:[function(require,module,exports){
+},{"./lexador-calango":201,"./lexador-egua-classico":202,"./lexador-guarani":203,"./lexador-pitugues":204,"./lexador-portugol-ipt":205,"./lexador-prisma":206,"./lexador-tenda":207}],201:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19623,7 +20031,7 @@ class LexadorCalango {
 }
 exports.LexadorCalango = LexadorCalango;
 
-},{"../../tipos-de-simbolos/calango":216,"../simbolo":211,"./palavras-reservadas/calango":198}],192:[function(require,module,exports){
+},{"../../tipos-de-simbolos/calango":226,"../simbolo":221,"./palavras-reservadas/calango":208}],202:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19913,7 +20321,7 @@ class LexadorEguaClassico {
 }
 exports.LexadorEguaClassico = LexadorEguaClassico;
 
-},{"../../tipos-de-simbolos/egua-classico":219,"../simbolo":211,"./palavras-reservadas/egua-classico":199}],193:[function(require,module,exports){
+},{"../../tipos-de-simbolos/egua-classico":229,"../simbolo":221,"./palavras-reservadas/egua-classico":209}],203:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -20032,7 +20440,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
 }
 exports.LexadorGuarani = LexadorGuarani;
 
-},{"../../tipos-de-simbolos/guarani":220,"../lexador-base":207,"./palavras-reservadas/guarani":200}],194:[function(require,module,exports){
+},{"../../tipos-de-simbolos/guarani":230,"../lexador-base":217,"./palavras-reservadas/guarani":210}],204:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -20484,7 +20892,7 @@ class LexadorPitugues {
 }
 exports.LexadorPitugues = LexadorPitugues;
 
-},{"../../tipos-de-simbolos/pitugues":222,"../simbolo":211,"./palavras-reservadas/pitugues":201,"browser-process-hrtime":423}],195:[function(require,module,exports){
+},{"../../tipos-de-simbolos/pitugues":232,"../simbolo":221,"./palavras-reservadas/pitugues":211,"browser-process-hrtime":433}],205:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -20736,7 +21144,7 @@ class LexadorPortugolIpt {
 }
 exports.LexadorPortugolIpt = LexadorPortugolIpt;
 
-},{"../../tipos-de-simbolos/portugol-ipt":223,"../simbolo":211,"./palavras-reservadas/portugol-ipt":202}],196:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-ipt":233,"../simbolo":221,"./palavras-reservadas/portugol-ipt":212}],206:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21094,7 +21502,7 @@ class LexadorPrisma {
 }
 exports.LexadorPrisma = LexadorPrisma;
 
-},{"../../tipos-de-simbolos/prisma":224,"../simbolo":211,"./palavras-reservadas/prisma":203,"browser-process-hrtime":423}],197:[function(require,module,exports){
+},{"../../tipos-de-simbolos/prisma":234,"../simbolo":221,"./palavras-reservadas/prisma":213,"browser-process-hrtime":433}],207:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21485,7 +21893,7 @@ class LexadorTenda {
 }
 exports.LexadorTenda = LexadorTenda;
 
-},{"../../tipos-de-simbolos/tenda":225,"../simbolo":211,"./palavras-reservadas/tenda":204,"browser-process-hrtime":423}],198:[function(require,module,exports){
+},{"../../tipos-de-simbolos/tenda":235,"../simbolo":221,"./palavras-reservadas/tenda":214,"browser-process-hrtime":433}],208:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21506,7 +21914,7 @@ exports.default = {
     fimSe: calango_1.default.FIM_SE,
 };
 
-},{"../../../tipos-de-simbolos/calango":216}],199:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/calango":226}],209:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21547,7 +21955,7 @@ exports.palavrasReservadas = {
     verdadeiro: egua_classico_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/egua-classico":219}],200:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/egua-classico":229}],210:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21559,7 +21967,7 @@ exports.palavrasReservadas = {
     hai: guarani_1.default.HAI,
 };
 
-},{"../../../tipos-de-simbolos/guarani":220}],201:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/guarani":230}],211:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21624,7 +22032,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: pitugues_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/pitugues":222}],202:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/pitugues":232}],212:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21646,7 +22054,7 @@ exports.palavrasReservadas = {
     senão: portugol_ipt_1.default.SENAO,
 };
 
-},{"../../../tipos-de-simbolos/portugol-ipt":223}],203:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-ipt":233}],213:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21694,7 +22102,7 @@ exports.palavrasReservadas = {
     verdadeiro: prisma_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/prisma":224}],204:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/prisma":234}],214:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -21752,7 +22160,7 @@ exports.palavrasReservadas = {
     Texto: tenda_1.default.BIBLIOTECA_GLOBAL,
 };
 
-},{"../../../tipos-de-simbolos/tenda":225}],205:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/tenda":235}],215:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21775,7 +22183,7 @@ __exportStar(require("./lexador-base-linha-unica"), exports);
 __exportStar(require("./micro-lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./dialetos":190,"./lexador":208,"./lexador-base-linha-unica":206,"./micro-lexador":209,"./simbolo":211}],206:[function(require,module,exports){
+},{"./dialetos":200,"./lexador":218,"./lexador-base-linha-unica":216,"./micro-lexador":219,"./simbolo":221}],216:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBaseLinhaUnica = void 0;
@@ -21859,7 +22267,7 @@ class LexadorBaseLinhaUnica {
 }
 exports.LexadorBaseLinhaUnica = LexadorBaseLinhaUnica;
 
-},{"./simbolo":211}],207:[function(require,module,exports){
+},{"./simbolo":221}],217:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBase = void 0;
@@ -21973,7 +22381,7 @@ class LexadorBase {
 }
 exports.LexadorBase = LexadorBase;
 
-},{"./simbolo":211}],208:[function(require,module,exports){
+},{"./simbolo":221}],218:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -22444,7 +22852,7 @@ class Lexador {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":218,"./palavras-reservadas":210,"./simbolo":211,"browser-process-hrtime":423}],209:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":228,"./palavras-reservadas":220,"./simbolo":221,"browser-process-hrtime":433}],219:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -22677,7 +23085,7 @@ class MicroLexador {
 }
 exports.MicroLexador = MicroLexador;
 
-},{"../tipos-de-simbolos/microgramaticas/delegua":221,"./palavras-reservadas":210,"./simbolo":211}],210:[function(require,module,exports){
+},{"../tipos-de-simbolos/microgramaticas/delegua":231,"./palavras-reservadas":220,"./simbolo":221}],220:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -22747,7 +23155,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
-},{"../tipos-de-simbolos/delegua":218}],211:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":228}],221:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -22765,7 +23173,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],212:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -22790,7 +23198,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],213:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -22820,7 +23228,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],214:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -22850,7 +23258,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],215:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -22869,7 +23277,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],216:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -22913,7 +23321,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],217:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -22939,7 +23347,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],218:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23040,7 +23448,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],219:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23118,7 +23526,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],220:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23135,7 +23543,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],221:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23188,7 +23596,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],222:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23275,7 +23683,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],223:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23314,7 +23722,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],224:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -23394,7 +23802,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],225:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Em Tenda, isto é implementado em https://github.com/gabrielbrunop/tenda/blob/main/crates/scanner/src/token.rs#L42.
@@ -23489,7 +23897,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],226:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23518,7 +23926,7 @@ __exportStar(require("./tradutor-reverso-javascript"), exports);
 __exportStar(require("./tradutor-reverso-python"), exports);
 __exportStar(require("./tradutor-reverso-tenda"), exports);
 
-},{"./tradutor-assembly-arm":234,"./tradutor-assembly-x64":235,"./tradutor-assemblyscript":236,"./tradutor-calango":237,"./tradutor-javascript":238,"./tradutor-mermaidjs":239,"./tradutor-portugol-ipt":240,"./tradutor-python":241,"./tradutor-reverso-javascript":242,"./tradutor-reverso-python":243,"./tradutor-reverso-tenda":244}],227:[function(require,module,exports){
+},{"./tradutor-assembly-arm":244,"./tradutor-assembly-x64":245,"./tradutor-assemblyscript":246,"./tradutor-calango":247,"./tradutor-javascript":248,"./tradutor-mermaidjs":249,"./tradutor-portugol-ipt":250,"./tradutor-python":251,"./tradutor-reverso-javascript":252,"./tradutor-reverso-python":253,"./tradutor-reverso-tenda":254}],237:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArestaFluxograma = void 0;
@@ -23530,7 +23938,7 @@ class ArestaFluxograma {
 }
 exports.ArestaFluxograma = ArestaFluxograma;
 
-},{}],228:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagramaClasse = void 0;
@@ -23564,7 +23972,7 @@ class DiagramaClasse {
 }
 exports.DiagramaClasse = DiagramaClasse;
 
-},{}],229:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23586,7 +23994,7 @@ __exportStar(require("./diagrama-classe"), exports);
 __exportStar(require("./subgrafo-classe"), exports);
 __exportStar(require("./vertice-fluxograma"), exports);
 
-},{"./aresta-fluxograma":227,"./diagrama-classe":228,"./subgrafo-classe":230,"./vertice-fluxograma":231}],230:[function(require,module,exports){
+},{"./aresta-fluxograma":237,"./diagrama-classe":238,"./subgrafo-classe":240,"./vertice-fluxograma":241}],240:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubgrafoClasse = void 0;
@@ -23632,7 +24040,7 @@ class SubgrafoClasse {
 }
 exports.SubgrafoClasse = SubgrafoClasse;
 
-},{}],231:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VerticeFluxograma = void 0;
@@ -23649,7 +24057,7 @@ class VerticeFluxograma {
 }
 exports.VerticeFluxograma = VerticeFluxograma;
 
-},{}],232:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -24889,7 +25297,7 @@ __decorate([
     Decorators_1.Override
 ], Python3Lexer.prototype, "nextToken", null);
 
-},{"./python3-parser":233,"antlr4ts/CommonToken":254,"antlr4ts/Decorators":258,"antlr4ts/Lexer":266,"antlr4ts/Token":283,"antlr4ts/VocabularyImpl":289,"antlr4ts/atn/ATNDeserializer":295,"antlr4ts/atn/LexerATNSimulator":316,"antlr4ts/misc/Utils":377}],233:[function(require,module,exports){
+},{"./python3-parser":243,"antlr4ts/CommonToken":264,"antlr4ts/Decorators":268,"antlr4ts/Lexer":276,"antlr4ts/Token":293,"antlr4ts/VocabularyImpl":299,"antlr4ts/atn/ATNDeserializer":305,"antlr4ts/atn/LexerATNSimulator":326,"antlr4ts/misc/Utils":387}],243:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -36136,7 +36544,7 @@ class Yield_argContext extends ParserRuleContext_1.ParserRuleContext {
 }
 exports.Yield_argContext = Yield_argContext;
 
-},{"antlr4ts/FailedPredicateException":262,"antlr4ts/NoViableAltException":270,"antlr4ts/Parser":271,"antlr4ts/ParserRuleContext":274,"antlr4ts/RecognitionException":277,"antlr4ts/Token":283,"antlr4ts/VocabularyImpl":289,"antlr4ts/atn/ATN":291,"antlr4ts/atn/ATNDeserializer":295,"antlr4ts/atn/ParserATNSimulator":332,"antlr4ts/misc/Utils":377}],234:[function(require,module,exports){
+},{"antlr4ts/FailedPredicateException":272,"antlr4ts/NoViableAltException":280,"antlr4ts/Parser":281,"antlr4ts/ParserRuleContext":284,"antlr4ts/RecognitionException":287,"antlr4ts/Token":293,"antlr4ts/VocabularyImpl":299,"antlr4ts/atn/ATN":301,"antlr4ts/atn/ATNDeserializer":305,"antlr4ts/atn/ParserATNSimulator":342,"antlr4ts/misc/Utils":387}],244:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorAssemblyARM = void 0;
@@ -36852,7 +37260,7 @@ ${labelFim}:`;
 }
 exports.TradutorAssemblyARM = TradutorAssemblyARM;
 
-},{"../construtos":79,"../declaracoes":124}],235:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134}],245:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorAssemblyX64 = void 0;
@@ -37520,7 +37928,7 @@ ${labelFim}:`;
 }
 exports.TradutorAssemblyX64 = TradutorAssemblyX64;
 
-},{"../construtos":79,"../declaracoes":124}],236:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134}],246:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -38155,7 +38563,7 @@ class TradutorAssemblyScript {
 }
 exports.TradutorAssemblyScript = TradutorAssemblyScript;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/delegua":218}],237:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/delegua":228}],247:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorCalango = void 0;
@@ -38217,7 +38625,7 @@ class TradutorCalango {
 }
 exports.TradutorCalango = TradutorCalango;
 
-},{"../avaliador-sintatico/dialetos/avaliador-sintatico-calango":32,"../lexador/dialetos":190}],238:[function(require,module,exports){
+},{"../avaliador-sintatico/dialetos/avaliador-sintatico-calango":42,"../lexador/dialetos":200}],248:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -38970,7 +39378,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/delegua":218}],239:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/delegua":228}],249:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -39488,7 +39896,7 @@ class TradutorMermaidJs {
 }
 exports.TradutorMermaidJs = TradutorMermaidJs;
 
-},{"../tipos-de-simbolos/delegua":218,"./mermaid":229}],240:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":228,"./mermaid":239}],250:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorPortugolIpt = void 0;
@@ -39550,7 +39958,7 @@ class TradutorPortugolIpt {
 }
 exports.TradutorPortugolIpt = TradutorPortugolIpt;
 
-},{"../avaliador-sintatico/dialetos":38,"../lexador/dialetos":190}],241:[function(require,module,exports){
+},{"../avaliador-sintatico/dialetos":48,"../lexador/dialetos":200}],251:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -40199,7 +40607,7 @@ class TradutorPython {
 }
 exports.TradutorPython = TradutorPython;
 
-},{"../construtos":79,"../declaracoes":124,"../tipos-de-simbolos/delegua":218}],242:[function(require,module,exports){
+},{"../construtos":89,"../declaracoes":134,"../tipos-de-simbolos/delegua":228}],252:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -40596,7 +41004,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{}],243:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoPython = void 0;
@@ -40669,7 +41077,7 @@ class TradutorReversoPython {
 }
 exports.TradutorReversoPython = TradutorReversoPython;
 
-},{"./python/python3-lexer":232,"./python/python3-parser":233,"antlr4ts":360,"antlr4ts/tree/ParseTreeWalker":379}],244:[function(require,module,exports){
+},{"./python/python3-lexer":242,"./python/python3-parser":243,"antlr4ts":370,"antlr4ts/tree/ParseTreeWalker":389}],254:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -41263,7 +41671,7 @@ class TradutorReversoTenda {
 }
 exports.TradutorReversoTenda = TradutorReversoTenda;
 
-},{"../construtos":79,"../tipos-de-simbolos/tenda":225}],245:[function(require,module,exports){
+},{"../construtos":89,"../tipos-de-simbolos/tenda":235}],255:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41271,7 +41679,7 @@ exports.TradutorReversoTenda = TradutorReversoTenda;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],246:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41279,7 +41687,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],247:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41441,7 +41849,7 @@ __decorate([
 ], ANTLRInputStream.prototype, "toString", null);
 exports.ANTLRInputStream = ANTLRInputStream;
 
-},{"./Decorators":258,"./IntStream":264,"assert":415}],248:[function(require,module,exports){
+},{"./Decorators":268,"./IntStream":274,"assert":425}],258:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -41524,7 +41932,7 @@ __decorate([
 ], BailErrorStrategy.prototype, "sync", null);
 exports.BailErrorStrategy = BailErrorStrategy;
 
-},{"./Decorators":258,"./DefaultErrorStrategy":259,"./InputMismatchException":263,"./misc/ParseCancellationException":375}],249:[function(require,module,exports){
+},{"./Decorators":268,"./DefaultErrorStrategy":269,"./InputMismatchException":273,"./misc/ParseCancellationException":385}],259:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42014,7 +42422,7 @@ BufferedTokenStream = __decorate([
 ], BufferedTokenStream);
 exports.BufferedTokenStream = BufferedTokenStream;
 
-},{"./CommonToken":254,"./Decorators":258,"./Lexer":266,"./Token":283,"./misc/Interval":370,"assert":415}],250:[function(require,module,exports){
+},{"./CommonToken":264,"./Decorators":268,"./Lexer":276,"./Token":293,"./misc/Interval":380,"assert":425}],260:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42022,7 +42430,7 @@ exports.BufferedTokenStream = BufferedTokenStream;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],251:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42156,7 +42564,7 @@ var CharStreams;
     // }
 })(CharStreams = exports.CharStreams || (exports.CharStreams = {}));
 
-},{"./CodePointBuffer":252,"./CodePointCharStream":253,"./IntStream":264}],252:[function(require,module,exports){
+},{"./CodePointBuffer":262,"./CodePointCharStream":263,"./IntStream":274}],262:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42391,7 +42799,7 @@ exports.CodePointBuffer = CodePointBuffer;
     CodePointBuffer.Builder = Builder;
 })(CodePointBuffer = exports.CodePointBuffer || (exports.CodePointBuffer = {}));
 
-},{"./misc/Character":366,"assert":415}],253:[function(require,module,exports){
+},{"./misc/Character":376,"assert":425}],263:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42541,7 +42949,7 @@ __decorate([
 ], CodePointCharStream.prototype, "getText", null);
 exports.CodePointCharStream = CodePointCharStream;
 
-},{"./Decorators":258,"./IntStream":264,"./misc/Interval":370,"assert":415}],254:[function(require,module,exports){
+},{"./Decorators":268,"./IntStream":274,"./misc/Interval":380,"assert":425}],264:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42771,7 +43179,7 @@ CommonToken = __decorate([
 ], CommonToken);
 exports.CommonToken = CommonToken;
 
-},{"./Decorators":258,"./Token":283,"./misc/Interval":370}],255:[function(require,module,exports){
+},{"./Decorators":268,"./Token":293,"./misc/Interval":380}],265:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42835,7 +43243,7 @@ exports.CommonTokenFactory = CommonTokenFactory;
     CommonTokenFactory.DEFAULT = new CommonTokenFactory();
 })(CommonTokenFactory = exports.CommonTokenFactory || (exports.CommonTokenFactory = {}));
 
-},{"./CommonToken":254,"./Decorators":258,"./misc/Interval":370}],256:[function(require,module,exports){
+},{"./CommonToken":264,"./Decorators":268,"./misc/Interval":380}],266:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42962,7 +43370,7 @@ CommonTokenStream = __decorate([
 ], CommonTokenStream);
 exports.CommonTokenStream = CommonTokenStream;
 
-},{"./BufferedTokenStream":249,"./Decorators":258,"./Token":283}],257:[function(require,module,exports){
+},{"./BufferedTokenStream":259,"./Decorators":268,"./Token":293}],267:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -42996,7 +43404,7 @@ exports.ConsoleErrorListener = ConsoleErrorListener;
  */
 ConsoleErrorListener.INSTANCE = new ConsoleErrorListener();
 
-},{}],258:[function(require,module,exports){
+},{}],268:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43023,7 +43431,7 @@ function SuppressWarnings(options) {
 }
 exports.SuppressWarnings = SuppressWarnings;
 
-},{}],259:[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43837,7 +44245,7 @@ __decorate([
 ], DefaultErrorStrategy.prototype, "consumeUntil", null);
 exports.DefaultErrorStrategy = DefaultErrorStrategy;
 
-},{"./Decorators":258,"./FailedPredicateException":262,"./InputMismatchException":263,"./NoViableAltException":270,"./Token":283,"./atn/ATNState":297,"./atn/ATNStateType":298,"./atn/PredictionContext":338,"./misc/IntervalSet":371}],260:[function(require,module,exports){
+},{"./Decorators":268,"./FailedPredicateException":272,"./InputMismatchException":273,"./NoViableAltException":280,"./Token":293,"./atn/ATNState":307,"./atn/ATNStateType":308,"./atn/PredictionContext":348,"./misc/IntervalSet":381}],270:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -43913,7 +44321,7 @@ var Dependents;
     Dependents[Dependents["FOLLOWING"] = 9] = "FOLLOWING";
 })(Dependents = exports.Dependents || (exports.Dependents = {}));
 
-},{}],261:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44061,7 +44469,7 @@ __decorate([
 ], DiagnosticErrorListener.prototype, "getConflictingAlts", null);
 exports.DiagnosticErrorListener = DiagnosticErrorListener;
 
-},{"./Decorators":258,"./misc/BitSet":365,"./misc/Interval":370}],262:[function(require,module,exports){
+},{"./Decorators":268,"./misc/BitSet":375,"./misc/Interval":380}],272:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44126,7 +44534,7 @@ FailedPredicateException = __decorate([
 ], FailedPredicateException);
 exports.FailedPredicateException = FailedPredicateException;
 
-},{"./Decorators":258,"./RecognitionException":277,"./atn/PredicateTransition":337}],263:[function(require,module,exports){
+},{"./Decorators":268,"./RecognitionException":287,"./atn/PredicateTransition":347}],273:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44166,7 +44574,7 @@ InputMismatchException = __decorate([
 ], InputMismatchException);
 exports.InputMismatchException = InputMismatchException;
 
-},{"./Decorators":258,"./RecognitionException":277}],264:[function(require,module,exports){
+},{"./Decorators":268,"./RecognitionException":287}],274:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44189,7 +44597,7 @@ var IntStream;
     IntStream.UNKNOWN_SOURCE_NAME = "<unknown>";
 })(IntStream = exports.IntStream || (exports.IntStream = {}));
 
-},{}],265:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44236,7 +44644,7 @@ __decorate([
 ], InterpreterRuleContext.prototype, "ruleIndex", null);
 exports.InterpreterRuleContext = InterpreterRuleContext;
 
-},{"./Decorators":258,"./ParserRuleContext":274}],266:[function(require,module,exports){
+},{"./Decorators":268,"./ParserRuleContext":284}],276:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44572,7 +44980,7 @@ __decorate([
 ], Lexer.prototype, "charPositionInLine", null);
 exports.Lexer = Lexer;
 
-},{"./CommonTokenFactory":255,"./Decorators":258,"./IntStream":264,"./LexerNoViableAltException":268,"./Recognizer":278,"./Token":283,"./atn/LexerATNSimulator":316,"./misc/IntegerStack":369,"./misc/Interval":370}],267:[function(require,module,exports){
+},{"./CommonTokenFactory":265,"./Decorators":268,"./IntStream":274,"./LexerNoViableAltException":278,"./Recognizer":288,"./Token":293,"./atn/LexerATNSimulator":326,"./misc/IntegerStack":379,"./misc/Interval":380}],277:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44652,7 +45060,7 @@ LexerInterpreter = __decorate([
 ], LexerInterpreter);
 exports.LexerInterpreter = LexerInterpreter;
 
-},{"./Decorators":258,"./Lexer":266,"./atn/LexerATNSimulator":316}],268:[function(require,module,exports){
+},{"./Decorators":268,"./Lexer":276,"./atn/LexerATNSimulator":326}],278:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44709,7 +45117,7 @@ LexerNoViableAltException = __decorate([
 ], LexerNoViableAltException);
 exports.LexerNoViableAltException = LexerNoViableAltException;
 
-},{"./Decorators":258,"./RecognitionException":277,"./misc/Interval":370,"./misc/Utils":377}],269:[function(require,module,exports){
+},{"./Decorators":268,"./RecognitionException":287,"./misc/Interval":380,"./misc/Utils":387}],279:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44919,7 +45327,7 @@ ListTokenSource = __decorate([
 ], ListTokenSource);
 exports.ListTokenSource = ListTokenSource;
 
-},{"./CommonTokenFactory":255,"./Decorators":258,"./Token":283}],270:[function(require,module,exports){
+},{"./CommonTokenFactory":265,"./Decorators":268,"./Token":293}],280:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -44974,7 +45382,7 @@ __decorate([
 ], NoViableAltException.prototype, "_startToken", void 0);
 exports.NoViableAltException = NoViableAltException;
 
-},{"./Decorators":258,"./Parser":271,"./RecognitionException":277}],271:[function(require,module,exports){
+},{"./Decorators":268,"./Parser":281,"./RecognitionException":287}],281:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -45820,7 +46228,7 @@ __decorate([
 exports.Parser = Parser;
 
 }).call(this)}).call(this,require('_process'))
-},{"./Decorators":258,"./DefaultErrorStrategy":259,"./Lexer":266,"./ProxyParserErrorListener":276,"./Recognizer":278,"./Token":283,"./atn/ATNDeserializationOptions":294,"./atn/ATNDeserializer":295,"./atn/ParseInfo":331,"./atn/ParserATNSimulator":332,"./atn/ProfilingATNSimulator":341,"./misc/IntegerStack":369,"./misc/Utils":377,"./tree/ErrorNode":378,"./tree/TerminalNode":381,"./tree/pattern/ParseTreePatternMatcher":386,"_process":588}],272:[function(require,module,exports){
+},{"./Decorators":268,"./DefaultErrorStrategy":269,"./Lexer":276,"./ProxyParserErrorListener":286,"./Recognizer":288,"./Token":293,"./atn/ATNDeserializationOptions":304,"./atn/ATNDeserializer":305,"./atn/ParseInfo":341,"./atn/ParserATNSimulator":342,"./atn/ProfilingATNSimulator":351,"./misc/IntegerStack":379,"./misc/Utils":387,"./tree/ErrorNode":388,"./tree/TerminalNode":391,"./tree/pattern/ParseTreePatternMatcher":396,"_process":598}],282:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -45828,7 +46236,7 @@ exports.Parser = Parser;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],273:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46236,7 +46644,7 @@ ParserInterpreter = __decorate([
 ], ParserInterpreter);
 exports.ParserInterpreter = ParserInterpreter;
 
-},{"./Decorators":258,"./FailedPredicateException":262,"./InputMismatchException":263,"./InterpreterRuleContext":265,"./Parser":271,"./RecognitionException":277,"./Token":283,"./atn/ATNState":297,"./atn/ATNStateType":298,"./atn/LoopEndState":328,"./atn/ParserATNSimulator":332,"./atn/StarLoopEntryState":350,"./misc/BitSet":365}],274:[function(require,module,exports){
+},{"./Decorators":268,"./FailedPredicateException":272,"./InputMismatchException":273,"./InterpreterRuleContext":275,"./Parser":281,"./RecognitionException":287,"./Token":293,"./atn/ATNState":307,"./atn/ATNStateType":308,"./atn/LoopEndState":338,"./atn/ParserATNSimulator":342,"./atn/StarLoopEntryState":360,"./misc/BitSet":375}],284:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46537,7 +46945,7 @@ __decorate([
 ], ParserRuleContext.prototype, "sourceInterval", null);
 exports.ParserRuleContext = ParserRuleContext;
 
-},{"./Decorators":258,"./RuleContext":279,"./misc/Interval":370,"./tree/ErrorNode":378,"./tree/TerminalNode":381}],275:[function(require,module,exports){
+},{"./Decorators":268,"./RuleContext":289,"./misc/Interval":380,"./tree/ErrorNode":388,"./tree/TerminalNode":391}],285:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46587,7 +46995,7 @@ __decorate([
 ], ProxyErrorListener.prototype, "syntaxError", null);
 exports.ProxyErrorListener = ProxyErrorListener;
 
-},{"./Decorators":258}],276:[function(require,module,exports){
+},{"./Decorators":268}],286:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46646,7 +47054,7 @@ __decorate([
 ], ProxyParserErrorListener.prototype, "reportContextSensitivity", null);
 exports.ProxyParserErrorListener = ProxyParserErrorListener;
 
-},{"./Decorators":258,"./ProxyErrorListener":275}],277:[function(require,module,exports){
+},{"./Decorators":268,"./ProxyErrorListener":285}],287:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46751,7 +47159,7 @@ class RecognitionException extends Error {
 }
 exports.RecognitionException = RecognitionException;
 
-},{}],278:[function(require,module,exports){
+},{}],288:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -46970,7 +47378,7 @@ __decorate([
 ], Recognizer.prototype, "getErrorListeners", null);
 exports.Recognizer = Recognizer;
 
-},{"./ConsoleErrorListener":257,"./Decorators":258,"./ProxyErrorListener":275,"./Token":283,"./misc/Utils":377}],279:[function(require,module,exports){
+},{"./ConsoleErrorListener":267,"./Decorators":268,"./ProxyErrorListener":285,"./Token":293,"./misc/Utils":387}],289:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47187,7 +47595,7 @@ __decorate([
 ], RuleContext.prototype, "toStringTree", null);
 exports.RuleContext = RuleContext;
 
-},{"./Decorators":258,"./ParserRuleContext":274,"./Recognizer":278,"./atn/ATN":291,"./misc/Interval":370,"./tree/RuleNode":380,"./tree/Trees":382}],280:[function(require,module,exports){
+},{"./Decorators":268,"./ParserRuleContext":284,"./Recognizer":288,"./atn/ATN":301,"./misc/Interval":380,"./tree/RuleNode":390,"./tree/Trees":392}],290:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47238,7 +47646,7 @@ __decorate([
 ], RuleContextWithAltNum.prototype, "altNumber", null);
 exports.RuleContextWithAltNum = RuleContextWithAltNum;
 
-},{"./Decorators":258,"./ParserRuleContext":274,"./atn/ATN":291}],281:[function(require,module,exports){
+},{"./Decorators":268,"./ParserRuleContext":284,"./atn/ATN":301}],291:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47261,7 +47669,7 @@ function RuleDependency(dependency) {
 }
 exports.RuleDependency = RuleDependency;
 
-},{}],282:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47280,7 +47688,7 @@ function RuleVersion(version) {
 }
 exports.RuleVersion = RuleVersion;
 
-},{}],283:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47320,7 +47728,7 @@ var Token;
     Token.MIN_USER_CHANNEL_VALUE = 2;
 })(Token = exports.Token || (exports.Token = {}));
 
-},{"./IntStream":264}],284:[function(require,module,exports){
+},{"./IntStream":274}],294:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47328,7 +47736,7 @@ var Token;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],285:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47336,7 +47744,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],286:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47344,7 +47752,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],287:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47852,7 +48260,7 @@ __decorate([
     Decorators_1.Override
 ], ReplaceOp.prototype, "toString", null);
 
-},{"./Decorators":258,"./Token":283,"./misc/Interval":370}],288:[function(require,module,exports){
+},{"./Decorators":268,"./Token":293,"./misc/Interval":380}],298:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47860,7 +48268,7 @@ __decorate([
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],289:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47980,7 +48388,7 @@ __decorate([
 ], VocabularyImpl, "EMPTY_VOCABULARY", void 0);
 exports.VocabularyImpl = VocabularyImpl;
 
-},{"./Decorators":258,"./Token":283}],290:[function(require,module,exports){
+},{"./Decorators":268,"./Token":293}],300:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -47988,7 +48396,7 @@ exports.VocabularyImpl = VocabularyImpl;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],291:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48210,7 +48618,7 @@ exports.ATN = ATN;
 })(ATN = exports.ATN || (exports.ATN = {}));
 exports.ATN = ATN;
 
-},{"../Decorators":258,"../Token":283,"../dfa/DFA":356,"../misc/Array2DHashMap":361,"../misc/IntervalSet":371,"../misc/ObjectEqualityComparator":374,"./InvalidState":314,"./LL1Analyzer":315,"./PredictionContext":338,"assert":415}],292:[function(require,module,exports){
+},{"../Decorators":268,"../Token":293,"../dfa/DFA":366,"../misc/Array2DHashMap":371,"../misc/IntervalSet":381,"../misc/ObjectEqualityComparator":384,"./InvalidState":324,"./LL1Analyzer":325,"./PredictionContext":348,"assert":425}],302:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -48735,7 +49143,7 @@ ActionSemanticContextATNConfig = __decorate([
     __param(1, Decorators_1.NotNull), __param(2, Decorators_1.NotNull)
 ], ActionSemanticContextATNConfig);
 
-},{"../Decorators":258,"../misc/Array2DHashMap":361,"../misc/MurmurHash":373,"../misc/ObjectEqualityComparator":374,"./DecisionState":311,"./PredictionContext":338,"./SemanticContext":346,"assert":415}],293:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashMap":371,"../misc/MurmurHash":383,"../misc/ObjectEqualityComparator":384,"./DecisionState":321,"./PredictionContext":348,"./SemanticContext":356,"assert":425}],303:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49182,7 +49590,7 @@ __decorate([
 ], ATNConfigSet.prototype, "hashCode", null);
 exports.ATNConfigSet = ATNConfigSet;
 
-},{"../Decorators":258,"../misc/Array2DHashMap":361,"../misc/Array2DHashSet":362,"../misc/ArrayEqualityComparator":363,"../misc/BitSet":365,"../misc/ObjectEqualityComparator":374,"../misc/Utils":377,"./ATN":291,"./ATNConfig":292,"./PredictionContext":338,"./PredictionContextCache":339,"./SemanticContext":346,"assert":415}],294:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashMap":371,"../misc/Array2DHashSet":372,"../misc/ArrayEqualityComparator":373,"../misc/BitSet":375,"../misc/ObjectEqualityComparator":384,"../misc/Utils":387,"./ATN":301,"./ATNConfig":302,"./PredictionContext":348,"./PredictionContextCache":349,"./SemanticContext":356,"assert":425}],304:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -49261,7 +49669,7 @@ __decorate([
 ], ATNDeserializationOptions, "defaultOptions", null);
 exports.ATNDeserializationOptions = ATNDeserializationOptions;
 
-},{"../Decorators":258}],295:[function(require,module,exports){
+},{"../Decorators":268}],305:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50348,7 +50756,7 @@ __decorate([
 ], ATNDeserializer.prototype, "edgeFactory", null);
 exports.ATNDeserializer = ATNDeserializer;
 
-},{"../Decorators":258,"../Token":283,"../dfa/DFA":356,"../misc/Array2DHashSet":362,"../misc/BitSet":365,"../misc/IntervalSet":371,"../misc/UUID":376,"./ATN":291,"./ATNDeserializationOptions":294,"./ATNStateType":298,"./ActionTransition":300,"./AtomTransition":302,"./BasicBlockStartState":303,"./BasicState":304,"./BlockEndState":305,"./BlockStartState":306,"./DecisionState":311,"./EpsilonTransition":312,"./InvalidState":314,"./LexerChannelAction":318,"./LexerCustomAction":319,"./LexerModeAction":321,"./LexerMoreAction":322,"./LexerPopModeAction":323,"./LexerPushModeAction":324,"./LexerSkipAction":325,"./LexerTypeAction":326,"./LoopEndState":328,"./NotSetTransition":329,"./ParserATNSimulator":332,"./PlusBlockStartState":333,"./PlusLoopbackState":334,"./PrecedencePredicateTransition":335,"./PredicateTransition":337,"./RangeTransition":342,"./RuleStartState":343,"./RuleStopState":344,"./RuleTransition":345,"./SetTransition":347,"./StarBlockStartState":349,"./StarLoopEntryState":350,"./StarLoopbackState":351,"./TokensStartState":352,"./WildcardTransition":354}],296:[function(require,module,exports){
+},{"../Decorators":268,"../Token":293,"../dfa/DFA":366,"../misc/Array2DHashSet":372,"../misc/BitSet":375,"../misc/IntervalSet":381,"../misc/UUID":386,"./ATN":301,"./ATNDeserializationOptions":304,"./ATNStateType":308,"./ActionTransition":310,"./AtomTransition":312,"./BasicBlockStartState":313,"./BasicState":314,"./BlockEndState":315,"./BlockStartState":316,"./DecisionState":321,"./EpsilonTransition":322,"./InvalidState":324,"./LexerChannelAction":328,"./LexerCustomAction":329,"./LexerModeAction":331,"./LexerMoreAction":332,"./LexerPopModeAction":333,"./LexerPushModeAction":334,"./LexerSkipAction":335,"./LexerTypeAction":336,"./LoopEndState":338,"./NotSetTransition":339,"./ParserATNSimulator":342,"./PlusBlockStartState":343,"./PlusLoopbackState":344,"./PrecedencePredicateTransition":345,"./PredicateTransition":347,"./RangeTransition":352,"./RuleStartState":353,"./RuleStopState":354,"./RuleTransition":355,"./SetTransition":357,"./StarBlockStartState":359,"./StarLoopEntryState":360,"./StarLoopbackState":361,"./TokensStartState":362,"./WildcardTransition":364}],306:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50412,7 +50820,7 @@ exports.ATNSimulator = ATNSimulator;
 })(ATNSimulator = exports.ATNSimulator || (exports.ATNSimulator = {}));
 exports.ATNSimulator = ATNSimulator;
 
-},{"../Decorators":258,"../dfa/DFAState":358,"./ATNConfigSet":293,"./PredictionContext":338}],297:[function(require,module,exports){
+},{"../Decorators":268,"../dfa/DFAState":368,"./ATNConfigSet":303,"./PredictionContext":348}],307:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50599,7 +51007,7 @@ exports.ATNState = ATNState;
     ATNState.INVALID_STATE_NUMBER = -1;
 })(ATNState = exports.ATNState || (exports.ATNState = {}));
 
-},{"../Decorators":258}],298:[function(require,module,exports){
+},{"../Decorators":268}],308:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50625,7 +51033,7 @@ var ATNStateType;
     ATNStateType[ATNStateType["LOOP_END"] = 12] = "LOOP_END";
 })(ATNStateType = exports.ATNStateType || (exports.ATNStateType = {}));
 
-},{}],299:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50645,7 +51053,7 @@ class AbstractPredicateTransition extends Transition_1.Transition {
 }
 exports.AbstractPredicateTransition = AbstractPredicateTransition;
 
-},{"./Transition":353}],300:[function(require,module,exports){
+},{"./Transition":363}],310:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50701,7 +51109,7 @@ ActionTransition = __decorate([
 ], ActionTransition);
 exports.ActionTransition = ActionTransition;
 
-},{"../Decorators":258,"./Transition":353}],301:[function(require,module,exports){
+},{"../Decorators":268,"./Transition":363}],311:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50788,7 +51196,7 @@ AmbiguityInfo = __decorate([
 ], AmbiguityInfo);
 exports.AmbiguityInfo = AmbiguityInfo;
 
-},{"../Decorators":258,"./DecisionEventInfo":309}],302:[function(require,module,exports){
+},{"../Decorators":268,"./DecisionEventInfo":319}],312:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50846,7 +51254,7 @@ AtomTransition = __decorate([
 ], AtomTransition);
 exports.AtomTransition = AtomTransition;
 
-},{"../Decorators":258,"../misc/IntervalSet":371,"./Transition":353}],303:[function(require,module,exports){
+},{"../Decorators":268,"../misc/IntervalSet":381,"./Transition":363}],313:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50878,7 +51286,7 @@ __decorate([
 ], BasicBlockStartState.prototype, "stateType", null);
 exports.BasicBlockStartState = BasicBlockStartState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./BlockStartState":306}],304:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./BlockStartState":316}],314:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50910,7 +51318,7 @@ __decorate([
 ], BasicState.prototype, "stateType", null);
 exports.BasicState = BasicState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],305:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],315:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50939,7 +51347,7 @@ __decorate([
 ], BlockEndState.prototype, "stateType", null);
 exports.BlockEndState = BlockEndState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],306:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],316:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -50953,7 +51361,7 @@ class BlockStartState extends DecisionState_1.DecisionState {
 }
 exports.BlockStartState = BlockStartState;
 
-},{"./DecisionState":311}],307:[function(require,module,exports){
+},{"./DecisionState":321}],317:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51023,7 +51431,7 @@ __decorate([
 ], ConflictInfo.prototype, "hashCode", null);
 exports.ConflictInfo = ConflictInfo;
 
-},{"../Decorators":258,"../misc/Utils":377}],308:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Utils":387}],318:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51083,7 +51491,7 @@ ContextSensitivityInfo = __decorate([
 ], ContextSensitivityInfo);
 exports.ContextSensitivityInfo = ContextSensitivityInfo;
 
-},{"../Decorators":258,"./DecisionEventInfo":309}],309:[function(require,module,exports){
+},{"../Decorators":268,"./DecisionEventInfo":319}],319:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51135,7 +51543,7 @@ DecisionEventInfo = __decorate([
 ], DecisionEventInfo);
 exports.DecisionEventInfo = DecisionEventInfo;
 
-},{"../Decorators":258}],310:[function(require,module,exports){
+},{"../Decorators":268}],320:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51348,7 +51756,7 @@ __decorate([
 ], DecisionInfo.prototype, "toString", null);
 exports.DecisionInfo = DecisionInfo;
 
-},{"../Decorators":258}],311:[function(require,module,exports){
+},{"../Decorators":268}],321:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51368,7 +51776,7 @@ class DecisionState extends ATNState_1.ATNState {
 }
 exports.DecisionState = DecisionState;
 
-},{"./ATNState":297}],312:[function(require,module,exports){
+},{"./ATNState":307}],322:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51434,7 +51842,7 @@ EpsilonTransition = __decorate([
 ], EpsilonTransition);
 exports.EpsilonTransition = EpsilonTransition;
 
-},{"../Decorators":258,"./Transition":353}],313:[function(require,module,exports){
+},{"../Decorators":268,"./Transition":363}],323:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51487,7 +51895,7 @@ ErrorInfo = __decorate([
 ], ErrorInfo);
 exports.ErrorInfo = ErrorInfo;
 
-},{"../Decorators":258,"./DecisionEventInfo":309}],314:[function(require,module,exports){
+},{"../Decorators":268,"./DecisionEventInfo":319}],324:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51518,7 +51926,7 @@ __decorate([
 ], InvalidState.prototype, "stateType", null);
 exports.InvalidState = InvalidState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./BasicState":304}],315:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./BasicState":314}],325:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -51740,7 +52148,7 @@ LL1Analyzer = __decorate([
 ], LL1Analyzer);
 exports.LL1Analyzer = LL1Analyzer;
 
-},{"../Decorators":258,"../Token":283,"../misc/Array2DHashSet":362,"../misc/BitSet":365,"../misc/IntervalSet":371,"../misc/ObjectEqualityComparator":374,"./ATNConfig":292,"./AbstractPredicateTransition":299,"./NotSetTransition":329,"./PredictionContext":338,"./RuleStopState":344,"./RuleTransition":345,"./WildcardTransition":354}],316:[function(require,module,exports){
+},{"../Decorators":268,"../Token":293,"../misc/Array2DHashSet":372,"../misc/BitSet":375,"../misc/IntervalSet":381,"../misc/ObjectEqualityComparator":384,"./ATNConfig":302,"./AbstractPredicateTransition":309,"./NotSetTransition":339,"./PredictionContext":348,"./RuleStopState":354,"./RuleTransition":355,"./WildcardTransition":364}],326:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52457,7 +52865,7 @@ exports.LexerATNSimulator = LexerATNSimulator;
 })(LexerATNSimulator = exports.LexerATNSimulator || (exports.LexerATNSimulator = {}));
 exports.LexerATNSimulator = LexerATNSimulator;
 
-},{"../Decorators":258,"../IntStream":264,"../Lexer":266,"../LexerNoViableAltException":268,"../Token":283,"../dfa/AcceptStateInfo":355,"../dfa/DFAState":358,"../misc/Interval":370,"./ATN":291,"./ATNConfig":292,"./ATNConfigSet":293,"./ATNSimulator":296,"./LexerActionExecutor":317,"./OrderedATNConfigSet":330,"./PredictionContext":338,"./RuleStopState":344,"assert":415}],317:[function(require,module,exports){
+},{"../Decorators":268,"../IntStream":274,"../Lexer":276,"../LexerNoViableAltException":278,"../Token":293,"../dfa/AcceptStateInfo":365,"../dfa/DFAState":368,"../misc/Interval":380,"./ATN":301,"./ATNConfig":302,"./ATNConfigSet":303,"./ATNSimulator":306,"./LexerActionExecutor":327,"./OrderedATNConfigSet":340,"./PredictionContext":348,"./RuleStopState":354,"assert":425}],327:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52658,7 +53066,7 @@ LexerActionExecutor = __decorate([
 ], LexerActionExecutor);
 exports.LexerActionExecutor = LexerActionExecutor;
 
-},{"../Decorators":258,"../misc/ArrayEqualityComparator":363,"../misc/MurmurHash":373,"./LexerIndexedCustomAction":320}],318:[function(require,module,exports){
+},{"../Decorators":268,"../misc/ArrayEqualityComparator":373,"../misc/MurmurHash":383,"./LexerIndexedCustomAction":330}],328:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52763,7 +53171,7 @@ __decorate([
 ], LexerChannelAction.prototype, "toString", null);
 exports.LexerChannelAction = LexerChannelAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],319:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],329:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -52892,7 +53300,7 @@ __decorate([
 ], LexerCustomAction.prototype, "equals", null);
 exports.LexerCustomAction = LexerCustomAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],320:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],330:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53027,7 +53435,7 @@ LexerIndexedCustomAction = __decorate([
 ], LexerIndexedCustomAction);
 exports.LexerIndexedCustomAction = LexerIndexedCustomAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],321:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],331:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53132,7 +53540,7 @@ __decorate([
 ], LexerModeAction.prototype, "toString", null);
 exports.LexerModeAction = LexerModeAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],322:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],332:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53228,7 +53636,7 @@ exports.LexerMoreAction = LexerMoreAction;
     LexerMoreAction.INSTANCE = new LexerMoreAction();
 })(LexerMoreAction = exports.LexerMoreAction || (exports.LexerMoreAction = {}));
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],323:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],333:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53324,7 +53732,7 @@ exports.LexerPopModeAction = LexerPopModeAction;
     LexerPopModeAction.INSTANCE = new LexerPopModeAction();
 })(LexerPopModeAction = exports.LexerPopModeAction || (exports.LexerPopModeAction = {}));
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],324:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],334:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53429,7 +53837,7 @@ __decorate([
 ], LexerPushModeAction.prototype, "toString", null);
 exports.LexerPushModeAction = LexerPushModeAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],325:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],335:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53525,7 +53933,7 @@ exports.LexerSkipAction = LexerSkipAction;
     LexerSkipAction.INSTANCE = new LexerSkipAction();
 })(LexerSkipAction = exports.LexerSkipAction || (exports.LexerSkipAction = {}));
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],326:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],336:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53629,7 +54037,7 @@ __decorate([
 ], LexerTypeAction.prototype, "toString", null);
 exports.LexerTypeAction = LexerTypeAction;
 
-},{"../Decorators":258,"../misc/MurmurHash":373}],327:[function(require,module,exports){
+},{"../Decorators":268,"../misc/MurmurHash":383}],337:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53681,7 +54089,7 @@ LookaheadEventInfo = __decorate([
 ], LookaheadEventInfo);
 exports.LookaheadEventInfo = LookaheadEventInfo;
 
-},{"../Decorators":258,"./DecisionEventInfo":309}],328:[function(require,module,exports){
+},{"../Decorators":268,"./DecisionEventInfo":319}],338:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53710,7 +54118,7 @@ __decorate([
 ], LoopEndState.prototype, "stateType", null);
 exports.LoopEndState = LoopEndState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],329:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],339:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53759,7 +54167,7 @@ NotSetTransition = __decorate([
 ], NotSetTransition);
 exports.NotSetTransition = NotSetTransition;
 
-},{"../Decorators":258,"./SetTransition":347}],330:[function(require,module,exports){
+},{"../Decorators":268,"./SetTransition":357}],340:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53814,7 +54222,7 @@ __decorate([
 ], OrderedATNConfigSet.prototype, "canMerge", null);
 exports.OrderedATNConfigSet = OrderedATNConfigSet;
 
-},{"../Decorators":258,"./ATNConfigSet":293}],331:[function(require,module,exports){
+},{"../Decorators":268,"./ATNConfigSet":303}],341:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -53976,7 +54384,7 @@ ParseInfo = __decorate([
 ], ParseInfo);
 exports.ParseInfo = ParseInfo;
 
-},{"../Decorators":258}],332:[function(require,module,exports){
+},{"../Decorators":268}],342:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56249,7 +56657,7 @@ ParserATNSimulator = __decorate([
 ], ParserATNSimulator);
 exports.ParserATNSimulator = ParserATNSimulator;
 
-},{"../Decorators":258,"../IntStream":264,"../NoViableAltException":270,"../ParserRuleContext":274,"../Token":283,"../VocabularyImpl":289,"../dfa/AcceptStateInfo":355,"../dfa/DFAState":358,"../misc/Array2DHashSet":362,"../misc/Arrays":364,"../misc/BitSet":365,"../misc/IntegerList":368,"../misc/Interval":370,"../misc/ObjectEqualityComparator":374,"./ATN":291,"./ATNConfig":292,"./ATNConfigSet":293,"./ATNSimulator":296,"./ATNStateType":298,"./ActionTransition":300,"./AtomTransition":302,"./ConflictInfo":307,"./DecisionState":311,"./NotSetTransition":329,"./PredictionContext":338,"./PredictionContextCache":339,"./PredictionMode":340,"./RuleStopState":344,"./RuleTransition":345,"./SemanticContext":346,"./SetTransition":347,"./SimulatorState":348,"assert":415}],333:[function(require,module,exports){
+},{"../Decorators":268,"../IntStream":274,"../NoViableAltException":280,"../ParserRuleContext":284,"../Token":293,"../VocabularyImpl":299,"../dfa/AcceptStateInfo":365,"../dfa/DFAState":368,"../misc/Array2DHashSet":372,"../misc/Arrays":374,"../misc/BitSet":375,"../misc/IntegerList":378,"../misc/Interval":380,"../misc/ObjectEqualityComparator":384,"./ATN":301,"./ATNConfig":302,"./ATNConfigSet":303,"./ATNSimulator":306,"./ATNStateType":308,"./ActionTransition":310,"./AtomTransition":312,"./ConflictInfo":317,"./DecisionState":321,"./NotSetTransition":339,"./PredictionContext":348,"./PredictionContextCache":349,"./PredictionMode":350,"./RuleStopState":354,"./RuleTransition":355,"./SemanticContext":356,"./SetTransition":357,"./SimulatorState":358,"assert":425}],343:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56282,7 +56690,7 @@ __decorate([
 ], PlusBlockStartState.prototype, "stateType", null);
 exports.PlusBlockStartState = PlusBlockStartState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./BlockStartState":306}],334:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./BlockStartState":316}],344:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56313,7 +56721,7 @@ __decorate([
 ], PlusLoopbackState.prototype, "stateType", null);
 exports.PlusLoopbackState = PlusLoopbackState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./DecisionState":311}],335:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./DecisionState":321}],345:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56376,7 +56784,7 @@ PrecedencePredicateTransition = __decorate([
 ], PrecedencePredicateTransition);
 exports.PrecedencePredicateTransition = PrecedencePredicateTransition;
 
-},{"../Decorators":258,"./AbstractPredicateTransition":299,"./SemanticContext":346}],336:[function(require,module,exports){
+},{"../Decorators":268,"./AbstractPredicateTransition":309,"./SemanticContext":356}],346:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56439,7 +56847,7 @@ PredicateEvalInfo = __decorate([
 ], PredicateEvalInfo);
 exports.PredicateEvalInfo = PredicateEvalInfo;
 
-},{"../Decorators":258,"./DecisionEventInfo":309}],337:[function(require,module,exports){
+},{"../Decorators":268,"./DecisionEventInfo":319}],347:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56505,7 +56913,7 @@ PredicateTransition = __decorate([
 ], PredicateTransition);
 exports.PredicateTransition = PredicateTransition;
 
-},{"../Decorators":258,"./AbstractPredicateTransition":299,"./SemanticContext":346}],338:[function(require,module,exports){
+},{"../Decorators":268,"./AbstractPredicateTransition":309,"./SemanticContext":356}],348:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57196,7 +57604,7 @@ exports.SingletonPredictionContext = SingletonPredictionContext;
     PredictionContext.IdentityEqualityComparator = IdentityEqualityComparator;
 })(PredictionContext = exports.PredictionContext || (exports.PredictionContext = {}));
 
-},{"../Decorators":258,"../misc/Array2DHashMap":361,"../misc/Array2DHashSet":362,"../misc/Arrays":364,"../misc/MurmurHash":373,"./PredictionContextCache":339,"assert":415}],339:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashMap":371,"../misc/Array2DHashSet":372,"../misc/Arrays":374,"../misc/MurmurHash":383,"./PredictionContextCache":349,"assert":425}],349:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57337,7 +57745,7 @@ PredictionContextCache.UNCACHED = new PredictionContextCache(false);
     PredictionContextCache.IdentityCommutativePredictionContextOperands = IdentityCommutativePredictionContextOperands;
 })(PredictionContextCache = exports.PredictionContextCache || (exports.PredictionContextCache = {}));
 
-},{"../Decorators":258,"../misc/Array2DHashMap":361,"../misc/ObjectEqualityComparator":374,"./PredictionContext":338,"assert":415}],340:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashMap":371,"../misc/ObjectEqualityComparator":384,"./PredictionContext":348,"assert":425}],350:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57498,7 +57906,7 @@ var PredictionMode;
     PredictionMode.allConfigsInRuleStopStates = allConfigsInRuleStopStates;
 })(PredictionMode = exports.PredictionMode || (exports.PredictionMode = {}));
 
-},{"../Decorators":258,"../misc/Array2DHashMap":361,"../misc/MurmurHash":373,"./RuleStopState":344}],341:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashMap":371,"../misc/MurmurHash":383,"./RuleStopState":354}],351:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -57767,7 +58175,7 @@ __decorate([
 exports.ProfilingATNSimulator = ProfilingATNSimulator;
 
 }).call(this)}).call(this,require('_process'))
-},{"../Decorators":258,"./ATN":291,"./ATNSimulator":296,"./AmbiguityInfo":301,"./ContextSensitivityInfo":308,"./DecisionInfo":310,"./ErrorInfo":313,"./LookaheadEventInfo":327,"./ParserATNSimulator":332,"./PredicateEvalInfo":336,"./SemanticContext":346,"./SimulatorState":348,"_process":588}],342:[function(require,module,exports){
+},{"../Decorators":268,"./ATN":301,"./ATNSimulator":306,"./AmbiguityInfo":311,"./ContextSensitivityInfo":318,"./DecisionInfo":320,"./ErrorInfo":323,"./LookaheadEventInfo":337,"./ParserATNSimulator":342,"./PredicateEvalInfo":346,"./SemanticContext":356,"./SimulatorState":358,"_process":598}],352:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57825,7 +58233,7 @@ RangeTransition = __decorate([
 ], RangeTransition);
 exports.RangeTransition = RangeTransition;
 
-},{"../Decorators":258,"../misc/IntervalSet":371,"./Transition":353}],343:[function(require,module,exports){
+},{"../Decorators":268,"../misc/IntervalSet":381,"./Transition":363}],353:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57858,7 +58266,7 @@ __decorate([
 ], RuleStartState.prototype, "stateType", null);
 exports.RuleStartState = RuleStartState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],344:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],354:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57897,7 +58305,7 @@ __decorate([
 ], RuleStopState.prototype, "stateType", null);
 exports.RuleStopState = RuleStopState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],345:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],355:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57953,7 +58361,7 @@ RuleTransition = __decorate([
 ], RuleTransition);
 exports.RuleTransition = RuleTransition;
 
-},{"../Decorators":258,"./Transition":353}],346:[function(require,module,exports){
+},{"../Decorators":268,"./Transition":363}],356:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58433,7 +58841,7 @@ exports.SemanticContext = SemanticContext;
     SemanticContext.OR = OR;
 })(SemanticContext = exports.SemanticContext || (exports.SemanticContext = {}));
 
-},{"../Decorators":258,"../misc/Array2DHashSet":362,"../misc/ArrayEqualityComparator":363,"../misc/MurmurHash":373,"../misc/ObjectEqualityComparator":374,"../misc/Utils":377}],347:[function(require,module,exports){
+},{"../Decorators":268,"../misc/Array2DHashSet":372,"../misc/ArrayEqualityComparator":373,"../misc/MurmurHash":383,"../misc/ObjectEqualityComparator":384,"../misc/Utils":387}],357:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58499,7 +58907,7 @@ SetTransition = __decorate([
 ], SetTransition);
 exports.SetTransition = SetTransition;
 
-},{"../Decorators":258,"../Token":283,"../misc/IntervalSet":371,"./Transition":353}],348:[function(require,module,exports){
+},{"../Decorators":268,"../Token":293,"../misc/IntervalSet":381,"./Transition":363}],358:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58535,7 +58943,7 @@ SimulatorState = __decorate([
 ], SimulatorState);
 exports.SimulatorState = SimulatorState;
 
-},{"../Decorators":258,"../ParserRuleContext":274}],349:[function(require,module,exports){
+},{"../Decorators":268,"../ParserRuleContext":284}],359:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58563,7 +58971,7 @@ __decorate([
 ], StarBlockStartState.prototype, "stateType", null);
 exports.StarBlockStartState = StarBlockStartState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./BlockStartState":306}],350:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./BlockStartState":316}],360:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58620,7 +59028,7 @@ __decorate([
 ], StarLoopEntryState.prototype, "stateType", null);
 exports.StarLoopEntryState = StarLoopEntryState;
 
-},{"../Decorators":258,"../misc/BitSet":365,"./ATNStateType":298,"./DecisionState":311}],351:[function(require,module,exports){
+},{"../Decorators":268,"../misc/BitSet":375,"./ATNStateType":308,"./DecisionState":321}],361:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58651,7 +59059,7 @@ __decorate([
 ], StarLoopbackState.prototype, "stateType", null);
 exports.StarLoopbackState = StarLoopbackState;
 
-},{"../Decorators":258,"./ATNState":297,"./ATNStateType":298}],352:[function(require,module,exports){
+},{"../Decorators":268,"./ATNState":307,"./ATNStateType":308}],362:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58680,7 +59088,7 @@ __decorate([
 ], TokensStartState.prototype, "stateType", null);
 exports.TokensStartState = TokensStartState;
 
-},{"../Decorators":258,"./ATNStateType":298,"./DecisionState":311}],353:[function(require,module,exports){
+},{"../Decorators":268,"./ATNStateType":308,"./DecisionState":321}],363:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58754,7 +59162,7 @@ Transition = __decorate([
 ], Transition);
 exports.Transition = Transition;
 
-},{"../Decorators":258}],354:[function(require,module,exports){
+},{"../Decorators":268}],364:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58802,7 +59210,7 @@ WildcardTransition = __decorate([
 ], WildcardTransition);
 exports.WildcardTransition = WildcardTransition;
 
-},{"../Decorators":258,"./Transition":353}],355:[function(require,module,exports){
+},{"../Decorators":268,"./Transition":363}],365:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58844,7 +59252,7 @@ class AcceptStateInfo {
 }
 exports.AcceptStateInfo = AcceptStateInfo;
 
-},{}],356:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59019,7 +59427,7 @@ DFA = __decorate([
 ], DFA);
 exports.DFA = DFA;
 
-},{"../Decorators":258,"../VocabularyImpl":289,"../atn/ATNConfigSet":293,"../atn/StarLoopEntryState":350,"../misc/Array2DHashSet":362,"../misc/ObjectEqualityComparator":374,"./DFASerializer":357,"./DFAState":358,"./LexerDFASerializer":359}],357:[function(require,module,exports){
+},{"../Decorators":268,"../VocabularyImpl":299,"../atn/ATNConfigSet":303,"../atn/StarLoopEntryState":360,"../misc/Array2DHashSet":372,"../misc/ObjectEqualityComparator":384,"./DFASerializer":367,"./DFAState":368,"./LexerDFASerializer":369}],367:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59161,7 +59569,7 @@ __decorate([
 ], DFASerializer.prototype, "toString", null);
 exports.DFASerializer = DFASerializer;
 
-},{"../Decorators":258,"../Recognizer":278,"../VocabularyImpl":289,"../atn/ATNSimulator":296,"../atn/PredictionContext":338}],358:[function(require,module,exports){
+},{"../Decorators":268,"../Recognizer":288,"../VocabularyImpl":299,"../atn/ATNSimulator":306,"../atn/PredictionContext":348}],368:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59392,7 +59800,7 @@ exports.DFAState = DFAState;
     DFAState.PredPrediction = PredPrediction;
 })(DFAState = exports.DFAState || (exports.DFAState = {}));
 
-},{"../Decorators":258,"../atn/ATN":291,"../atn/PredictionContext":338,"../misc/BitSet":365,"../misc/MurmurHash":373,"assert":415}],359:[function(require,module,exports){
+},{"../Decorators":268,"../atn/ATN":301,"../atn/PredictionContext":348,"../misc/BitSet":375,"../misc/MurmurHash":383,"assert":425}],369:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59429,7 +59837,7 @@ LexerDFASerializer = __decorate([
 ], LexerDFASerializer);
 exports.LexerDFASerializer = LexerDFASerializer;
 
-},{"../Decorators":258,"../VocabularyImpl":289,"./DFASerializer":357}],360:[function(require,module,exports){
+},{"../Decorators":268,"../VocabularyImpl":299,"./DFASerializer":367}],370:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59495,7 +59903,7 @@ __exportStar(require("./Vocabulary"), exports);
 __exportStar(require("./VocabularyImpl"), exports);
 __exportStar(require("./WritableToken"), exports);
 
-},{"./ANTLRErrorListener":245,"./ANTLRErrorStrategy":246,"./ANTLRInputStream":247,"./BailErrorStrategy":248,"./BufferedTokenStream":249,"./CharStream":250,"./CharStreams":251,"./CodePointBuffer":252,"./CodePointCharStream":253,"./CommonToken":254,"./CommonTokenFactory":255,"./CommonTokenStream":256,"./ConsoleErrorListener":257,"./DefaultErrorStrategy":259,"./Dependents":260,"./DiagnosticErrorListener":261,"./FailedPredicateException":262,"./InputMismatchException":263,"./IntStream":264,"./InterpreterRuleContext":265,"./Lexer":266,"./LexerInterpreter":267,"./LexerNoViableAltException":268,"./ListTokenSource":269,"./NoViableAltException":270,"./Parser":271,"./ParserErrorListener":272,"./ParserInterpreter":273,"./ParserRuleContext":274,"./ProxyErrorListener":275,"./ProxyParserErrorListener":276,"./RecognitionException":277,"./Recognizer":278,"./RuleContext":279,"./RuleContextWithAltNum":280,"./RuleDependency":281,"./RuleVersion":282,"./Token":283,"./TokenFactory":284,"./TokenSource":285,"./TokenStream":286,"./TokenStreamRewriter":287,"./Vocabulary":288,"./VocabularyImpl":289,"./WritableToken":290}],361:[function(require,module,exports){
+},{"./ANTLRErrorListener":255,"./ANTLRErrorStrategy":256,"./ANTLRInputStream":257,"./BailErrorStrategy":258,"./BufferedTokenStream":259,"./CharStream":260,"./CharStreams":261,"./CodePointBuffer":262,"./CodePointCharStream":263,"./CommonToken":264,"./CommonTokenFactory":265,"./CommonTokenStream":266,"./ConsoleErrorListener":267,"./DefaultErrorStrategy":269,"./Dependents":270,"./DiagnosticErrorListener":271,"./FailedPredicateException":272,"./InputMismatchException":273,"./IntStream":274,"./InterpreterRuleContext":275,"./Lexer":276,"./LexerInterpreter":277,"./LexerNoViableAltException":278,"./ListTokenSource":279,"./NoViableAltException":280,"./Parser":281,"./ParserErrorListener":282,"./ParserInterpreter":283,"./ParserRuleContext":284,"./ProxyErrorListener":285,"./ProxyParserErrorListener":286,"./RecognitionException":287,"./Recognizer":288,"./RuleContext":289,"./RuleContextWithAltNum":290,"./RuleDependency":291,"./RuleVersion":292,"./Token":293,"./TokenFactory":294,"./TokenSource":295,"./TokenStream":296,"./TokenStreamRewriter":297,"./Vocabulary":298,"./VocabularyImpl":299,"./WritableToken":300}],371:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59578,7 +59986,7 @@ class Array2DHashMap {
 }
 exports.Array2DHashMap = Array2DHashMap;
 
-},{"./Array2DHashSet":362}],362:[function(require,module,exports){
+},{"./Array2DHashSet":372}],372:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59945,7 +60353,7 @@ __decorate([
 ], Array2DHashSet.prototype, "createBuckets", null);
 exports.Array2DHashSet = Array2DHashSet;
 
-},{"../Decorators":258,"./DefaultEqualityComparator":367,"./MurmurHash":373,"assert":415}],363:[function(require,module,exports){
+},{"../Decorators":268,"./DefaultEqualityComparator":377,"./MurmurHash":383,"assert":425}],373:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60017,7 +60425,7 @@ __decorate([
 ], ArrayEqualityComparator.prototype, "equals", null);
 exports.ArrayEqualityComparator = ArrayEqualityComparator;
 
-},{"../Decorators":258,"./MurmurHash":373,"./ObjectEqualityComparator":374}],364:[function(require,module,exports){
+},{"../Decorators":268,"./MurmurHash":383,"./ObjectEqualityComparator":384}],374:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60087,7 +60495,7 @@ var Arrays;
     Arrays.toString = toString;
 })(Arrays = exports.Arrays || (exports.Arrays = {}));
 
-},{}],365:[function(require,module,exports){
+},{}],375:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60759,7 +61167,7 @@ class BitSetIterator {
     [Symbol.iterator]() { return this; }
 }
 
-},{"./MurmurHash":373,"util":643}],366:[function(require,module,exports){
+},{"./MurmurHash":383,"util":653}],376:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60780,7 +61188,7 @@ function isSupplementaryCodePoint(ch) {
 }
 exports.isSupplementaryCodePoint = isSupplementaryCodePoint;
 
-},{}],367:[function(require,module,exports){
+},{}],377:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60851,7 +61259,7 @@ __decorate([
 ], DefaultEqualityComparator.prototype, "equals", null);
 exports.DefaultEqualityComparator = DefaultEqualityComparator;
 
-},{"../Decorators":258,"./MurmurHash":373,"./ObjectEqualityComparator":374}],368:[function(require,module,exports){
+},{"../Decorators":268,"./MurmurHash":383,"./ObjectEqualityComparator":384}],378:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61145,7 +61553,7 @@ __decorate([
 ], IntegerList.prototype, "toString", null);
 exports.IntegerList = IntegerList;
 
-},{"../Decorators":258,"./Arrays":364}],369:[function(require,module,exports){
+},{"../Decorators":268,"./Arrays":374}],379:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61175,7 +61583,7 @@ class IntegerStack extends IntegerList_1.IntegerList {
 }
 exports.IntegerStack = IntegerStack;
 
-},{"./IntegerList":368}],370:[function(require,module,exports){
+},{"./IntegerList":378}],380:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61318,7 +61726,7 @@ __decorate([
 ], Interval.prototype, "toString", null);
 exports.Interval = Interval;
 
-},{"../Decorators":258}],371:[function(require,module,exports){
+},{"../Decorators":268}],381:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61964,7 +62372,7 @@ __decorate([
 ], IntervalSet, "subtract", null);
 exports.IntervalSet = IntervalSet;
 
-},{"../Decorators":258,"../Lexer":266,"../Token":283,"./ArrayEqualityComparator":363,"./IntegerList":368,"./Interval":370,"./MurmurHash":373}],372:[function(require,module,exports){
+},{"../Decorators":268,"../Lexer":276,"../Token":293,"./ArrayEqualityComparator":373,"./IntegerList":378,"./Interval":380,"./MurmurHash":383}],382:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61997,7 +62405,7 @@ class MultiMap extends Map {
 }
 exports.MultiMap = MultiMap;
 
-},{}],373:[function(require,module,exports){
+},{}],383:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62112,7 +62520,7 @@ var MurmurHash;
     }
 })(MurmurHash = exports.MurmurHash || (exports.MurmurHash = {}));
 
-},{}],374:[function(require,module,exports){
+},{}],384:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62171,7 +62579,7 @@ __decorate([
 ], ObjectEqualityComparator.prototype, "equals", null);
 exports.ObjectEqualityComparator = ObjectEqualityComparator;
 
-},{"../Decorators":258}],375:[function(require,module,exports){
+},{"../Decorators":268}],385:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62200,7 +62608,7 @@ class ParseCancellationException extends Error {
 }
 exports.ParseCancellationException = ParseCancellationException;
 
-},{}],376:[function(require,module,exports){
+},{}],386:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62254,7 +62662,7 @@ class UUID {
 }
 exports.UUID = UUID;
 
-},{"./MurmurHash":373}],377:[function(require,module,exports){
+},{"./MurmurHash":383}],387:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62429,7 +62837,7 @@ exports.toCharArray = toCharArray;
 // 	return s;
 // }
 
-},{}],378:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62465,7 +62873,7 @@ __decorate([
 ], ErrorNode.prototype, "accept", null);
 exports.ErrorNode = ErrorNode;
 
-},{"../Decorators":258,"./TerminalNode":381}],379:[function(require,module,exports){
+},{"../Decorators":268,"./TerminalNode":391}],389:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62570,7 +62978,7 @@ exports.ParseTreeWalker = ParseTreeWalker;
     ParseTreeWalker.DEFAULT = new ParseTreeWalker();
 })(ParseTreeWalker = exports.ParseTreeWalker || (exports.ParseTreeWalker = {}));
 
-},{"./ErrorNode":378,"./RuleNode":380,"./TerminalNode":381}],380:[function(require,module,exports){
+},{"./ErrorNode":388,"./RuleNode":390,"./TerminalNode":391}],390:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62582,7 +62990,7 @@ class RuleNode {
 }
 exports.RuleNode = RuleNode;
 
-},{}],381:[function(require,module,exports){
+},{}],391:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62674,7 +63082,7 @@ __decorate([
 ], TerminalNode.prototype, "toString", null);
 exports.TerminalNode = TerminalNode;
 
-},{"../Decorators":258,"../Token":283,"../misc/Interval":370}],382:[function(require,module,exports){
+},{"../Decorators":268,"../Token":293,"../misc/Interval":380}],392:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62918,7 +63326,7 @@ __decorate([
 ], Trees, "getRootOfSubtreeEnclosingRegion", null);
 exports.Trees = Trees;
 
-},{"../CommonToken":254,"../Decorators":258,"../Parser":271,"../ParserRuleContext":274,"../Token":283,"../atn/ATN":291,"../misc/Utils":377,"./ErrorNode":378,"./RuleNode":380,"./TerminalNode":381}],383:[function(require,module,exports){
+},{"../CommonToken":264,"../Decorators":268,"../Parser":281,"../ParserRuleContext":284,"../Token":293,"../atn/ATN":301,"../misc/Utils":387,"./ErrorNode":388,"./RuleNode":390,"./TerminalNode":391}],393:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62942,7 +63350,7 @@ class Chunk {
 }
 exports.Chunk = Chunk;
 
-},{}],384:[function(require,module,exports){
+},{}],394:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63122,7 +63530,7 @@ ParseTreeMatch = __decorate([
 ], ParseTreeMatch);
 exports.ParseTreeMatch = ParseTreeMatch;
 
-},{"../../Decorators":258}],385:[function(require,module,exports){
+},{"../../Decorators":268}],395:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63280,7 +63688,7 @@ ParseTreePattern = __decorate([
 ], ParseTreePattern);
 exports.ParseTreePattern = ParseTreePattern;
 
-},{"../../Decorators":258,"../xpath/XPath":391}],386:[function(require,module,exports){
+},{"../../Decorators":268,"../xpath/XPath":401}],396:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63758,7 +64166,7 @@ exports.ParseTreePatternMatcher = ParseTreePatternMatcher;
     ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern = StartRuleDoesNotConsumeFullPattern;
 })(ParseTreePatternMatcher = exports.ParseTreePatternMatcher || (exports.ParseTreePatternMatcher = {}));
 
-},{"../../BailErrorStrategy":248,"../../CharStreams":251,"../../CommonTokenStream":256,"../../Decorators":258,"../../ListTokenSource":269,"../../ParserInterpreter":273,"../../ParserRuleContext":274,"../../RecognitionException":277,"../../Token":283,"../../misc/MultiMap":372,"../../misc/ParseCancellationException":375,"../RuleNode":380,"../TerminalNode":381,"./ParseTreeMatch":384,"./ParseTreePattern":385,"./RuleTagToken":387,"./TagChunk":388,"./TextChunk":389,"./TokenTagToken":390}],387:[function(require,module,exports){
+},{"../../BailErrorStrategy":258,"../../CharStreams":261,"../../CommonTokenStream":266,"../../Decorators":268,"../../ListTokenSource":279,"../../ParserInterpreter":283,"../../ParserRuleContext":284,"../../RecognitionException":287,"../../Token":293,"../../misc/MultiMap":382,"../../misc/ParseCancellationException":385,"../RuleNode":390,"../TerminalNode":391,"./ParseTreeMatch":394,"./ParseTreePattern":395,"./RuleTagToken":397,"./TagChunk":398,"./TextChunk":399,"./TokenTagToken":400}],397:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63956,7 +64364,7 @@ RuleTagToken = __decorate([
 ], RuleTagToken);
 exports.RuleTagToken = RuleTagToken;
 
-},{"../../Decorators":258,"../../Token":283}],388:[function(require,module,exports){
+},{"../../Decorators":268,"../../Token":293}],398:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64043,7 +64451,7 @@ __decorate([
 ], TagChunk.prototype, "toString", null);
 exports.TagChunk = TagChunk;
 
-},{"../../Decorators":258,"./Chunk":383}],389:[function(require,module,exports){
+},{"../../Decorators":268,"./Chunk":393}],399:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64113,7 +64521,7 @@ TextChunk = __decorate([
 ], TextChunk);
 exports.TextChunk = TextChunk;
 
-},{"../../Decorators":258,"./Chunk":383}],390:[function(require,module,exports){
+},{"../../Decorators":268,"./Chunk":393}],400:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64208,7 +64616,7 @@ TokenTagToken = __decorate([
 ], TokenTagToken);
 exports.TokenTagToken = TokenTagToken;
 
-},{"../../CommonToken":254,"../../Decorators":258}],391:[function(require,module,exports){
+},{"../../CommonToken":264,"../../Decorators":268}],401:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64405,7 +64813,7 @@ exports.XPath = XPath;
 XPath.WILDCARD = "*"; // word not operator/separator
 XPath.NOT = "!"; // word for invert operator
 
-},{"../../CharStreams":251,"../../CommonTokenStream":256,"../../LexerNoViableAltException":268,"../../ParserRuleContext":274,"../../Token":283,"./XPathLexer":393,"./XPathLexerErrorListener":394,"./XPathRuleAnywhereElement":395,"./XPathRuleElement":396,"./XPathTokenAnywhereElement":397,"./XPathTokenElement":398,"./XPathWildcardAnywhereElement":399,"./XPathWildcardElement":400}],392:[function(require,module,exports){
+},{"../../CharStreams":261,"../../CommonTokenStream":266,"../../LexerNoViableAltException":278,"../../ParserRuleContext":284,"../../Token":293,"./XPathLexer":403,"./XPathLexerErrorListener":404,"./XPathRuleAnywhereElement":405,"./XPathRuleElement":406,"./XPathTokenAnywhereElement":407,"./XPathTokenElement":408,"./XPathWildcardAnywhereElement":409,"./XPathWildcardElement":410}],402:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64440,7 +64848,7 @@ __decorate([
 ], XPathElement.prototype, "toString", null);
 exports.XPathElement = XPathElement;
 
-},{"../../Decorators":258}],393:[function(require,module,exports){
+},{"../../Decorators":268}],403:[function(require,module,exports){
 "use strict";
 // Generated from XPathLexer.g4 by ANTLR 4.9.0-SNAPSHOT
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -64915,7 +65323,7 @@ XPathLexer._serializedATN = Utils.join([
     XPathLexer._serializedATNSegment1,
 ], "");
 
-},{"../../Lexer":266,"../../VocabularyImpl":289,"../../atn/ATNDeserializer":295,"../../atn/LexerATNSimulator":316,"../../misc/Utils":377}],394:[function(require,module,exports){
+},{"../../Lexer":276,"../../VocabularyImpl":299,"../../atn/ATNDeserializer":305,"../../atn/LexerATNSimulator":326,"../../misc/Utils":387}],404:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64940,7 +65348,7 @@ __decorate([
 ], XPathLexerErrorListener.prototype, "syntaxError", null);
 exports.XPathLexerErrorListener = XPathLexerErrorListener;
 
-},{"../../Decorators":258}],395:[function(require,module,exports){
+},{"../../Decorators":268}],405:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64974,7 +65382,7 @@ __decorate([
 ], XPathRuleAnywhereElement.prototype, "evaluate", null);
 exports.XPathRuleAnywhereElement = XPathRuleAnywhereElement;
 
-},{"../../Decorators":258,"../Trees":382,"./XPathElement":392}],396:[function(require,module,exports){
+},{"../../Decorators":268,"../Trees":392,"./XPathElement":402}],406:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65017,7 +65425,7 @@ __decorate([
 ], XPathRuleElement.prototype, "evaluate", null);
 exports.XPathRuleElement = XPathRuleElement;
 
-},{"../../Decorators":258,"../../ParserRuleContext":274,"../Trees":382,"./XPathElement":392}],397:[function(require,module,exports){
+},{"../../Decorators":268,"../../ParserRuleContext":284,"../Trees":392,"./XPathElement":402}],407:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65049,7 +65457,7 @@ __decorate([
 ], XPathTokenAnywhereElement.prototype, "evaluate", null);
 exports.XPathTokenAnywhereElement = XPathTokenAnywhereElement;
 
-},{"../../Decorators":258,"../Trees":382,"./XPathElement":392}],398:[function(require,module,exports){
+},{"../../Decorators":268,"../Trees":392,"./XPathElement":402}],408:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65092,7 +65500,7 @@ __decorate([
 ], XPathTokenElement.prototype, "evaluate", null);
 exports.XPathTokenElement = XPathTokenElement;
 
-},{"../../Decorators":258,"../TerminalNode":381,"../Trees":382,"./XPathElement":392}],399:[function(require,module,exports){
+},{"../../Decorators":268,"../TerminalNode":391,"../Trees":392,"./XPathElement":402}],409:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65128,7 +65536,7 @@ __decorate([
 ], XPathWildcardAnywhereElement.prototype, "evaluate", null);
 exports.XPathWildcardAnywhereElement = XPathWildcardAnywhereElement;
 
-},{"../../Decorators":258,"../Trees":382,"./XPath":391,"./XPathElement":392}],400:[function(require,module,exports){
+},{"../../Decorators":268,"../Trees":392,"./XPath":401,"./XPathElement":402}],410:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65168,7 +65576,7 @@ __decorate([
 ], XPathWildcardElement.prototype, "evaluate", null);
 exports.XPathWildcardElement = XPathWildcardElement;
 
-},{"../../Decorators":258,"../Trees":382,"./XPath":391,"./XPathElement":392}],401:[function(require,module,exports){
+},{"../../Decorators":268,"../Trees":392,"./XPath":401,"./XPathElement":402}],411:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -65179,7 +65587,7 @@ asn1.constants = require('./asn1/constants');
 asn1.decoders = require('./asn1/decoders');
 asn1.encoders = require('./asn1/encoders');
 
-},{"./asn1/api":402,"./asn1/base":404,"./asn1/constants":408,"./asn1/decoders":410,"./asn1/encoders":413,"bn.js":421}],402:[function(require,module,exports){
+},{"./asn1/api":412,"./asn1/base":414,"./asn1/constants":418,"./asn1/decoders":420,"./asn1/encoders":423,"bn.js":431}],412:[function(require,module,exports){
 var asn1 = require('../asn1');
 var inherits = require('inherits');
 
@@ -65242,7 +65650,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"../asn1":401,"inherits":551,"vm":644}],403:[function(require,module,exports){
+},{"../asn1":411,"inherits":561,"vm":654}],413:[function(require,module,exports){
 var inherits = require('inherits');
 var Reporter = require('../base').Reporter;
 var Buffer = require('buffer').Buffer;
@@ -65360,7 +65768,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base":404,"buffer":455,"inherits":551}],404:[function(require,module,exports){
+},{"../base":414,"buffer":465,"inherits":561}],414:[function(require,module,exports){
 var base = exports;
 
 base.Reporter = require('./reporter').Reporter;
@@ -65368,7 +65776,7 @@ base.DecoderBuffer = require('./buffer').DecoderBuffer;
 base.EncoderBuffer = require('./buffer').EncoderBuffer;
 base.Node = require('./node');
 
-},{"./buffer":403,"./node":405,"./reporter":406}],405:[function(require,module,exports){
+},{"./buffer":413,"./node":415,"./reporter":416}],415:[function(require,module,exports){
 var Reporter = require('../base').Reporter;
 var EncoderBuffer = require('../base').EncoderBuffer;
 var DecoderBuffer = require('../base').DecoderBuffer;
@@ -66004,7 +66412,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
   return /^[A-Za-z0-9 '\(\)\+,\-\.\/:=\?]*$/.test(str);
 };
 
-},{"../base":404,"minimalistic-assert":568}],406:[function(require,module,exports){
+},{"../base":414,"minimalistic-assert":578}],416:[function(require,module,exports){
 var inherits = require('inherits');
 
 function Reporter(options) {
@@ -66127,7 +66535,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":551}],407:[function(require,module,exports){
+},{"inherits":561}],417:[function(require,module,exports){
 var constants = require('../constants');
 
 exports.tagClass = {
@@ -66171,7 +66579,7 @@ exports.tag = {
 };
 exports.tagByName = constants._reverse(exports.tag);
 
-},{"../constants":408}],408:[function(require,module,exports){
+},{"../constants":418}],418:[function(require,module,exports){
 var constants = exports;
 
 // Helper
@@ -66192,7 +66600,7 @@ constants._reverse = function reverse(map) {
 
 constants.der = require('./der');
 
-},{"./der":407}],409:[function(require,module,exports){
+},{"./der":417}],419:[function(require,module,exports){
 var inherits = require('inherits');
 
 var asn1 = require('../../asn1');
@@ -66518,13 +66926,13 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../../asn1":401,"inherits":551}],410:[function(require,module,exports){
+},{"../../asn1":411,"inherits":561}],420:[function(require,module,exports){
 var decoders = exports;
 
 decoders.der = require('./der');
 decoders.pem = require('./pem');
 
-},{"./der":409,"./pem":411}],411:[function(require,module,exports){
+},{"./der":419,"./pem":421}],421:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -66575,7 +66983,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"./der":409,"buffer":455,"inherits":551}],412:[function(require,module,exports){
+},{"./der":419,"buffer":465,"inherits":561}],422:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -66872,13 +67280,13 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../../asn1":401,"buffer":455,"inherits":551}],413:[function(require,module,exports){
+},{"../../asn1":411,"buffer":465,"inherits":561}],423:[function(require,module,exports){
 var encoders = exports;
 
 encoders.der = require('./der');
 encoders.pem = require('./pem');
 
-},{"./der":412,"./pem":414}],414:[function(require,module,exports){
+},{"./der":422,"./pem":424}],424:[function(require,module,exports){
 var inherits = require('inherits');
 
 var DEREncoder = require('./der');
@@ -66901,7 +67309,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"./der":412,"inherits":551}],415:[function(require,module,exports){
+},{"./der":422,"inherits":561}],425:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -67411,7 +67819,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object.assign/polyfill":574,"util/":418}],416:[function(require,module,exports){
+},{"object.assign/polyfill":584,"util/":428}],426:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -67436,14 +67844,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],417:[function(require,module,exports){
+},{}],427:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],418:[function(require,module,exports){
+},{}],428:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -68033,7 +68441,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":417,"_process":588,"inherits":416}],419:[function(require,module,exports){
+},{"./support/isBuffer":427,"_process":598,"inherits":426}],429:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -68054,7 +68462,7 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"possible-typed-array-names":586}],420:[function(require,module,exports){
+},{"possible-typed-array-names":596}],430:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -68206,7 +68614,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],421:[function(require,module,exports){
+},{}],431:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -71655,7 +72063,7 @@ function fromByteArray (uint8) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":424}],422:[function(require,module,exports){
+},{"buffer":434}],432:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -71722,7 +72130,7 @@ if (typeof self === 'object') {
   }
 }
 
-},{"crypto":424}],423:[function(require,module,exports){
+},{"crypto":434}],433:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -71753,9 +72161,9 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":588}],424:[function(require,module,exports){
+},{"_process":598}],434:[function(require,module,exports){
 
-},{}],425:[function(require,module,exports){
+},{}],435:[function(require,module,exports){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
 // which is in turn based on the one from crypto-js
@@ -71985,7 +72393,7 @@ AES.prototype.scrub = function () {
 
 module.exports.AES = AES
 
-},{"safe-buffer":609}],426:[function(require,module,exports){
+},{"safe-buffer":619}],436:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -72104,7 +72512,7 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 
 module.exports = StreamCipher
 
-},{"./aes":425,"./ghash":430,"./incr32":431,"buffer-xor":454,"cipher-base":464,"inherits":551,"safe-buffer":609}],427:[function(require,module,exports){
+},{"./aes":435,"./ghash":440,"./incr32":441,"buffer-xor":464,"cipher-base":474,"inherits":561,"safe-buffer":619}],437:[function(require,module,exports){
 var ciphers = require('./encrypter')
 var deciphers = require('./decrypter')
 var modes = require('./modes/list.json')
@@ -72119,7 +72527,7 @@ exports.createDecipher = exports.Decipher = deciphers.createDecipher
 exports.createDecipheriv = exports.Decipheriv = deciphers.createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":428,"./encrypter":429,"./modes/list.json":439}],428:[function(require,module,exports){
+},{"./decrypter":438,"./encrypter":439,"./modes/list.json":449}],438:[function(require,module,exports){
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
 var MODES = require('./modes')
@@ -72245,7 +72653,7 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"./aes":425,"./authCipher":426,"./modes":438,"./streamCipher":441,"cipher-base":464,"evp_bytestokey":520,"inherits":551,"safe-buffer":609}],429:[function(require,module,exports){
+},{"./aes":435,"./authCipher":436,"./modes":448,"./streamCipher":451,"cipher-base":474,"evp_bytestokey":530,"inherits":561,"safe-buffer":619}],439:[function(require,module,exports){
 var MODES = require('./modes')
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
@@ -72361,7 +72769,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"./aes":425,"./authCipher":426,"./modes":438,"./streamCipher":441,"cipher-base":464,"evp_bytestokey":520,"inherits":551,"safe-buffer":609}],430:[function(require,module,exports){
+},{"./aes":435,"./authCipher":436,"./modes":448,"./streamCipher":451,"cipher-base":474,"evp_bytestokey":530,"inherits":561,"safe-buffer":619}],440:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -72452,7 +72860,7 @@ GHASH.prototype.final = function (abl, bl) {
 
 module.exports = GHASH
 
-},{"safe-buffer":609}],431:[function(require,module,exports){
+},{"safe-buffer":619}],441:[function(require,module,exports){
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -72469,7 +72877,7 @@ function incr32 (iv) {
 }
 module.exports = incr32
 
-},{}],432:[function(require,module,exports){
+},{}],442:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -72488,7 +72896,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":454}],433:[function(require,module,exports){
+},{"buffer-xor":464}],443:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var xor = require('buffer-xor')
 
@@ -72523,7 +72931,7 @@ exports.encrypt = function (self, data, decrypt) {
   return out
 }
 
-},{"buffer-xor":454,"safe-buffer":609}],434:[function(require,module,exports){
+},{"buffer-xor":464,"safe-buffer":619}],444:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -72567,7 +72975,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":609}],435:[function(require,module,exports){
+},{"safe-buffer":619}],445:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -72594,7 +73002,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":609}],436:[function(require,module,exports){
+},{"safe-buffer":619}],446:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
 var incr32 = require('../incr32')
@@ -72626,7 +73034,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"../incr32":431,"buffer-xor":454,"safe-buffer":609}],437:[function(require,module,exports){
+},{"../incr32":441,"buffer-xor":464,"safe-buffer":619}],447:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -72635,7 +73043,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],438:[function(require,module,exports){
+},{}],448:[function(require,module,exports){
 var modeModules = {
   ECB: require('./ecb'),
   CBC: require('./cbc'),
@@ -72655,7 +73063,7 @@ for (var key in modes) {
 
 module.exports = modes
 
-},{"./cbc":432,"./cfb":433,"./cfb1":434,"./cfb8":435,"./ctr":436,"./ecb":437,"./list.json":439,"./ofb":440}],439:[function(require,module,exports){
+},{"./cbc":442,"./cfb":443,"./cfb1":444,"./cfb8":445,"./ctr":446,"./ecb":447,"./list.json":449,"./ofb":450}],449:[function(require,module,exports){
 module.exports={
   "aes-128-ecb": {
     "cipher": "AES",
@@ -72848,7 +73256,7 @@ module.exports={
   }
 }
 
-},{}],440:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 (function (Buffer){(function (){
 var xor = require('buffer-xor')
 
@@ -72868,7 +73276,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":455,"buffer-xor":454}],441:[function(require,module,exports){
+},{"buffer":465,"buffer-xor":464}],451:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -72897,7 +73305,7 @@ StreamCipher.prototype._final = function () {
 
 module.exports = StreamCipher
 
-},{"./aes":425,"cipher-base":464,"inherits":551,"safe-buffer":609}],442:[function(require,module,exports){
+},{"./aes":435,"cipher-base":474,"inherits":561,"safe-buffer":619}],452:[function(require,module,exports){
 var DES = require('browserify-des')
 var aes = require('browserify-aes/browser')
 var aesModes = require('browserify-aes/modes')
@@ -72966,7 +73374,7 @@ exports.createDecipher = exports.Decipher = createDecipher
 exports.createDecipheriv = exports.Decipheriv = createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":427,"browserify-aes/modes":438,"browserify-des":443,"browserify-des/modes":444,"evp_bytestokey":520}],443:[function(require,module,exports){
+},{"browserify-aes/browser":437,"browserify-aes/modes":448,"browserify-des":453,"browserify-des/modes":454,"evp_bytestokey":530}],453:[function(require,module,exports){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
 var inherits = require('inherits')
@@ -73018,7 +73426,7 @@ DES.prototype._final = function () {
   return Buffer.from(this._des.final())
 }
 
-},{"cipher-base":464,"des.js":483,"inherits":551,"safe-buffer":609}],444:[function(require,module,exports){
+},{"cipher-base":474,"des.js":493,"inherits":561,"safe-buffer":619}],454:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -73044,7 +73452,7 @@ exports['des-ede'] = {
   iv: 0
 }
 
-},{}],445:[function(require,module,exports){
+},{}],455:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -73084,7 +73492,7 @@ crt.getr = getr;
 
 module.exports = crt;
 
-},{"bn.js":446,"randombytes":595,"safe-buffer":609}],446:[function(require,module,exports){
+},{"bn.js":456,"randombytes":605,"safe-buffer":619}],456:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -76634,12 +77042,12 @@ module.exports = crt;
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":424}],447:[function(require,module,exports){
+},{"buffer":434}],457:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./browser/algorithms.json');
 
-},{"./browser/algorithms.json":448}],448:[function(require,module,exports){
+},{"./browser/algorithms.json":458}],458:[function(require,module,exports){
 module.exports={
   "sha224WithRSAEncryption": {
     "sign": "rsa",
@@ -76793,7 +77201,7 @@ module.exports={
   }
 }
 
-},{}],449:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 module.exports={
   "1.3.132.0.10": "secp256k1",
   "1.3.132.0.33": "p224",
@@ -76803,7 +77211,7 @@ module.exports={
   "1.3.132.0.35": "p521"
 }
 
-},{}],450:[function(require,module,exports){
+},{}],460:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -76897,7 +77305,7 @@ module.exports = {
   createVerify: createVerify
 };
 
-},{"./algorithms.json":448,"./sign":451,"./verify":452,"create-hash":467,"inherits":551,"readable-stream":607,"safe-buffer":609}],451:[function(require,module,exports){
+},{"./algorithms.json":458,"./sign":461,"./verify":462,"create-hash":477,"inherits":561,"readable-stream":617,"safe-buffer":619}],461:[function(require,module,exports){
 'use strict';
 
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -77049,7 +77457,7 @@ module.exports = sign;
 module.exports.getKey = getKey;
 module.exports.makeKey = makeKey;
 
-},{"./curves.json":449,"bn.js":453,"browserify-rsa":445,"create-hmac":469,"elliptic":494,"parse-asn1":579,"safe-buffer":609}],452:[function(require,module,exports){
+},{"./curves.json":459,"bn.js":463,"browserify-rsa":455,"create-hmac":479,"elliptic":504,"parse-asn1":589,"safe-buffer":619}],462:[function(require,module,exports){
 'use strict';
 
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -77137,9 +77545,9 @@ function checkValue(b, q) {
 
 module.exports = verify;
 
-},{"./curves.json":449,"bn.js":453,"elliptic":494,"parse-asn1":579,"safe-buffer":609}],453:[function(require,module,exports){
-arguments[4][446][0].apply(exports,arguments)
-},{"buffer":424,"dup":446}],454:[function(require,module,exports){
+},{"./curves.json":459,"bn.js":463,"elliptic":504,"parse-asn1":589,"safe-buffer":619}],463:[function(require,module,exports){
+arguments[4][456][0].apply(exports,arguments)
+},{"buffer":434,"dup":456}],464:[function(require,module,exports){
 (function (Buffer){(function (){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
@@ -77153,7 +77561,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":455}],455:[function(require,module,exports){
+},{"buffer":465}],465:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -78934,7 +79342,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":420,"buffer":455,"ieee754":550}],456:[function(require,module,exports){
+},{"base64-js":430,"buffer":465,"ieee754":560}],466:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -78946,7 +79354,7 @@ var $reflectApply = require('./reflectApply');
 /** @type {import('./actualApply')} */
 module.exports = $reflectApply || bind.call($call, $apply);
 
-},{"./functionApply":458,"./functionCall":459,"./reflectApply":461,"function-bind":523}],457:[function(require,module,exports){
+},{"./functionApply":468,"./functionCall":469,"./reflectApply":471,"function-bind":533}],467:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -78958,19 +79366,19 @@ module.exports = function applyBind() {
 	return actualApply(bind, $apply, arguments);
 };
 
-},{"./actualApply":456,"./functionApply":458,"function-bind":523}],458:[function(require,module,exports){
+},{"./actualApply":466,"./functionApply":468,"function-bind":533}],468:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionApply')} */
 module.exports = Function.prototype.apply;
 
-},{}],459:[function(require,module,exports){
+},{}],469:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionCall')} */
 module.exports = Function.prototype.call;
 
-},{}],460:[function(require,module,exports){
+},{}],470:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -78987,13 +79395,13 @@ module.exports = function callBindBasic(args) {
 	return $actualApply(bind, $call, args);
 };
 
-},{"./actualApply":456,"./functionCall":459,"es-errors/type":516,"function-bind":523}],461:[function(require,module,exports){
+},{"./actualApply":466,"./functionCall":469,"es-errors/type":526,"function-bind":533}],471:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./reflectApply')} */
 module.exports = typeof Reflect !== 'undefined' && Reflect && Reflect.apply;
 
-},{}],462:[function(require,module,exports){
+},{}],472:[function(require,module,exports){
 'use strict';
 
 var setFunctionLength = require('set-function-length');
@@ -79019,7 +79427,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"call-bind-apply-helpers":460,"call-bind-apply-helpers/applyBind":457,"es-define-property":510,"set-function-length":611}],463:[function(require,module,exports){
+},{"call-bind-apply-helpers":470,"call-bind-apply-helpers/applyBind":467,"es-define-property":520,"set-function-length":621}],473:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -79040,7 +79448,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"call-bind-apply-helpers":460,"get-intrinsic":524}],464:[function(require,module,exports){
+},{"call-bind-apply-helpers":470,"get-intrinsic":534}],474:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -79209,7 +79617,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase;
 
-},{"inherits":551,"safe-buffer":609,"stream":620,"string_decoder":635}],465:[function(require,module,exports){
+},{"inherits":561,"safe-buffer":619,"stream":630,"string_decoder":645}],475:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -79318,7 +79726,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"buffer":455}],466:[function(require,module,exports){
+},{"buffer":465}],476:[function(require,module,exports){
 (function (Buffer){(function (){
 var elliptic = require('elliptic')
 var BN = require('bn.js')
@@ -79446,7 +79854,7 @@ function formatReturnValue (bn, enc, len) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bn.js":421,"buffer":455,"elliptic":494}],467:[function(require,module,exports){
+},{"bn.js":431,"buffer":465,"elliptic":504}],477:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var MD5 = require('md5.js')
@@ -79478,14 +79886,14 @@ module.exports = function createHash (alg) {
   return new Hash(sha(alg))
 }
 
-},{"cipher-base":464,"inherits":551,"md5.js":566,"ripemd160":608,"sha.js":613}],468:[function(require,module,exports){
+},{"cipher-base":474,"inherits":561,"md5.js":576,"ripemd160":618,"sha.js":623}],478:[function(require,module,exports){
 var MD5 = require('md5.js')
 
 module.exports = function (buffer) {
   return new MD5().update(buffer).digest()
 }
 
-},{"md5.js":566}],469:[function(require,module,exports){
+},{"md5.js":576}],479:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Legacy = require('./legacy')
@@ -79549,7 +79957,7 @@ module.exports = function createHmac (alg, key) {
   return new Hmac(alg, key)
 }
 
-},{"./legacy":470,"cipher-base":464,"create-hash/md5":468,"inherits":551,"ripemd160":608,"safe-buffer":609,"sha.js":613}],470:[function(require,module,exports){
+},{"./legacy":480,"cipher-base":474,"create-hash/md5":478,"inherits":561,"ripemd160":618,"safe-buffer":619,"sha.js":623}],480:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Buffer = require('safe-buffer').Buffer
@@ -79597,7 +80005,7 @@ Hmac.prototype._final = function () {
 }
 module.exports = Hmac
 
-},{"cipher-base":464,"inherits":551,"safe-buffer":609}],471:[function(require,module,exports){
+},{"cipher-base":474,"inherits":561,"safe-buffer":619}],481:[function(require,module,exports){
 'use strict';
 
 // eslint-disable-next-line no-multi-assign
@@ -79702,27 +80110,27 @@ exports.constants = {
 	POINT_CONVERSION_HYBRID: 6
 };
 
-},{"browserify-cipher":442,"browserify-sign":450,"browserify-sign/algos":447,"create-ecdh":466,"create-hash":467,"create-hmac":469,"diffie-hellman":489,"pbkdf2":580,"public-encrypt":589,"randombytes":595,"randomfill":596}],472:[function(require,module,exports){
+},{"browserify-cipher":452,"browserify-sign":460,"browserify-sign/algos":457,"create-ecdh":476,"create-hash":477,"create-hmac":479,"diffie-hellman":499,"pbkdf2":590,"public-encrypt":599,"randombytes":605,"randomfill":606}],482:[function(require,module,exports){
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs=e()}(this,(function(){"use strict";var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",c="month",f="quarter",h="year",d="date",l="Invalid Date",$=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),ordinal:function(t){var e=["th","st","nd","rd"],n=t%100;return"["+t+(e[(n-20)%10]||e[n]||e[0])+"]"}},m=function(t,e,n){var r=String(t);return!r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},v={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return(e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return-t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,c),s=n-i<0,u=e.clone().add(r+(s?-1:1),c);return+(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return{M:c,y:h,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:f}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},g="en",D={};D[g]=M;var p="$isDayjsObject",S=function(t){return t instanceof _||!(!t||!t[p])},w=function t(e,n,r){var i;if(!e)return g;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else{var a=e.name;D[a]=e,i=a}return!r&&i&&(g=i),i||!r&&g},O=function(t,e){if(S(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},b=v;b.l=w,b.i=S,b.w=function(t,e){return O(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=w(t.locale,null,!0),this.parse(t),this.$x=this.$x||t.x||{},this[p]=!0}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(b.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match($);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.init()},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds()},m.$utils=function(){return b},m.isValid=function(){return!(this.$d.toString()===l)},m.isSame=function(t,e){var n=O(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return O(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<O(t)},m.$g=function(t,e,n){return b.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!b.u(e)||e,f=b.p(t),l=function(t,e){var i=b.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},$=function(t,e){return b.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,v="set"+(this.$u?"UTC":"");switch(f){case h:return r?l(1,0):l(31,11);case c:return r?l(1,M):l(0,M+1);case o:var g=this.$locale().weekStart||0,D=(y<g?y+7:y)-g;return l(r?m-D:m+(6-D),M);case a:case d:return $(v+"Hours",0);case u:return $(v+"Minutes",1);case s:return $(v+"Seconds",2);case i:return $(v+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=b.p(t),f="set"+(this.$u?"UTC":""),l=(n={},n[a]=f+"Date",n[d]=f+"Date",n[c]=f+"Month",n[h]=f+"FullYear",n[u]=f+"Hours",n[s]=f+"Minutes",n[i]=f+"Seconds",n[r]=f+"Milliseconds",n)[o],$=o===a?this.$D+(e-this.$W):e;if(o===c||o===h){var y=this.clone().set(d,1);y.$d[l]($),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d}else l&&this.$d[l]($);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[b.p(t)]()},m.add=function(r,f){var d,l=this;r=Number(r);var $=b.p(f),y=function(t){var e=O(l);return b.w(e.date(e.date()+Math.round(t*r)),l)};if($===c)return this.set(c,this.$M+r);if($===h)return this.set(h,this.$y+r);if($===a)return y(1);if($===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[$]||1,m=this.$d.getTime()+r*M;return b.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||l;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=b.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,c=n.months,f=n.meridiem,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},d=function(t){return b.s(s%12||12,t,"0")},$=f||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r};return r.replace(y,(function(t,r){return r||function(t){switch(t){case"YY":return String(e.$y).slice(-2);case"YYYY":return b.s(e.$y,4,"0");case"M":return a+1;case"MM":return b.s(a+1,2,"0");case"MMM":return h(n.monthsShort,a,c,3);case"MMMM":return h(c,a);case"D":return e.$D;case"DD":return b.s(e.$D,2,"0");case"d":return String(e.$W);case"dd":return h(n.weekdaysMin,e.$W,o,2);case"ddd":return h(n.weekdaysShort,e.$W,o,3);case"dddd":return o[e.$W];case"H":return String(s);case"HH":return b.s(s,2,"0");case"h":return d(1);case"hh":return d(2);case"a":return $(s,u,!0);case"A":return $(s,u,!1);case"m":return String(u);case"mm":return b.s(u,2,"0");case"s":return String(e.$s);case"ss":return b.s(e.$s,2,"0");case"SSS":return b.s(e.$ms,3,"0");case"Z":return i}return null}(t)||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,l){var $,y=this,M=b.p(d),m=O(r),v=(m.utcOffset()-this.utcOffset())*e,g=this-m,D=function(){return b.m(y,m)};switch(M){case h:$=D()/12;break;case c:$=D();break;case f:$=D()/3;break;case o:$=(g-v)/6048e5;break;case a:$=(g-v)/864e5;break;case u:$=g/n;break;case s:$=g/e;break;case i:$=g/t;break;default:$=g}return l?$:b.a($)},m.daysInMonth=function(){return this.endOf(c).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=w(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return b.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),k=_.prototype;return O.prototype=k,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",c],["$y",h],["$D",d]].forEach((function(t){k[t[1]]=function(e){return this.$g(e,t[0],t[1])}})),O.extend=function(t,e){return t.$i||(t(e,_,O),t.$i=!0),O},O.locale=w,O.isDayjs=S,O.unix=function(t){return O(1e3*t)},O.en=D[g],O.Ls=D,O.p={},O}));
-},{}],473:[function(require,module,exports){
+},{}],483:[function(require,module,exports){
 !function(e,o){"object"==typeof exports&&"undefined"!=typeof module?module.exports=o(require("dayjs")):"function"==typeof define&&define.amd?define(["dayjs"],o):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_locale_pt_br=o(e.dayjs)}(this,(function(e){"use strict";function o(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var a=o(e),s={name:"pt-br",weekdays:"domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado".split("_"),weekdaysShort:"dom_seg_ter_qua_qui_sex_sáb".split("_"),weekdaysMin:"Do_2ª_3ª_4ª_5ª_6ª_Sá".split("_"),months:"janeiro_fevereiro_março_abril_maio_junho_julho_agosto_setembro_outubro_novembro_dezembro".split("_"),monthsShort:"jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez".split("_"),ordinal:function(e){return e+"º"},formats:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D [de] MMMM [de] YYYY",LLL:"D [de] MMMM [de] YYYY [às] HH:mm",LLLL:"dddd, D [de] MMMM [de] YYYY [às] HH:mm"},relativeTime:{future:"em %s",past:"há %s",s:"poucos segundos",m:"um minuto",mm:"%d minutos",h:"uma hora",hh:"%d horas",d:"um dia",dd:"%d dias",M:"um mês",MM:"%d meses",y:"um ano",yy:"%d anos"}};return a.default.locale(s,null,!0),s}));
-},{"dayjs":472}],474:[function(require,module,exports){
+},{"dayjs":482}],484:[function(require,module,exports){
 !function(e,a){"object"==typeof exports&&"undefined"!=typeof module?module.exports=a(require("dayjs")):"function"==typeof define&&define.amd?define(["dayjs"],a):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_locale_pt=a(e.dayjs)}(this,(function(e){"use strict";function a(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var o=a(e),t={name:"pt",weekdays:"domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado".split("_"),weekdaysShort:"dom_seg_ter_qua_qui_sex_sab".split("_"),weekdaysMin:"Do_2ª_3ª_4ª_5ª_6ª_Sa".split("_"),months:"janeiro_fevereiro_março_abril_maio_junho_julho_agosto_setembro_outubro_novembro_dezembro".split("_"),monthsShort:"jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez".split("_"),ordinal:function(e){return e+"º"},weekStart:1,yearStart:4,formats:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D [de] MMMM [de] YYYY",LLL:"D [de] MMMM [de] YYYY [às] HH:mm",LLLL:"dddd, D [de] MMMM [de] YYYY [às] HH:mm"},relativeTime:{future:"em %s",past:"há %s",s:"alguns segundos",m:"um minuto",mm:"%d minutos",h:"uma hora",hh:"%d horas",d:"um dia",dd:"%d dias",M:"um mês",MM:"%d meses",y:"um ano",yy:"%d anos"}};return o.default.locale(t,null,!0),t}));
-},{"dayjs":472}],475:[function(require,module,exports){
+},{"dayjs":482}],485:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_customParseFormat=t()}(this,(function(){"use strict";var e={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"},t=/(\[[^[]*\])|([-_:/.,()\s]+)|(A|a|Q|YYYY|YY?|ww?|MM?M?M?|Do|DD?|hh?|HH?|mm?|ss?|S{1,3}|z|ZZ?)/g,n=/\d/,r=/\d\d/,i=/\d\d?/,o=/\d*[^-_:/,()\s\d]+/,s={},a=function(e){return(e=+e)+(e>68?1900:2e3)};var f=function(e){return function(t){this[e]=+t}},h=[/[+-]\d\d:?(\d\d)?|Z/,function(e){(this.zone||(this.zone={})).offset=function(e){if(!e)return 0;if("Z"===e)return 0;var t=e.match(/([+-]|\d\d)/g),n=60*t[1]+(+t[2]||0);return 0===n?0:"+"===t[0]?-n:n}(e)}],u=function(e){var t=s[e];return t&&(t.indexOf?t:t.s.concat(t.f))},d=function(e,t){var n,r=s.meridiem;if(r){for(var i=1;i<=24;i+=1)if(e.indexOf(r(i,0,t))>-1){n=i>12;break}}else n=e===(t?"pm":"PM");return n},c={A:[o,function(e){this.afternoon=d(e,!1)}],a:[o,function(e){this.afternoon=d(e,!0)}],Q:[n,function(e){this.month=3*(e-1)+1}],S:[n,function(e){this.milliseconds=100*+e}],SS:[r,function(e){this.milliseconds=10*+e}],SSS:[/\d{3}/,function(e){this.milliseconds=+e}],s:[i,f("seconds")],ss:[i,f("seconds")],m:[i,f("minutes")],mm:[i,f("minutes")],H:[i,f("hours")],h:[i,f("hours")],HH:[i,f("hours")],hh:[i,f("hours")],D:[i,f("day")],DD:[r,f("day")],Do:[o,function(e){var t=s.ordinal,n=e.match(/\d+/);if(this.day=n[0],t)for(var r=1;r<=31;r+=1)t(r).replace(/\[|\]/g,"")===e&&(this.day=r)}],w:[i,f("week")],ww:[r,f("week")],M:[i,f("month")],MM:[r,f("month")],MMM:[o,function(e){var t=u("months"),n=(u("monthsShort")||t.map((function(e){return e.slice(0,3)}))).indexOf(e)+1;if(n<1)throw new Error;this.month=n%12||n}],MMMM:[o,function(e){var t=u("months").indexOf(e)+1;if(t<1)throw new Error;this.month=t%12||t}],Y:[/[+-]?\d+/,f("year")],YY:[r,function(e){this.year=a(e)}],YYYY:[/\d{4}/,f("year")],Z:h,ZZ:h};function l(n){var r,i;r=n,i=s&&s.formats;for(var o=(n=r.replace(/(\[[^\]]+])|(LTS?|l{1,4}|L{1,4})/g,(function(t,n,r){var o=r&&r.toUpperCase();return n||i[r]||e[r]||i[o].replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g,(function(e,t,n){return t||n.slice(1)}))}))).match(t),a=o.length,f=0;f<a;f+=1){var h=o[f],u=c[h],d=u&&u[0],l=u&&u[1];o[f]=l?{regex:d,parser:l}:h.replace(/^\[|\]$/g,"")}return function(e){for(var t={},n=0,r=0;n<a;n+=1){var i=o[n];if("string"==typeof i)r+=i.length;else{var s=i.regex,f=i.parser,h=e.slice(r),u=s.exec(h)[0];f.call(t,u),e=e.replace(u,"")}}return function(e){var t=e.afternoon;if(void 0!==t){var n=e.hours;t?n<12&&(e.hours+=12):12===n&&(e.hours=0),delete e.afternoon}}(t),t}}return function(e,t,n){n.p.customParseFormat=!0,e&&e.parseTwoDigitYear&&(a=e.parseTwoDigitYear);var r=t.prototype,i=r.parse;r.parse=function(e){var t=e.date,r=e.utc,o=e.args;this.$u=r;var a=o[1];if("string"==typeof a){var f=!0===o[2],h=!0===o[3],u=f||h,d=o[2];h&&(d=o[2]),s=this.$locale(),!f&&d&&(s=n.Ls[d]),this.$d=function(e,t,n,r){try{if(["x","X"].indexOf(t)>-1)return new Date(("X"===t?1e3:1)*e);var i=l(t)(e),o=i.year,s=i.month,a=i.day,f=i.hours,h=i.minutes,u=i.seconds,d=i.milliseconds,c=i.zone,m=i.week,M=new Date,Y=a||(o||s?1:M.getDate()),p=o||M.getFullYear(),v=0;o&&!s||(v=s>0?s-1:M.getMonth());var D,w=f||0,g=h||0,y=u||0,L=d||0;return c?new Date(Date.UTC(p,v,Y,w,g,y,L+60*c.offset*1e3)):n?new Date(Date.UTC(p,v,Y,w,g,y,L)):(D=new Date(p,v,Y,w,g,y,L),m&&(D=r(D).week(m).toDate()),D)}catch(e){return new Date("")}}(t,a,r,n),this.init(),d&&!0!==d&&(this.$L=this.locale(d).$L),u&&t!=this.format(a)&&(this.$d=new Date("")),s={}}else if(a instanceof Array)for(var c=a.length,m=1;m<=c;m+=1){o[1]=a[m-1];var M=n.apply(this,o);if(M.isValid()){this.$d=M.$d,this.$L=M.$L,this.init();break}m===c&&(this.$d=new Date(""))}else i.call(this,e)}}}));
-},{}],476:[function(require,module,exports){
+},{}],486:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_localizedFormat=t()}(this,(function(){"use strict";var e={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"};return function(t,o,n){var r=o.prototype,i=r.format;n.en.formats=e,r.format=function(t){void 0===t&&(t="YYYY-MM-DDTHH:mm:ssZ");var o=this.$locale().formats,n=function(t,o){return t.replace(/(\[[^\]]+])|(LTS?|l{1,4}|L{1,4})/g,(function(t,n,r){var i=r&&r.toUpperCase();return n||o[r]||e[r]||o[i].replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g,(function(e,t,o){return t||o.slice(1)}))}))}(t,void 0===o?{}:o);return i.call(this,n)}}}));
-},{}],477:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 !function(t,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_quarterOfYear=n()}(this,(function(){"use strict";var t="month",n="quarter";return function(e,i){var r=i.prototype;r.quarter=function(t){return this.$utils().u(t)?Math.ceil((this.month()+1)/3):this.month(this.month()%3+3*(t-1))};var s=r.add;r.add=function(e,i){return e=Number(e),this.$utils().p(i)===n?this.add(3*e,t):s.bind(this)(e,i)};var u=r.startOf;r.startOf=function(e,i){var r=this.$utils(),s=!!r.u(i)||i;if(r.p(e)===n){var o=this.quarter()-1;return s?this.month(3*o).startOf(t).startOf("day"):this.month(3*o+2).endOf(t).endOf("day")}return u.bind(this)(e,i)}}}));
-},{}],478:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_timezone=e()}(this,(function(){"use strict";var t={year:0,month:1,day:2,hour:3,minute:4,second:5},e={};return function(n,i,o){var r,a=function(t,n,i){void 0===i&&(i={});var o=new Date(t),r=function(t,n){void 0===n&&(n={});var i=n.timeZoneName||"short",o=t+"|"+i,r=e[o];return r||(r=new Intl.DateTimeFormat("en-US",{hour12:!1,timeZone:t,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",timeZoneName:i}),e[o]=r),r}(n,i);return r.formatToParts(o)},u=function(e,n){for(var i=a(e,n),r=[],u=0;u<i.length;u+=1){var f=i[u],s=f.type,m=f.value,c=t[s];c>=0&&(r[c]=parseInt(m,10))}var d=r[3],l=24===d?0:d,h=r[0]+"-"+r[1]+"-"+r[2]+" "+l+":"+r[4]+":"+r[5]+":000",v=+e;return(o.utc(h).valueOf()-(v-=v%1e3))/6e4},f=i.prototype;f.tz=function(t,e){void 0===t&&(t=r);var n,i=this.utcOffset(),a=this.toDate(),u=a.toLocaleString("en-US",{timeZone:t}),f=Math.round((a-new Date(u))/1e3/60),s=15*-Math.round(a.getTimezoneOffset()/15)-f;if(!Number(s))n=this.utcOffset(0,e);else if(n=o(u,{locale:this.$L}).$set("millisecond",this.$ms).utcOffset(s,!0),e){var m=n.utcOffset();n=n.add(i-m,"minute")}return n.$x.$timezone=t,n},f.offsetName=function(t){var e=this.$x.$timezone||o.tz.guess(),n=a(this.valueOf(),e,{timeZoneName:t}).find((function(t){return"timezonename"===t.type.toLowerCase()}));return n&&n.value};var s=f.startOf;f.startOf=function(t,e){if(!this.$x||!this.$x.$timezone)return s.call(this,t,e);var n=o(this.format("YYYY-MM-DD HH:mm:ss:SSS"),{locale:this.$L});return s.call(n,t,e).tz(this.$x.$timezone,!0)},o.tz=function(t,e,n){var i=n&&e,a=n||e||r,f=u(+o(),a);if("string"!=typeof t)return o(t).tz(a);var s=function(t,e,n){var i=t-60*e*1e3,o=u(i,n);if(e===o)return[i,e];var r=u(i-=60*(o-e)*1e3,n);return o===r?[i,o]:[t-60*Math.min(o,r)*1e3,Math.max(o,r)]}(o.utc(t,i).valueOf(),f,a),m=s[0],c=s[1],d=o(m).utcOffset(c);return d.$x.$timezone=a,d},o.tz.guess=function(){return Intl.DateTimeFormat().resolvedOptions().timeZone},o.tz.setDefault=function(t){r=t}}}));
-},{}],479:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 !function(t,i){"object"==typeof exports&&"undefined"!=typeof module?module.exports=i():"function"==typeof define&&define.amd?define(i):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_utc=i()}(this,(function(){"use strict";var t="minute",i=/[+-]\d\d(?::?\d\d)?/g,e=/([+-]|\d\d)/g;return function(s,f,n){var u=f.prototype;n.utc=function(t){var i={date:t,utc:!0,args:arguments};return new f(i)},u.utc=function(i){var e=n(this.toDate(),{locale:this.$L,utc:!0});return i?e.add(this.utcOffset(),t):e},u.local=function(){return n(this.toDate(),{locale:this.$L,utc:!1})};var r=u.parse;u.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),r.call(this,t)};var o=u.init;u.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds()}else o.call(this)};var a=u.utcOffset;u.utcOffset=function(s,f){var n=this.$utils().u;if(n(s))return this.$u?0:n(this.$offset)?a.call(this):this.$offset;if("string"==typeof s&&(s=function(t){void 0===t&&(t="");var s=t.match(i);if(!s)return null;var f=(""+s[0]).match(e)||["-",0,0],n=f[0],u=60*+f[1]+ +f[2];return 0===u?0:"+"===n?u:-u}(s),null===s))return this;var u=Math.abs(s)<=16?60*s:s;if(0===u)return this.utc(f);var r=this.clone();if(f)return r.$offset=u,r.$u=!1,r;var o=this.$u?this.toDate().getTimezoneOffset():-1*this.utcOffset();return(r=this.local().add(u+o,t)).$offset=u,r.$x.$localOffset=o,r};var h=u.format;u.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return h.call(this,i)},u.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+(this.$x.$localOffset||this.$d.getTimezoneOffset());return this.$d.valueOf()-6e4*t},u.isUTC=function(){return!!this.$u},u.toISOString=function(){return this.toDate().toISOString()},u.toString=function(){return this.toDate().toUTCString()};var l=u.toDate;u.toDate=function(t){return"s"===t&&this.$offset?n(this.format("YYYY-MM-DD HH:mm:ss:SSS")).toDate():l.call(this)};var c=u.diff;u.diff=function(t,i,e){if(t&&this.$u===t.$u)return c.call(this,t,i,e);var s=this.local(),f=n(t).local();return c.call(s,f,i,e)}}}));
-},{}],480:[function(require,module,exports){
+},{}],490:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekOfYear=t()}(this,(function(){"use strict";var e="week",t="year";return function(i,n,r){var f=n.prototype;f.week=function(i){if(void 0===i&&(i=null),null!==i)return this.add(7*(i-this.week()),"day");var n=this.$locale().yearStart||1;if(11===this.month()&&this.date()>25){var f=r(this).startOf(t).add(1,t).date(n),s=r(this).endOf(e);if(f.isBefore(s))return 1}var a=r(this).startOf(t).date(n).startOf(e).subtract(1,"millisecond"),o=this.diff(a,e,!0);return o<0?r(this).startOf("week").week():Math.ceil(o)},f.weeks=function(e){return void 0===e&&(e=null),this.week(e)}}}));
-},{}],481:[function(require,module,exports){
+},{}],491:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekYear=t()}(this,(function(){"use strict";return function(e,t){t.prototype.weekYear=function(){var e=this.month(),t=this.week(),n=this.year();return 1===t&&11===e?n+1:0===e&&t>=52?n-1:n}}}));
-},{}],482:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -79780,7 +80188,7 @@ module.exports = function defineDataProperty(
 	}
 };
 
-},{"es-define-property":510,"es-errors/syntax":515,"es-errors/type":516,"gopd":529}],483:[function(require,module,exports){
+},{"es-define-property":520,"es-errors/syntax":525,"es-errors/type":526,"gopd":539}],493:[function(require,module,exports){
 'use strict';
 
 exports.utils = require('./des/utils');
@@ -79789,7 +80197,7 @@ exports.DES = require('./des/des');
 exports.CBC = require('./des/cbc');
 exports.EDE = require('./des/ede');
 
-},{"./des/cbc":484,"./des/cipher":485,"./des/des":486,"./des/ede":487,"./des/utils":488}],484:[function(require,module,exports){
+},{"./des/cbc":494,"./des/cipher":495,"./des/des":496,"./des/ede":497,"./des/utils":498}],494:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -79856,7 +80264,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
   }
 };
 
-},{"inherits":551,"minimalistic-assert":568}],485:[function(require,module,exports){
+},{"inherits":561,"minimalistic-assert":578}],495:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -80000,7 +80408,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
   return this._unpad(out);
 };
 
-},{"minimalistic-assert":568}],486:[function(require,module,exports){
+},{"minimalistic-assert":578}],496:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -80152,7 +80560,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"./cipher":485,"./utils":488,"inherits":551,"minimalistic-assert":568}],487:[function(require,module,exports){
+},{"./cipher":495,"./utils":498,"inherits":561,"minimalistic-assert":578}],497:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -80208,7 +80616,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"./cipher":485,"./des":486,"inherits":551,"minimalistic-assert":568}],488:[function(require,module,exports){
+},{"./cipher":495,"./des":496,"inherits":561,"minimalistic-assert":578}],498:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -80466,7 +80874,7 @@ exports.padSplit = function padSplit(num, size, group) {
   return out.join(' ');
 };
 
-},{}],489:[function(require,module,exports){
+},{}],499:[function(require,module,exports){
 (function (Buffer){(function (){
 var generatePrime = require('./lib/generatePrime')
 var primes = require('./lib/primes.json')
@@ -80512,7 +80920,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./lib/dh":490,"./lib/generatePrime":491,"./lib/primes.json":492,"buffer":455}],490:[function(require,module,exports){
+},{"./lib/dh":500,"./lib/generatePrime":501,"./lib/primes.json":502,"buffer":465}],500:[function(require,module,exports){
 (function (Buffer){(function (){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -80680,7 +81088,7 @@ function formatReturnValue(bn, enc) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./generatePrime":491,"bn.js":421,"buffer":455,"miller-rabin":567,"randombytes":595}],491:[function(require,module,exports){
+},{"./generatePrime":501,"bn.js":431,"buffer":465,"miller-rabin":577,"randombytes":605}],501:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -80787,7 +81195,7 @@ function findPrime(bits, gen) {
 
 }
 
-},{"bn.js":421,"miller-rabin":567,"randombytes":595}],492:[function(require,module,exports){
+},{"bn.js":431,"miller-rabin":577,"randombytes":605}],502:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -80822,7 +81230,7 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],493:[function(require,module,exports){
+},{}],503:[function(require,module,exports){
 'use strict';
 
 var callBind = require('call-bind-apply-helpers');
@@ -80854,7 +81262,7 @@ module.exports = desc && typeof desc.get === 'function'
 		}
 		: false;
 
-},{"call-bind-apply-helpers":460,"gopd":529}],494:[function(require,module,exports){
+},{"call-bind-apply-helpers":470,"gopd":539}],504:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -80869,7 +81277,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":509,"./elliptic/curve":497,"./elliptic/curves":500,"./elliptic/ec":501,"./elliptic/eddsa":504,"./elliptic/utils":508,"brorand":422}],495:[function(require,module,exports){
+},{"../package.json":519,"./elliptic/curve":507,"./elliptic/curves":510,"./elliptic/ec":511,"./elliptic/eddsa":514,"./elliptic/utils":518,"brorand":432}],505:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -81252,7 +81660,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../utils":508,"bn.js":421}],496:[function(require,module,exports){
+},{"../utils":518,"bn.js":431}],506:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -81689,7 +82097,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../utils":508,"./base":495,"bn.js":421,"inherits":551}],497:[function(require,module,exports){
+},{"../utils":518,"./base":505,"bn.js":431,"inherits":561}],507:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -81699,7 +82107,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":495,"./edwards":496,"./mont":498,"./short":499}],498:[function(require,module,exports){
+},{"./base":505,"./edwards":506,"./mont":508,"./short":509}],508:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -81879,7 +82287,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../utils":508,"./base":495,"bn.js":421,"inherits":551}],499:[function(require,module,exports){
+},{"../utils":518,"./base":505,"bn.js":431,"inherits":561}],509:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -82819,7 +83227,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../utils":508,"./base":495,"bn.js":421,"inherits":551}],500:[function(require,module,exports){
+},{"../utils":518,"./base":505,"bn.js":431,"inherits":561}],510:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -83027,7 +83435,7 @@ defineCurve('secp256k1', {
   ],
 });
 
-},{"./curve":497,"./precomputed/secp256k1":507,"./utils":508,"hash.js":536}],501:[function(require,module,exports){
+},{"./curve":507,"./precomputed/secp256k1":517,"./utils":518,"hash.js":546}],511:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -83307,7 +83715,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../curves":500,"../utils":508,"./key":502,"./signature":503,"bn.js":421,"brorand":422,"hmac-drbg":549}],502:[function(require,module,exports){
+},{"../curves":510,"../utils":518,"./key":512,"./signature":513,"bn.js":431,"brorand":432,"hmac-drbg":559}],512:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -83430,7 +83838,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../utils":508,"bn.js":421}],503:[function(require,module,exports){
+},{"../utils":518,"bn.js":431}],513:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -83608,7 +84016,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../utils":508,"bn.js":421}],504:[function(require,module,exports){
+},{"../utils":518,"bn.js":431}],514:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -83731,7 +84139,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../curves":500,"../utils":508,"./key":505,"./signature":506,"hash.js":536}],505:[function(require,module,exports){
+},{"../curves":510,"../utils":518,"./key":515,"./signature":516,"hash.js":546}],515:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -83828,7 +84236,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../utils":508}],506:[function(require,module,exports){
+},{"../utils":518}],516:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -83896,7 +84304,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../utils":508,"bn.js":421}],507:[function(require,module,exports){
+},{"../utils":518,"bn.js":431}],517:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -84678,7 +85086,7 @@ module.exports = {
   },
 };
 
-},{}],508:[function(require,module,exports){
+},{}],518:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -84802,7 +85210,7 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":421,"minimalistic-assert":568,"minimalistic-crypto-utils":569}],509:[function(require,module,exports){
+},{"bn.js":431,"minimalistic-assert":578,"minimalistic-crypto-utils":579}],519:[function(require,module,exports){
 module.exports={
   "name": "elliptic",
   "version": "6.6.1",
@@ -84860,7 +85268,7 @@ module.exports={
   }
 }
 
-},{}],510:[function(require,module,exports){
+},{}],520:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -84876,55 +85284,55 @@ if ($defineProperty) {
 
 module.exports = $defineProperty;
 
-},{}],511:[function(require,module,exports){
+},{}],521:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./eval')} */
 module.exports = EvalError;
 
-},{}],512:[function(require,module,exports){
+},{}],522:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
 module.exports = Error;
 
-},{}],513:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./range')} */
 module.exports = RangeError;
 
-},{}],514:[function(require,module,exports){
+},{}],524:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./ref')} */
 module.exports = ReferenceError;
 
-},{}],515:[function(require,module,exports){
+},{}],525:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./syntax')} */
 module.exports = SyntaxError;
 
-},{}],516:[function(require,module,exports){
+},{}],526:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./type')} */
 module.exports = TypeError;
 
-},{}],517:[function(require,module,exports){
+},{}],527:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./uri')} */
 module.exports = URIError;
 
-},{}],518:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
 module.exports = Object;
 
-},{}],519:[function(require,module,exports){
+},{}],529:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -85423,7 +85831,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],520:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var MD5 = require('md5.js')
 
@@ -85470,7 +85878,7 @@ function EVP_BytesToKey (password, salt, keyBits, ivLen) {
 
 module.exports = EVP_BytesToKey
 
-},{"md5.js":566,"safe-buffer":609}],521:[function(require,module,exports){
+},{"md5.js":576,"safe-buffer":619}],531:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -85541,7 +85949,7 @@ module.exports = function forEach(list, iterator, thisArg) {
     }
 };
 
-},{"is-callable":553}],522:[function(require,module,exports){
+},{"is-callable":563}],532:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -85627,14 +86035,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],523:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":522}],524:[function(require,module,exports){
+},{"./implementation":532}],534:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -86014,7 +86422,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"call-bind-apply-helpers/functionApply":458,"call-bind-apply-helpers/functionCall":459,"es-define-property":510,"es-errors":512,"es-errors/eval":511,"es-errors/range":513,"es-errors/ref":514,"es-errors/syntax":515,"es-errors/type":516,"es-errors/uri":517,"es-object-atoms":518,"function-bind":523,"get-proto":527,"get-proto/Object.getPrototypeOf":525,"get-proto/Reflect.getPrototypeOf":526,"gopd":529,"has-symbols":531,"hasown":548,"math-intrinsics/abs":558,"math-intrinsics/floor":559,"math-intrinsics/max":561,"math-intrinsics/min":562,"math-intrinsics/pow":563,"math-intrinsics/round":564,"math-intrinsics/sign":565}],525:[function(require,module,exports){
+},{"call-bind-apply-helpers/functionApply":468,"call-bind-apply-helpers/functionCall":469,"es-define-property":520,"es-errors":522,"es-errors/eval":521,"es-errors/range":523,"es-errors/ref":524,"es-errors/syntax":525,"es-errors/type":526,"es-errors/uri":527,"es-object-atoms":528,"function-bind":533,"get-proto":537,"get-proto/Object.getPrototypeOf":535,"get-proto/Reflect.getPrototypeOf":536,"gopd":539,"has-symbols":541,"hasown":558,"math-intrinsics/abs":568,"math-intrinsics/floor":569,"math-intrinsics/max":571,"math-intrinsics/min":572,"math-intrinsics/pow":573,"math-intrinsics/round":574,"math-intrinsics/sign":575}],535:[function(require,module,exports){
 'use strict';
 
 var $Object = require('es-object-atoms');
@@ -86022,13 +86430,13 @@ var $Object = require('es-object-atoms');
 /** @type {import('./Object.getPrototypeOf')} */
 module.exports = $Object.getPrototypeOf || null;
 
-},{"es-object-atoms":518}],526:[function(require,module,exports){
+},{"es-object-atoms":528}],536:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./Reflect.getPrototypeOf')} */
 module.exports = (typeof Reflect !== 'undefined' && Reflect.getPrototypeOf) || null;
 
-},{}],527:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 'use strict';
 
 var reflectGetProto = require('./Reflect.getPrototypeOf');
@@ -86057,13 +86465,13 @@ module.exports = reflectGetProto
 			}
 			: null;
 
-},{"./Object.getPrototypeOf":525,"./Reflect.getPrototypeOf":526,"dunder-proto/get":493}],528:[function(require,module,exports){
+},{"./Object.getPrototypeOf":535,"./Reflect.getPrototypeOf":536,"dunder-proto/get":503}],538:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./gOPD')} */
 module.exports = Object.getOwnPropertyDescriptor;
 
-},{}],529:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -86080,7 +86488,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"./gOPD":528}],530:[function(require,module,exports){
+},{"./gOPD":538}],540:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -86104,7 +86512,7 @@ hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBu
 
 module.exports = hasPropertyDescriptors;
 
-},{"es-define-property":510}],531:[function(require,module,exports){
+},{"es-define-property":520}],541:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -86120,7 +86528,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":532}],532:[function(require,module,exports){
+},{"./shams":542}],542:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./shams')} */
@@ -86167,7 +86575,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],533:[function(require,module,exports){
+},{}],543:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -86177,7 +86585,7 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":532}],534:[function(require,module,exports){
+},{"has-symbols/shams":542}],544:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -86288,7 +86696,7 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase;
 
-},{"./to-buffer":535,"inherits":551,"readable-stream":607,"safe-buffer":609}],535:[function(require,module,exports){
+},{"./to-buffer":545,"inherits":561,"readable-stream":617,"safe-buffer":619}],545:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -86310,7 +86718,7 @@ module.exports = function (thing, encoding) {
 	throw new TypeError('The "data" argument must be a string, a Buffer, a Uint8Array, or a DataView');
 };
 
-},{"safe-buffer":609,"to-buffer":637}],536:[function(require,module,exports){
+},{"safe-buffer":619,"to-buffer":647}],546:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -86327,7 +86735,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":537,"./hash/hmac":538,"./hash/ripemd":539,"./hash/sha":540,"./hash/utils":547}],537:[function(require,module,exports){
+},{"./hash/common":547,"./hash/hmac":548,"./hash/ripemd":549,"./hash/sha":550,"./hash/utils":557}],547:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -86421,7 +86829,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":547,"minimalistic-assert":568}],538:[function(require,module,exports){
+},{"./utils":557,"minimalistic-assert":578}],548:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -86470,7 +86878,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":547,"minimalistic-assert":568}],539:[function(require,module,exports){
+},{"./utils":557,"minimalistic-assert":578}],549:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -86618,7 +87026,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":537,"./utils":547}],540:[function(require,module,exports){
+},{"./common":547,"./utils":557}],550:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -86627,7 +87035,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":541,"./sha/224":542,"./sha/256":543,"./sha/384":544,"./sha/512":545}],541:[function(require,module,exports){
+},{"./sha/1":551,"./sha/224":552,"./sha/256":553,"./sha/384":554,"./sha/512":555}],551:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -86703,7 +87111,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":537,"../utils":547,"./common":546}],542:[function(require,module,exports){
+},{"../common":547,"../utils":557,"./common":556}],552:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -86735,7 +87143,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":547,"./256":543}],543:[function(require,module,exports){
+},{"../utils":557,"./256":553}],553:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -86842,7 +87250,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":537,"../utils":547,"./common":546,"minimalistic-assert":568}],544:[function(require,module,exports){
+},{"../common":547,"../utils":557,"./common":556,"minimalistic-assert":578}],554:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -86879,7 +87287,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":547,"./512":545}],545:[function(require,module,exports){
+},{"../utils":557,"./512":555}],555:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -87211,7 +87619,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":537,"../utils":547,"minimalistic-assert":568}],546:[function(require,module,exports){
+},{"../common":547,"../utils":557,"minimalistic-assert":578}],556:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -87262,7 +87670,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":547}],547:[function(require,module,exports){
+},{"../utils":557}],557:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -87542,7 +87950,7 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":551,"minimalistic-assert":568}],548:[function(require,module,exports){
+},{"inherits":561,"minimalistic-assert":578}],558:[function(require,module,exports){
 'use strict';
 
 var call = Function.prototype.call;
@@ -87552,7 +87960,7 @@ var bind = require('function-bind');
 /** @type {import('.')} */
 module.exports = bind.call(call, $hasOwn);
 
-},{"function-bind":523}],549:[function(require,module,exports){
+},{"function-bind":533}],559:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -87667,7 +88075,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":536,"minimalistic-assert":568,"minimalistic-crypto-utils":569}],550:[function(require,module,exports){
+},{"hash.js":546,"minimalistic-assert":578,"minimalistic-crypto-utils":579}],560:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -87754,7 +88162,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],551:[function(require,module,exports){
+},{}],561:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -87783,7 +88191,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],552:[function(require,module,exports){
+},{}],562:[function(require,module,exports){
 'use strict';
 
 var hasToStringTag = require('has-tostringtag/shams')();
@@ -87829,7 +88237,7 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 /** @type {import('.')} */
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bound":463,"has-tostringtag/shams":533}],553:[function(require,module,exports){
+},{"call-bound":473,"has-tostringtag/shams":543}],563:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -87932,7 +88340,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],554:[function(require,module,exports){
+},{}],564:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -87981,7 +88389,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return getProto(fn) === GeneratorFunction;
 };
 
-},{"call-bound":463,"get-proto":527,"has-tostringtag/shams":533,"safe-regex-test":610}],555:[function(require,module,exports){
+},{"call-bound":473,"get-proto":537,"has-tostringtag/shams":543,"safe-regex-test":620}],565:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -88052,7 +88460,7 @@ if (hasToStringTag) {
 
 module.exports = fn;
 
-},{"call-bound":463,"gopd":529,"has-tostringtag/shams":533,"hasown":548}],556:[function(require,module,exports){
+},{"call-bound":473,"gopd":539,"has-tostringtag/shams":543,"hasown":558}],566:[function(require,module,exports){
 'use strict';
 
 var whichTypedArray = require('which-typed-array');
@@ -88062,26 +88470,26 @@ module.exports = function isTypedArray(value) {
 	return !!whichTypedArray(value);
 };
 
-},{"which-typed-array":645}],557:[function(require,module,exports){
+},{"which-typed-array":655}],567:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],558:[function(require,module,exports){
+},{}],568:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./abs')} */
 module.exports = Math.abs;
 
-},{}],559:[function(require,module,exports){
+},{}],569:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./floor')} */
 module.exports = Math.floor;
 
-},{}],560:[function(require,module,exports){
+},{}],570:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./isNaN')} */
@@ -88089,31 +88497,31 @@ module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
-},{}],561:[function(require,module,exports){
+},{}],571:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./max')} */
 module.exports = Math.max;
 
-},{}],562:[function(require,module,exports){
+},{}],572:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./min')} */
 module.exports = Math.min;
 
-},{}],563:[function(require,module,exports){
+},{}],573:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./pow')} */
 module.exports = Math.pow;
 
-},{}],564:[function(require,module,exports){
+},{}],574:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./round')} */
 module.exports = Math.round;
 
-},{}],565:[function(require,module,exports){
+},{}],575:[function(require,module,exports){
 'use strict';
 
 var $isNaN = require('./isNaN');
@@ -88126,7 +88534,7 @@ module.exports = function sign(number) {
 	return number < 0 ? -1 : +1;
 };
 
-},{"./isNaN":560}],566:[function(require,module,exports){
+},{"./isNaN":570}],576:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var HashBase = require('hash-base')
@@ -88274,7 +88682,7 @@ function fnI (a, b, c, d, m, k, s) {
 
 module.exports = MD5
 
-},{"hash-base":534,"inherits":551,"safe-buffer":609}],567:[function(require,module,exports){
+},{"hash-base":544,"inherits":561,"safe-buffer":619}],577:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -88391,7 +88799,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":421,"brorand":422}],568:[function(require,module,exports){
+},{"bn.js":431,"brorand":432}],578:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -88404,7 +88812,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],569:[function(require,module,exports){
+},{}],579:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -88464,7 +88872,7 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],570:[function(require,module,exports){
+},{}],580:[function(require,module,exports){
 'use strict';
 
 var keysShim;
@@ -88588,7 +88996,7 @@ if (!Object.keys) {
 }
 module.exports = keysShim;
 
-},{"./isArguments":572}],571:[function(require,module,exports){
+},{"./isArguments":582}],581:[function(require,module,exports){
 'use strict';
 
 var slice = Array.prototype.slice;
@@ -88622,7 +89030,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./implementation":570,"./isArguments":572}],572:[function(require,module,exports){
+},{"./implementation":580,"./isArguments":582}],582:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -88641,7 +89049,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],573:[function(require,module,exports){
+},{}],583:[function(require,module,exports){
 'use strict';
 
 // modified from https://github.com/es-shims/es6-shim
@@ -88689,7 +89097,7 @@ module.exports = function assign(target, source1) {
 	return to; // step 4
 };
 
-},{"call-bound":463,"es-object-atoms":518,"has-symbols/shams":532,"object-keys":571}],574:[function(require,module,exports){
+},{"call-bound":473,"es-object-atoms":528,"has-symbols/shams":542,"object-keys":581}],584:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -88746,7 +89154,7 @@ module.exports = function getPolyfill() {
 	return Object.assign;
 };
 
-},{"./implementation":573}],575:[function(require,module,exports){
+},{"./implementation":583}],585:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -88760,7 +89168,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],576:[function(require,module,exports){
+},{}],586:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 
@@ -88885,7 +89293,7 @@ exports.signature = asn1.define('signature', function () {
 	);
 });
 
-},{"./certificate":577,"asn1.js":401}],577:[function(require,module,exports){
+},{"./certificate":587,"asn1.js":411}],587:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -88976,7 +89384,7 @@ var X509Certificate = asn.define('X509Certificate', function () {
 
 module.exports = X509Certificate;
 
-},{"asn1.js":401}],578:[function(require,module,exports){
+},{"asn1.js":411}],588:[function(require,module,exports){
 'use strict';
 
 // adapted from https://github.com/apatil/pemstrip
@@ -89011,7 +89419,7 @@ module.exports = function (okey, password) {
 	};
 };
 
-},{"browserify-aes":427,"evp_bytestokey":520,"safe-buffer":609}],579:[function(require,module,exports){
+},{"browserify-aes":437,"evp_bytestokey":530,"safe-buffer":619}],589:[function(require,module,exports){
 'use strict';
 
 var asn1 = require('./asn1');
@@ -89124,13 +89532,13 @@ parseKeys.signature = asn1.signature;
 
 module.exports = parseKeys;
 
-},{"./aesid.json":575,"./asn1":576,"./fixProc":578,"browserify-aes":427,"pbkdf2":580,"safe-buffer":609}],580:[function(require,module,exports){
+},{"./aesid.json":585,"./asn1":586,"./fixProc":588,"browserify-aes":437,"pbkdf2":590,"safe-buffer":619}],590:[function(require,module,exports){
 'use strict';
 
 exports.pbkdf2 = require('./lib/async');
 exports.pbkdf2Sync = require('./lib/sync');
 
-},{"./lib/async":581,"./lib/sync":584}],581:[function(require,module,exports){
+},{"./lib/async":591,"./lib/sync":594}],591:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -89256,7 +89664,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./default-encoding":582,"./precondition":583,"./sync":584,"./to-buffer":585,"safe-buffer":609}],582:[function(require,module,exports){
+},{"./default-encoding":592,"./precondition":593,"./sync":594,"./to-buffer":595,"safe-buffer":619}],592:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict';
 
@@ -89274,7 +89682,7 @@ if (global.process && global.process.browser) {
 module.exports = defaultEncoding;
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":588}],583:[function(require,module,exports){
+},{"_process":598}],593:[function(require,module,exports){
 'use strict';
 
 var MAX_ALLOC = Math.pow(2, 30) - 1; // default in iojs
@@ -89297,7 +89705,7 @@ module.exports = function (iterations, keylen) {
 	}
 };
 
-},{}],584:[function(require,module,exports){
+},{}],594:[function(require,module,exports){
 'use strict';
 
 var md5 = require('create-hash/md5');
@@ -89430,7 +89838,7 @@ function pbkdf2(password, salt, iterations, keylen, digest) {
 
 module.exports = pbkdf2;
 
-},{"./default-encoding":582,"./precondition":583,"./to-buffer":585,"create-hash/md5":468,"ripemd160":608,"safe-buffer":609,"sha.js":613}],585:[function(require,module,exports){
+},{"./default-encoding":592,"./precondition":593,"./to-buffer":595,"create-hash/md5":478,"ripemd160":618,"safe-buffer":619,"sha.js":623}],595:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -89452,7 +89860,7 @@ module.exports = function (thing, encoding, name) {
 	throw new TypeError(name + ' must be a string, a Buffer, a Uint8Array, or a DataView');
 };
 
-},{"safe-buffer":609,"to-buffer":637}],586:[function(require,module,exports){
+},{"safe-buffer":619,"to-buffer":647}],596:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -89471,7 +89879,7 @@ module.exports = [
 	'BigUint64Array'
 ];
 
-},{}],587:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -89520,7 +89928,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":588}],588:[function(require,module,exports){
+},{"_process":598}],598:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -89706,7 +90114,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],589:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt')
 exports.privateDecrypt = require('./privateDecrypt')
 
@@ -89718,7 +90126,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
   return exports.privateDecrypt(key, buf, true)
 }
 
-},{"./privateDecrypt":591,"./publicEncrypt":592}],590:[function(require,module,exports){
+},{"./privateDecrypt":601,"./publicEncrypt":602}],600:[function(require,module,exports){
 var createHash = require('create-hash')
 var Buffer = require('safe-buffer').Buffer
 
@@ -89739,7 +90147,7 @@ function i2ops (c) {
   return out
 }
 
-},{"create-hash":467,"safe-buffer":609}],591:[function(require,module,exports){
+},{"create-hash":477,"safe-buffer":619}],601:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var mgf = require('./mgf')
 var xor = require('./xor')
@@ -89846,7 +90254,7 @@ function compare (a, b) {
   return dif
 }
 
-},{"./mgf":590,"./withPublic":593,"./xor":594,"bn.js":421,"browserify-rsa":445,"create-hash":467,"parse-asn1":579,"safe-buffer":609}],592:[function(require,module,exports){
+},{"./mgf":600,"./withPublic":603,"./xor":604,"bn.js":431,"browserify-rsa":455,"create-hash":477,"parse-asn1":589,"safe-buffer":619}],602:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var randomBytes = require('randombytes')
 var createHash = require('create-hash')
@@ -89936,7 +90344,7 @@ function nonZero (len) {
   return out
 }
 
-},{"./mgf":590,"./withPublic":593,"./xor":594,"bn.js":421,"browserify-rsa":445,"create-hash":467,"parse-asn1":579,"randombytes":595,"safe-buffer":609}],593:[function(require,module,exports){
+},{"./mgf":600,"./withPublic":603,"./xor":604,"bn.js":431,"browserify-rsa":455,"create-hash":477,"parse-asn1":589,"randombytes":605,"safe-buffer":619}],603:[function(require,module,exports){
 var BN = require('bn.js')
 var Buffer = require('safe-buffer').Buffer
 
@@ -89950,7 +90358,7 @@ function withPublic (paddedMsg, key) {
 
 module.exports = withPublic
 
-},{"bn.js":421,"safe-buffer":609}],594:[function(require,module,exports){
+},{"bn.js":431,"safe-buffer":619}],604:[function(require,module,exports){
 module.exports = function xor (a, b) {
   var len = a.length
   var i = -1
@@ -89960,7 +90368,7 @@ module.exports = function xor (a, b) {
   return a
 }
 
-},{}],595:[function(require,module,exports){
+},{}],605:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -90014,7 +90422,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":588,"safe-buffer":609}],596:[function(require,module,exports){
+},{"_process":598,"safe-buffer":619}],606:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -90126,7 +90534,7 @@ function randomFillSync (buf, offset, size) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":588,"randombytes":595,"safe-buffer":609}],597:[function(require,module,exports){
+},{"_process":598,"randombytes":605,"safe-buffer":619}],607:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -90258,7 +90666,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":599,"./_stream_writable":601,"core-util-is":465,"inherits":551,"process-nextick-args":587}],598:[function(require,module,exports){
+},{"./_stream_readable":609,"./_stream_writable":611,"core-util-is":475,"inherits":561,"process-nextick-args":597}],608:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -90306,7 +90714,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":600,"core-util-is":465,"inherits":551}],599:[function(require,module,exports){
+},{"./_stream_transform":610,"core-util-is":475,"inherits":561}],609:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -91328,7 +91736,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":597,"./internal/streams/BufferList":602,"./internal/streams/destroy":603,"./internal/streams/stream":604,"_process":588,"core-util-is":465,"events":519,"inherits":551,"isarray":557,"process-nextick-args":587,"safe-buffer":605,"string_decoder/":606,"util":424}],600:[function(require,module,exports){
+},{"./_stream_duplex":607,"./internal/streams/BufferList":612,"./internal/streams/destroy":613,"./internal/streams/stream":614,"_process":598,"core-util-is":475,"events":529,"inherits":561,"isarray":567,"process-nextick-args":597,"safe-buffer":615,"string_decoder/":616,"util":434}],610:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -91543,7 +91951,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":597,"core-util-is":465,"inherits":551}],601:[function(require,module,exports){
+},{"./_stream_duplex":607,"core-util-is":475,"inherits":561}],611:[function(require,module,exports){
 (function (process,global,setImmediate){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -92231,7 +92639,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":597,"./internal/streams/destroy":603,"./internal/streams/stream":604,"_process":588,"core-util-is":465,"inherits":551,"process-nextick-args":587,"safe-buffer":605,"timers":636,"util-deprecate":640}],602:[function(require,module,exports){
+},{"./_stream_duplex":607,"./internal/streams/destroy":613,"./internal/streams/stream":614,"_process":598,"core-util-is":475,"inherits":561,"process-nextick-args":597,"safe-buffer":615,"timers":646,"util-deprecate":650}],612:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -92310,7 +92718,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":605,"util":424}],603:[function(require,module,exports){
+},{"safe-buffer":615,"util":434}],613:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -92395,10 +92803,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":587}],604:[function(require,module,exports){
+},{"process-nextick-args":597}],614:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":519}],605:[function(require,module,exports){
+},{"events":529}],615:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -92462,7 +92870,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":455}],606:[function(require,module,exports){
+},{"buffer":465}],616:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -92759,7 +93167,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":605}],607:[function(require,module,exports){
+},{"safe-buffer":615}],617:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -92768,7 +93176,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":597,"./lib/_stream_passthrough.js":598,"./lib/_stream_readable.js":599,"./lib/_stream_transform.js":600,"./lib/_stream_writable.js":601}],608:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":607,"./lib/_stream_passthrough.js":608,"./lib/_stream_readable.js":609,"./lib/_stream_transform.js":610,"./lib/_stream_writable.js":611}],618:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('buffer').Buffer;
@@ -92937,7 +93345,7 @@ RIPEMD160.prototype._digest = function () {
 
 module.exports = RIPEMD160;
 
-},{"buffer":455,"hash-base":534,"inherits":551}],609:[function(require,module,exports){
+},{"buffer":465,"hash-base":544,"inherits":561}],619:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -93004,7 +93412,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":455}],610:[function(require,module,exports){
+},{"buffer":465}],620:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -93023,7 +93431,7 @@ module.exports = function regexTester(regex) {
 	};
 };
 
-},{"call-bound":463,"es-errors/type":516,"is-regex":555}],611:[function(require,module,exports){
+},{"call-bound":473,"es-errors/type":526,"is-regex":565}],621:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -93067,7 +93475,7 @@ module.exports = function setFunctionLength(fn, length) {
 	return fn;
 };
 
-},{"define-data-property":482,"es-errors/type":516,"get-intrinsic":524,"gopd":529,"has-property-descriptors":530}],612:[function(require,module,exports){
+},{"define-data-property":492,"es-errors/type":526,"get-intrinsic":534,"gopd":539,"has-property-descriptors":540}],622:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -93153,7 +93561,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash;
 
-},{"safe-buffer":609,"to-buffer":637}],613:[function(require,module,exports){
+},{"safe-buffer":619,"to-buffer":647}],623:[function(require,module,exports){
 'use strict';
 
 module.exports = function SHA(algorithm) {
@@ -93174,7 +93582,7 @@ module.exports.sha256 = require('./sha256');
 module.exports.sha384 = require('./sha384');
 module.exports.sha512 = require('./sha512');
 
-},{"./sha":614,"./sha1":615,"./sha224":616,"./sha256":617,"./sha384":618,"./sha512":619}],614:[function(require,module,exports){
+},{"./sha":624,"./sha1":625,"./sha224":626,"./sha256":627,"./sha384":628,"./sha512":629}],624:[function(require,module,exports){
 'use strict';
 
 /*
@@ -93280,7 +93688,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha;
 
-},{"./hash":612,"inherits":551,"safe-buffer":609}],615:[function(require,module,exports){
+},{"./hash":622,"inherits":561,"safe-buffer":619}],625:[function(require,module,exports){
 'use strict';
 
 /*
@@ -93391,7 +93799,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1;
 
-},{"./hash":612,"inherits":551,"safe-buffer":609}],616:[function(require,module,exports){
+},{"./hash":622,"inherits":561,"safe-buffer":619}],626:[function(require,module,exports){
 'use strict';
 
 /**
@@ -93448,7 +93856,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224;
 
-},{"./hash":612,"./sha256":617,"inherits":551,"safe-buffer":609}],617:[function(require,module,exports){
+},{"./hash":622,"./sha256":627,"inherits":561,"safe-buffer":619}],627:[function(require,module,exports){
 'use strict';
 
 /**
@@ -93639,7 +94047,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256;
 
-},{"./hash":612,"inherits":551,"safe-buffer":609}],618:[function(require,module,exports){
+},{"./hash":622,"inherits":561,"safe-buffer":619}],628:[function(require,module,exports){
 'use strict';
 
 var inherits = require('inherits');
@@ -93700,7 +94108,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384;
 
-},{"./hash":612,"./sha512":619,"inherits":551,"safe-buffer":609}],619:[function(require,module,exports){
+},{"./hash":622,"./sha512":629,"inherits":561,"safe-buffer":619}],629:[function(require,module,exports){
 'use strict';
 
 var inherits = require('inherits');
@@ -94084,7 +94492,7 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512;
 
-},{"./hash":612,"inherits":551,"safe-buffer":609}],620:[function(require,module,exports){
+},{"./hash":622,"inherits":561,"safe-buffer":619}],630:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -94215,7 +94623,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":519,"inherits":551,"readable-stream/lib/_stream_duplex.js":622,"readable-stream/lib/_stream_passthrough.js":623,"readable-stream/lib/_stream_readable.js":624,"readable-stream/lib/_stream_transform.js":625,"readable-stream/lib/_stream_writable.js":626,"readable-stream/lib/internal/streams/end-of-stream.js":630,"readable-stream/lib/internal/streams/pipeline.js":632}],621:[function(require,module,exports){
+},{"events":529,"inherits":561,"readable-stream/lib/_stream_duplex.js":632,"readable-stream/lib/_stream_passthrough.js":633,"readable-stream/lib/_stream_readable.js":634,"readable-stream/lib/_stream_transform.js":635,"readable-stream/lib/_stream_writable.js":636,"readable-stream/lib/internal/streams/end-of-stream.js":640,"readable-stream/lib/internal/streams/pipeline.js":642}],631:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -94344,7 +94752,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],622:[function(require,module,exports){
+},{}],632:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -94473,7 +94881,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":624,"./_stream_writable":626,"_process":588,"inherits":551}],623:[function(require,module,exports){
+},{"./_stream_readable":634,"./_stream_writable":636,"_process":598,"inherits":561}],633:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -94511,7 +94919,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":625,"inherits":551}],624:[function(require,module,exports){
+},{"./_stream_transform":635,"inherits":561}],634:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -95541,7 +95949,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":621,"./_stream_duplex":622,"./internal/streams/async_iterator":627,"./internal/streams/buffer_list":628,"./internal/streams/destroy":629,"./internal/streams/from":631,"./internal/streams/state":633,"./internal/streams/stream":634,"_process":588,"buffer":455,"events":519,"inherits":551,"string_decoder/":635,"util":424}],625:[function(require,module,exports){
+},{"../errors":631,"./_stream_duplex":632,"./internal/streams/async_iterator":637,"./internal/streams/buffer_list":638,"./internal/streams/destroy":639,"./internal/streams/from":641,"./internal/streams/state":643,"./internal/streams/stream":644,"_process":598,"buffer":465,"events":529,"inherits":561,"string_decoder/":645,"util":434}],635:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -95732,7 +96140,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":621,"./_stream_duplex":622,"inherits":551}],626:[function(require,module,exports){
+},{"../errors":631,"./_stream_duplex":632,"inherits":561}],636:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -96376,7 +96784,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":621,"./_stream_duplex":622,"./internal/streams/destroy":629,"./internal/streams/state":633,"./internal/streams/stream":634,"_process":588,"buffer":455,"inherits":551,"util-deprecate":640}],627:[function(require,module,exports){
+},{"../errors":631,"./_stream_duplex":632,"./internal/streams/destroy":639,"./internal/streams/state":643,"./internal/streams/stream":644,"_process":598,"buffer":465,"inherits":561,"util-deprecate":650}],637:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -96559,7 +96967,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 };
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":630,"_process":588}],628:[function(require,module,exports){
+},{"./end-of-stream":640,"_process":598}],638:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -96743,7 +97151,7 @@ module.exports = /*#__PURE__*/function () {
   }]);
   return BufferList;
 }();
-},{"buffer":455,"util":424}],629:[function(require,module,exports){
+},{"buffer":465,"util":434}],639:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -96842,7 +97250,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":588}],630:[function(require,module,exports){
+},{"_process":598}],640:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -96929,12 +97337,12 @@ function eos(stream, opts, callback) {
   };
 }
 module.exports = eos;
-},{"../../../errors":621}],631:[function(require,module,exports){
+},{"../../../errors":631}],641:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],632:[function(require,module,exports){
+},{}],642:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -97021,7 +97429,7 @@ function pipeline() {
   return streams.reduce(pipe);
 }
 module.exports = pipeline;
-},{"../../../errors":621,"./end-of-stream":630}],633:[function(require,module,exports){
+},{"../../../errors":631,"./end-of-stream":640}],643:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -97044,11 +97452,11 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":621}],634:[function(require,module,exports){
-arguments[4][604][0].apply(exports,arguments)
-},{"dup":604,"events":519}],635:[function(require,module,exports){
-arguments[4][606][0].apply(exports,arguments)
-},{"dup":606,"safe-buffer":609}],636:[function(require,module,exports){
+},{"../../../errors":631}],644:[function(require,module,exports){
+arguments[4][614][0].apply(exports,arguments)
+},{"dup":614,"events":529}],645:[function(require,module,exports){
+arguments[4][616][0].apply(exports,arguments)
+},{"dup":616,"safe-buffer":619}],646:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -97127,7 +97535,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":588,"timers":636}],637:[function(require,module,exports){
+},{"process/browser.js":598,"timers":646}],647:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -97238,9 +97646,9 @@ module.exports = function toBuffer(data, encoding) {
 	throw new TypeError('The "data" argument must be a string, an Array, a Buffer, a Uint8Array, or a DataView.');
 };
 
-},{"isarray":638,"safe-buffer":609,"typed-array-buffer":639}],638:[function(require,module,exports){
-arguments[4][557][0].apply(exports,arguments)
-},{"dup":557}],639:[function(require,module,exports){
+},{"isarray":648,"safe-buffer":619,"typed-array-buffer":649}],648:[function(require,module,exports){
+arguments[4][567][0].apply(exports,arguments)
+},{"dup":567}],649:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
@@ -97261,7 +97669,7 @@ module.exports = $typedArrayBuffer || function typedArrayBuffer(x) {
 	return x.buffer;
 };
 
-},{"call-bound":463,"es-errors/type":516,"is-typed-array":556}],640:[function(require,module,exports){
+},{"call-bound":473,"es-errors/type":526,"is-typed-array":566}],650:[function(require,module,exports){
 (function (global){(function (){
 
 /**
@@ -97332,9 +97740,9 @@ function config (name) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],641:[function(require,module,exports){
-arguments[4][417][0].apply(exports,arguments)
-},{"dup":417}],642:[function(require,module,exports){
+},{}],651:[function(require,module,exports){
+arguments[4][427][0].apply(exports,arguments)
+},{"dup":427}],652:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -97670,7 +98078,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":552,"is-generator-function":554,"is-typed-array":556,"which-typed-array":645}],643:[function(require,module,exports){
+},{"is-arguments":562,"is-generator-function":564,"is-typed-array":566,"which-typed-array":655}],653:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -98389,7 +98797,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":641,"./support/types":642,"_process":588,"inherits":551}],644:[function(require,module,exports){
+},{"./support/isBuffer":651,"./support/types":652,"_process":598,"inherits":561}],654:[function(require,module,exports){
 var indexOf = function (xs, item) {
     if (xs.indexOf) return xs.indexOf(item);
     else for (var i = 0; i < xs.length; i++) {
@@ -98540,7 +98948,7 @@ exports.createContext = Script.createContext = function (context) {
     return copy;
 };
 
-},{}],645:[function(require,module,exports){
+},{}],655:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -98661,5 +99069,5 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":419,"call-bind":462,"call-bound":463,"for-each":521,"get-proto":527,"gopd":529,"has-tostringtag/shams":533}]},{},[2])(2)
+},{"available-typed-arrays":429,"call-bind":472,"call-bound":473,"for-each":531,"get-proto":537,"gopd":539,"has-tostringtag/shams":543}]},{},[2])(2)
 });

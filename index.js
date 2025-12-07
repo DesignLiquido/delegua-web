@@ -109,6 +109,10 @@ class DeleguaWeb {
             const chaves = Object.keys(moduloNode);
             for (let i = 0; i < chaves.length; i++) {
                 const funcao = moduloNode[chaves[i]];
+                if (!funcao || typeof funcao !== 'function') {
+                    console.warn(`O componente '${chaves[i]}' do módulo '${moduloDelegua.nome}' não é uma função e será ignorado na importação. Valor resolvido: ${JSON.stringify(funcao)}.`);
+                    continue;
+                }
                 moduloDelegua.componentes[chaves[i]] = new estruturas_1.FuncaoPadrao(funcao.length, funcao);
             }
         }
