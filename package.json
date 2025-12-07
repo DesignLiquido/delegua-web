@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "@designliquido/delegua": "^0.63.0",
-        "@designliquido/delegua-criptografia": "^0.2.0",
+        "@designliquido/delegua-criptografia": "^0.3.2",
         "@designliquido/delegua-estatistica": "^0.1.0",
         "@designliquido/delegua-fisica": "^0.1.0",
         "@designliquido/delegua-matematica": "^0.3.0",

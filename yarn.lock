@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-criptografia@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-criptografia/-/delegua-criptografia-0.2.0.tgz#c6faafc44f1cbc86411c58d9a47fee1faa20bb62"
-  integrity sha512-zc8nNfO50y9pzCegsVrl5UHPmZMXeRoBCcHD1UttNssmay8XIs9KWf7moki/blbQQoYoG2IYI3EILpyEymuSoQ==
+"@designliquido/delegua-criptografia@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-criptografia/-/delegua-criptografia-0.3.2.tgz#50d1bbfa48a979c0cc51a2e8851f8baae1c9b374"
+  integrity sha512-5ZnrymAEKpJRgzYPOS5APPFxg+U1pp3pST546Y+LD6BPfs4Bh4PwsBSrrCaZZ8Ez/cPzodiCRw/Hk7gzNptWkQ==
 
 "@designliquido/delegua-estatistica@^0.1.0":
   version "0.1.0"
