@@ -4363,6 +4363,29 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
+    resolverTipoAcessoIndiceVariavel(expressaoAnterior) {
+        let identificadorAcessado = '';
+        switch (expressaoAnterior.constructor) {
+            case construtos_1.Variavel:
+                identificadorAcessado = expressaoAnterior.simbolo.lexema;
+                break;
+            default:
+                return 'qualquer';
+        }
+        // Primeiro verificar se é acesso a índice de vetor.
+        const tipoIdentificadorCorrespondente = this.pilhaEscopos.obterTipoVariavelPorNome(expressaoAnterior.simbolo.lexema);
+        if (!tipoIdentificadorCorrespondente.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
+            throw this.erro(this.simbolos[this.atual], `Tipo ${tipoIdentificadorCorrespondente} não suporta acesso por índice.`);
+        }
+        let tipoAcesso = 'qualquer';
+        if (tipoIdentificadorCorrespondente.endsWith('[]')) {
+            tipoAcesso = tipoIdentificadorCorrespondente.replace('[]', '');
+        }
+        else {
+            tipoAcesso = 'qualquer';
+        }
+        return tipoAcesso;
+    }
     resolverCadeiaChamadas(expressaoAnterior, tipoAnterior = 'qualquer') {
         if (!this.simbolos[this.atual]) {
             return expressaoAnterior;
@@ -4391,10 +4414,11 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 const acesso = new construtos_1.AcessoMetodoOuPropriedade(this.hashArquivo, expressaoAnterior, nome, tipoInferido);
                 return this.resolverCadeiaChamadas(acesso, tipoInferido);
             case delegua_2.default.COLCHETE_ESQUERDO:
+                const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(expressaoAnterior);
                 this.avancarEDevolverAnterior();
                 const indice = this.expressao();
                 const simboloFechamento = this.consumir(delegua_2.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                const acessoVariavel = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressaoAnterior, indice, simboloFechamento);
+                const acessoVariavel = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressaoAnterior, indice, simboloFechamento, tipoAcesso);
                 return this.resolverCadeiaChamadas(acessoVariavel);
             default:
                 return expressaoAnterior;
@@ -4589,11 +4613,34 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         return expressao;
     }
+    verificacaoOperacoesBinariasIlegais(esquerdo, direito, operador) {
+        if (esquerdo.tipo === 'vetor' || esquerdo.tipo.endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo)) {
+                throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${direito.tipo}.`);
+            }
+        }
+        if (direito.tipo === 'vetor' || direito.tipo.endsWith('[]')) {
+            if (['dicionario', 'dicionário', 'nulo'].includes(esquerdo.tipo)) {
+                throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${esquerdo.tipo}.`);
+            }
+        }
+        if (esquerdo.tipo === 'dicionario' || esquerdo.tipo === 'dicionário') {
+            if (['vetor', 'nulo'].includes(direito.tipo)) {
+                throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${direito.tipo}.`);
+            }
+        }
+        if (direito.tipo === 'dicionario' || direito.tipo === 'dicionário') {
+            if (['vetor', 'nulo'].includes(esquerdo.tipo)) {
+                throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} entre dicionário e ${esquerdo.tipo}.`);
+            }
+        }
+    }
     multiplicar() {
         let expressao = this.exponenciacao();
         while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.DIVISAO, delegua_2.default.DIVISAO_IGUAL, delegua_2.default.DIVISAO_INTEIRA, delegua_2.default.DIVISAO_INTEIRA_IGUAL, delegua_2.default.MODULO, delegua_2.default.MODULO_IGUAL, delegua_2.default.MULTIPLICACAO, delegua_2.default.MULTIPLICACAO_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.exponenciacao();
+            this.verificacaoOperacoesBinariasIlegais(expressao, direito, operador);
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         return expressao;
@@ -4608,7 +4655,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.SUBTRACAO, delegua_2.default.ADICAO, delegua_2.default.MENOS_IGUAL)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.multiplicar();
-            // const tipoInferido = inferirTipoParaBinario(expressao, operador, direito);
+            this.verificacaoOperacoesBinariasIlegais(expressao, direito, operador);
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
         }
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.MAIS_IGUAL)) {
@@ -7034,6 +7081,75 @@ class AvaliadorSintaticoPitugues {
     declaracaoDeVariavel() {
         throw new Error('Método não implementado.');
     }
+    variavelJaDeclarada(nome) {
+        try {
+            this.pilhaEscopos.obterTipoVariavelPorNome(nome);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    declaracaoImplicita() {
+        const identificador = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome de variável.');
+        this.consumir(pitugues_2.default.IGUAL, "Esperado '=' após identificador.");
+        if (this.estaNoFinal()) {
+            throw this.erro(this.simboloAnterior(), 'Esperado valor após o símbolo de igual.');
+        }
+        const valor = this.expressao();
+        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(identificador.lexema, tipo));
+        return new declaracoes_1.Var(identificador, valor, tipo);
+    }
+    temPadraoMultiplaAtribuicao() {
+        // Verifica padrão: IDENTIFICADOR, VIRGULA, IDENTIFICADOR, ..., IGUAL
+        let pos = this.atual;
+        let contadorIdentificadores = 0;
+        while (pos < this.simbolos.length) {
+            if (this.simbolos[pos].tipo === pitugues_2.default.IDENTIFICADOR) {
+                contadorIdentificadores++;
+                pos++;
+                if (pos >= this.simbolos.length)
+                    return false;
+                // Se encontrou =, verifica se tinha mais de 1 identificador
+                if (this.simbolos[pos].tipo === pitugues_2.default.IGUAL) {
+                    return contadorIdentificadores > 1;
+                }
+                // Se não é vírgula, não é padrão múltiplo
+                if (this.simbolos[pos].tipo !== pitugues_2.default.VIRGULA) {
+                    return false;
+                }
+                pos++;
+                continue;
+            }
+            break;
+        }
+        return false;
+    }
+    temPadraoVarComoPalavraChave() {
+        // Verifica padrão: var identificador = ...
+        var _a;
+        if (this.simbolos[this.atual].lexema !== 'var') {
+            return false;
+        }
+        // Exemplos permitidos: var = 10 | var, a = 10, 20
+        if (((_a = this.simbolos[this.atual + 1]) === null || _a === void 0 ? void 0 : _a.tipo) !== pitugues_2.default.IDENTIFICADOR) {
+            return false;
+        }
+        let pos = this.atual + 1;
+        while (pos < this.simbolos.length) {
+            if (this.simbolos[pos].tipo === pitugues_2.default.IGUAL) {
+                return true; // Encontrou padrão var identificador = ...
+            }
+            // Se encontrou algo que não seja IDENTIFICADOR ou VIRGULA, não é o padrão
+            if (this.simbolos[pos].tipo !== pitugues_2.default.IDENTIFICADOR &&
+                this.simbolos[pos].tipo !== pitugues_2.default.VIRGULA) {
+                return false;
+            }
+            pos++;
+        }
+        return false;
+    }
     declaracaoDeVariaveis() {
         const identificadores = [];
         let retorno = [];
@@ -7041,14 +7157,7 @@ class AvaliadorSintaticoPitugues {
         do {
             identificadores.push(this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome de variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VIRGULA));
-        if (!this.verificarSeSimboloAtualEIgualA(pitugues_2.default.IGUAL)) {
-            // Inicialização de variáveis sem valor.
-            for (let [indice, identificador] of identificadores.entries()) {
-                retorno.push(new declaracoes_1.Var(identificador, null));
-            }
-            this.verificarSeSimboloAtualEIgualA(pitugues_2.default.PONTO_E_VIRGULA);
-            return retorno;
-        }
+        this.consumir(pitugues_2.default.IGUAL, 'Esperado o símbolo igual(=) após identificador.');
         const inicializadores = [];
         do {
             inicializadores.push(this.expressao());
@@ -7816,7 +7925,9 @@ class AvaliadorSintaticoPitugues {
         const possivelDocumentacao = this.declaracaoTextoDeDocumentacao();
         const metodos = [];
         const propriedades = [];
+        const indentacaoLinha = this.localizacoes[this.simboloAtual().linha].espacosIndentacao;
         while (!this.estaNoFinal() &&
+            this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
             this.verificarSeSimboloAtualEIgualA(pitugues_2.default.CONSTRUTOR, pitugues_2.default.FUNCAO, pitugues_2.default.FUNÇÃO, pitugues_2.default.IDENTIFICADOR)) {
             const simboloAnterior = this.simbolos[this.atual - 1];
             if (simboloAnterior.tipo === pitugues_2.default.IDENTIFICADOR) {
@@ -7893,6 +8004,25 @@ class AvaliadorSintaticoPitugues {
         }
     }
     resolverDeclaracao() {
+        var _a;
+        // Detecção de declaração implícita
+        if (this.simbolos[this.atual].tipo === pitugues_2.default.IDENTIFICADOR) {
+            // Detecta e bloqueia "var x = 10"
+            if (this.temPadraoVarComoPalavraChave()) {
+                throw this.erro(this.simbolos[this.atual], 'Palavra "var" não pode ser usada como palavra-chave para declaração. Use declarações implícitas: "x = 10" em vez de "var x = 10".');
+            }
+            // Verifica se é múltipla atribuição (a, b, c = 1, 2, 3)
+            if (this.temPadraoMultiplaAtribuicao()) {
+                return this.declaracaoDeVariaveis();
+            }
+            // Verifica se é atribuição simples (a = 1)
+            if (((_a = this.simbolos[this.atual + 1]) === null || _a === void 0 ? void 0 : _a.tipo) === pitugues_2.default.IGUAL) {
+                const nomeVariavel = this.simbolos[this.atual].lexema;
+                if (!this.variavelJaDeclarada(nomeVariavel)) {
+                    return this.declaracaoImplicita();
+                }
+            }
+        }
         switch (this.simbolos[this.atual].tipo) {
             case pitugues_2.default.COMENTARIO:
                 return this.declaracaoComentario();
@@ -7937,9 +8067,6 @@ class AvaliadorSintaticoPitugues {
                 return this.declaracaoTente();
             case pitugues_2.default.TEXTO_MULTILINHAS:
                 return this.declaracaoTextoDeDocumentacao();
-            case pitugues_2.default.VARIAVEL:
-                this.avancarEDevolverAnterior();
-                return this.declaracaoDeVariaveis();
         }
         return this.declaracaoExpressao();
     }
@@ -12274,12 +12401,14 @@ exports.AcessoIndiceVariavel = void 0;
  * vetores e dicionários.
  */
 class AcessoIndiceVariavel {
-    constructor(hashArquivo, entidadeChamada, indice, simboloFechamento) {
+    constructor(hashArquivo, entidadeChamada, indice, simboloFechamento, tipo = 'qualquer') {
+        this.tipo = 'qualquer';
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;
+        this.tipo = tipo;
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoAcessoIndiceVariavel(this);
@@ -12562,20 +12691,21 @@ class Binario {
         this.direita = direita;
         this.tipo = this.deduzirTipo();
     }
+    /**
+     * Dedução otimista de tipos para expressões binárias.
+     * @returns O tipo deduzido.
+     */
     deduzirTipo() {
         if (['logico', 'lógico'].includes(this.esquerda.tipo) ||
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
         }
-        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
-            return 'texto';
-        }
-        if (this.esquerda.tipo === 'inteiro' && this.direita.tipo === 'inteiro') {
-            return 'inteiro';
-        }
         if (['numero', 'número'].includes(this.esquerda.tipo) ||
             ['numero', 'número'].includes(this.direita.tipo)) {
             return 'número';
+        }
+        if (this.esquerda.tipo === this.direita.tipo) {
+            return this.esquerda.tipo;
         }
         return 'qualquer';
     }
@@ -13086,6 +13216,7 @@ const geracao_identificadores_1 = require("../geracao-identificadores");
  */
 class Leia {
     constructor(simbolo, argumentos) {
+        this.tipo = 'texto';
         this.linha = simbolo.linha;
         this.hashArquivo = simbolo.hashArquivo;
         this.simbolo = simbolo;
@@ -13768,11 +13899,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
 class Unario {
     constructor(hashArquivo, operador, operando, incidenciaOperador = 'ANTES') {
+        this.tipo = 'qualquer';
         this.linha = operador.linha;
         this.hashArquivo = hashArquivo;
         this.operador = operador;
         this.operando = operando;
         this.incidenciaOperador = incidenciaOperador;
+        this.tipo = operando.tipo;
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoUnaria(this);
@@ -15475,7 +15608,7 @@ class FormatadorPitugues {
         this.códigoFormatado += `'''${declaracao.conteudo}'''`;
     }
     async visitarDeclaracaoVar(declaração) {
-        this.códigoFormatado += this.indentar() + `var ${declaração.simbolo.lexema} = `;
+        this.códigoFormatado += this.indentar() + `${declaração.simbolo.lexema} = `;
         if (declaração.inicializador) {
             this.códigoFormatado += await declaração.inicializador.aceitar(this);
         }
@@ -22031,9 +22164,6 @@ exports.palavrasReservadasPitugues = {
     tendo: pitugues_1.default.TENDO,
     tente: pitugues_1.default.TENTE,
     tipo: pitugues_1.default.TIPO,
-    var: pitugues_1.default.VARIAVEL,
-    variavel: pitugues_1.default.VARIAVEL,
-    variável: pitugues_1.default.VARIAVEL,
     verdadeiro: pitugues_1.default.VERDADEIRO,
 };
 exports.palavrasReservadasMicroGramatica = {

@@ -1278,12 +1278,14 @@ exports.AcessoIndiceVariavel = void 0;
  * vetores e dicionários.
  */
 class AcessoIndiceVariavel {
-    constructor(hashArquivo, entidadeChamada, indice, simboloFechamento) {
+    constructor(hashArquivo, entidadeChamada, indice, simboloFechamento, tipo = 'qualquer') {
+        this.tipo = 'qualquer';
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.indice = indice;
         this.simboloFechamento = simboloFechamento;
+        this.tipo = tipo;
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoAcessoIndiceVariavel(this);
@@ -1566,20 +1568,21 @@ class Binario {
         this.direita = direita;
         this.tipo = this.deduzirTipo();
     }
+    /**
+     * Dedução otimista de tipos para expressões binárias.
+     * @returns O tipo deduzido.
+     */
     deduzirTipo() {
         if (['logico', 'lógico'].includes(this.esquerda.tipo) ||
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
         }
-        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
-            return 'texto';
-        }
-        if (this.esquerda.tipo === 'inteiro' && this.direita.tipo === 'inteiro') {
-            return 'inteiro';
-        }
         if (['numero', 'número'].includes(this.esquerda.tipo) ||
             ['numero', 'número'].includes(this.direita.tipo)) {
             return 'número';
+        }
+        if (this.esquerda.tipo === this.direita.tipo) {
+            return this.esquerda.tipo;
         }
         return 'qualquer';
     }
@@ -2090,6 +2093,7 @@ const geracao_identificadores_1 = require("../geracao-identificadores");
  */
 class Leia {
     constructor(simbolo, argumentos) {
+        this.tipo = 'texto';
         this.linha = simbolo.linha;
         this.hashArquivo = simbolo.hashArquivo;
         this.simbolo = simbolo;
@@ -2772,11 +2776,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
 class Unario {
     constructor(hashArquivo, operador, operando, incidenciaOperador = 'ANTES') {
+        this.tipo = 'qualquer';
         this.linha = operador.linha;
         this.hashArquivo = hashArquivo;
         this.operador = operador;
         this.operando = operando;
         this.incidenciaOperador = incidenciaOperador;
+        this.tipo = operando.tipo;
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoUnaria(this);
