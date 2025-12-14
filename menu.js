@@ -1,6 +1,6 @@
-function openNav() {
-    document.getElementById("mySidenav").style.width = "100%";
+function abrirMenu() {
+    document.getElementById("menuOpcoes").style.width = "100%";
 }
-function closeNav() {
-    document.getElementById("mySidenav").style.width = "0";
+function fecharMenu() {
+    document.getElementById("menuOpcoes").style.width = "0";
 }
