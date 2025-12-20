@@ -2898,7 +2898,7 @@ const declaracoes_1 = require("../declaracoes");
 const interfaces_1 = require("../interfaces");
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
- * sintáticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
+ * semânticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 class AnalisadorSemanticoBase {
@@ -2949,11 +2949,15 @@ class AnalisadorSemanticoBase {
             return;
         }
         if (expressao instanceof construtos_1.Chamada) {
-            // Mark function name if it's a variable
             if (expressao.entidadeChamada instanceof construtos_1.Variavel) {
                 this.gerenciadorEscopos.marcarComoUsada(expressao.entidadeChamada.simbolo.lexema);
             }
-            // Mark all arguments
+            if (expressao.entidadeChamada instanceof construtos_1.AcessoMetodo) {
+                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
+            }
+            if (expressao.entidadeChamada instanceof construtos_1.AcessoMetodoOuPropriedade) {
+                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
+            }
             for (const arg of expressao.argumentos) {
                 this.marcarVariaveisUsadasEmExpressao(arg);
             }
@@ -3381,6 +3385,16 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             }
         }
         switch (expressao.entidadeChamada.constructor) {
+            case construtos_1.AcessoMetodo:
+                // Marca o objeto como usado quando seus métodos são chamados (ex: thor.corre())
+                const entidadeChamadaAcessoMetodo = expressao.entidadeChamada;
+                this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodo.objeto);
+                break;
+            case construtos_1.AcessoMetodoOuPropriedade:
+                // Marca o objeto como usado quando seus métodos/propriedades são acessados (ex: thor.corre())
+                const entidadeChamadaAcessoMetodoOuPropriedade = expressao.entidadeChamada;
+                this.marcarVariaveisUsadasEmExpressao(entidadeChamadaAcessoMetodoOuPropriedade.objeto);
+                break;
             case construtos_1.ArgumentoReferenciaFuncao:
                 const entidadeChamadaArgumentoReferenciaFuncao = expressao.entidadeChamada;
                 this.visitarChamadaPorArgumentoReferenciaFuncao(entidadeChamadaArgumentoReferenciaFuncao, expressao.argumentos);
@@ -4038,13 +4052,13 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             }, `Variável '${variavel.nome}' foi declarada mas nunca usada.`);
         }
     }
-    analisar(declaracoes) {
+    async analisar(declaracoes) {
         this.gerenciadorEscopos = new gerenciador_escopos_1.GerenciadorEscopos();
         this.atual = 0;
         this.diagnosticos = [];
         try {
             while (this.atual < declaracoes.length) {
-                declaracoes[this.atual].aceitar(this);
+                await declaracoes[this.atual].aceitar(this);
                 this.atual++;
             }
         }
@@ -13839,6 +13853,10 @@ class Binario {
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
         }
+        if (this.esquerda.tipo === 'texto' ||
+            this.direita.tipo === 'texto') {
+            return 'texto';
+        }
         if (['numero', 'número'].includes(this.esquerda.tipo) ||
             ['numero', 'número'].includes(this.direita.tipo)) {
             return 'número';
@@ -17710,6 +17728,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./analisador-semantico"), exports);
 __exportStar(require("./avaliador-sintatico"), exports);
 __exportStar(require("./construtos"), exports);
 __exportStar(require("./declaracoes"), exports);
@@ -17721,7 +17740,7 @@ __exportStar(require("./interpretador"), exports);
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./tradutores"), exports);
 
-},{"./avaliador-sintatico":56,"./construtos":96,"./declaracoes":143,"./estilizador":157,"./formatadores":165,"./geracao-identificadores":166,"./interfaces":176,"./interpretador":210,"./lexador":230,"./tradutores":252}],168:[function(require,module,exports){
+},{"./analisador-semantico":40,"./avaliador-sintatico":56,"./construtos":96,"./declaracoes":143,"./estilizador":157,"./formatadores":165,"./geracao-identificadores":166,"./interfaces":176,"./interpretador":210,"./lexador":230,"./tradutores":252}],168:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -19540,12 +19559,24 @@ class InterpretadorBase {
                     // texto n vezes, sendo n o valor do outro.
                     if (tipoEsquerdo === delegua_2.default.TEXTO &&
                         tipoDireito === delegua_2.default.TEXTO) {
-                        return Number(valorEsquerdo) * Number(valorDireito);
+                        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.operador, 'Não é possível multiplicar dois textos.', expressao.linha);
                     }
-                    if (tipoEsquerdo === delegua_2.default.TEXTO) {
-                        return valorEsquerdo.repeat(Number(valorDireito));
+                    const valorTexto = tipoEsquerdo === delegua_2.default.TEXTO ? valorEsquerdo : valorDireito;
+                    const valorQuantidade = tipoEsquerdo === delegua_2.default.TEXTO ? valorDireito : valorEsquerdo;
+                    if (typeof valorQuantidade !== 'number') {
+                        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.operador, 'Para multiplicar um texto, o outro operando deve ser um número.', expressao.linha);
                     }
-                    return valorDireito.repeat(Number(valorEsquerdo));
+                    const textoParaNumero = Number(valorTexto);
+                    if (!isNaN(textoParaNumero)) {
+                        return textoParaNumero * valorQuantidade;
+                    }
+                    if (!Number.isInteger(valorQuantidade)) {
+                        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.operador, 'A multiplicação de texto exige um número inteiro.', expressao.linha);
+                    }
+                    if (valorQuantidade < 0) {
+                        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.operador, 'Não é possível multiplicar texto por número negativo.', expressao.linha);
+                    }
+                    return valorTexto.repeat(valorQuantidade);
                 }
                 return Number(valorEsquerdo) * Number(valorDireito);
             case delegua_1.default.MODULO:
