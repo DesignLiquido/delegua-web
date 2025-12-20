@@ -114,7 +114,7 @@ const executarCodigo = async function () {
             return mapearErros(retornoAvaliadorSintatico.erros);
         }
 
-        const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+        const analisadorSemantico = await deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
         if (errosAnaliseSemantica?.length) {
@@ -193,7 +193,7 @@ const compartilharCodigo = function () {
     }
 };
 
-const analisarCodigo = function () {
+const analisarCodigo = async function () {
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
 
     const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
@@ -202,7 +202,7 @@ const analisarCodigo = function () {
         return mapearErros(retornoAvaliadorSintatico.erros);
     }
 
-    const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+    const analisadorSemantico = await deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
     const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
 
     mapearAvisos(errosAnaliseSemantica);
