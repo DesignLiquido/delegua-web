@@ -103,7 +103,7 @@ const executarCodigo = function () {
             if (retornoAvaliadorSintatico.erros.length > 0) {
                 return mapearErros(retornoAvaliadorSintatico.erros);
             }
-            const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+            const analisadorSemantico = yield deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
             const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
             if (errosAnaliseSemantica === null || errosAnaliseSemantica === void 0 ? void 0 : errosAnaliseSemantica.length) {
                 mapearAvisos(errosAnaliseSemantica);
@@ -172,15 +172,17 @@ const compartilharCodigo = function () {
     }
 };
 const analisarCodigo = function () {
-    const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
-    const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
-    if (retornoAvaliadorSintatico.erros.length > 0) {
-        return mapearErros(retornoAvaliadorSintatico.erros);
-    }
-    const analisadorSemantico = deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
-    const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
-    mapearAvisos(errosAnaliseSemantica);
+    return __awaiter(this, void 0, void 0, function* () {
+        const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+        const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+        const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+        if (retornoAvaliadorSintatico.erros.length > 0) {
+            return mapearErros(retornoAvaliadorSintatico.erros);
+        }
+        const analisadorSemantico = yield deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
+        const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
+        mapearAvisos(errosAnaliseSemantica);
+    });
 };
 function definirLinguagemDelegua() {
     return {
