@@ -2949,18 +2949,16 @@ class AnalisadorSemanticoBase {
             return;
         }
         if (expressao instanceof construtos_1.Chamada) {
-            if (expressao.entidadeChamada instanceof construtos_1.Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(expressao.entidadeChamada.simbolo.lexema);
-            }
-            if (expressao.entidadeChamada instanceof construtos_1.AcessoMetodo) {
-                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
-            }
-            if (expressao.entidadeChamada instanceof construtos_1.AcessoMetodoOuPropriedade) {
-                this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada.objeto);
-            }
+            this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
             for (const arg of expressao.argumentos) {
                 this.marcarVariaveisUsadasEmExpressao(arg);
             }
+            return;
+        }
+        if (expressao instanceof construtos_1.AcessoMetodo ||
+            expressao instanceof construtos_1.AcessoMetodoOuPropriedade ||
+            expressao instanceof construtos_1.AcessoPropriedade) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
             return;
         }
         if (expressao instanceof construtos_1.Logico) {
@@ -3552,6 +3550,27 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         // Verifica a condição (incluindo validação de tipos para operadores lógicos)
         return this.verificarCondicao(declaracao.condicao);
     }
+    /**
+     * Verifica uma expressão recursivamente, incluindo operações binárias
+     */
+    verificarExpressao(expressao) {
+        if (expressao instanceof construtos_1.Agrupamento) {
+            this.verificarExpressao(expressao.expressao);
+            return;
+        }
+        if (expressao instanceof construtos_1.Binario) {
+            this.verificarBinario(expressao);
+            return;
+        }
+        if (expressao instanceof construtos_1.Logico) {
+            this.verificarLogico(expressao);
+            return;
+        }
+        if (expressao instanceof construtos_1.Chamada) {
+            this.verificarChamada(expressao);
+            return;
+        }
+    }
     verificarCondicao(condicao) {
         if (condicao instanceof construtos_1.Agrupamento) {
             return this.verificarCondicao(condicao.expressao);
@@ -3621,9 +3640,34 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     verificarTiposOperandos(binario) {
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
+        const tiposNumericos = ['inteiro', 'número', 'real'];
+        // Verifica se algum operando é do tipo texto em operação aritmética
+        if (tipoEsquerda === 'texto' || tipoDireita === 'texto') {
+            // Verifica se é uma operação que precisa de números (não concatenação)
+            const operadoresAritmeticos = ['SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
+            if (operadoresAritmeticos.includes(binario.operador.tipo)) {
+                const ladoProblematico = tipoEsquerda === 'texto' ? 'esquerdo' : 'direito';
+                const expressaoProblematica = tipoEsquerda === 'texto' ? binario.esquerda : binario.direita;
+                // Verifica se a expressão problemática é um Leia ou uma variável inicializada com Leia
+                let mensagemAdicional = '';
+                if (expressaoProblematica instanceof construtos_1.Leia) {
+                    mensagemAdicional = " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                }
+                else if (expressaoProblematica instanceof construtos_1.Variavel) {
+                    const variavel = this.gerenciadorEscopos.buscar(expressaoProblematica.simbolo.lexema);
+                    if (variavel && variavel.valor instanceof construtos_1.Leia) {
+                        mensagemAdicional = " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                    }
+                    else {
+                        mensagemAdicional = " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
+                    }
+                }
+                this.erro(binario.operador, `Operação aritmética com tipo incompatível: operando ${ladoProblematico} é do tipo 'texto', mas a operação requer número.${mensagemAdicional}`);
+                return;
+            }
+        }
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
-            const tiposNumericos = ['inteiro', 'número', 'real'];
             const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
                 tiposNumericos.includes(tipoDireita);
             if (!ambosNumericos) {
@@ -3710,7 +3754,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
     }
     /**
-     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, ou Binario)
+     * Obtém o tipo de uma expressão (pode ser Literal, Variavel, Binario, Leia, etc)
      */
     obterTipoExpressao(expressao) {
         if (expressao instanceof construtos_1.Literal) {
@@ -3730,6 +3774,10 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         if (expressao instanceof construtos_1.Agrupamento) {
             return this.obterTipoExpressao(expressao.expressao);
+        }
+        if (expressao instanceof construtos_1.Leia) {
+            // leia() sempre retorna texto
+            return 'texto';
         }
         return null;
     }
@@ -3786,8 +3834,17 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         switch (chamada.entidadeChamada.constructor) {
             case construtos_1.Variavel:
                 let entidadeChamadaVariavel = chamada.entidadeChamada;
-                if (!this.funcoes[entidadeChamadaVariavel.simbolo.lexema]) {
-                    this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`);
+                const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
+                // Lista de funções built-in que não precisam ser declaradas
+                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+                // Classes/construtores geralmente começam com letra maiúscula
+                const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
+                // Só verifica se a função existe se não for built-in e não parecer ser classe
+                if (!funcoesBuiltIn.includes(nomeFuncao) &&
+                    !pareceSerClasse &&
+                    !this.funcoes[nomeFuncao] &&
+                    !this.gerenciadorEscopos.buscar(nomeFuncao)) {
+                    this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${nomeFuncao}' não existe.`);
                 }
                 break;
         }
@@ -3890,6 +3947,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.verificarTipoAtribuido(declaracao);
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            // Verifica operações binárias no inicializador
+            this.verificarExpressao(declaracao.inicializador);
         }
         const constanteCorrespondente = this.gerenciadorEscopos.buscarNoEscopoAtual(declaracao.simbolo.lexema);
         if (constanteCorrespondente) {
@@ -3913,6 +3972,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.verificarTipoAtribuido(declaracao);
         if (declaracao.inicializador) {
             this.marcarVariaveisUsadasEmExpressao(declaracao.inicializador);
+            // Verifica operações binárias no inicializador
+            this.verificarExpressao(declaracao.inicializador);
             switch (declaracao.inicializador.constructor) {
                 case construtos_1.FuncaoConstruto:
                     const funcaoConstruto = declaracao.inicializador;
@@ -5182,7 +5243,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         return construtoChamada;
     }
     unario() {
-        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.NAO, delegua_2.default.NEGACAO, delegua_2.default.SUBTRACAO, delegua_2.default.BIT_NOT, delegua_2.default.INCREMENTAR, delegua_2.default.DECREMENTAR)) {
+        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.NAO, delegua_2.default.NEGACAO, delegua_2.default.ADICAO, delegua_2.default.SUBTRACAO, delegua_2.default.BIT_NOT, delegua_2.default.INCREMENTAR, delegua_2.default.DECREMENTAR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
             return new construtos_1.Unario(this.hashArquivo, operador, direito, 'ANTES');
@@ -5203,7 +5264,32 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         return expressao;
     }
+    /**
+     * Verifica recursivamente se um construto é ou contém uma operação unária em um vetor.
+     * Isso bloqueia padrões de ofuscação como !![] usado em operações aritméticas.
+     */
+    verificarOperacaoUnariaEmVetor(construto) {
+        if (construto instanceof construtos_1.Unario) {
+            const operando = construto.operando;
+            // Verifica se o operando é um vetor
+            if (operando instanceof construtos_1.Vetor || operando.tipo === 'vetor' || operando.tipo.endsWith('[]')) {
+                return true;
+            }
+            // Verifica recursivamente para casos como !![]
+            if (operando instanceof construtos_1.Unario) {
+                return this.verificarOperacaoUnariaEmVetor(operando);
+            }
+        }
+        return false;
+    }
     verificacaoOperacoesBinariasIlegais(esquerdo, direito, operador) {
+        // Bloquear operações aritméticas com operações unárias em vetores (padrão de ofuscação tipo !![] * 1)
+        if (this.verificarOperacaoUnariaEmVetor(esquerdo)) {
+            throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} com expressão unária aplicada a vetor.`);
+        }
+        if (this.verificarOperacaoUnariaEmVetor(direito)) {
+            throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} com expressão unária aplicada a vetor.`);
+        }
         if (esquerdo.tipo === 'vetor' || esquerdo.tipo.endsWith('[]')) {
             if (['dicionario', 'dicionário', 'nulo'].includes(direito.tipo)) {
                 throw this.erro(operador, `Operação inválida: não é possível realizar operação ${operador.lexema} entre vetor e ${direito.tipo}.`);
@@ -12804,7 +12890,41 @@ exports.default = {
 },{"../informacao-elemento-sintatico":169}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.implementacaoParticao = void 0;
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
+const construtos_1 = require("../construtos");
+const excecoes_1 = require("../excecoes");
+const implementacaoParticao = (interpretador, nomePrimitiva, texto, separador, ...args) => {
+    if (args.length > 0) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" aceita apenas um argumento.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (typeof texto !== 'string') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" só pode ser chamada em textos.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (separador === undefined) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" requer um argumento separador.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (typeof separador !== 'string') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, 'O separador deve ser do tipo texto.', interpretador.linhaDeclaracaoAtual));
+    }
+    if (separador === '') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, 'O separador não pode ser uma string vazia.', interpretador.linhaDeclaracaoAtual));
+    }
+    const indice = texto.indexOf(separador);
+    let partes;
+    if (indice === -1) {
+        partes = [texto, '', ''];
+    }
+    else {
+        const antes = texto.substring(0, indice);
+        const depois = texto.substring(indice + separador.length);
+        partes = [antes, separador, depois];
+    }
+    const elementos = partes.map(p => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
+    const tupla = new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos);
+    return Promise.resolve(tupla);
+};
+exports.implementacaoParticao = implementacaoParticao;
 exports.default = {
     aparar: {
         tipoRetorno: 'texto',
@@ -12979,6 +13099,30 @@ exports.default = {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
     },
+    particao: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('separador', 'texto', true, [], 'O separador usado para partir o texto.'),
+        ],
+        implementacao: exports.implementacaoParticao,
+        assinaturaFormato: 'texto.particao(separador: texto)',
+        documentacao: '# `texto.particao(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.particao(" ")',
+    },
+    partição: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('separador', 'texto', true, [], 'O separador usado para partir o texto.'),
+        ],
+        implementacao: exports.implementacaoParticao,
+        assinaturaFormato: 'texto.partição(separador: texto)',
+        documentacao: '# `texto.partição(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.partição(" ")',
+    },
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
@@ -13073,7 +13217,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":169}],66:[function(require,module,exports){
+},{"../construtos":96,"../excecoes":162,"../informacao-elemento-sintatico":169}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -19377,6 +19521,9 @@ class InterpretadorBase {
         const operando = await this.avaliar(expressao.operando);
         let valor = this.resolverValor(operando);
         switch (expressao.operador.tipo) {
+            case delegua_1.default.ADICAO:
+                this.verificarOperandoNumero(expressao.operador, valor);
+                return +valor;
             case delegua_1.default.SUBTRACAO:
                 this.verificarOperandoNumero(expressao.operador, valor);
                 return -valor;

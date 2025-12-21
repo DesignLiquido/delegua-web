@@ -509,7 +509,7 @@ exports.default = {
     }
 };
 
-},{"../construtos":40,"../informacao-elemento-sintatico":70}],8:[function(require,module,exports){
+},{"../construtos":40,"../informacao-elemento-sintatico":72}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -594,10 +594,44 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":70}],9:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":72}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.implementacaoParticao = void 0;
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
+const construtos_1 = require("../construtos");
+const excecoes_1 = require("../excecoes");
+const implementacaoParticao = (interpretador, nomePrimitiva, texto, separador, ...args) => {
+    if (args.length > 0) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" aceita apenas um argumento.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (typeof texto !== 'string') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" só pode ser chamada em textos.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (separador === undefined) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "${nomePrimitiva}" requer um argumento separador.`, interpretador.linhaDeclaracaoAtual));
+    }
+    if (typeof separador !== 'string') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, 'O separador deve ser do tipo texto.', interpretador.linhaDeclaracaoAtual));
+    }
+    if (separador === '') {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, 'O separador não pode ser uma string vazia.', interpretador.linhaDeclaracaoAtual));
+    }
+    const indice = texto.indexOf(separador);
+    let partes;
+    if (indice === -1) {
+        partes = [texto, '', ''];
+    }
+    else {
+        const antes = texto.substring(0, indice);
+        const depois = texto.substring(indice + separador.length);
+        partes = [antes, separador, depois];
+    }
+    const elementos = partes.map(p => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
+    const tupla = new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos);
+    return Promise.resolve(tupla);
+};
+exports.implementacaoParticao = implementacaoParticao;
 exports.default = {
     aparar: {
         tipoRetorno: 'texto',
@@ -772,6 +806,30 @@ exports.default = {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.minusculo()',
     },
+    particao: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('separador', 'texto', true, [], 'O separador usado para partir o texto.'),
+        ],
+        implementacao: exports.implementacaoParticao,
+        assinaturaFormato: 'texto.particao(separador: texto)',
+        documentacao: '# `texto.particao(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.particao(" ")',
+    },
+    partição: {
+        tipoRetorno: 'tupla',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('separador', 'texto', true, [], 'O separador usado para partir o texto.'),
+        ],
+        implementacao: exports.implementacaoParticao,
+        assinaturaFormato: 'texto.partição(separador: texto)',
+        documentacao: '# `texto.partição(separador)` \n \n' +
+            'Divide o texto na primeira ocorrência do separador e retorna uma tupla com: ' +
+            'o que vem antes, o separador e o que vem depois.',
+        exemploCodigo: 'texto.partição(" ")',
+    },
     substituir: {
         tipoRetorno: 'texto',
         argumentos: [
@@ -866,7 +924,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":70}],10:[function(require,module,exports){
+},{"../construtos":40,"../excecoes":70,"../informacao-elemento-sintatico":72}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -1241,7 +1299,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":70}],11:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":72}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -1703,7 +1761,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":69}],25:[function(require,module,exports){
+},{"../geracao-identificadores":71}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -2188,7 +2246,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":69}],43:[function(require,module,exports){
+},{"../geracao-identificadores":71}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -2954,6 +3012,40 @@ exports.Vetor = Vetor;
 },{}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErroEmTempoDeExecucao = void 0;
+class ErroEmTempoDeExecucao extends Error {
+    constructor(simbolo, mensagem, linha) {
+        super(mensagem);
+        this.simbolo = simbolo;
+        this.mensagem = mensagem;
+        this.linha = linha;
+        Object.setPrototypeOf(this, ErroEmTempoDeExecucao.prototype);
+    }
+}
+exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
+
+},{}],70:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./erro-em-tempo-de-execucao"), exports);
+
+},{"./erro-em-tempo-de-execucao":69}],71:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
 exports.uuidv4 = uuidv4;
 /**
@@ -2995,7 +3087,7 @@ function uuidv4() {
     });
 }
 
-},{}],70:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
