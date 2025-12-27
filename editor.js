@@ -70,26 +70,28 @@ const mapearAvisos = function (avisos) {
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _avisos);
 };
 const executarTradutor = function () {
-    const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
-    //ts-ignore
-    const linguagem = document.querySelector("#linguagem").value.toLowerCase();
-    const funcoes = {
-        "python": { tradutor: deleguaWeb.tradutorPython, linguagem: "python" },
-        "javascript": { tradutor: deleguaWeb.tradutorJavascript, linguagem: "javascript" },
-        // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
-    };
-    if (codigo[0]) {
-        const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
-        const funcao = funcoes[linguagem];
-        const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
-        if (retornoTradutor) {
-            Monaco.editor.create(document.getElementById("resultadoEditor"), {
-                value: retornoTradutor,
-                language: funcao.linguagem
-            });
+    return __awaiter(this, void 0, void 0, function* () {
+        const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+        //ts-ignore
+        const linguagem = document.querySelector("#linguagem").value.toLowerCase();
+        const funcoes = {
+            "python": { tradutor: deleguaWeb.tradutorPython, linguagem: "python" },
+            "javascript": { tradutor: deleguaWeb.tradutorJavascript, linguagem: "javascript" },
+            // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
+        };
+        if (codigo[0]) {
+            const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
+            const retornoAvaliadorSintatico = yield deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+            const funcao = funcoes[linguagem];
+            const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
+            if (retornoTradutor) {
+                Monaco.editor.create(document.getElementById("resultadoEditor"), {
+                    value: retornoTradutor,
+                    language: funcao.linguagem
+                });
+            }
         }
-    }
+    });
 };
 const executarCodigo = function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -99,7 +101,7 @@ const executarCodigo = function () {
             const codigo = modelo.getValue().split("\n");
             Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', []);
             const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
-            const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+            const retornoAvaliadorSintatico = yield deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
             if (retornoAvaliadorSintatico.erros.length > 0) {
                 return mapearErros(retornoAvaliadorSintatico.erros);
             }
@@ -175,7 +177,7 @@ const analisarCodigo = function () {
     return __awaiter(this, void 0, void 0, function* () {
         const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
         const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
-        const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+        const retornoAvaliadorSintatico = yield deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
         if (retornoAvaliadorSintatico.erros.length > 0) {
             return mapearErros(retornoAvaliadorSintatico.erros);
         }
