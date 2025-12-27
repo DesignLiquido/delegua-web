@@ -72,7 +72,7 @@ const mapearAvisos = function (avisos: any[]) {
     Monaco.editor.setModelMarkers(editor.getModel(), 'delegua', _avisos);
 }
 
-const executarTradutor = function () {
+const executarTradutor = async function () {
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n")
 
     //ts-ignore
@@ -86,7 +86,7 @@ const executarTradutor = function () {
     if (codigo[0]) {
         const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
-            deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+            await deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
 
         const funcao = funcoes[linguagem]
         const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
@@ -109,7 +109,7 @@ const executarCodigo = async function () {
 
         const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico =
-            deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+            await deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
         if (retornoAvaliadorSintatico.erros.length > 0) {
             return mapearErros(retornoAvaliadorSintatico.erros);
         }
@@ -197,7 +197,7 @@ const analisarCodigo = async function () {
     const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
 
     const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
-    const retornoAvaliadorSintatico = deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+    const retornoAvaliadorSintatico = await deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
     if (retornoAvaliadorSintatico.erros.length > 0) {
         return mapearErros(retornoAvaliadorSintatico.erros);
     }
