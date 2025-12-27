@@ -509,7 +509,7 @@ exports.default = {
     }
 };
 
-},{"../construtos":40,"../informacao-elemento-sintatico":72}],8:[function(require,module,exports){
+},{"../construtos":40,"../informacao-elemento-sintatico":73}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -594,7 +594,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":72}],9:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":73}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implementacaoParticao = void 0;
@@ -924,10 +924,24 @@ exports.default = {
     },
 };
 
-},{"../construtos":40,"../excecoes":70,"../informacao-elemento-sintatico":72}],10:[function(require,module,exports){
+},{"../construtos":40,"../excecoes":70,"../informacao-elemento-sintatico":73}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
+const inferenciador_1 = require("../inferenciador");
+const construtos_1 = require("../construtos");
+const excecoes_1 = require("../excecoes");
+const mapaConstrutoresTupla = {
+    2: construtos_1.Dupla,
+    3: construtos_1.Trio,
+    4: construtos_1.Quarteto,
+    5: construtos_1.Quinteto,
+    6: construtos_1.Sexteto,
+    7: construtos_1.Septeto,
+    8: construtos_1.Octeto,
+    9: construtos_1.Noneto,
+    10: construtos_1.Deceto
+};
 exports.default = {
     adicionar: {
         tipoRetorno: 'qualquer[]',
@@ -1212,6 +1226,30 @@ exports.default = {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.ordenar()',
     },
+    paraTupla: {
+        tipoRetorno: 'tupla',
+        argumentos: [],
+        implementacao: (interpretador, nomePrimitiva, vetor) => {
+            if (vetor.length < 2) {
+                return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
+                    hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+                    linha: interpretador.linhaDeclaracaoAtual,
+                }, 'Para converter um vetor em tupla, ele precisa ter no mínimo 2 elementos.'));
+            }
+            const criarLiteral = (item) => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, item, (0, inferenciador_1.inferirTipoVariavel)(item));
+            if (mapaConstrutoresTupla.hasOwnProperty(vetor.length)) {
+                const Construtor = mapaConstrutoresTupla[vetor.length];
+                const args = vetor.map(criarLiteral);
+                return Promise.resolve(new Construtor(...args));
+            }
+            const elementos = vetor.map(criarLiteral);
+            return Promise.resolve(new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos));
+        },
+        assinaturaFormato: 'vetor.paraTupla()',
+        documentacao: '# `vetor.paraTupla()` \n \n' +
+            'Converte o vetor atual em uma tupla imutável. Requer no mínimo 2 elementos.',
+        exemploCodigo: 'vetor.paraTupla()',
+    },
     remover: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
@@ -1299,7 +1337,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":72}],11:[function(require,module,exports){
+},{"../construtos":40,"../excecoes":70,"../inferenciador":72,"../informacao-elemento-sintatico":73}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -1900,12 +1938,13 @@ exports.DefinirValor = DefinirValor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
 class Dicionario {
-    constructor(hashArquivo, linha, chaves, valores) {
+    constructor(hashArquivo, linha, chaves, valores, esSpread) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.chaves = chaves;
         this.valores = valores;
         this.tipo = 'dicionário';
+        this.esSpread = esSpread || chaves.map(() => false);
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoDicionario(this);
@@ -2286,6 +2325,10 @@ class Literal {
         return await visitante.visitarExpressaoLiteral(this);
     }
     paraTexto() {
+        let valor = this.valor;
+        if (this.valor.hasOwnProperty('paraTextoSaida')) {
+            valor = this.valor.paraTextoSaida();
+        }
         return `<literal valor=${this.valor} tipo=${this.tipo} />`;
     }
     paraTextoSaida() {
@@ -3089,6 +3132,135 @@ function uuidv4() {
 
 },{}],72:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TipoNativoSimbolo = void 0;
+exports.inferirTipoVariavel = inferirTipoVariavel;
+exports.tipoInferenciaParaTipoDadosElementar = tipoInferenciaParaTipoDadosElementar;
+const primitivos_1 = __importDefault(require("./tipos-de-dados/primitivos"));
+const delegua_1 = __importDefault(require("./tipos-de-dados/delegua"));
+const delegua_2 = __importDefault(require("./tipos-de-simbolos/delegua"));
+var TipoNativoSimbolo;
+(function (TipoNativoSimbolo) {
+    TipoNativoSimbolo["ESCREVA"] = "<palavra reservada escreva ajuda=\"palavra reservada usada para apresentar informa\u00E7\u00F5es\">";
+    TipoNativoSimbolo["LEIA"] = "<palavra reservada leia ajuda=\"palavra reservada usada para entrada de dados\">";
+    TipoNativoSimbolo["FUNCAO"] = "<palavra reservada funcao ajuda=\"palavra reservada usada para criar fun\u00E7\u00F5es\">";
+    TipoNativoSimbolo["SE"] = "<palavra reservada se ajuda=\"palavra reservada usada para estruturas condicionais\">";
+    TipoNativoSimbolo["ENQUANTO"] = "<palavra reservada enquanto ajuda=\"palavra reservada usada para loops enquanto\">";
+    TipoNativoSimbolo["PARA"] = "<palavra reservada para ajuda=\"palavra reservada usada para loops para\">";
+    TipoNativoSimbolo["RETORNA"] = "<palavra reservada retornar ajuda=\"palavra reservada usada para retornar valores em fun\u00E7\u00F5es\">";
+    TipoNativoSimbolo["INTEIRO"] = "<palavra reservada inteiro ajuda=\"palavra reservada usada para definir vari\u00E1veis do tipo inteiro\">";
+    TipoNativoSimbolo["TEXTO"] = "<palavra reservada texto ajuda=\"palavra reservada usada para definir vari\u00E1veis do tipo texto\">";
+    TipoNativoSimbolo["BOOLEANO"] = "<palavra reservada booleano ajuda=\"palavra reservada usada para definir vari\u00E1veis do tipo booleano\">";
+    TipoNativoSimbolo["VAZIO"] = "<palavra reservada vazio ajuda=\"palavra reservada usada para definir fun\u00E7\u00F5es que n\u00E3o retornam valores\">";
+})(TipoNativoSimbolo || (exports.TipoNativoSimbolo = TipoNativoSimbolo = {}));
+function inferirVetor(vetor) {
+    const tiposEmVetor = new Set(vetor.map((elemento) => elemento.constructor.name));
+    if (tiposEmVetor.size > 1) {
+        return 'vetor';
+    }
+    const tipoVetor = tiposEmVetor.values().next().value;
+    switch (tipoVetor) {
+        case 'bigint':
+            return 'longo[]';
+        case 'boolean':
+            return 'lógico[]';
+        case 'number':
+            return 'número[]';
+        case 'string':
+            return 'texto[]';
+        case 'object':
+            const tiposObjetosEmVetor = new Set(vetor.map((elemento) => elemento.tipo));
+            if (tiposObjetosEmVetor.size > 1) {
+                return 'vetor';
+            }
+            return `${tiposObjetosEmVetor.values().next().value}[]`;
+        case 'Literal':
+            // TODO: Não sei se é seguro inferir pelo primeiro valor do vetor.
+            return `${vetor[0].tipo}[]`;
+        default:
+            return 'vetor';
+    }
+}
+function inferirTipoVariavel(variavel) {
+    if (variavel === null) {
+        return 'nulo';
+    }
+    const tipo = variavel && variavel.constructor ? variavel.constructor.name : typeof variavel;
+    switch (tipo) {
+        case 'String':
+        case 'string':
+            return 'texto';
+        case 'Number':
+        case 'number':
+            return 'número';
+        case 'bigint':
+            return 'longo';
+        case 'Boolean':
+        case 'boolean':
+            return 'lógico';
+        case 'undefined':
+            return 'nulo';
+        case 'Object':
+        case 'object':
+            if (variavel === null)
+                return 'nulo';
+            return 'dicionário';
+        case 'Array':
+        case 'Vetor':
+            return inferirVetor(variavel);
+        case 'DeleguaFuncao':
+            return 'função';
+        case 'DeleguaModulo':
+            return 'módulo';
+        case 'Classe':
+        case 'DescritorTipoClasse':
+        case 'ObjetoDeleguaClasse':
+            return 'objeto';
+        case 'Simbolo': // TODO: Repensar.
+            const simbolo = variavel;
+            switch (simbolo.tipo) {
+                case primitivos_1.default.BOOLEANO:
+                    return TipoNativoSimbolo.BOOLEANO;
+                case delegua_2.default.ENQUANTO:
+                    return TipoNativoSimbolo.ENQUANTO;
+                case delegua_2.default.ESCREVA:
+                    return TipoNativoSimbolo.ESCREVA;
+                case delegua_2.default.FUNCAO:
+                case delegua_2.default.FUNÇÃO:
+                    return TipoNativoSimbolo.FUNCAO;
+                case delegua_2.default.LEIA:
+                    return TipoNativoSimbolo.LEIA;
+                case delegua_2.default.PARA:
+                    return TipoNativoSimbolo.PARA;
+                case delegua_2.default.RETORNA:
+                    return TipoNativoSimbolo.RETORNA;
+                case delegua_2.default.SE:
+                    return TipoNativoSimbolo.SE;
+                case primitivos_1.default.TEXTO:
+                    return TipoNativoSimbolo.TEXTO;
+                case delegua_1.default.VAZIO:
+                    return TipoNativoSimbolo.VAZIO;
+            }
+        case 'function':
+        case 'FuncaoPadrao':
+            return 'função';
+        case 'symbol':
+            return 'símbolo';
+    }
+}
+function tipoInferenciaParaTipoDadosElementar(tipoInferencia) {
+    switch (tipoInferencia) {
+        // TODO: Colocar exceções aqui.
+        default:
+            return tipoInferencia;
+    }
+}
+
+},{"./tipos-de-dados/delegua":74,"./tipos-de-dados/primitivos":75,"./tipos-de-simbolos/delegua":76}],73:[function(require,module,exports){
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
 class InformacaoElementoSintatico {
@@ -3105,6 +3277,159 @@ class InformacaoElementoSintatico {
     }
 }
 exports.InformacaoElementoSintatico = InformacaoElementoSintatico;
+
+},{}],74:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    DICIONARIO: 'dicionario',
+    DICIONÁRIO: 'dicionário',
+    FUNCAO: 'funcao',
+    FUNÇÃO: 'função',
+    INTEIRO: 'inteiro',
+    LOGICO: 'logico',
+    LÓGICO: 'lógico',
+    MODULO: 'modulo',
+    MÓDULO: 'módulo',
+    NUMERO: 'numero',
+    NÚMERO: 'número',
+    NULO: 'nulo',
+    OBJETO: 'objeto',
+    QUALQUER: 'qualquer',
+    REAL: 'real',
+    TEXTO: 'texto',
+    TUPLA: 'tupla',
+    VAZIO: 'vazio',
+    VETOR: 'vetor',
+    VETOR_INTEIRO: 'inteiro[]',
+    VETOR_LOGICO: 'logico[]',
+    VETOR_LÓGICO: 'lógico[]',
+    VETOR_NUMERO: 'numero[]',
+    VETOR_NÚMERO: 'número[]',
+    VETOR_QUALQUER: 'qualquer[]',
+    VETOR_TEXTO: 'texto[]',
+};
+
+},{}],75:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    BOOLEANO: 'boolean',
+    DATA: 'Date',
+    FUNCAO: 'function',
+    INDEFINIDO: undefined,
+    MAPA: 'Map',
+    NULO: null,
+    NUMERO: 'number',
+    OBJETO: 'object',
+    PROMESSA: 'Promise',
+    QUALQUER: 'any',
+    REGEX: 'RegExp',
+    SIMBOLO: 'symbol',
+    TEXTO: 'string',
+};
+
+},{}],76:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
+    ADICAO: 'ADICAO',
+    AJUDA: 'AJUDA',
+    ARROBA: 'ARROBA',
+    BIT_AND: 'BIT_AND',
+    BIT_OR: 'BIT_OR',
+    BIT_XOR: 'BIT_XOR',
+    BIT_NOT: 'BIT_NOT',
+    CADA: 'CADA',
+    CASO: 'CASO',
+    CHAVE_DIREITA: 'CHAVE_DIREITA',
+    CHAVE_ESQUERDA: 'CHAVE_ESQUERDA',
+    CLASSE: 'CLASSE',
+    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
+    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    COMENTARIO: 'COMENTARIO',
+    COMO: 'COMO',
+    CONSTANTE: 'CONSTANTE',
+    CONSTRUTOR: 'CONSTRUTOR',
+    CONTEM: 'CONTEM',
+    CONTINUA: 'CONTINUA',
+    DE: 'DE',
+    DECREMENTAR: 'DECREMENTAR',
+    DIFERENTE: 'DIFERENTE',
+    DIVISAO: 'DIVISAO',
+    DIVISAO_IGUAL: 'DIVISAO_IGUAL',
+    DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
+    DIVISAO_INTEIRA_IGUAL: 'DIVISAO_INTEIRA_IGUAL',
+    DOIS_PONTOS: 'DOIS_PONTOS',
+    E: 'E',
+    ELVIS: 'ELVIS',
+    EM: 'EM',
+    ENQUANTO: 'ENQUANTO',
+    EOF: 'EOF',
+    ESCOLHA: 'ESCOLHA',
+    ESCREVA: 'ESCREVA',
+    EXPONENCIACAO: 'EXPONENCIACAO',
+    EXPRESSAO_REGULAR: 'EXPRESSAO_REGULAR',
+    FALHAR: 'FALHAR',
+    FALSO: 'FALSO',
+    FAZER: 'FAZER',
+    FINALMENTE: 'FINALMENTE',
+    FUNCAO: 'FUNCAO',
+    FUNÇÃO: 'FUNÇÃO',
+    HERDA: 'HERDA',
+    IDENTIFICADOR: 'IDENTIFICADOR',
+    IGUAL: 'IGUAL',
+    IGUAL_IGUAL: 'IGUAL_IGUAL',
+    IMPORTAR: 'IMPORTAR',
+    INCREMENTAR: 'INCREMENTAR',
+    INTERROGACAO: 'INTERROGACAO',
+    ISTO: 'ISTO',
+    LEIA: 'LEIA',
+    LINHA_COMENTARIO: 'LINHA_COMENTARIO',
+    MAIOR: 'MAIOR',
+    MAIOR_IGUAL: 'MAIOR_IGUAL',
+    MAIOR_MAIOR: 'MAIOR_MAIOR',
+    MAIS_IGUAL: 'MAIS_IGUAL',
+    MENOR: 'MENOR',
+    MENOR_IGUAL: 'MENOR_IGUAL',
+    MENOR_MENOR: 'MENOR_MENOR',
+    MENOS_IGUAL: 'MENOS_IGUAL',
+    MODULO: 'MODULO',
+    MODULO_IGUAL: 'MODULO_IGUAL',
+    MULTIPLICACAO: 'MULTIPLICACAO',
+    MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
+    NAO: 'NAO',
+    NEGACAO: 'NEGACAO',
+    NULO: 'NULO',
+    NUMERO: 'NUMERO',
+    NÚMERO: 'NÚMERO',
+    OU: 'OU',
+    PADRAO: 'PADRAO',
+    PADRÃO: 'PADRÃO',
+    PARA: 'PARA',
+    PARENTESE_DIREITO: 'PARENTESE_DIREITO',
+    PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
+    PEGUE: 'PEGUE',
+    PONTO: 'PONTO',
+    PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
+    QUEBRAR: 'QUEBRAR',
+    RETORNA: 'RETORNA',
+    SUBTRACAO: 'SUBTRACAO',
+    SE: 'SE',
+    SENAO: 'SENAO',
+    SENÃO: 'SENÃO',
+    SETA_ESQUERDA: 'SETA_ESQUERDA',
+    SUPER: 'SUPER',
+    SUSTAR: 'SUSTAR',
+    TENDO: 'TENDO',
+    TENTE: 'TENTE',
+    TEXTO: 'TEXTO',
+    TIPO: 'TIPO',
+    TUDO: 'TUDO',
+    VARIAVEL: 'VARIAVEL',
+    VERDADEIRO: 'VERDADEIRO',
+    VIRGULA: 'VIRGULA',
+};
 
 },{}]},{},[1])(1)
 });
