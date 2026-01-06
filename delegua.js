@@ -6644,6 +6644,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inteiro', 'inteiro', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valor', 'qualquer'),
         ]));
+        this.pilhaEscopos.definirInformacoesVariavel('longo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('longo', 'longo', true, [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valor', 'qualquer'),
+        ]));
         this.pilhaEscopos.definirInformacoesVariavel('intervalo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valorInicial', 'qualquer'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valorFinal', 'qualquer'),
@@ -7986,13 +7989,17 @@ class AvaliadorSintaticoPitugues {
             case pitugues_2.default.INTERPOLACAO:
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal;
-                // Transforma "Olá {nome}" em '"Olá " + (nome) + ""'
-                // Adicionado parênteses em volta das variáveis para garantir precedência na soma
-                const codigoTransformado = '"' +
-                    conteudoOriginal
-                        .replace(/\{/g, '" + (')
-                        .replace(/\}/g, ') + "') +
-                    '"';
+                const codigoTransformado = '"' + conteudoOriginal.replace(/\{(.*?)\}/g, (_, miolo) => {
+                    // 'miolo' é o texto que estava dentro das chaves. Ex: "valor" ou "valor:.2f"
+                    if (miolo.includes(':')) {
+                        const [variavel, formato] = miolo.split(':').map(s => s.trim());
+                        if (variavel !== "") {
+                            // Transforma {valor:.2f} em "{:.2f}".formatar(valor)
+                            return '" + "{:' + formato + '}".formatar(' + variavel + ') + "';
+                        }
+                    }
+                    return '" + (' + miolo.trim() + ') + "';
+                }) + '"';
                 const microLexador = new micro_lexador_pitugues_1.MicroLexadorPitugues();
                 const retornoMicroLexador = microLexador.mapear(codigoTransformado);
                 const microAvaliadorSintatico = new micro_avaliador_sintatico_pitugues_1.MicroAvaliadorSintaticoPitugues();
@@ -8902,6 +8909,9 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valor', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('inteiro', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('inteiro', 'inteiro', true, [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valor', 'qualquer'),
+        ]));
+        this.pilhaEscopos.definirInformacoesVariavel('longo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('longo', 'longo', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valor', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('intervalo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('intervalo', 'inteiro[]', true, [
@@ -11731,6 +11741,7 @@ exports.encontrarUltimoIndice = encontrarUltimoIndice;
 exports.filtrarPor = filtrarPor;
 exports.incluido = incluido;
 exports.inteiro = inteiro;
+exports.longo = longo;
 exports.intervalo = intervalo;
 exports.mapear = mapear;
 exports.maximo = maximo;
@@ -12211,6 +12222,45 @@ async function inteiro(interpretador, valorParaConverter) {
         : valorParaConverter;
     const resultadoValidacao = validacaoComumNumeros(interpretador, valor);
     return resultadoValidacao || Promise.resolve(parseInt(valor));
+}
+/**
+ * Converte um valor em um número longo (BigInt).
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {VariavelInterface | any} valorParaConverter O valor a ser convertido.
+ * @returns {Promise<any>} Uma Promise com o resultado da conversão para BigInt.
+ */
+async function longo(interpretador, valorParaConverter) {
+    if (valorParaConverter === null || valorParaConverter === undefined) {
+        return Promise.resolve(BigInt(0));
+    }
+    const valor = valorParaConverter.hasOwnProperty('valor')
+        ? valorParaConverter.valor
+        : valorParaConverter;
+    // Se já é BigInt, retorna direto
+    if (typeof valor === 'bigint') {
+        return Promise.resolve(valor);
+    }
+    // Se é número, converte para BigInt (trunca decimais)
+    if (typeof valor === 'number') {
+        return Promise.resolve(BigInt(Math.floor(valor)));
+    }
+    // Para strings, remove parte decimal se presente
+    const strValue = String(valor).trim();
+    // Trata string vazia
+    if (!strValue || strValue === '') {
+        return Promise.resolve(BigInt(0));
+    }
+    // Remove parte decimal da string (ex: "3.14" -> "3")
+    const integerPart = strValue.split('.')[0];
+    try {
+        return Promise.resolve(BigInt(integerPart));
+    }
+    catch (e) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
+            hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
+            linha: interpretador.linhaDeclaracaoAtual,
+        }, `Não foi possível converter '${valor}' para longo. O valor deve ser um número ou texto numérico.`));
+    }
 }
 /**
  * Cria um vetor com números inteiros no intervalo especificado.
@@ -14944,7 +14994,7 @@ class Deceto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()}, ${this.nono.paraTextoSaida()}, ${this.decimo.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()}, ${this.nono.paraTextoSaida()}, ${this.decimo.paraTextoSaida()})`;
     }
 }
 exports.Deceto = Deceto;
@@ -14966,7 +15016,7 @@ class Dupla extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()})`;
     }
 }
 exports.Dupla = Dupla;
@@ -15076,7 +15126,7 @@ class Noneto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()}, ${this.nono.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()}, ${this.nono.paraTextoSaida()})`;
     }
 }
 exports.Noneto = Noneto;
@@ -15116,7 +15166,7 @@ class Octeto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()}, ${this.oitavo.paraTextoSaida()})`;
     }
 }
 exports.Octeto = Octeto;
@@ -15142,7 +15192,7 @@ class Quarteto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()})`;
     }
 }
 exports.Quarteto = Quarteto;
@@ -15170,7 +15220,7 @@ class Quinteto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, , ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, , ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()})`;
     }
 }
 exports.Quinteto = Quinteto;
@@ -15208,7 +15258,7 @@ class Septeto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()}, ${this.setimo.paraTextoSaida()})`;
     }
 }
 exports.Septeto = Septeto;
@@ -15238,7 +15288,7 @@ class Sexteto extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()}, ${this.quarto.paraTextoSaida()}, ${this.quinto.paraTextoSaida()}, ${this.sexto.paraTextoSaida()})`;
     }
 }
 exports.Sexteto = Sexteto;
@@ -15262,7 +15312,7 @@ class Trio extends tupla_1.Tupla {
             ` />`);
     }
     paraTextoSaida() {
-        return `[(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()})]`;
+        return `(${this.primeiro.paraTextoSaida()}, ${this.segundo.paraTextoSaida()}, ${this.terceiro.paraTextoSaida()})`;
     }
 }
 exports.Trio = Trio;
@@ -18096,6 +18146,7 @@ function inferirTipoVariavel(variavel) {
         case 'Number':
         case 'number':
             return 'número';
+        case 'BigInt':
         case 'bigint':
             return 'longo';
         case 'Boolean':
@@ -18412,6 +18463,7 @@ function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('filtrarPor', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.filtrarPor));
     pilhaEscoposExecucao.definirVariavel('incluido', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.incluido));
     pilhaEscoposExecucao.definirVariavel('inteiro', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.inteiro));
+    pilhaEscoposExecucao.definirVariavel('longo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.longo));
     pilhaEscoposExecucao.definirVariavel('intervalo', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.intervalo));
     pilhaEscoposExecucao.definirVariavel('mapear', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.mapear));
     pilhaEscoposExecucao.definirVariavel('maximo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.maximo));
@@ -19405,6 +19457,7 @@ class InterpretadorBase {
         this.regexInterpolacao = /\${(.*?)}/g;
         this.tiposNumericos = [
             delegua_2.default.INTEIRO,
+            delegua_2.default.LONGO,
             delegua_2.default.NUMERO,
             delegua_2.default.NÚMERO,
             delegua_2.default.REAL,
@@ -19735,7 +19788,11 @@ class InterpretadorBase {
             case delegua_1.default.NEGACAO:
                 return !this.eVerdadeiro(valor);
             case delegua_1.default.BIT_NOT:
-                return ~valor;
+                // Mantém BigInt como BigInt, converte outros para Number
+                if (typeof valor === 'bigint') {
+                    return ~valor;
+                }
+                return ~Number(valor);
             // Para incrementar e decrementar, primeiro precisamos saber se o operador
             // veio antes do literal ou variável.
             // Se veio antes e o operando é uma variável, precisamos incrementar/decrementar,
@@ -19804,6 +19861,13 @@ class InterpretadorBase {
             return true;
         if (esquerda === null)
             return false;
+        // Handle BigInt/Number comparison
+        if (typeof esquerda === 'bigint' && typeof direita === 'number') {
+            return esquerda == BigInt(direita);
+        }
+        if (typeof esquerda === 'number' && typeof direita === 'bigint') {
+            return BigInt(esquerda) == direita;
+        }
         return esquerda === direita;
     }
     /**
@@ -19819,12 +19883,16 @@ class InterpretadorBase {
             ? direita.tipo
             : typeof direita === primitivos_1.default.NUMERO
                 ? delegua_2.default.NUMERO
-                : String(NaN);
+                : typeof direita === 'bigint'
+                    ? delegua_2.default.LONGO
+                    : String(NaN);
         const tipoEsquerda = esquerda.tipo
             ? esquerda.tipo
             : typeof esquerda === primitivos_1.default.NUMERO
                 ? delegua_2.default.NUMERO
-                : String(NaN);
+                : typeof esquerda === 'bigint'
+                    ? delegua_2.default.LONGO
+                    : String(NaN);
         if (this.tiposNumericos.includes(tipoDireita) && this.tiposNumericos.includes(tipoEsquerda))
             return;
         if (this.tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'qualquer')
@@ -19854,35 +19922,53 @@ class InterpretadorBase {
         switch (expressao.operador.tipo) {
             case delegua_1.default.EXPONENCIACAO:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ** dir;
+                }
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
                 return resultadoExponenciacao;
             case delegua_1.default.MAIOR:
                 if (this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)) {
-                    return Number(valorEsquerdo) > Number(valorDireito);
+                    return valorEsquerdo > valorDireito;
                 }
                 return String(valorEsquerdo) > String(valorDireito);
             case delegua_1.default.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) >= Number(valorDireito);
+                return valorEsquerdo >= valorDireito;
             case delegua_1.default.MENOR:
                 if (this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)) {
-                    return Number(valorEsquerdo) < Number(valorDireito);
+                    return valorEsquerdo < valorDireito;
                 }
                 return String(valorEsquerdo) < String(valorDireito);
             case delegua_1.default.MENOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return Number(valorEsquerdo) <= Number(valorDireito);
+                return valorEsquerdo <= valorDireito;
             case delegua_1.default.SUBTRACAO:
             case delegua_1.default.MENOS_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq - dir;
+                }
                 return Number(valorEsquerdo) - Number(valorDireito);
             case delegua_1.default.ADICAO:
             case delegua_1.default.MAIS_IGUAL:
                 // Se ambos os operandos são vetores, concatená-los
                 if (Array.isArray(valorEsquerdo) && Array.isArray(valorDireito)) {
                     return valorEsquerdo.concat(valorDireito);
+                }
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq + dir;
                 }
                 if (this.tiposNumericos.includes(tipoEsquerdo) &&
                     this.tiposNumericos.includes(tipoDireito)) {
@@ -19897,13 +19983,29 @@ class InterpretadorBase {
             case delegua_1.default.DIVISAO:
             case delegua_1.default.DIVISAO_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // SEMPRE retorna Number para precisão decimal (preferência do usuário)
+                // Mesmo se operandos forem BigInt, converte para Number
                 return Number(valorEsquerdo) / Number(valorDireito);
             case delegua_1.default.DIVISAO_INTEIRA:
             case delegua_1.default.DIVISAO_INTEIRA_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Retorna BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq / dir; // Trunca automaticamente
+                }
                 return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
             case delegua_1.default.MULTIPLICACAO:
             case delegua_1.default.MULTIPLICACAO_IGUAL:
+                // Auto-promove para BigInt se qualquer operando for BigInt (e não for texto)
+                if ((typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') &&
+                    tipoEsquerdo !== delegua_2.default.TEXTO &&
+                    tipoDireito !== delegua_2.default.TEXTO) {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq * dir;
+                }
                 if (tipoEsquerdo === delegua_2.default.TEXTO ||
                     tipoDireito === delegua_2.default.TEXTO) {
                     // Sem ambos os valores resolvem como texto, multiplica normal.
@@ -19943,18 +20045,48 @@ class InterpretadorBase {
                 return Number(valorEsquerdo) % Number(valorDireito);
             case delegua_1.default.BIT_AND:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq & dir;
+                }
                 return Number(valorEsquerdo) & Number(valorDireito);
             case delegua_1.default.BIT_XOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq ^ dir;
+                }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
             case delegua_1.default.BIT_OR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq | dir;
+                }
                 return Number(valorEsquerdo) | Number(valorDireito);
             case delegua_1.default.MENOR_MENOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq << dir;
+                }
                 return Number(valorEsquerdo) << Number(valorDireito);
             case delegua_1.default.MAIOR_MAIOR:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                // Auto-promove para BigInt se qualquer operando for BigInt
+                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    return esq >> dir;
+                }
                 return Number(valorEsquerdo) >> Number(valorDireito);
             case delegua_1.default.DIFERENTE:
                 return !this.eIgual(valorEsquerdo, valorDireito);
@@ -22389,6 +22521,15 @@ class PilhaEscoposExecucao {
         switch (tipo) {
             case 'inteiro':
                 return parseInt(valor);
+            case 'longo':
+                // Converte para BigInt
+                if (typeof valor === 'bigint')
+                    return valor;
+                if (typeof valor === 'number')
+                    return BigInt(Math.floor(valor));
+                // Para strings, remove parte decimal antes de converter
+                const strValue = String(valor).split('.')[0].trim();
+                return BigInt(strValue || '0');
             case 'logico':
             case 'lógico':
                 return Boolean(valor);
@@ -25247,6 +25388,26 @@ class LexadorBase {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
     /**
+     * Verifica se o caractere é um dígito hexadecimal (0-9, a-f, A-F).
+     */
+    eHexDigito(caractere) {
+        return ((caractere >= '0' && caractere <= '9') ||
+            (caractere >= 'a' && caractere <= 'f') ||
+            (caractere >= 'A' && caractere <= 'F'));
+    }
+    /**
+     * Verifica se o caractere é um dígito binário (0 ou 1).
+     */
+    eBinarioDigito(caractere) {
+        return caractere === '0' || caractere === '1';
+    }
+    /**
+     * Verifica se o caractere é um dígito octal (0-7).
+     */
+    eOctalDigito(caractere) {
+        return caractere >= '0' && caractere <= '7';
+    }
+    /**
      * Indica se o código está na última linha.
      * @returns Verdadeiro se contador de linhas está na última linha.
      *          Falso caso contrário.
@@ -25365,6 +25526,17 @@ class Lexador {
     eAlfabetoOuDigito(caractere) {
         return this.eDigito(caractere) || this.eAlfabeto(caractere);
     }
+    eHexDigito(caractere) {
+        return ((caractere >= '0' && caractere <= '9') ||
+            (caractere >= 'a' && caractere <= 'f') ||
+            (caractere >= 'A' && caractere <= 'F'));
+    }
+    eBinarioDigito(caractere) {
+        return caractere === '0' || caractere === '1';
+    }
+    eOctalDigito(caractere) {
+        return caractere >= '0' && caractere <= '7';
+    }
     eFinalDaLinha() {
         if (this.codigo.length === this.linha) {
             return true;
@@ -25468,7 +25640,81 @@ class Lexador {
             mensagem: 'Texto não finalizado.',
         });
     }
+    analisarHexadecimal() {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'x' ou 'X'
+        while (this.eHexDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+        const hexString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(hexString);
+            this.adicionarSimbolo(delegua_1.default.NUMERO, bigintValue);
+        }
+        catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal hexadecimal inválido: ${hexString}`,
+            });
+        }
+    }
+    analisarBinario() {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'b' ou 'B'
+        while (this.eBinarioDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+        const binaryString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(binaryString);
+            this.adicionarSimbolo(delegua_1.default.NUMERO, bigintValue);
+        }
+        catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal binário inválido: ${binaryString}`,
+            });
+        }
+    }
+    analisarOctal() {
+        this.avancar(); // Pula '0'
+        this.avancar(); // Pula 'o' ou 'O'
+        while (this.eOctalDigito(this.simboloAtual())) {
+            this.avancar();
+        }
+        const octalString = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
+        try {
+            const bigintValue = BigInt(octalString);
+            this.adicionarSimbolo(delegua_1.default.NUMERO, bigintValue);
+        }
+        catch (e) {
+            this.erros.push({
+                linha: this.linha + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: `Literal octal inválido: ${octalString}`,
+            });
+        }
+    }
     analisarNumero() {
+        // Verifica se é um literal especial (hexadecimal, binário ou octal)
+        if (this.simboloAtual() === '0') {
+            const proximoChar = this.proximoSimbolo();
+            if (proximoChar === 'x' || proximoChar === 'X') {
+                this.analisarHexadecimal();
+                return;
+            }
+            else if (proximoChar === 'b' || proximoChar === 'B') {
+                this.analisarBinario();
+                return;
+            }
+            else if (proximoChar === 'o' || proximoChar === 'O') {
+                this.analisarOctal();
+                return;
+            }
+        }
+        // Análise de número decimal normal
         while (this.eDigito(this.simboloAtual())) {
             this.avancar();
         }
@@ -26543,6 +26789,7 @@ exports.default = {
     INTEIRO: 'inteiro',
     LOGICO: 'logico',
     LÓGICO: 'lógico',
+    LONGO: 'longo',
     MODULO: 'modulo',
     MÓDULO: 'módulo',
     NUMERO: 'numero',
@@ -26558,6 +26805,7 @@ exports.default = {
     VETOR_INTEIRO: 'inteiro[]',
     VETOR_LOGICO: 'logico[]',
     VETOR_LÓGICO: 'lógico[]',
+    VETOR_LONGO: 'longo[]',
     VETOR_NUMERO: 'numero[]',
     VETOR_NÚMERO: 'número[]',
     VETOR_QUALQUER: 'qualquer[]',
@@ -43654,6 +43902,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorMermaidJs = void 0;
 const construtos_1 = require("../construtos");
+const declaracoes_1 = require("../declaracoes");
 const mermaid_1 = require("./mermaid");
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
@@ -43942,9 +44191,19 @@ class TradutorMermaidJs {
             : aresta;
         if (declaracao.caminhoSenao) {
             this.anteriores = [];
-            const arestaSenao = new mermaid_1.ArestaFluxograma(declaracao, `Linha${declaracao.caminhoSenao.linha}(senão)`);
-            vertices.push(new mermaid_1.VerticeFluxograma(aresta, arestaSenao, 'Não'));
-            this.anteriores.push(arestaSenao);
+            // Verifica se é "senão se" ou apenas "senão"
+            const ehSenaoSe = declaracao.caminhoSenao.constructor === declaracoes_1.Se;
+            if (ehSenaoSe) {
+                // Para "senão se", conecta diretamente ao próximo condicional sem nó intermediário
+                this.anteriores.push(aresta);
+                this.ultimaDicaVertice = 'Não';
+            }
+            else {
+                // Para "senão" simples, cria o nó intermediário
+                const arestaSenao = new mermaid_1.ArestaFluxograma(declaracao, `Linha${declaracao.caminhoSenao.linha}(senão)`);
+                vertices.push(new mermaid_1.VerticeFluxograma(aresta, arestaSenao, 'Não'));
+                this.anteriores.push(arestaSenao);
+            }
             const verticesSenao = await declaracao.caminhoSenao.aceitar(this);
             vertices = vertices.concat(verticesSenao);
         }
@@ -44399,11 +44658,12 @@ class TradutorMermaidJs {
         });
     }
     async logicaComumTraducaoVarEConst(declaracaoVarOuConst, textoInicial) {
+        let adicional = '';
         if (declaracaoVarOuConst.inicializador) {
-            textoInicial += `, iniciada com: ${await declaracaoVarOuConst.inicializador.aceitar(this)}`;
+            adicional += `, iniciada com: ${await declaracaoVarOuConst.inicializador.aceitar(this)}`;
         }
-        textoInicial += ')';
-        return Promise.resolve(textoInicial);
+        adicional += ')';
+        return Promise.resolve(adicional);
     }
     /**
      * Ponto de entrada para a tradução de declarações em um fluxograma
@@ -44462,7 +44722,7 @@ class TradutorMermaidJs {
 }
 exports.TradutorMermaidJs = TradutorMermaidJs;
 
-},{"../construtos":96,"../tipos-de-simbolos/delegua":246,"./mermaid":256}],270:[function(require,module,exports){
+},{"../construtos":96,"../declaracoes":143,"../tipos-de-simbolos/delegua":246,"./mermaid":256}],270:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorPortugolIpt = void 0;
