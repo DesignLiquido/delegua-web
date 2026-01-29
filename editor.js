@@ -22,9 +22,9 @@ var MarkerSeverity;
     MarkerSeverity[MarkerSeverity["Warning"] = 4] = "Warning";
     MarkerSeverity[MarkerSeverity["Error"] = 8] = "Error";
 })(MarkerSeverity || (MarkerSeverity = {}));
-const mostrarResultadoExecutar = function (codigo) {
+const mostrarResultadoExecutar = function (resultadoExecucao) {
     const paragrafo = document.createElement("p");
-    paragrafo.textContent = codigo;
+    paragrafo.innerHTML = resultadoExecucao.replace(/\s/g, '&nbsp;');
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
 };
