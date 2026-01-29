@@ -15,9 +15,9 @@ enum MarkerSeverity {
     Error = 8
 }
 
-const mostrarResultadoExecutar = function (codigo: string) {
+const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     const paragrafo: any = document.createElement("p");
-    paragrafo.textContent = codigo;
+    paragrafo.innerHTML = resultadoExecucao.replace(/\s/g, '&nbsp;');
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv?.appendChild(paragrafo);
 };
