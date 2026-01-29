@@ -5395,7 +5395,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async bitOu() {
         let expressao = await this.bitE();
-        while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.BIT_OR, delegua_2.default.BIT_XOR)) {
+        while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.BIT_OR, delegua_2.default.CIRCUMFLEXO)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.bitE();
             expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
@@ -7620,7 +7620,8 @@ class AvaliadorSintaticoPitugues {
         }
     }
     async expressaoLeia() {
-        const simboloLeia = this.avancarEDevolverAnterior();
+        const simboloOriginal = this.avancarEDevolverAnterior();
+        const simboloLeia = new lexador_1.Simbolo(pitugues_2.default.LEIA, simboloOriginal.lexema, simboloOriginal.literal, simboloOriginal.linha, simboloOriginal.hashArquivo);
         this.consumir(pitugues_2.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em leia.");
         const argumentos = [];
         do {
@@ -7971,6 +7972,12 @@ class AvaliadorSintaticoPitugues {
                 const tipoInferido = (0, inferenciador_1.inferirTipoVariavel)(simboloLiteral.literal);
                 const tipoDadosElementar = (0, inferenciador_1.tipoInferenciaParaTipoDadosElementar)(tipoInferido);
                 return new construtos_1.Literal(this.hashArquivo, Number(simboloLiteral.linha), simboloLiteral.literal, tipoDadosElementar);
+            case pitugues_2.default.TIPO:
+                const simboloTipo = this.avancarEDevolverAnterior();
+                this.consumir(pitugues_2.default.PARENTESE_ESQUERDO, "Esperado '(' após 'tipo'.");
+                const expressaoAvaliar = await this.expressao();
+                this.consumir(pitugues_2.default.PARENTESE_DIREITO, "Esperado ')' após expressão em 'tipo'.");
+                return new construtos_1.TipoDe(simboloTipo.hashArquivo, simboloTipo, expressaoAvaliar);
             case pitugues_2.default.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
                 let tipoOperando;
@@ -8884,6 +8891,10 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
         ]));
+        this.pilhaEscopos.definirInformacoesVariavel('arredondar', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('arredondar', 'numero', true, [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('numero', 'numero'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('casasDecimais', 'numero'),
+        ]));
         this.pilhaEscopos.definirInformacoesVariavel('encontrar', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrar', 'qualquer', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
@@ -8962,6 +8973,9 @@ class AvaliadorSintaticoPitugues {
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('texto', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('texto', 'texto', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
+        ]));
+        this.pilhaEscopos.definirInformacoesVariavel('tipo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('tipo', 'qualquer', true, [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
@@ -11733,6 +11747,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.aleatorio = aleatorio;
 exports.aleatorioEntre = aleatorioEntre;
 exports.algum = algum;
+exports.arredondar = arredondar;
 exports.clonar = clonar;
 exports.encontrar = encontrar;
 exports.encontrarIndice = encontrarIndice;
@@ -11903,6 +11918,27 @@ async function algum(interpretador, vetor, funcaoPesquisa) {
     }
     return false;
 }
+/**
+ * Arredonda um número para uma quantidade específica de casas decimais.
+ * @param {InterpretadorInterface} interpretador A instância do interpretador.
+ * @param {any} numero O número a ser arredondado.
+ * @param {any} casasDecimais A quantidade de casas decimais para o arredondamento.
+ * @returns {Promise<number>} O número arredondado.
+ */
+async function arredondar(interpretador, numero, casasDecimais) {
+    const valorNumero = interpretador.resolverValor(numero);
+    const valorCasas = interpretador.resolverValor(casasDecimais);
+    if (numero == undefined || numero == null) {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, "Erro: arredondar() deve receber um número.", interpretador.linhaDeclaracaoAtual));
+    }
+    if (typeof numero !== "number") {
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Erro de Tipo: arredondar() espera um número, mas recebeu '${typeof valorNumero}'.`, interpretador.linhaDeclaracaoAtual));
+    }
+    const fator = Math.pow(10, valorCasas);
+    const resultado = Math.round(valorNumero * fator) / fator;
+    return Promise.resolve(resultado);
+}
+;
 /**
  * Clona profundamente uma variável ou constante em Delégua.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
@@ -18455,6 +18491,7 @@ function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('aleatorio', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
     pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre));
     pilhaEscoposExecucao.definirVariavel('algum', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.algum));
+    pilhaEscoposExecucao.definirVariavel('arredondar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.arredondar));
     pilhaEscoposExecucao.definirVariavel('clonar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.clonar));
     pilhaEscoposExecucao.definirVariavel('encontrar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrar));
     pilhaEscoposExecucao.definirVariavel('encontrarIndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice));
@@ -20044,6 +20081,9 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 return Number(valorEsquerdo) % Number(valorDireito);
             case delegua_1.default.BIT_AND:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo && valorDireito;
+                }
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -20052,7 +20092,10 @@ class InterpretadorBase {
                     return esq & dir;
                 }
                 return Number(valorEsquerdo) & Number(valorDireito);
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo !== valorDireito;
+                }
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -20062,6 +20105,9 @@ class InterpretadorBase {
                 }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
             case delegua_1.default.BIT_OR:
+                if (typeof valorEsquerdo === 'boolean' && typeof valorDireito === 'boolean') {
+                    return valorEsquerdo || valorDireito;
+                }
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
@@ -20279,6 +20325,35 @@ class InterpretadorBase {
                     return this.logicaContemOuEm(esquerda, direita, expressao);
                 case delegua_1.default.CONTEM:
                     return this.logicaContemOuEm(direita, esquerda, expressao);
+            }
+        }
+        // E/OU como bitwise quando ambos operandos são numéricos
+        if ([delegua_1.default.E, delegua_1.default.OU].includes(expressao.operador.tipo)) {
+            const valorEsquerdo = this.resolverValor(esquerda);
+            if (typeof valorEsquerdo === 'number' || typeof valorEsquerdo === 'bigint') {
+                const direita = await this.avaliar(expressao.direita);
+                const valorDireito = this.resolverValor(direita);
+                if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
+                    if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
+                        const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
+                        const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                        return expressao.operador.tipo === delegua_1.default.E ? (esq & dir) : (esq | dir);
+                    }
+                    return expressao.operador.tipo === delegua_1.default.E
+                        ? (Number(valorEsquerdo) & Number(valorDireito))
+                        : (Number(valorEsquerdo) | Number(valorDireito));
+                }
+                // Demais casos sem diferença de tipos
+                if (expressao.operador.tipo === delegua_1.default.OU) {
+                    if (this.eVerdadeiro(esquerda))
+                        return esquerda;
+                    return direita;
+                }
+                if (expressao.operador.tipo === delegua_1.default.E) {
+                    if (!this.eVerdadeiro(esquerda))
+                        return esquerda;
+                    return direita;
+                }
             }
         }
         // se um estado for verdadeiro, retorna verdadeiro
@@ -25062,6 +25137,7 @@ exports.palavrasReservadasPitugues = {
     importar: pitugues_1.default.IMPORTAR,
     imprima: pitugues_1.default.IMPRIMA,
     isto: pitugues_1.default.ISTO,
+    entrada: pitugues_1.default.LEIA,
     leia: pitugues_1.default.LEIA,
     nao: pitugues_1.default.NAO,
     não: pitugues_1.default.NAO,
@@ -25879,7 +25955,7 @@ class Lexador {
                 }
                 break;
             case '^':
-                this.adicionarSimbolo(delegua_1.default.BIT_XOR);
+                this.adicionarSimbolo(delegua_1.default.CIRCUMFLEXO);
                 this.avancar();
                 break;
             case '<':
@@ -26940,7 +27016,7 @@ exports.default = {
     ARROBA: 'ARROBA',
     BIT_AND: 'BIT_AND',
     BIT_OR: 'BIT_OR',
-    BIT_XOR: 'BIT_XOR',
+    CIRCUMFLEXO: 'BIT_XOR',
     BIT_NOT: 'BIT_NOT',
     CADA: 'CADA',
     CASO: 'CASO',
@@ -41584,7 +41660,7 @@ class TradutorAssemblyScript {
                 return '&';
             case delegua_1.default.BIT_OR:
                 return '|';
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
                 return '^';
             case delegua_1.default.BIT_NOT:
                 return '~';
@@ -42321,7 +42397,7 @@ class TradutorElixir {
                 return '&&&';
             case delegua_1.default.BIT_OR:
                 return '|||';
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
                 return '^^^';
             case delegua_1.default.BIT_NOT:
                 return '~~~';
@@ -43211,7 +43287,7 @@ class TradutorJavaScript {
                 return '&';
             case delegua_1.default.BIT_OR:
                 return '|';
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
                 return '^';
             case delegua_1.default.BIT_NOT:
                 return '~';
@@ -44850,7 +44926,7 @@ class TradutorPython {
                 return '&';
             case delegua_1.default.BIT_OR:
                 return '|';
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
                 return '^';
             case delegua_1.default.BIT_NOT:
                 return '~';
@@ -46598,7 +46674,7 @@ class TradutorRuby {
                 return '&';
             case delegua_1.default.BIT_OR:
                 return '|';
-            case delegua_1.default.BIT_XOR:
+            case delegua_1.default.CIRCUMFLEXO:
                 return '^';
             case delegua_1.default.BIT_NOT:
                 return '~';
