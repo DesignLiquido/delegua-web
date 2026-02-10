@@ -7704,14 +7704,23 @@ class AvaliadorSintaticoPitugues {
     }
     async declaracaoImplicitaVariaveis() {
         const identificador = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado nome de variável.');
+        let tipo = 'qualquer';
+        let tipoExplicito = false;
+        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DOIS_PONTOS)) {
+            tipo = this.verificarDefinicaoTipoAtual();
+            tipoExplicito = true;
+            this.avancarEDevolverAnterior();
+        }
         this.consumir(pitugues_2.default.IGUAL, "Esperado '=' após identificador.");
         if (this.estaNoFinal()) {
             throw this.erro(this.simboloAnterior(), 'Esperado valor após o símbolo de igual.');
         }
         const valor = await this.expressao();
-        const tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        if (!tipoExplicito) {
+            tipo = this.logicaComumInferenciaTiposVariaveisEConstantes(valor, 'qualquer');
+        }
         this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(identificador.lexema, tipo));
-        return new declaracoes_1.Var(identificador, valor, tipo);
+        return new declaracoes_1.Var(identificador, valor, tipo, tipoExplicito);
     }
     temPadraoMultiplaAtribuicao() {
         // Verifica padrão: IDENTIFICADOR, VIRGULA, IDENTIFICADOR, ..., IGUAL
@@ -8884,6 +8893,9 @@ class AvaliadorSintaticoPitugues {
             if (proximoSimbolo && proximoSimbolo.tipo === pitugues_2.default.IGUAL) {
                 if (!this.variavelJaDeclarada(simboloAtual.lexema))
                     return this.declaracaoImplicitaVariaveis();
+            }
+            if (proximoSimbolo && proximoSimbolo.tipo === pitugues_2.default.DOIS_PONTOS) {
+                return this.declaracaoImplicitaVariaveis();
             }
         }
         switch (simboloAtual.tipo) {
