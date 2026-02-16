@@ -1383,16 +1383,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIntervaloVariavel = void 0;
 /**
  * Construto para acesso de intervalos (fatiamento/slicing) em vetores.
- * Ex: vetor[1:4], vetor[1:], vetor[:3] ou vetor[:]
+ * Ex: vetor[1:4], vetor[1:4:2], vetor[1:], vetor[:3] ou vetor[:]
  */
 class AcessoIntervaloVariavel {
-    constructor(hashArquivo, entidadeChamada, indiceInicio, indiceFim, simboloFechamento, tipo = 'qualquer') {
+    constructor(hashArquivo, entidadeChamada, indiceInicio, indiceFim, indicePasso, simboloFechamento, tipo = 'qualquer') {
         this.tipo = 'qualquer';
         this.linha = entidadeChamada.linha;
         this.hashArquivo = hashArquivo;
         this.entidadeChamada = entidadeChamada;
         this.indiceInicio = indiceInicio;
         this.indiceFim = indiceFim;
+        this.indicePasso = indicePasso;
         this.simboloFechamento = simboloFechamento;
         this.tipo = tipo;
     }
@@ -1402,9 +1403,11 @@ class AcessoIntervaloVariavel {
     paraTexto() {
         const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : 'sem-início';
         const fim = this.indiceFim ? this.indiceFim.paraTexto() : 'sem-fim';
+        const passo = this.indicePasso ? this.indicePasso.paraTexto() : 'sem-passo';
         return (`<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
             `inicio=${inicio} ` +
             `fim=${fim}` +
+            `passo=${passo}` +
             `/>`);
     }
     paraTextoSaida() {
