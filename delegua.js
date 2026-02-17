@@ -7601,6 +7601,7 @@ class AvaliadorSintaticoPitugues {
         this.atual = 0;
         this.blocos = 0;
         this.performance = performance;
+        this.intuirTipoQualquerParaIdentificadores = false;
         this.escopos = [];
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.primitivasConhecidas = {};
@@ -8001,17 +8002,22 @@ class AvaliadorSintaticoPitugues {
                 if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.COLCHETE_DIREITO)) {
                     return new construtos_1.Vetor(this.hashArquivo, simboloAtual.linha, [], 0, 'qualquer[]');
                 }
-                if (this.simbolos[this.atual].tipo == 'IDENTIFICADOR' &&
-                    !this.verificarTipoProximoSimbolo(pitugues_2.default.VIRGULA)) {
-                    return this.resolverCompreensaoDeLista();
+                // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
+                // de lista serão tratados como 'qualquer', para evitar erros de tipo.
+                this.intuirTipoQualquerParaIdentificadores = true;
+                const retornoExpressaoOuPrimeiroValor = await this.seTernario();
+                this.intuirTipoQualquerParaIdentificadores = false;
+                if (this.simbolos[this.atual].tipo === pitugues_2.default.PARA) {
+                    return await this.resolverCompreensaoDeLista(retornoExpressaoOuPrimeiroValor);
                 }
-                const valoresVetor = [];
+                // Aqui já sabemos que não é uma compreensão de lista.
+                const valoresVetor = [retornoExpressaoOuPrimeiroValor];
                 while (!this.verificarSeSimboloAtualEIgualA(pitugues_2.default.COLCHETE_DIREITO)) {
-                    const valor = await this.atribuir();
-                    valoresVetor.push(valor);
                     if (this.simbolos[this.atual].tipo !== pitugues_2.default.COLCHETE_DIREITO) {
                         this.consumir(pitugues_2.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
                     }
+                    const valor = await this.atribuir();
+                    valoresVetor.push(valor);
                 }
                 const tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresVetor);
                 return new construtos_1.Vetor(this.hashArquivo, simboloAtual.linha, valoresVetor, valoresVetor.length, tipoVetor);
@@ -8053,7 +8059,13 @@ class AvaliadorSintaticoPitugues {
             case pitugues_2.default.IDENTIFICADOR:
                 const simboloIdentificador = this.avancarEDevolverAnterior();
                 let tipoOperando;
-                if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
+                if (this.intuirTipoQualquerParaIdentificadores) {
+                    // Esta indicação é utilizada para compreensões de lista, onde o
+                    // tipo do identificador de iteração é 'qualquer' por definição.
+                    tipoOperando = 'qualquer';
+                    this.pilhaEscopos.definirInformacoesVariavel(simboloIdentificador.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(simboloIdentificador.lexema, 'qualquer'));
+                }
+                else if (simboloIdentificador.lexema in this.tiposDefinidosEmCodigo) {
                     tipoOperando = simboloIdentificador.lexema;
                 }
                 else {
@@ -8711,19 +8723,10 @@ class AvaliadorSintaticoPitugues {
     }
     /**
      * Resolve uma lista de compreensão.
+     * @param retornoExpressao A expressão já resolvida que representa o valor a ser retornado.
      * @returns {ListaCompreensao} A lista de compreensão resolvida.
      */
-    async resolverCompreensaoDeLista() {
-        // TODO: Se expressão não começar com um identificador, por exemplo `3 * x`, como faríamos para
-        // aceitar o `x` na avaliação da expressão?
-        if (this.simbolos[this.atual].tipo === pitugues_2.default.IDENTIFICADOR) {
-            // Antes de avaliar a condição, precisamos registrar a variável de iteração.
-            const simboloVariavelIteracao = this.simbolos[this.atual];
-            this.pilhaEscopos.definirInformacoesVariavel(simboloVariavelIteracao.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(simboloVariavelIteracao.lexema, 'qualquer') // TODO: Talvez um dia inferir o tipo aqui.
-            );
-        }
-        // TODO: Reavaliar a precedência do se ternário.
-        const retornoExpressao = await this.ou();
+    async resolverCompreensaoDeLista(retornoExpressao) {
         this.consumir(pitugues_2.default.PARA, "Esperado instrução 'para' após identificado.");
         this.consumir(pitugues_2.default.CADA, "Esperado instrução 'cada' após 'para'.");
         const simboloVariavelIteracao = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado identificador de variável após 'para cada'.");
