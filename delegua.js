@@ -8405,11 +8405,13 @@ class AvaliadorSintaticoPitugues {
         // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
         if (simboloAtual.linha === simboloAnterior.linha) {
             const declaracoesBloco = await this.resolverDeclaracaoForaDeBloco();
-            if (Array.isArray(declaracoesBloco)) {
-                declaracoes = declaracoes.concat(declaracoesBloco);
-            }
-            else {
-                declaracoes.push(declaracoesBloco);
+            if (declaracoesBloco !== null) {
+                if (Array.isArray(declaracoesBloco)) {
+                    declaracoes = declaracoes.concat(declaracoesBloco);
+                }
+                else {
+                    declaracoes.push(declaracoesBloco);
+                }
             }
         }
         else {
@@ -8433,11 +8435,13 @@ class AvaliadorSintaticoPitugues {
             const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
             while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
                 const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
-                if (Array.isArray(retornoDeclaracao)) {
-                    declaracoes = declaracoes.concat(retornoDeclaracao);
-                }
-                else {
-                    declaracoes.push(retornoDeclaracao);
+                if (retornoDeclaracao !== null) {
+                    if (Array.isArray(retornoDeclaracao)) {
+                        declaracoes = declaracoes.concat(retornoDeclaracao);
+                    }
+                    else {
+                        declaracoes.push(retornoDeclaracao);
+                    }
                 }
                 simboloAtual = this.simboloAtual();
                 if (!simboloAtual)
@@ -8938,6 +8942,9 @@ class AvaliadorSintaticoPitugues {
             case pitugues_2.default.CONTINUA:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoContinua();
+            case pitugues_2.default.NADA:
+                this.avancarEDevolverAnterior();
+                return null;
             case pitugues_2.default.DOIS_PONTOS:
                 this.avancarEDevolverAnterior();
                 const simboloInicioBloco = this.simboloAnterior();
@@ -25751,6 +25758,7 @@ exports.palavrasReservadasPitugues = {
     isto: pitugues_1.default.ISTO,
     entrada: pitugues_1.default.LEIA,
     leia: pitugues_1.default.LEIA,
+    nada: pitugues_1.default.NADA,
     nao: pitugues_1.default.NAO,
     não: pitugues_1.default.NAO,
     nulo: pitugues_1.default.NULO,
@@ -27955,6 +27963,7 @@ exports.default = {
     MODULO: 'MODULO',
     MULTIPLICACAO: 'MULTIPLICACAO',
     MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
+    NADA: 'NADA',
     NAO: 'NAO',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
