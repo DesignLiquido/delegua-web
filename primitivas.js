@@ -1645,19 +1645,24 @@ exports.AtribuicaoPorIndicesMatriz = AtribuicaoPorIndicesMatriz;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
+const variavel_1 = require("./variavel");
 /**
  * Construto de atribuição de um valor a um símbolo.
  */
 class Atribuir {
-    constructor(hashArquivo, alvo, valor, 
-    // indice so é usado para variaveis de vetores
-    // TODO: criar alguma validaçao para garantir que `indice` só seja passado para variáveis de vetores
-    indice, simboloOperador) {
+    constructor(hashArquivo, alvo, valor, indice, simboloOperador) {
         this.linha = Number(alvo.linha);
         this.hashArquivo = hashArquivo;
         this.alvo = alvo;
         this.valor = valor;
         if (indice !== undefined) {
+            const alvoComoVariavel = alvo;
+            const tipoAlvo = alvoComoVariavel === null || alvoComoVariavel === void 0 ? void 0 : alvoComoVariavel.tipo;
+            const alvoSuportaIndice = alvo instanceof variavel_1.Variavel &&
+                (tipoAlvo === 'vetor' || tipoAlvo === 'dicionário' || tipoAlvo === 'qualquer' || (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
+            if (!alvoSuportaIndice) {
+                throw new Error("`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.");
+            }
             this.indice = indice;
         }
         if (simboloOperador !== undefined) {
@@ -1680,7 +1685,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{}],23:[function(require,module,exports){
+},{"./variavel":67}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
@@ -3121,7 +3126,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoNativoSimbolo = void 0;
 exports.inferirTipoVariavel = inferirTipoVariavel;
-exports.tipoInferenciaParaTipoDadosElementar = tipoInferenciaParaTipoDadosElementar;
 const primitivos_1 = __importDefault(require("./tipos-de-dados/primitivos"));
 const delegua_1 = __importDefault(require("./tipos-de-dados/delegua"));
 const delegua_2 = __importDefault(require("./tipos-de-simbolos/delegua"));
@@ -3233,13 +3237,6 @@ function inferirTipoVariavel(variavel) {
             return 'função';
         case 'symbol':
             return 'símbolo';
-    }
-}
-function tipoInferenciaParaTipoDadosElementar(tipoInferencia) {
-    switch (tipoInferencia) {
-        // TODO: Colocar exceções aqui.
-        default:
-            return tipoInferencia;
     }
 }
 
