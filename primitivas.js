@@ -1401,9 +1401,9 @@ class AcessoIntervaloVariavel {
         return await visitante.visitarExpressaoAcessoIntervaloVariavel(this);
     }
     paraTexto() {
-        const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : 'sem-início';
-        const fim = this.indiceFim ? this.indiceFim.paraTexto() : 'sem-fim';
-        const passo = this.indicePasso ? this.indicePasso.paraTexto() : 'sem-passo';
+        const inicio = this.indiceInicio ? this.indiceInicio.paraTexto() : '(sem início)';
+        const fim = this.indiceFim ? this.indiceFim.paraTexto() : '(sem fim)';
+        const passo = this.indicePasso ? this.indicePasso.paraTexto() : '(sem passo)';
         return (`<acesso-índice-variável entidadeChamada=${this.entidadeChamada.paraTexto()} ` +
             `inicio=${inicio} ` +
             `fim=${fim}` +
@@ -1778,8 +1778,11 @@ class Chamada {
         return await visitante.visitarExpressaoDeChamada(this);
     }
     paraTexto() {
-        // TODO: Argumentos
-        return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} />`;
+        let argumentos = '';
+        for (let indice = 0; indice < this.argumentos.length; indice++) {
+            argumentos += this.argumentos[indice].paraTexto();
+        }
+        return `<chamada entidadeChamada=${this.entidadeChamada.paraTexto()} argumentos=[${argumentos}] />`;
     }
     paraTextoSaida() {
         throw new Error('Método não implementado.');
@@ -1888,7 +1891,18 @@ class Decorador {
         return Promise.reject(new Error('Este método não deveria ser chamado.'));
     }
     paraTexto() {
-        // TODO: Atributos
+        let atributos = '';
+        for (const chave in this.atributos) {
+            if (!Object.prototype.hasOwnProperty.call(this.atributos, chave)) {
+                continue;
+            }
+            const valor = this.atributos[chave];
+            const valorTexto = valor && typeof valor === 'object' && typeof valor.paraTexto === 'function' ? valor.paraTexto() : valor;
+            atributos += `${chave}=${valorTexto} `;
+        }
+        if (atributos.length > 0) {
+            return `<decorador nome=${this.nome} ${atributos.slice(0, -1)} />`;
+        }
         return `<decorador nome=${this.nome} />`;
     }
     paraTextoSaida() {
@@ -2120,8 +2134,19 @@ class FuncaoConstruto {
         return Promise.resolve(visitante.visitarExpressaoFuncaoConstruto(this));
     }
     paraTexto() {
-        // TODO: Corpo.
-        return `<construto-função parâmetros=${this.parametros} tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
+        let parametros = '';
+        for (let indice = 0; indice < this.parametros.length; indice++) {
+            const parametro = this.parametros[indice];
+            parametros += `${parametro.nome.lexema}:${parametro.tipoDado}`;
+            if (indice < this.parametros.length - 1) {
+                parametros += ',';
+            }
+        }
+        let corpo = '';
+        for (let indice = 0; indice < this.corpo.length; indice++) {
+            corpo += this.corpo[indice].paraTexto();
+        }
+        return `<construto-função parâmetros=[${parametros}] corpo=[${corpo}] tipoRetorno=${this.tipo} tipoExplícito=${this.tipoExplicito ? 'Sim' : 'Não'} />`;
     }
     paraTextoSaida() {
         throw new Error('Método não implementado.');
