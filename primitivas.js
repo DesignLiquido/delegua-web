@@ -1803,7 +1803,7 @@ class ComentarioComoConstruto {
         this.linha = simboloComentario.linha;
         this.hashArquivo = simboloComentario.hashArquivo;
         this.conteudo = simboloComentario.lexema || simboloComentario.literal || '';
-        this.multilinha = simboloComentario.tipo === 'COMENTARIO_MULTILINHA';
+        this.multilinha = ['COMENTARIO_MULTILINHA', 'DOCUMENTARIO'].includes(simboloComentario.tipo);
     }
     aceitar(visitante) {
         return Promise.resolve(visitante.visitarExpressaoComentario(this));
@@ -3342,6 +3342,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     ADICAO: 'ADICAO',
+    ABSTRATO: 'ABSTRATO',
     AJUDA: 'AJUDA',
     ARROBA: 'ARROBA',
     BIT_AND: 'BIT_AND',
@@ -3356,6 +3357,7 @@ exports.default = {
     COLCHETE_DIREITO: 'COLCHETE_DIREITO',
     COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
     COMENTARIO: 'COMENTARIO',
+    DOCUMENTARIO: 'DOCUMENTARIO',
     COMO: 'COMO',
     CONSTANTE: 'CONSTANTE',
     CONSTRUTOR: 'CONSTRUTOR',
@@ -3386,6 +3388,8 @@ exports.default = {
     FUNÇÃO: 'FUNÇÃO',
     HERDA: 'HERDA',
     IDENTIFICADOR: 'IDENTIFICADOR',
+    IMPLEMENTA: 'IMPLEMENTA',
+    INTERFACE: 'INTERFACE',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
     IMPORTAR: 'IMPORTAR',
@@ -3407,6 +3411,7 @@ exports.default = {
     MULTIPLICACAO: 'MULTIPLICACAO',
     MULTIPLICACAO_IGUAL: 'MULTIPLICACAO_IGUAL',
     NAO: 'NAO',
+    OPERADOR: 'OPERADOR',
     NEGACAO: 'NEGACAO',
     NULO: 'NULO',
     NUMERO: 'NUMERO',
@@ -3418,6 +3423,9 @@ exports.default = {
     PARENTESE_DIREITO: 'PARENTESE_DIREITO',
     PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
     PEGUE: 'PEGUE',
+    PRIVADO: 'PRIVADO',
+    PROTEGIDO: 'PROTEGIDO',
+    PUBLICO: 'PUBLICO',
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
     QUEBRAR: 'QUEBRAR',
@@ -3428,6 +3436,7 @@ exports.default = {
     SENÃO: 'SENÃO',
     SETA_ESQUERDA: 'SETA_ESQUERDA',
     SUPER: 'SUPER',
+    ESTATICO: 'ESTATICO',
     SUSTAR: 'SUSTAR',
     TENDO: 'TENDO',
     TENTE: 'TENTE',
