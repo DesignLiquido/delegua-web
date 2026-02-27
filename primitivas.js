@@ -922,6 +922,75 @@ exports.default = {
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'texto.tudoMinusculo()',
     },
+    apararInício: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, texto) => Promise.resolve(texto.trimStart()),
+        assinaturaFormato: 'texto.apararInício()',
+        documentacao: '# `texto.apararInício()` \n \n' +
+            'Remover espaços em branco no início e no fim de um texto.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "   meu texto com espaços no início e no fim       "\n' +
+            'escreva("|" + t.apararInício() + "|") // "|meu texto com espaços no início e no fim       |"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.apararInício()',
+    },
+    maiúsculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, texto) => Promise.resolve(texto.toUpperCase()),
+        assinaturaFormato: 'texto.maiúsculo()',
+        documentacao: '# `texto.maiúsculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em maiúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "tudo em minúsculo"\n' +
+            'escreva(t.maiúsculo()) // "TUDO EM MINÚSCULO"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.maiúsculo()',
+    },
+    minúsculo: {
+        tipoRetorno: 'texto',
+        argumentos: [],
+        implementacao: (interpretador, texto) => Promise.resolve(texto.toLowerCase()),
+        assinaturaFormato: 'texto.minúsculo()',
+        documentacao: '# `texto.minúsculo()` \n \n' +
+            'Converte todos os caracteres alfabéticos para suas respectivas formas em minúsculo.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t = "TUDO EM MAIÚSCULO"\n' +
+            'escreva(t.minúsculo()) // "tudo em maiúsculo"\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.minúsculo()',
+    },
+    tudoMaiúsculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (interpretador, texto) => Promise.resolve(texto === texto.toUpperCase()),
+        assinaturaFormato: 'texto.tudoMaiúsculo()',
+        documentacao: '# `texto.tudoMaiúsculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em maiúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "TUDO EM MAIÚSCULO"\n' +
+            'var t2 = "Tudo em Maiúsculo"\n' +
+            't1.tudoMaiúsculo() // verdadeiro\n' +
+            't2.tudoMaiúsculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMaiúsculo()',
+    },
+    tudoMinúsculo: {
+        tipoRetorno: 'lógico',
+        argumentos: [],
+        implementacao: (interpretador, texto) => Promise.resolve(texto === texto.toLowerCase()),
+        assinaturaFormato: 'texto.tudoMinúsculo()',
+        documentacao: '# `texto.tudoMinúsculo()` \n\n' +
+            'Devolve verdadeiro se todos os caracteres alfabéticos do texto estão em minúsculo, e falso em caso contrário.' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar t1 = "tudo em minúsculo"\n' +
+            'var t2 = "Tudo em Minúsculo"\n' +
+            't1.tudoMinúsculo() // verdadeiro\n' +
+            't2.tudoMinúsculo() // falso\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'texto.tudoMinúsculo()',
+    },
 };
 
 },{"../construtos":40,"../excecoes":70,"../informacao-elemento-sintatico":73}],10:[function(require,module,exports){
@@ -1286,6 +1355,24 @@ exports.default = {
             'escreva(vetor) // [1, 2]\n```' +
             '\n\n ### Formas de uso \n',
         exemploCodigo: 'vetor.removerUltimo()',
+    },
+    removerÚltimo: {
+        tipoRetorno: 'qualquer',
+        argumentos: [],
+        implementacao: (interpretador, vetor) => {
+            let elemento = vetor.pop();
+            return Promise.resolve(elemento);
+        },
+        assinaturaFormato: 'vetor.removerÚltimo()',
+        documentacao: '# `vetor.removerÚltimo()` \n \n' +
+            'Remove o último elemento do vetor caso o elemento exista no vetor.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\nvar vetor = [1, 2, 3]\n' +
+            'var ultimoElemento = vetor.removerÚltimo()\n' +
+            'escreva(ultimoElemento) // 3\n' +
+            'escreva(vetor) // [1, 2]\n```' +
+            '\n\n ### Formas de uso \n',
+        exemploCodigo: 'vetor.removerÚltimo()',
     },
     somar: {
         tipoRetorno: 'qualquer',
@@ -2252,6 +2339,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
 class Isto {
     constructor(hashArquivo, linha, simboloChave) {
+        this.tipo = 'qualquer';
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.simboloChave = simboloChave;
@@ -3373,6 +3461,7 @@ exports.default = {
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     ELVIS: 'ELVIS',
+    EXTENSAO: 'EXTENSAO',
     EM: 'EM',
     ENQUANTO: 'ENQUANTO',
     EOF: 'EOF',
@@ -3389,6 +3478,7 @@ exports.default = {
     HERDA: 'HERDA',
     IDENTIFICADOR: 'IDENTIFICADOR',
     IMPLEMENTA: 'IMPLEMENTA',
+    MESCLA: 'MESCLA',
     INTERFACE: 'INTERFACE',
     IGUAL: 'IGUAL',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
