@@ -1,4 +1,5 @@
 import { IPrimitiva } from "./primitivas/primitiva-interface";
+import type { CorrecaoImplementacaoInterface, MembroInterfaceFaltando } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
@@ -14,6 +15,8 @@ enum MarkerSeverity {
     Warning = 4,
     Error = 8
 }
+
+let errosComCorrecao: Map<number, CorrecaoImplementacaoInterface> = new Map();
 
 const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     const paragrafo: any = document.createElement("p");
@@ -35,6 +38,14 @@ const mapearErros = function (erros: any[]) {
 
     if (erros.length > 0) {
         console.log(erros);
+    }
+
+    errosComCorrecao.clear();
+    for (const erro of erros) {
+        if (erro.correcaoSugerida) {
+            const linha = erro.simbolo?.linha || erro.linha;
+            errosComCorrecao.set(linha, erro.correcaoSugerida);
+        }
     }
 
     const _erros = erros.map(item => {
@@ -214,11 +225,14 @@ function definirLinguagemDelegua() {
     tokenPostfix: '.delegua',
 
     keywords: [
+      'abstrata',
+      'abstrato',
       'cada',
       'caso',
       'classe',
       'const',
       'constante',
+      'construtor',
       'continua',
       'continuar',
       'de',
@@ -226,6 +240,8 @@ function definirLinguagemDelegua() {
       'enquanto',
       'escolha',
       'escolher',
+      'estatico',
+      'estático',
       'faca',
       'faça',
       'falhar',
@@ -236,11 +252,16 @@ function definirLinguagemDelegua() {
       'funcao',
       'função',
       'herda',
+      'implementa',
       'importar',
       'inteiro[]',
+      'interface',
       'isto',
       'leia',
       'ler',
+      'mescla',
+      'nao',
+      'não',
       'nulo',
       'numero',
       'número',
@@ -250,6 +271,10 @@ function definirLinguagemDelegua() {
       'para',
       'pegar',
       'pegue',
+      'privado',
+      'protegido',
+      'publico',
+      'público',
       'qualquer',
       'qualquer[]',
       'quebrar',
@@ -261,6 +286,7 @@ function definirLinguagemDelegua() {
       'se',
       'senão',
       'senao',
+      'super',
       'sustar',
       'tente',
       'tentar',
@@ -511,6 +537,45 @@ function definirLinguagemDelegua() {
   };
 }
 
+function gerarStubMembro(membro: MembroInterfaceFaltando): string {
+    if (membro.tipo === 'metodo') {
+        const params = (membro.parametros ?? [])
+            .map(p => `${p.nome}${p.tipoDado ? ': ' + p.tipoDado : ''}`)
+            .join(', ');
+        const retorno = membro.tipoRetorno ?? 'vazio';
+        return `    ${membro.nome}(${params}): ${retorno} {\n    }\n`;
+    } else {
+        const tipo = membro.tipoPropriedade ?? 'qualquer';
+        return `    ${membro.nome}: ${tipo}\n`;
+    }
+}
+
+function gerarAcaoImplementarInterface(
+    model: any,
+    correcao: CorrecaoImplementacaoInterface
+): any {
+    const linhaInsercao = correcao.linhaFinalClasse;
+    const codigo = correcao.membrosFaltando
+        .map(membro => gerarStubMembro(membro))
+        .join('\n');
+
+    return {
+        title: `Implementar membros de '${correcao.nomeInterface}'`,
+        kind: 'quickfix',
+        edit: {
+            edits: [{
+                resource: model.uri,
+                textEdit: {
+                    range: new Monaco.Range(linhaInsercao, 1, linhaInsercao, 1),
+                    text: codigo + '\n'
+                },
+                versionId: model.getVersionId()
+            }]
+        },
+        isPreferred: true
+    };
+}
+
 let tempoEsperaMudancas: any = null;
 const configurarAtualizacaoAutomatica = function () {
     let editor = Monaco?.editor.getEditors()[0];
@@ -679,14 +744,14 @@ const configurarLinguagemDelegua = function () {
         provideCompletionItems: (model, position) => {
             const linha = model.getLineContent(position.lineNumber);
             const textoAntesCursor = linha.substring(0, position.column - 1);
-            
+
             // Verificar se estamos após um ponto (ex: criptografia.)
             const matchBiblioteca = textoAntesCursor.match(/(\w+)\.(\w*)$/);
-            
+
             if (matchBiblioteca) {
                 const nomeBiblioteca = matchBiblioteca[1];
                 const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
-                
+
                 if (documentacaoBiblioteca) {
                     const sugestoesMetodos = Object.keys(documentacaoBiblioteca).map(nomeMetodo => {
                         const metodo = documentacaoBiblioteca[nomeMetodo];
@@ -697,7 +762,7 @@ const configurarLinguagemDelegua = function () {
                                 return arg.opcional ? placeholder : placeholder;
                             })
                             .join(', ');
-                        
+
                         return {
                             label: nomeMetodo,
                             kind: 1, // Method
@@ -707,21 +772,72 @@ const configurarLinguagemDelegua = function () {
                             detail: metodo.tipoRetorno ? `→ ${metodo.tipoRetorno}` : ''
                         };
                     });
-                    
+
                     return { suggestions: sugestoesMetodos };
                 }
             }
-            
-            // Extrair variáveis definidas no código (como módulos importados)
+
             const textoCompleto = model.getValue();
+
+            // Sugestões de nomes de classes após 'herda' ou 'implementa'
+            const matchHeranca = textoAntesCursor.match(/(?:herda|implementa)\s+([\w,\s]*)$/);
+            if (matchHeranca) {
+                const regexClasses = /classe\s+(?:abstrata?\s+)?([A-ZÂÁÊÉÍÓÔÕÚ]\w*)/g;
+                const regexInterfaces = /interface\s+([A-ZÂÁÊÉÍÓÔÕÚ]\w*)/g;
+                const nomesEncontrados = new Set<string>();
+                let m;
+                while ((m = regexClasses.exec(textoCompleto)) !== null) nomesEncontrados.add(m[1]);
+                while ((m = regexInterfaces.exec(textoCompleto)) !== null) nomesEncontrados.add(m[1]);
+                if (nomesEncontrados.size > 0) {
+                    return {
+                        suggestions: Array.from(nomesEncontrados).map(nome => ({
+                            label: nome,
+                            kind: 7, // Class
+                            insertText: nome,
+                            sortText: `0${nome}`
+                        }))
+                    };
+                }
+            }
+
+            // Sugestões de blocos de modificadores de acesso dentro de corpos de classe
+            // Verificar se o cursor está dentro de um corpo de classe
+            const linhasAntesDoAtual = textoCompleto.split('\n').slice(0, position.lineNumber);
+            const textoAteAtual = linhasAntesDoAtual.join('\n');
+            const aberturasClasse = (textoAteAtual.match(/\bclasse\b[^{]*\{/g) || []).length;
+            const fechamentosTotais = (textoAteAtual.match(/\}/g) || []).length;
+            const dentroDeClasse = aberturasClasse > fechamentosTotais;
+
+            if (dentroDeClasse && !textoAntesCursor.trim()) {
+                const blocoModificadores = [
+                    { label: 'publico { }', insertText: 'publico {\n\t${1}\n}', descricao: 'Bloco de membros públicos' },
+                    { label: 'privado { }', insertText: 'privado {\n\t${1}\n}', descricao: 'Bloco de membros privados' },
+                    { label: 'protegido { }', insertText: 'protegido {\n\t${1}\n}', descricao: 'Bloco de membros protegidos' },
+                    { label: 'estático { }', insertText: 'estático {\n\t${1}\n}', descricao: 'Bloco de membros estáticos' },
+                    { label: 'abstrato { }', insertText: 'abstrato {\n\t${1}(): ${2:tipo};\n}', descricao: 'Bloco de métodos abstratos (sem corpo)' },
+                    { label: 'construtor', insertText: 'construtor(${1:params}) {\n\t${2}\n}', descricao: 'Método construtor da classe' },
+                ];
+                return {
+                    suggestions: blocoModificadores.map(b => ({
+                        label: b.label,
+                        kind: 14, // Keyword
+                        insertText: b.insertText,
+                        insertTextRules: 4, // InsertAsSnippet
+                        documentation: b.descricao,
+                        sortText: `0${b.label}`
+                    }))
+                };
+            }
+
+            // Extrair variáveis definidas no código (como módulos importados)
             const regexVariaveis = /(?:var|variavel|variável|const|constante|fixo)\s+(\w+)\s*=/g;
-            const variaveisEncontradas = new Set();
+            const variaveisEncontradas = new Set<string>();
             let match;
-            
+
             while ((match = regexVariaveis.exec(textoCompleto)) !== null) {
                 variaveisEncontradas.add(match[1]);
             }
-            
+
             // Criar sugestões para variáveis/módulos
             const sugestoesVariaveis = Array.from(variaveisEncontradas).map((nomeVar: string) => {
                 const ehBiblioteca = documentacoesBibliotecas[nomeVar];
@@ -733,7 +849,7 @@ const configurarLinguagemDelegua = function () {
                     sortText: `0${nomeVar}` // Priorizar na lista
                 };
             });
-            
+
             // Sugestões padrão (primitivas e snippets)
             const formatoPrimitivas = primitivas
                 .filter(p => p.exemploCodigo && p.nome)
@@ -746,8 +862,8 @@ const configurarLinguagemDelegua = function () {
                         insertTextRules: 4 // InsertAsSnippet
                     }
                 });
-            
-            const formatoSnippets = (typeof deleguaCodeSnippets !== 'undefined' && deleguaCodeSnippets) 
+
+            const formatoSnippets = (typeof deleguaCodeSnippets !== 'undefined' && deleguaCodeSnippets)
                 ? deleguaCodeSnippets
                     .filter(s => s.prefixo && s.corpo)
                     .map(({ prefixo, corpo, descricao }) => {
@@ -760,17 +876,102 @@ const configurarLinguagemDelegua = function () {
                         }
                     })
                 : [];
-            
+
             const sugestoes = [...sugestoesVariaveis, ...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
             return { suggestions: sugestoes };
         }
     });
 
+    const documentacaoKeywords: Record<string, { titulo: string; descricao: string; exemplo: string }> = {
+        'interface': {
+            titulo: 'interface',
+            descricao: 'Declara um contrato que classes podem implementar. Define assinaturas de métodos e propriedades sem implementação. A conformidade é verificada em tempo de análise.',
+            exemplo: `interface Forma {\n    area(): numero;\n    nome: texto;\n}`
+        },
+        'implementa': {
+            titulo: 'implementa',
+            descricao: 'Indica que uma classe cumpre o contrato de uma ou mais interfaces (separadas por vírgula). Todos os métodos e propriedades da interface devem ser declarados.',
+            exemplo: `classe Circulo implementa Forma {\n    publico {\n        area(): numero { retorna 3.14 * isto.r * isto.r; }\n        nome: texto;\n    }\n}`
+        },
+        'herda': {
+            titulo: 'herda',
+            descricao: 'Indica herança de uma ou mais superclasses (herança múltipla), separadas por vírgula. A classe filha herda todos os membros públicos e protegidos.',
+            exemplo: `classe Pato herda Voador, Nadador {\n    grasnar() { escreva("Quack!"); }\n}`
+        },
+        'abstrata': {
+            titulo: 'abstrata / abstrato',
+            descricao: 'Modifica uma classe para que não possa ser instanciada diretamente. Métodos no bloco `abstrato { }` não têm corpo e devem ser implementados por subclasses.',
+            exemplo: `classe abstrata Animal {\n    abstrato {\n        fazerSom(): texto;\n    }\n}`
+        },
+        'abstrato': {
+            titulo: 'abstrato / abstrata',
+            descricao: 'Como modificador de classe: impede instanciação direta. Como bloco dentro de uma classe: declara métodos sem implementação que subclasses devem fornecer.',
+            exemplo: `classe abstrata Forma {\n    abstrato {\n        area(): numero;\n    }\n}`
+        },
+        'mescla': {
+            titulo: 'mescla',
+            descricao: 'Composição de misturas (mixins/traits) em uma classe. Permite reutilizar comportamento de múltiplas fontes sem herança formal.',
+            exemplo: `classe Robô herda Maquina mescla Falante, Movivel {\n    // herda de Maquina, incorpora Falante e Movivel\n}`
+        },
+        'construtor': {
+            titulo: 'construtor',
+            descricao: 'Método especial executado automaticamente ao instanciar uma classe. Usado para inicializar propriedades.',
+            exemplo: `classe Pessoa {\n    construtor(nome: texto) {\n        isto.nome = nome;\n    }\n}`
+        },
+        'publico': {
+            titulo: 'publico',
+            descricao: 'Bloco de membros acessíveis de qualquer lugar. Este é o modificador padrão quando nenhum bloco é especificado.',
+            exemplo: `classe Conta {\n    publico {\n        saldo: numero;\n        depositar(valor: numero) { isto.saldo = isto.saldo + valor; }\n    }\n}`
+        },
+        'público': {
+            titulo: 'público',
+            descricao: 'Bloco de membros acessíveis de qualquer lugar. Este é o modificador padrão quando nenhum bloco é especificado.',
+            exemplo: `classe Conta {\n    público {\n        saldo: numero;\n    }\n}`
+        },
+        'privado': {
+            titulo: 'privado',
+            descricao: 'Bloco de membros acessíveis apenas dentro da própria classe. Encapsula detalhes de implementação internos.',
+            exemplo: `classe Conta {\n    privado {\n        _saldo: numero;\n    }\n    publico {\n        obterSaldo(): numero { retorna isto._saldo; }\n    }\n}`
+        },
+        'protegido': {
+            titulo: 'protegido',
+            descricao: 'Bloco de membros acessíveis dentro da própria classe e de subclasses, mas não externamente.',
+            exemplo: `classe Animal {\n    protegido {\n        energia: numero;\n    }\n}`
+        },
+        'estatico': {
+            titulo: 'estatico / estático',
+            descricao: 'Bloco de membros que pertencem à classe em si, não a instâncias. Acessados diretamente pelo nome da classe.',
+            exemplo: `classe Matematica {\n    estatico {\n        pi: numero = 3.14159;\n        quadrado(x: numero): numero { retorna x * x; }\n    }\n}`
+        },
+        'estático': {
+            titulo: 'estático / estatico',
+            descricao: 'Bloco de membros que pertencem à classe em si, não a instâncias. Acessados diretamente pelo nome da classe.',
+            exemplo: `classe Matematica {\n    estático {\n        pi: numero = 3.14159;\n    }\n}`
+        },
+        'super': {
+            titulo: 'super',
+            descricao: 'Referência à superclasse. Usado para chamar o construtor ou métodos da classe pai.',
+            exemplo: `classe Cachorro herda Animal {\n    construtor() {\n        super.construtor();\n    }\n}`
+        },
+    };
+
     Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
             const palavra = model.getWordAtPosition(position);
             if (!palavra) return { contents: [] };
-            
+
+            // Verificar keywords OOP
+            const docKeyword = documentacaoKeywords[palavra.word];
+            if (docKeyword) {
+                return {
+                    contents: [
+                        { value: `**${docKeyword.titulo}** _(palavra-chave)_` },
+                        { value: docKeyword.descricao },
+                        { value: `\`\`\`delegua\n${docKeyword.exemplo}\n\`\`\`` }
+                    ]
+                };
+            }
+
             // Verificar primitivas nativas
             const primitiva = primitivas.find(p => p.nome === palavra.word);
             if (primitiva) {
@@ -860,6 +1061,20 @@ const configurarLinguagemDelegua = function () {
             }
             
             return { contents: [] };
+        }
+    });
+
+    Monaco.languages.registerCodeActionProvider('delegua', {
+        provideCodeActions(model, _range, context) {
+            const acoes: any[] = [];
+
+            for (const marcador of context.markers) {
+                const correcao = errosComCorrecao.get(marcador.startLineNumber);
+                if (!correcao) continue;
+                acoes.push(gerarAcaoImplementarInterface(model, correcao));
+            }
+
+            return { actions: acoes, dispose() {} };
         }
     });
 }
