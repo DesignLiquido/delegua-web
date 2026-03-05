@@ -2903,7 +2903,7 @@ const interfaces_1 = require("../interfaces");
  */
 class AnalisadorSemanticoBase {
     diagnosticoJaExiste(simbolo, mensagem) {
-        return this.diagnosticos.some(d => d.linha === simbolo.linha &&
+        return this.diagnosticos.some((d) => d.linha === simbolo.linha &&
             d.mensagem === mensagem &&
             d.simbolo.lexema === simbolo.lexema);
     }
@@ -2954,7 +2954,7 @@ class AnalisadorSemanticoBase {
         for (let [indice, parametro] of parametros.entries()) {
             const argumento = argumentos[indice];
             if (argumento) {
-                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento, 
+                // Usando `obterTipoExpressao` para resolver adequadamente o tipo do argumento,
                 // independentemente de ser um `Literal` (tipo já resolvido), `Variavel` (tipo inferido do
                 // escopo), `Binario`, `Agrupamento`, ou qualquer outro construto (retorna `null` quando
                 // o tipo não pode ser determinado em tempo de compilação).
@@ -3010,7 +3010,14 @@ class AnalisadorSemanticoBase {
      */
     inferirTipoBinario(binario) {
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+        const operadoresComparacao = [
+            'MAIOR',
+            'MAIOR_IGUAL',
+            'MENOR',
+            'MENOR_IGUAL',
+            'IGUAL',
+            'DIFERENTE',
+        ];
         // Operadores de comparação sempre retornam lógico
         if (operadoresComparacao.includes(binario.operador.tipo)) {
             return 'lógico';
@@ -3037,8 +3044,8 @@ class AnalisadorSemanticoBase {
         return 'qualquer';
     }
     /**
-    * Marca as variáveis usadas em uma expressão.
-    */
+     * Marca as variáveis usadas em uma expressão.
+     */
     marcarVariaveisUsadasEmExpressao(expressao) {
         if (expressao instanceof construtos_1.Variavel) {
             this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
@@ -3124,7 +3131,8 @@ class AnalisadorSemanticoBase {
         if (!caminhoSenaoResolvido || ((_a = caminhoSenaoResolvido.declaracoes) === null || _a === void 0 ? void 0 : _a.length) === 0) {
             return false;
         }
-        if (caminhoSenaoResolvido instanceof declaracoes_1.Se && ((_b = caminhoSenaoResolvido.caminhoEntao.declaracoes) === null || _b === void 0 ? void 0 : _b.length) === 1) {
+        if (caminhoSenaoResolvido instanceof declaracoes_1.Se &&
+            ((_b = caminhoSenaoResolvido.caminhoEntao.declaracoes) === null || _b === void 0 ? void 0 : _b.length) === 1) {
             const senaoSeRetorna = this.verificarSeRetorna(caminhoSenaoResolvido);
             return entaoRetorna && senaoSeRetorna;
         }
@@ -3483,7 +3491,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     }
     visitarChamadaPorVariavel(entidadeChamadaVariavel, argumentos) {
         const variavel = entidadeChamadaVariavel;
-        const funcaoChamada = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) || this.funcoes[variavel.simbolo.lexema];
+        const funcaoChamada = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema) ||
+            this.funcoes[variavel.simbolo.lexema];
         if (!funcaoChamada) {
             this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${entidadeChamadaVariavel.simbolo.lexema}' não existe.`);
             return Promise.resolve();
@@ -3780,15 +3789,18 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 // Verifica se a expressão problemática é um Leia ou uma variável inicializada com Leia
                 let mensagemAdicional = '';
                 if (expressaoProblematica instanceof construtos_1.Leia) {
-                    mensagemAdicional = " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                    mensagemAdicional =
+                        " Função 'leia()' retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
                 }
                 else if (expressaoProblematica instanceof construtos_1.Variavel) {
                     const variavel = this.gerenciadorEscopos.buscar(expressaoProblematica.simbolo.lexema);
                     if (variavel && variavel.valor instanceof construtos_1.Leia) {
-                        mensagemAdicional = " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
+                        mensagemAdicional =
+                            " A variável foi inicializada com 'leia()' que retorna texto. Use 'inteiro(leia(...))' ou 'real(leia(...))' para converter.";
                     }
                     else {
-                        mensagemAdicional = " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
+                        mensagemAdicional =
+                            " Use 'inteiro(...)' ou 'real(...)' para converter texto em número.";
                     }
                 }
                 this.erro(binario.operador, `Operação aritmética com tipo incompatível: operando ${ladoProblematico} é do tipo 'texto', mas a operação requer número.${mensagemAdicional}`);
@@ -3797,8 +3809,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         if (tipoEsquerda && tipoDireita && tipoEsquerda !== tipoDireita) {
             // Verificar se são tipos numéricos compatíveis
-            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) &&
-                tiposNumericos.includes(tipoDireita);
+            const ambosNumericos = tiposNumericos.includes(tipoEsquerda) && tiposNumericos.includes(tipoDireita);
             if (!ambosNumericos) {
                 this.aviso(binario.operador, `Operação entre tipos diferentes: tipo esquerdo '${tipoEsquerda}' e tipo direito '${tipoDireita}'. O resultado será resolvido implicitamente.`);
             }
@@ -3906,7 +3917,15 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 let entidadeChamadaVariavel = chamada.entidadeChamada;
                 const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
                 // Lista de funções built-in que não precisam ser declaradas
-                const funcoesBuiltIn = ['inteiro', 'real', 'número', 'texto', 'leia', 'escreva', 'tipo'];
+                const funcoesBuiltIn = [
+                    'inteiro',
+                    'real',
+                    'número',
+                    'texto',
+                    'leia',
+                    'escreva',
+                    'tipo',
+                ];
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
                 // Só verifica se a função existe se não for built-in e não parecer ser classe
@@ -3961,7 +3980,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                     tipo: 'IDENTIFICADOR',
                     linha: literal.linha,
                     hashArquivo: literal.hashArquivo,
-                    literal: null
+                    literal: null,
                 }, `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`);
             }
             else if (variavel) {
@@ -3974,7 +3993,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                         tipo: 'IDENTIFICADOR',
                         linha: literal.linha,
                         hashArquivo: literal.hashArquivo,
-                        literal: null
+                        literal: null,
                     }, `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`);
                 }
             }
@@ -4037,7 +4056,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             inicializada: true,
             usada: false,
             hashArquivo: declaracao.simbolo.hashArquivo,
-            linha: declaracao.simbolo.linha
+            linha: declaracao.simbolo.linha,
         });
         // TODO: Verificar inicializador.
         return Promise.resolve();
@@ -4069,7 +4088,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                                     if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
                                         this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                                     }
-                                    if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                                    if (tipoValor === 'number' &&
+                                        !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
                                         this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                                     }
                                 }
@@ -4094,17 +4114,21 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
         }
         // Sugestão de tipo melhor quando 'qualquer' é usado explicitamente
-        if (declaracao.tipoExplicito && declaracao.tipoOriginal === 'qualquer' && declaracao.inicializador) {
+        if (declaracao.tipoExplicito &&
+            declaracao.tipoOriginal === 'qualquer' &&
+            declaracao.inicializador) {
             const tipoMelhor = this.obterTipoExpressao(declaracao.inicializador);
             if (tipoMelhor && tipoMelhor !== 'qualquer') {
-                this.sugestao(declaracao.simbolo, 'Um tipo melhor pode ser inferido.', [{
+                this.sugestao(declaracao.simbolo, 'Um tipo melhor pode ser inferido.', [
+                    {
                         titulo: `Alterar tipo para '${tipoMelhor}'`,
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
                         colunaInicio: declaracao.simbolo.colunaInicio,
                         colunaFim: declaracao.simbolo.colunaFim,
-                    }]);
+                    },
+                ]);
             }
         }
         const variavel = {
@@ -4115,7 +4139,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             inicializada: declaracao.inicializador !== null && declaracao.inicializador !== undefined,
             usada: false,
             hashArquivo: declaracao.simbolo.hashArquivo,
-            linha: declaracao.simbolo.linha
+            linha: declaracao.simbolo.linha,
         };
         const declaradaComSucesso = this.gerenciadorEscopos.declarar(declaracao.simbolo.lexema, variavel);
         if (!declaradaComSucesso) {
@@ -4260,7 +4284,9 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 retorno.tipo === 'qualquer');
             // Se a função é 'vazio' e há retornos com tipo indeterminado,
             // tenta inferir o tipo e fornece mensagem útil ao desenvolvedor
-            if (tipoRetornoFuncao === 'vazio' && declaracao.funcao.tipoExplicito && retornosComTipoIndeterminado.length > 0) {
+            if (tipoRetornoFuncao === 'vazio' &&
+                declaracao.funcao.tipoExplicito &&
+                retornosComTipoIndeterminado.length > 0) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
                 const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
                 if (tipoInferido && tipoInferido !== 'qualquer') {
@@ -4279,7 +4305,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                         if (tipoValor === 'string' && tipoRetornoFuncao !== 'texto') {
                             this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                         }
-                        if (tipoValor === 'number' && !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
+                        if (tipoValor === 'number' &&
+                            !['inteiro', 'real', 'número'].includes(tipoRetornoFuncao)) {
                             this.erro(declaracao.simbolo, `Esperado retorno do tipo '${tipoRetornoFuncao}' dentro da função.`);
                         }
                     }
@@ -4295,7 +4322,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         const naoUsadas = this.gerenciadorEscopos.obterVariaveisNaoUsadas();
         for (let variavel of naoUsadas) {
             // Verifica se já existe um erro associado à variável.
-            const temErro = this.diagnosticos.some(d => d.severidade === erros_1.DiagnosticoSeveridade.ERRO &&
+            const temErro = this.diagnosticos.some((d) => d.severidade === erros_1.DiagnosticoSeveridade.ERRO &&
                 d.simbolo.lexema === variavel.nome);
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
             if (temErro) {
@@ -4305,7 +4332,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 lexema: variavel.nome,
                 linha: variavel.linha,
                 tipo: variavel.tipo,
-                hashArquivo: variavel.hashArquivo
+                hashArquivo: variavel.hashArquivo,
             }, `Variável '${variavel.nome}' foi declarada mas nunca usada.`);
         }
     }
@@ -4843,7 +4870,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async construtoAjuda() {
         const simboloAjuda = this.avancarEDevolverAnterior();
-        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== delegua_2.default.PARENTESE_ESQUERDO) {
+        if (this.estaNoFinal() ||
+            this.simbolos[this.atual].tipo !== delegua_2.default.PARENTESE_ESQUERDO) {
             return new construtos_1.AjudaComoConstruto(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
         }
         this.avancarEDevolverAnterior(); // parêntese esquerdo
@@ -5270,7 +5298,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             // o analisador semântico emitir o diagnóstico quando apropriado.
             tipoIdentificadorCorrespondente = 'qualquer';
         }
-        if (!tipoIdentificadorCorrespondente.endsWith('[]') && !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
+        if (!tipoIdentificadorCorrespondente.endsWith('[]') &&
+            !['dicionário', 'qualquer', 'texto', 'tupla', 'vetor'].includes(tipoIdentificadorCorrespondente)) {
             throw this.erro(this.simbolos[this.atual], `Tipo ${tipoIdentificadorCorrespondente} não suporta acesso por índice.`);
         }
         let tipoAcesso = 'qualquer';
@@ -5344,8 +5373,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 if (expressaoAnterior.tipo === 'dicionário' &&
                     expressaoAnterior.constructor !== construtos_1.Dicionario) {
                     const elementoMontaoTipos = this.resolverElementoMontao(expressaoAnterior);
-                    if (elementoMontaoTipos &&
-                        nome.lexema in elementoMontaoTipos.subElementos) {
+                    if (elementoMontaoTipos && nome.lexema in elementoMontaoTipos.subElementos) {
                         tipoInferido = elementoMontaoTipos.subElementos[nome.lexema].tipo;
                     }
                 }
@@ -5602,7 +5630,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         if (construto instanceof construtos_1.Unario) {
             const operando = construto.operando;
             // Verifica se o operando é um vetor
-            if (operando instanceof construtos_1.Vetor || operando.tipo === 'vetor' || operando.tipo.endsWith('[]')) {
+            if (operando instanceof construtos_1.Vetor ||
+                operando.tipo === 'vetor' ||
+                operando.tipo.endsWith('[]')) {
                 return true;
             }
             // Verifica recursivamente para casos como !![]
@@ -6213,7 +6243,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async declaracaoSe() {
         const condicao = await this.expressao();
-        const caminhoEntao = await this.resolverDeclaracao();
+        const caminhoEntao = (await this.resolverDeclaracao());
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.SENAO, delegua_2.default.SENÃO)) {
             caminhoSenao = await this.resolverDeclaracao();
@@ -6344,20 +6374,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         // Uma delas é a variável/constante ser uma classe padrão.
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
-        if (entidadeChamada.objeto.tipo &&
-            entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
+        if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
             const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamada.objeto.tipo];
             if (!tipoCorrespondente) {
                 throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Tipo '${entidadeChamada.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`);
             }
-            if (!(entidadeChamada.simbolo.lexema in
-                tipoCorrespondente.metodos) &&
-                !(entidadeChamada.simbolo.lexema in
-                    tipoCorrespondente.propriedades)) {
+            if (!(entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) &&
+                !(entidadeChamada.simbolo.lexema in tipoCorrespondente.propriedades)) {
                 throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Membro '${entidadeChamada.simbolo.lexema}' não existe no tipo '${entidadeChamada.objeto.tipo}'.`);
             }
-            if (entidadeChamada.simbolo.lexema in
-                tipoCorrespondente.metodos) {
+            if (entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) {
                 const metodoCorrespondente = tipoCorrespondente.metodos[entidadeChamada.simbolo.lexema];
                 return metodoCorrespondente.tipoRetorno || 'qualquer';
             }
@@ -6710,7 +6736,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.consumir(delegua_2.default.CHAVE_ESQUERDA, "Esperado '{' antes do corpo da interface.");
         const metodos = [];
         const propriedades = [];
-        while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) &&
+            !this.estaNoFinal()) {
             this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
             if (this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA))
                 break;
@@ -6761,7 +6788,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         const simbolo = this.consumir(delegua_2.default.IDENTIFICADOR, 'Esperado nome da classe.');
         // Pré-registro para permitir auto-referência no corpo da própria classe,
         // como em `MinhaClasse.propriedadeEstatica` dentro de métodos.
-        this.tiposDefinidosEmCodigo[simbolo.lexema] = (_a = this.tiposDefinidosEmCodigo[simbolo.lexema]) !== null && _a !== void 0 ? _a : {};
+        this.tiposDefinidosEmCodigo[simbolo.lexema] =
+            (_a = this.tiposDefinidosEmCodigo[simbolo.lexema]) !== null && _a !== void 0 ? _a : {};
         const pilhaDecoradoresClasse = Array.from(this.pilhaDecoradores);
         // Verificar `herda SuperclasseA, SuperclasseB`
         const superClasses = [];
@@ -6799,7 +6827,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
          */
         const compreenderMembros = async (acessoPadrao, ehEstaticoPadrao, ehAbstratoPadrao = false) => {
             var _a;
-            while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+            while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) &&
+                !this.estaNoFinal()) {
                 // Pular comentários normais dentro do corpo da classe.
                 if (this.simbolos[this.atual].tipo === delegua_2.default.COMENTARIO ||
                     this.simbolos[this.atual].tipo === delegua_2.default.LINHA_COMENTARIO) {
@@ -6820,12 +6849,12 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 // Detecção de bloco de contexto: modificador seguido de '{'
                 const tipoAtual = this.simbolos[this.atual].tipo;
                 const tipoProximo = (_a = this.simbolos[this.atual + 1]) === null || _a === void 0 ? void 0 : _a.tipo;
-                const ehBlocoAcesso = [delegua_2.default.PRIVADO, delegua_2.default.PROTEGIDO].includes(tipoAtual)
-                    && tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
-                const ehBlocoEstatico = tipoAtual === delegua_2.default.ESTATICO
-                    && tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
-                const ehBlocoAbstrato = tipoAtual === delegua_2.default.ABSTRATO
-                    && tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
+                const ehBlocoAcesso = [delegua_2.default.PRIVADO, delegua_2.default.PROTEGIDO].includes(tipoAtual) &&
+                    tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
+                const ehBlocoEstatico = tipoAtual === delegua_2.default.ESTATICO &&
+                    tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
+                const ehBlocoAbstrato = tipoAtual === delegua_2.default.ABSTRATO &&
+                    tipoProximo === delegua_2.default.CHAVE_ESQUERDA;
                 if (ehBlocoAcesso) {
                     const novoAcesso = tipoAtual === delegua_2.default.PRIVADO ? 'privado' : 'protegido';
                     this.avancarEDevolverAnterior(); // consume modificador de acesso
@@ -6922,14 +6951,17 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                             for (const declaracao of corpo) {
                                 expressoesRetorna = expressoesRetorna.concat((0, comum_1.buscarRetornos)(declaracao));
                             }
-                            const tiposRetornos = new Set(expressoesRetorna.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
+                            const tiposRetornos = new Set(expressoesRetorna
+                                .filter((e) => e.tipo !== 'qualquer')
+                                .map((e) => e.tipo));
                             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
                             tiposRetornos.delete('qualquer');
                             if (tipoRetorno === 'qualquer') {
                                 if (tiposRetornos.size > 0) {
                                     tipoRetorno = tiposRetornos.values().next().value;
                                 }
-                                else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
+                                else if (!retornaChamadoExplicitamente &&
+                                    !definicaoExplicitaDeTipo) {
                                     tipoRetorno = 'vazio';
                                 }
                             }
@@ -6985,13 +7017,18 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                                         let tipoAcessor = 'qualquer';
                                         let expressoesRetornaAcessor = [];
                                         for (const declaracao of corpoAcessor) {
-                                            expressoesRetornaAcessor = expressoesRetornaAcessor.concat((0, comum_1.buscarRetornos)(declaracao));
+                                            expressoesRetornaAcessor =
+                                                expressoesRetornaAcessor.concat((0, comum_1.buscarRetornos)(declaracao));
                                         }
-                                        const tiposRetornosAcessor = new Set(expressoesRetornaAcessor.filter((e) => e.tipo !== 'qualquer').map((e) => e.tipo));
+                                        const tiposRetornosAcessor = new Set(expressoesRetornaAcessor
+                                            .filter((e) => e.tipo !== 'qualquer')
+                                            .map((e) => e.tipo));
                                         const retornaExplicitamenteAcessor = tiposRetornosAcessor.size > 0;
                                         tiposRetornosAcessor.delete('qualquer');
                                         if (tiposRetornosAcessor.size > 0) {
-                                            tipoAcessor = tiposRetornosAcessor.values().next().value;
+                                            tipoAcessor = tiposRetornosAcessor
+                                                .values()
+                                                .next().value;
                                         }
                                         else if (!retornaExplicitamenteAcessor) {
                                             tipoAcessor = 'vazio';
@@ -7043,24 +7080,55 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         await compreenderMembros('publico', false);
         this.consumir(delegua_2.default.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         // Verificação em tempo de análise: classe deve implementar todos os contratos das interfaces.
+        const linhaFinalClasse = this.simbolos[this.atual - 1].linha;
         for (const nomeInterface of implementaInterfaces) {
             const interfaceDecl = this.interfacesDeclaradas[nomeInterface.lexema];
             if (!interfaceDecl) {
                 this.erros.push(this.erro(nomeInterface, `Interface '${nomeInterface.lexema}' não foi declarada antes da classe '${simbolo.lexema}'.`));
                 continue;
             }
+            const membrosFaltando = [];
             for (const assinatura of interfaceDecl.metodos) {
                 const nomeMetodo = assinatura.nome.lexema;
                 const implementado = metodos.some((m) => m.simbolo.lexema === nomeMetodo);
                 if (!implementado) {
-                    this.erros.push(this.erro(simbolo, `Classe '${simbolo.lexema}' não implementa o método '${nomeMetodo}' exigido pela interface '${nomeInterface.lexema}'.`));
+                    membrosFaltando.push({
+                        tipo: 'metodo',
+                        nome: nomeMetodo,
+                        parametros: assinatura.parametros.map((p) => ({
+                            nome: p.nome.lexema,
+                            tipoDado: p.tipoDado,
+                        })),
+                        tipoRetorno: assinatura.tipoRetorno,
+                    });
                 }
             }
             for (const prop of interfaceDecl.propriedades) {
                 const nomeProp = prop.nome.lexema;
                 const implementada = propriedades.some((p) => p.nome.lexema === nomeProp);
                 if (!implementada) {
-                    this.erros.push(this.erro(simbolo, `Classe '${simbolo.lexema}' não declara a propriedade '${nomeProp}' exigida pela interface '${nomeInterface.lexema}'.`));
+                    membrosFaltando.push({
+                        tipo: 'propriedade',
+                        nome: nomeProp,
+                        tipoPropriedade: prop.tipo,
+                    });
+                }
+            }
+            if (membrosFaltando.length > 0) {
+                const correcaoSugerida = {
+                    tipo: 'implementar-interface',
+                    nomeInterface: nomeInterface.lexema,
+                    nomeClasse: simbolo.lexema,
+                    membrosFaltando,
+                    linhaFinalClasse,
+                };
+                for (const membro of membrosFaltando) {
+                    const mensagem = membro.tipo === 'metodo'
+                        ? `Classe '${simbolo.lexema}' não implementa o método '${membro.nome}' exigido pela interface '${nomeInterface.lexema}'.`
+                        : `Classe '${simbolo.lexema}' não declara a propriedade '${membro.nome}' exigida pela interface '${nomeInterface.lexema}'.`;
+                    const erro = this.erro(simbolo, mensagem);
+                    erro.correcaoSugerida = correcaoSugerida;
+                    this.erros.push(erro);
                 }
             }
         }
@@ -7088,7 +7156,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         if (!this.primitivasConhecidas[nomeTipo]) {
             this.primitivasConhecidas[nomeTipo] = {};
         }
-        while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) && !this.estaNoFinal()) {
+        while (!this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_DIREITA) &&
+            !this.estaNoFinal()) {
             // Pular comentários dentro do corpo da extensão.
             if (this.simbolos[this.atual].tipo === delegua_2.default.COMENTARIO ||
                 this.simbolos[this.atual].tipo === delegua_2.default.LINHA_COMENTARIO) {
@@ -7136,7 +7205,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             const metodo = new declaracoes_1.FuncaoDeclaracao(nomeMetodo, corpoFuncao, tipoDaFuncao);
             metodos.push(metodo);
             const argumentos = params.map((parametro) => new informacao_elemento_sintatico_1.InformacaoElementoSintatico(parametro.nome.lexema, parametro.tipoDado || 'qualquer', parametro.valorPadrao === undefined));
-            this.primitivasConhecidas[nomeTipo][nomeMetodo.lexema] = new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeMetodo.lexema, tipoRetorno, true, argumentos);
+            this.primitivasConhecidas[nomeTipo][nomeMetodo.lexema] =
+                new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeMetodo.lexema, tipoRetorno, true, argumentos);
         }
         this.consumir(delegua_2.default.CHAVE_DIREITA, "Esperado '}' ao final da extensão.");
         return new declaracoes_1.Extensao(simboloTipo, metodos, ehGlobal, this.hashArquivo);
@@ -7164,13 +7234,26 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 const simboloDoc = this.avancarEDevolverAnterior();
                 docTopLevel = new construtos_1.ComentarioComoConstruto(simboloDoc);
             }
-            if ((this.verificarTipoSimboloAtual(delegua_2.default.FUNCAO) ||
-                this.verificarTipoSimboloAtual(delegua_2.default.FUNÇÃO)) &&
-                this.verificarTipoProximoSimbolo(delegua_2.default.IDENTIFICADOR)) {
-                this.avancarEDevolverAnterior();
-                const declaracaoFuncao = await this.funcao('funcao');
-                declaracaoFuncao.documentacao = docTopLevel;
-                return declaracaoFuncao;
+            if (this.verificarTipoSimboloAtual(delegua_2.default.FUNCAO) ||
+                this.verificarTipoSimboloAtual(delegua_2.default.FUNÇÃO)) {
+                if (this.verificarTipoProximoSimbolo(delegua_2.default.DE)) {
+                    this.avancarEDevolverAnterior(); // `função`
+                    this.avancarEDevolverAnterior(); // `de`
+                    const simboloDecorador = this.consumir(delegua_2.default.IDENTIFICADOR, "Esperado 'decorador' após 'função de'.");
+                    if (simboloDecorador.lexema !== 'decorador') {
+                        throw this.erro(simboloDecorador, "Esperado 'decorador' após 'função de'.");
+                    }
+                    const declaracaoFuncao = (await this.funcao('funcao'));
+                    declaracaoFuncao.eFuncaoDeDecorador = true;
+                    declaracaoFuncao.documentacao = docTopLevel;
+                    return declaracaoFuncao;
+                }
+                if (this.verificarTipoProximoSimbolo(delegua_2.default.IDENTIFICADOR)) {
+                    this.avancarEDevolverAnterior();
+                    const declaracaoFuncao = (await this.funcao('funcao'));
+                    declaracaoFuncao.documentacao = docTopLevel;
+                    return declaracaoFuncao;
+                }
             }
             if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.CLASSE)) {
                 return await this.declaracaoDeClasse();
@@ -7235,18 +7318,18 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             case delegua_2.default.COMENTARIO:
                 return this.declaracaoComentarioUmaLinha();
             case delegua_2.default.DOCUMENTARIO: {
-                const simboloDoc = this.avancarEDevolverAnterior();
+                const simboloDocumentario = this.avancarEDevolverAnterior();
                 // Se o próximo token for uma declaração de função com identificador,
                 // anexa o documentário como documentação da função.
                 if ((this.verificarTipoSimboloAtual(delegua_2.default.FUNCAO) ||
                     this.verificarTipoSimboloAtual(delegua_2.default.FUNÇÃO)) &&
                     this.verificarTipoProximoSimbolo(delegua_2.default.IDENTIFICADOR)) {
                     this.avancarEDevolverAnterior();
-                    const declaracaoFuncao = await this.funcao('funcao');
-                    declaracaoFuncao.documentacao = new construtos_1.ComentarioComoConstruto(simboloDoc);
+                    const declaracaoFuncao = (await this.funcao('funcao'));
+                    declaracaoFuncao.documentacao = new construtos_1.ComentarioComoConstruto(simboloDocumentario);
                     return declaracaoFuncao;
                 }
-                return new declaracoes_1.Comentario(simboloDoc.hashArquivo, simboloDoc.linha, simboloDoc.literal, false);
+                return new declaracoes_1.Comentario(simboloDocumentario.hashArquivo, simboloDocumentario.linha, simboloDocumentario.literal, false);
             }
             case delegua_2.default.CONSTANTE:
                 this.avancarEDevolverAnterior();
@@ -7312,7 +7395,8 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async declaracaoAjuda() {
         const simboloAjuda = this.avancarEDevolverAnterior();
-        if (this.estaNoFinal() || this.simbolos[this.atual].tipo !== delegua_2.default.PARENTESE_ESQUERDO) {
+        if (this.estaNoFinal() ||
+            this.simbolos[this.atual].tipo !== delegua_2.default.PARENTESE_ESQUERDO) {
             return new declaracoes_1.Ajuda(simboloAjuda.hashArquivo, simboloAjuda.linha, undefined, false);
         }
         this.avancarEDevolverAnterior(); // parêntese esquerdo
@@ -7454,7 +7538,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valorParaConverter', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('todos', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todos', 'lógico', true, [
-            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer')
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
@@ -8333,20 +8417,16 @@ class AvaliadorSintaticoPitugues {
         // Uma delas é a variável/constante ser uma classe padrão.
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
-        if (entidadeChamada.objeto.tipo &&
-            entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
+        if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
             const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamada.objeto.tipo];
             if (!tipoCorrespondente) {
                 throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Tipo '${entidadeChamada.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`);
             }
-            if (!(entidadeChamada.simbolo.lexema in
-                tipoCorrespondente.metodos) &&
-                !(entidadeChamada.simbolo.lexema in
-                    tipoCorrespondente.propriedades)) {
+            if (!(entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) &&
+                !(entidadeChamada.simbolo.lexema in tipoCorrespondente.propriedades)) {
                 throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Membro '${entidadeChamada.simbolo.lexema}' não existe no tipo '${entidadeChamada.objeto.tipo}'.`);
             }
-            if (entidadeChamada.simbolo.lexema in
-                tipoCorrespondente.metodos) {
+            if (entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) {
                 const metodoCorrespondente = tipoCorrespondente.metodos[entidadeChamada.simbolo.lexema];
                 return metodoCorrespondente.tipoRetorno || 'qualquer';
             }
@@ -8479,7 +8559,8 @@ class AvaliadorSintaticoPitugues {
                 pos++;
             }
             // Verifica se há um identificador obrigatório
-            if (pos >= this.simbolos.length || this.simbolos[pos].tipo !== pitugues_2.default.IDENTIFICADOR) {
+            if (pos >= this.simbolos.length ||
+                this.simbolos[pos].tipo !== pitugues_2.default.IDENTIFICADOR) {
                 return false;
             }
             pos++;
@@ -8502,7 +8583,7 @@ class AvaliadorSintaticoPitugues {
     }
     temPadraoVarComoPalavraChave() {
         // Verifica padrão: var identificador = ...
-        if (this.simbolos[this.atual].lexema !== "var") {
+        if (this.simbolos[this.atual].lexema !== 'var') {
             return false;
         }
         const proximo = this.simbolos[this.atual + 1];
@@ -8535,7 +8616,9 @@ class AvaliadorSintaticoPitugues {
                 this.consumir(pitugues_2.default.MULTIPLICACAO, '');
                 ehRestoAtual = true;
             }
-            const identificador = this.consumir(pitugues_2.default.IDENTIFICADOR, ehRestoAtual ? 'Esperado nome de variável após operador *.' : 'Esperado nome de variável.');
+            const identificador = this.consumir(pitugues_2.default.IDENTIFICADOR, ehRestoAtual
+                ? 'Esperado nome de variável após operador *.'
+                : 'Esperado nome de variável.');
             // Verifica * no nome da variável
             if (identificador.lexema.startsWith('*')) {
                 ehRestoAtual = true;
@@ -8563,10 +8646,10 @@ class AvaliadorSintaticoPitugues {
     }
     construirValidacaoDesempacotamento(identificador, origem, qtdEsperada) {
         const linha = identificador.linha;
-        const chamadaTamanho = new construtos_1.Chamada(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, new lexador_1.Simbolo(pitugues_2.default.IDENTIFICADOR, "tamanho", null, linha, -1)), [origem]);
-        const condicaoErro = new construtos_1.Binario(this.hashArquivo, chamadaTamanho, new lexador_1.Simbolo(pitugues_2.default.DIFERENTE, "!=", null, linha, -1), new construtos_1.Literal(this.hashArquivo, linha, qtdEsperada, 'número'));
+        const chamadaTamanho = new construtos_1.Chamada(this.hashArquivo, new construtos_1.Variavel(this.hashArquivo, new lexador_1.Simbolo(pitugues_2.default.IDENTIFICADOR, 'tamanho', null, linha, -1)), [origem]);
+        const condicaoErro = new construtos_1.Binario(this.hashArquivo, chamadaTamanho, new lexador_1.Simbolo(pitugues_2.default.DIFERENTE, '!=', null, linha, -1), new construtos_1.Literal(this.hashArquivo, linha, qtdEsperada, 'número'));
         const mensagem = `Erro de execução: Você tentou desempacotar em ${qtdEsperada} variáveis, mas o vetor possui tamanho diferente.`;
-        const falha = new declaracoes_1.Falhar(new lexador_1.Simbolo(pitugues_2.default.FALHAR, "falhar", null, linha, -1), new construtos_1.Literal(this.hashArquivo, linha, mensagem, 'texto'));
+        const falha = new declaracoes_1.Falhar(new lexador_1.Simbolo(pitugues_2.default.FALHAR, 'falhar', null, linha, -1), new construtos_1.Literal(this.hashArquivo, linha, mensagem, 'texto'));
         return new declaracoes_1.Se(condicaoErro, new declaracoes_1.Bloco(this.hashArquivo, linha, [falha]), [], null);
     }
     async declaracaoDeVariaveis() {
@@ -8578,7 +8661,8 @@ class AvaliadorSintaticoPitugues {
         const ehDesempacotamento = qtdIdentificadores > 1 && qtdValores === 1;
         if (indexResto > -1) {
             if (qtdValores < qtdIdentificadores - 1) {
-                if (!ehDesempacotamento || (ehDesempacotamento && inicializadores[0] instanceof construtos_1.Literal)) {
+                if (!ehDesempacotamento ||
+                    (ehDesempacotamento && inicializadores[0] instanceof construtos_1.Literal)) {
                     throw this.erro(this.simboloAnterior(), 'Quantidade insuficiente de valores para desempacotamento com operador de resto.');
                 }
             }
@@ -8614,7 +8698,7 @@ class AvaliadorSintaticoPitugues {
         for (let i = 0; i < identificadores.length; i++) {
             const identificador = identificadores[i];
             let inicializador;
-            let tipo = "qualquer";
+            let tipo = 'qualquer';
             if (i === indexResto) {
                 const valoresResto = inicializadores.slice(cursorValores, cursorValores + qtdParaResto);
                 let tipoInferido = (0, inferenciador_1.inferirTipoVariavel)(valoresResto);
@@ -8661,7 +8745,8 @@ class AvaliadorSintaticoPitugues {
         }
     }
     erro(simbolo, mensagemDeErro) {
-        const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simbolo, mensagemDeErro);
+        const simboloParaErro = simbolo || this.simboloAnterior();
+        const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simboloParaErro, mensagemDeErro);
         this.erros.push(excecao);
         return excecao;
     }
@@ -8676,7 +8761,7 @@ class AvaliadorSintaticoPitugues {
         return this.simboloAtual().tipo === tipo;
     }
     verificarTipoProximoSimbolo(tipo) {
-        if (this.estaNoFinal())
+        if (this.atual + 1 >= this.simbolos.length)
             return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
@@ -8821,17 +8906,19 @@ class AvaliadorSintaticoPitugues {
             case pitugues_2.default.INTERPOLACAO:
                 const simboloInterpolacao = this.avancarEDevolverAnterior();
                 const conteudoOriginal = simboloInterpolacao.literal;
-                const codigoTransformado = '"' + conteudoOriginal.replace(/\{(.*?)\}/g, (_, miolo) => {
-                    // 'miolo' é o texto que estava dentro das chaves. Ex: "valor" ou "valor:.2f"
-                    if (miolo.includes(':')) {
-                        const [variavel, formato] = miolo.split(':').map(s => s.trim());
-                        if (variavel !== "") {
-                            // Transforma {valor:.2f} em "{:.2f}".formatar(valor)
-                            return '" + "{:' + formato + '}".formatar(' + variavel + ') + "';
+                const codigoTransformado = '"' +
+                    conteudoOriginal.replace(/\{(.*?)\}/g, (_, miolo) => {
+                        // 'miolo' é o texto que estava dentro das chaves. Ex: "valor" ou "valor:.2f"
+                        if (miolo.includes(':')) {
+                            const [variavel, formato] = miolo.split(':').map((s) => s.trim());
+                            if (variavel !== '') {
+                                // Transforma {valor:.2f} em "{:.2f}".formatar(valor)
+                                return '" + "{:' + formato + '}".formatar(' + variavel + ') + "';
+                            }
                         }
-                    }
-                    return '" + (' + miolo.trim() + ') + "';
-                }) + '"';
+                        return '" + (' + miolo.trim() + ') + "';
+                    }) +
+                    '"';
                 const microLexador = new micro_lexador_pitugues_1.MicroLexadorPitugues();
                 const retornoMicroLexador = microLexador.mapear(codigoTransformado);
                 const microAvaliadorSintatico = new micro_avaliador_sintatico_pitugues_1.MicroAvaliadorSintaticoPitugues();
@@ -8844,7 +8931,7 @@ class AvaliadorSintaticoPitugues {
                 }
                 catch (erro) {
                     this.erros.push(erro);
-                    return new construtos_1.Literal(this.hashArquivo, simboloInterpolacao.linha, "");
+                    return new construtos_1.Literal(this.hashArquivo, simboloInterpolacao.linha, '');
                 }
                 const declaracao = retornoMicroAvaliador.declaracoes[0];
                 return declaracao.expressao;
@@ -8902,11 +8989,11 @@ class AvaliadorSintaticoPitugues {
                 let passo = null;
                 if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DOIS_PONTOS)) {
                     ehFatiamento = true;
-                    if (!this.verificarTipoSimboloAtual(pitugues_2.default.DOIS_PONTOS)
-                        && !this.verificarTipoSimboloAtual(pitugues_2.default.COLCHETE_DIREITO))
+                    if (!this.verificarTipoSimboloAtual(pitugues_2.default.DOIS_PONTOS) &&
+                        !this.verificarTipoSimboloAtual(pitugues_2.default.COLCHETE_DIREITO))
                         fim = await this.expressao();
-                    if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DOIS_PONTOS)
-                        && !this.verificarTipoSimboloAtual(pitugues_2.default.COLCHETE_DIREITO))
+                    if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DOIS_PONTOS) &&
+                        !this.verificarTipoSimboloAtual(pitugues_2.default.COLCHETE_DIREITO))
                         passo = await this.expressao();
                 }
                 const simboloFechamento = this.consumir(pitugues_2.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
@@ -9038,7 +9125,9 @@ class AvaliadorSintaticoPitugues {
     }
     async seTernario() {
         let expressaoEntao = await this.ou();
-        if (this.simbolos[this.atual] && this.simbolos[this.atual].tipo === pitugues_2.default.SE && expressaoEntao.linha === this.simbolos[this.atual].linha) {
+        if (this.simbolos[this.atual] &&
+            this.simbolos[this.atual].tipo === pitugues_2.default.SE &&
+            expressaoEntao.linha === this.simbolos[this.atual].linha) {
             while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.SE)) {
                 const operador = this.simbolos[this.atual - 1];
                 const expressaoOuCondicao = await this.seTernario();
@@ -9140,54 +9229,40 @@ class AvaliadorSintaticoPitugues {
         let declaracoes = [];
         let simboloAtual = this.simboloAtual();
         const simboloAnterior = this.simboloAnterior();
-        // Situação 1: não tem bloco de escopo.
-        //
-        // Exemplo: `se verdadeiro: escreva('Alguma coisa')`.
-        // Neste caso, linha do símbolo atual é igual à linha do símbolo anterior.
+        if (!simboloAtual) {
+            throw this.erro(simboloAnterior, 'Esperado corpo do escopo após a declaração.');
+        }
+        // Declaração na mesma linha (ex: 'se verdadeiro: escreva("Oi")')
         if (simboloAtual.linha === simboloAnterior.linha) {
-            const declaracoesBloco = await this.resolverDeclaracaoForaDeBloco();
-            if (declaracoesBloco !== null) {
-                if (Array.isArray(declaracoesBloco)) {
-                    declaracoes = declaracoes.concat(declaracoesBloco);
-                }
-                else {
-                    declaracoes.push(declaracoesBloco);
-                }
-            }
+            const retorno = await this.resolverDeclaracaoForaDeBloco();
+            if (retorno !== null)
+                declaracoes = declaracoes.concat(retorno);
         }
         else {
-            // Situação 2: símbolo atual fica na próxima linha.
-            //
-            // Verifica-se o número de espaços à esquerda da linha através dos pragmas.
-            // Se número de espaços da linha do símbolo atual é menor ou igual ao número de espaços
-            // da linha anterior, e bloco ainda não começou, é uma situação de erro.
-            let espacosIndentacaoLinhaAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
-            const espacosIndentacaoLinhaAnterior = this.localizacoes[simboloAnterior.linha].espacosIndentacao;
-            if (espacosIndentacaoLinhaAtual <= espacosIndentacaoLinhaAnterior) {
+            // Bloco de múltiplas linhas baseado em indentação
+            let espacosAtual = this
+                .localizacoes[simboloAtual.linha]
+                .espacosIndentacao;
+            const espacosAnterior = this
+                .localizacoes[simboloAnterior.linha]
+                .espacosIndentacao;
+            if (espacosAtual <= espacosAnterior) {
                 throw this.erro(simboloAtual, `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
-                    `Esperado: >= ${espacosIndentacaoLinhaAnterior}. ` +
-                    `Atual: ${espacosIndentacaoLinhaAtual}`);
+                    `Esperado: >= ${espacosAnterior}. ` +
+                    `Atual: ${espacosAtual}`);
             }
-            // Indentação ok, é um bloco de escopo.
-            // Inclui todas as declarações cujas linhas tenham o mesmo número de espaços
-            // de indentação do bloco.
-            // Se `simboloAtual` for definido em algum momento como indefinido,
-            // Significa que o código acabou, então o bloco também acabou.
-            const espacosIndentacaoBloco = espacosIndentacaoLinhaAtual;
-            while (espacosIndentacaoLinhaAtual === espacosIndentacaoBloco) {
-                const retornoDeclaracao = await this.resolverDeclaracaoForaDeBloco();
-                if (retornoDeclaracao !== null) {
-                    if (Array.isArray(retornoDeclaracao)) {
-                        declaracoes = declaracoes.concat(retornoDeclaracao);
-                    }
-                    else {
-                        declaracoes.push(retornoDeclaracao);
-                    }
-                }
+            const indentacaoBloco = espacosAtual;
+            // Consome as declarações enquanto a indentação for estritamente igual à do bloco
+            while (simboloAtual && espacosAtual === indentacaoBloco) {
+                const retorno = await this.resolverDeclaracaoForaDeBloco();
+                if (retorno !== null)
+                    declaracoes = declaracoes.concat(retorno);
                 simboloAtual = this.simboloAtual();
-                if (!simboloAtual)
-                    break;
-                espacosIndentacaoLinhaAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
+                if (simboloAtual) {
+                    espacosAtual = this
+                        .localizacoes[simboloAtual.linha]
+                        .espacosIndentacao;
+                }
             }
         }
         this.pilhaEscopos.removerUltimo();
@@ -9197,7 +9272,7 @@ class AvaliadorSintaticoPitugues {
         try {
             this.blocos += 1;
             const condicao = await this.expressao();
-            const bloco = await this.resolverDeclaracao();
+            const bloco = (await this.resolverDeclaracao());
             return new declaracoes_1.Enquanto(condicao, bloco);
         }
         finally {
@@ -9271,7 +9346,7 @@ class AvaliadorSintaticoPitugues {
         }
         this.pilhaEscopos.definirInformacoesVariavel(nomeVariavelIteracao.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeVariavelIteracao.lexema, tipoVetor.slice(0, -2)));
         // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-        const corpo = await this.resolverDeclaracao();
+        const corpo = (await this.resolverDeclaracao());
         return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), new construtos_1.Variavel(this.hashArquivo, nomeVariavelIteracao), vetor, corpo);
     }
     async declaracaoPara() {
@@ -9303,7 +9378,7 @@ class AvaliadorSintaticoPitugues {
                 this.pilhaEscopos.definirInformacoesVariavel(simboloSegundaVariavel.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(simboloSegundaVariavel.lexema, 'qualquer'));
             }
             // TODO: Talvez não seja uma ideia melhor chamar o método de `Bloco` aqui?
-            const corpo = await this.resolverDeclaracao();
+            const corpo = (await this.resolverDeclaracao());
             return new declaracoes_1.ParaCada(this.hashArquivo, Number(simboloPara.linha), variavelIteracao, alvoIteracao, corpo);
         }
         finally {
@@ -9332,7 +9407,7 @@ class AvaliadorSintaticoPitugues {
     }
     async declaracaoSe() {
         const condicao = await this.expressao();
-        const caminhoEntao = await this.resolverDeclaracao();
+        const caminhoEntao = (await this.resolverDeclaracao());
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.SENAO, pitugues_2.default.SENÃO)) {
             caminhoSenao = await this.resolverDeclaracao();
@@ -9410,11 +9485,13 @@ class AvaliadorSintaticoPitugues {
                 this.consumir(pitugues_2.default.DOIS_PONTOS, `Esperado ':' antes do escopo do bloco 'pegue'.`);
                 this.pilhaEscopos.definirInformacoesVariavel(variavelExcecao.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(variavelExcecao.lexema, 'qualquer'));
                 const corpo = await this.blocoEscopo();
-                blocoPegue = new construtos_1.FuncaoConstruto(this.hashArquivo, simboloTente.linha, [{
-                        abrangencia: "padrao",
+                blocoPegue = new construtos_1.FuncaoConstruto(this.hashArquivo, simboloTente.linha, [
+                    {
+                        abrangencia: 'padrao',
                         nome: variavelExcecao,
-                        tipoDado: "qualquer",
-                    }], corpo, "vazio", false);
+                        tipoDado: 'qualquer',
+                    },
+                ], corpo, 'vazio', false);
             }
             else {
                 // Caso 2: sem parâmetro de erro.
@@ -9439,7 +9516,7 @@ class AvaliadorSintaticoPitugues {
         const simboloFazer = this.simboloAnterior();
         try {
             this.blocos += 1;
-            const declaracaoOuBlocoFazer = await this.resolverDeclaracao();
+            const declaracaoOuBlocoFazer = (await this.resolverDeclaracao());
             this.consumir(pitugues_2.default.ENQUANTO, "Esperado declaração do 'enquanto' após o escopo da declaração 'fazer'.");
             const condicaoEnquanto = await this.expressao();
             return new declaracoes_1.Fazer(simboloFazer.hashArquivo, Number(simboloFazer.linha), declaracaoOuBlocoFazer, condicaoEnquanto);
@@ -9605,7 +9682,7 @@ class AvaliadorSintaticoPitugues {
             const simboloAnterior = this.simbolos[this.atual - 1];
             if (simboloAnterior.tipo === pitugues_2.default.IDENTIFICADOR) {
                 this.consumir(pitugues_2.default.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
-                const tipoPropriedade = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado tipo de propriedade após dois-pontos, em declaração de classe.");
+                const tipoPropriedade = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado tipo de propriedade após dois-pontos, em declaração de classe.');
                 const propriedade = new declaracoes_1.PropriedadeClasse(simboloAnterior, tipoPropriedade.lexema, []);
                 propriedades.push(propriedade);
             }
@@ -9661,11 +9738,10 @@ class AvaliadorSintaticoPitugues {
      */
     async resolverDeclaracaoForaDeBloco() {
         try {
-            if ((this.verificarTipoSimboloAtual(pitugues_2.default.FUNCAO) ||
-                this.verificarTipoSimboloAtual(pitugues_2.default.FUNÇÃO)) &&
-                this.verificarTipoProximoSimbolo(pitugues_2.default.IDENTIFICADOR)) {
+            if (this.verificarTipoSimboloAtual(pitugues_2.default.FUNCAO) ||
+                this.verificarTipoSimboloAtual(pitugues_2.default.FUNÇÃO)) {
                 this.avancarEDevolverAnterior();
-                return await this.funcao('funcao');
+                return await this.funcao('da função');
             }
             if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.CLASSE))
                 return await this.declaracaoDeClasse();
@@ -9760,8 +9836,10 @@ class AvaliadorSintaticoPitugues {
             case pitugues_2.default.DE: {
                 const proximo = this.simbolos[this.atual + 1];
                 const aposProximo = this.simbolos[this.atual + 2];
-                if (proximo && proximo.tipo === pitugues_2.default.IDENTIFICADOR &&
-                    aposProximo && aposProximo.tipo === pitugues_2.default.IMPORTAR) {
+                if (proximo &&
+                    proximo.tipo === pitugues_2.default.IDENTIFICADOR &&
+                    aposProximo &&
+                    aposProximo.tipo === pitugues_2.default.IMPORTAR) {
                     this.avancarEDevolverAnterior();
                     return this.declaracaoImportarDe();
                 }
@@ -9876,7 +9954,7 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('elemento', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('todos', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todos', 'lógico', true, [
-            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer')
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
@@ -9886,7 +9964,7 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
         ]));
         this.pilhaEscopos.definirInformacoesVariavel('vetor', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'vetor', true, [
-            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('tupla', 'qualquer')
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('tupla', 'qualquer'),
         ]));
     }
     async analisar(retornoLexador, hashArquivo) {
@@ -9913,7 +9991,8 @@ class AvaliadorSintaticoPitugues {
             else {
                 declaracoes.push(retornoDeclaracao);
             }
-            if (!this.estaNoFinal() && this.verificarTipoSimboloAtual(pitugues_2.default.PONTO_E_VIRGULA)) {
+            if (!this.estaNoFinal() &&
+                this.verificarTipoSimboloAtual(pitugues_2.default.PONTO_E_VIRGULA)) {
                 // Verificar se este ; está na mesma linha da declaração anterior
                 const declaracaoAnterior = declaracoes[declaracoes.length - 1];
                 const linhaDeclaraoAnterior = declaracaoAnterior.linha || 0;
@@ -10299,12 +10378,12 @@ class AvaliadorSintaticoPrisma extends avaliador_sintatico_base_1.AvaliadorSinta
      */
     construtoTextoMultilinhas() {
         const segundoColchete = this.consumir(prisma_1.default.COLCHETE_ESQUERDO, "Esperado '[' antes do texto multilinhas.");
-        let texto = "";
+        let texto = '';
         let linha = segundoColchete.linha;
         while (!this.verificarSeSimboloAtualEIgualA(prisma_1.default.COLCHETE_DIREITO)) {
-            texto += this.simbolos[this.atual].lexema + " ";
+            texto += this.simbolos[this.atual].lexema + ' ';
             if (this.simbolos[this.atual].linha !== linha) {
-                texto += "\n";
+                texto += '\n';
                 linha = this.simbolos[this.atual].linha;
             }
             this.avancarEDevolverAnterior();
@@ -10536,7 +10615,7 @@ class AvaliadorSintaticoPrisma extends avaliador_sintatico_base_1.AvaliadorSinta
         try {
             this.blocos += 1;
             const condicao = await this.expressao();
-            const bloco = await this.resolverDeclaracao();
+            const bloco = (await this.resolverDeclaracao());
             return new declaracoes_1.Enquanto(condicao, bloco);
         }
         finally {
@@ -11562,7 +11641,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
     async declaracaoSe() {
         const condicao = await this.expressao();
         this.consumir(tenda_1.default.ENTÃO, "Esperado 'então' após a condição.");
-        const caminhoEntao = await this.resolverDeclaracao();
+        const caminhoEntao = (await this.resolverDeclaracao());
         let caminhoSenao = null;
         if (this.verificarSeSimboloAtualEIgualA(tenda_1.default.SENÃO)) {
             caminhoSenao = await this.resolverDeclaracao();
@@ -12673,15 +12752,51 @@ const estruturas_1 = require("../interpretador/estruturas");
 const construtos_1 = require("../construtos");
 const quebras_1 = require("../quebras");
 const configTuplas = {
-    'Dupla': { Classe: construtos_1.Dupla, props: ['primeiro', 'segundo'] },
-    'Trio': { Classe: construtos_1.Trio, props: ['primeiro', 'segundo', 'terceiro'] },
-    'Quarteto': { Classe: construtos_1.Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
-    'Quinteto': { Classe: construtos_1.Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
-    'Sexteto': { Classe: construtos_1.Sexteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'] },
-    'Septeto': { Classe: construtos_1.Septeto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'] },
-    'Octeto': { Classe: construtos_1.Octeto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'] },
-    'Noneto': { Classe: construtos_1.Noneto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono'] },
-    'Deceto': { Classe: construtos_1.Deceto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo'] },
+    Dupla: { Classe: construtos_1.Dupla, props: ['primeiro', 'segundo'] },
+    Trio: { Classe: construtos_1.Trio, props: ['primeiro', 'segundo', 'terceiro'] },
+    Quarteto: { Classe: construtos_1.Quarteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto'] },
+    Quinteto: { Classe: construtos_1.Quinteto, props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'] },
+    Sexteto: {
+        Classe: construtos_1.Sexteto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
+    },
+    Septeto: {
+        Classe: construtos_1.Septeto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
+    },
+    Octeto: {
+        Classe: construtos_1.Octeto,
+        props: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
+    },
+    Noneto: {
+        Classe: construtos_1.Noneto,
+        props: [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'setimo',
+            'oitavo',
+            'nono',
+        ],
+    },
+    Deceto: {
+        Classe: construtos_1.Deceto,
+        props: [
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'setimo',
+            'oitavo',
+            'nono',
+            'decimo',
+        ],
+    },
 };
 const mapaConstrutoresTupla = {
     2: construtos_1.Dupla,
@@ -12692,18 +12807,39 @@ const mapaConstrutoresTupla = {
     7: construtos_1.Septeto,
     8: construtos_1.Octeto,
     9: construtos_1.Noneto,
-    10: construtos_1.Deceto
+    10: construtos_1.Deceto,
 };
 const mapaPropriedadesTuplas = {
-    'Dupla': ['primeiro', 'segundo'],
-    'Trio': ['primeiro', 'segundo', 'terceiro'],
-    'Quarteto': ['primeiro', 'segundo', 'terceiro', 'quarto'],
-    'Quinteto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'],
-    'Sexteto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
-    'Septeto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
-    'Octeto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
-    'Noneto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono'],
-    'Deceto': ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo', 'nono', 'decimo'],
+    Dupla: ['primeiro', 'segundo'],
+    Trio: ['primeiro', 'segundo', 'terceiro'],
+    Quarteto: ['primeiro', 'segundo', 'terceiro', 'quarto'],
+    Quinteto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto'],
+    Sexteto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto'],
+    Septeto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo'],
+    Octeto: ['primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'setimo', 'oitavo'],
+    Noneto: [
+        'primeiro',
+        'segundo',
+        'terceiro',
+        'quarto',
+        'quinto',
+        'sexto',
+        'setimo',
+        'oitavo',
+        'nono',
+    ],
+    Deceto: [
+        'primeiro',
+        'segundo',
+        'terceiro',
+        'quarto',
+        'quinto',
+        'sexto',
+        'setimo',
+        'oitavo',
+        'nono',
+        'decimo',
+    ],
 };
 /**
  * Compara dois valores (números ou vetores).
@@ -12821,16 +12957,15 @@ async function arredondar(interpretador, numero, casasDecimais) {
     const valorNumero = interpretador.resolverValor(numero);
     const valorCasas = interpretador.resolverValor(casasDecimais);
     if (numero == undefined || numero == null) {
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, "Erro: arredondar() deve receber um número.", interpretador.linhaDeclaracaoAtual));
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, 'Erro: arredondar() deve receber um número.', interpretador.linhaDeclaracaoAtual));
     }
-    if (typeof numero !== "number") {
+    if (typeof numero !== 'number') {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `Erro de Tipo: arredondar() espera um número, mas recebeu '${typeof valorNumero}'.`, interpretador.linhaDeclaracaoAtual));
     }
     const fator = Math.pow(10, valorCasas);
     const resultado = Math.round(valorNumero * fator) / fator;
     return Promise.resolve(resultado);
 }
-;
 /**
  * Clona profundamente uma variável ou constante em Delégua.
  * @param {InterpretadorInterface} interpretador A instância do interpretador.
@@ -13219,8 +13354,10 @@ async function intervalo(interpretador, valorInicial, valorFinal, valorPasso) {
     }
     // intervalo(inicio, parada) ou intervalo(inicio, parada, passo)
     else {
-        if (typeof primeiroParam !== 'number' || isNaN(primeiroParam) ||
-            typeof segundoParam !== 'number' || isNaN(segundoParam)) {
+        if (typeof primeiroParam !== 'number' ||
+            isNaN(primeiroParam) ||
+            typeof segundoParam !== 'number' ||
+            isNaN(segundoParam)) {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
                 hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
                 linha: interpretador.linhaDeclaracaoAtual,
@@ -13603,14 +13740,18 @@ async function tamanho(interpretador, objeto) {
         const metodos = valorObjeto.metodos;
         let tamanho = 0;
         const metodoInicializacao = metodos.inicializacao;
-        if (metodoInicializacao && !Array.isArray(metodoInicializacao) && metodoInicializacao.eInicializador) {
+        if (metodoInicializacao &&
+            !Array.isArray(metodoInicializacao) &&
+            metodoInicializacao.eInicializador) {
             tamanho = metodoInicializacao.declaracao.parametros.length;
         }
         else if (Array.isArray(metodoInicializacao)) {
             // Em caso de construtores sobrecarregados, `metodos.inicializacao` pode ser um array.
             // Usamos o maior número de parâmetros entre as sobrecargas que são inicializadores.
             for (const inicializador of metodoInicializacao) {
-                if (inicializador && inicializador.eInicializador && ((_a = inicializador.declaracao) === null || _a === void 0 ? void 0 : _a.parametros)) {
+                if (inicializador &&
+                    inicializador.eInicializador &&
+                    ((_a = inicializador.declaracao) === null || _a === void 0 ? void 0 : _a.parametros)) {
                     const aridade = inicializador.declaracao.parametros.length;
                     if (aridade > tamanho) {
                         tamanho = aridade;
@@ -13680,8 +13821,7 @@ async function todosEmCondicao(interpretador, iteravel, funcaoCondicional) {
         }, 'Parâmetro inválido. O primeiro parâmetro deve ser um iterável.'));
     }
     const valorFuncao = interpretador.resolverValor(funcaoCondicional);
-    const ehFuncaoValida = valorFuncao instanceof estruturas_1.DeleguaFuncao ||
-        valorFuncao instanceof funcao_padrao_1.FuncaoPadrao;
+    const ehFuncaoValida = valorFuncao instanceof estruturas_1.DeleguaFuncao || valorFuncao instanceof funcao_padrao_1.FuncaoPadrao;
     if (!ehFuncaoValida) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
@@ -13706,7 +13846,7 @@ async function todosEmCondicao(interpretador, iteravel, funcaoCondicional) {
  */
 async function tupla(interpretador, vetor) {
     const valorVetor = interpretador.resolverValor(vetor);
-    const elementos = valorVetor.map(item => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, interpretador.resolverValor(item)));
+    const elementos = valorVetor.map((item) => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, interpretador.resolverValor(item)));
     return new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos);
 }
 async function vetor(interpretador, tupla) {
@@ -13725,9 +13865,10 @@ async function vetor(interpretador, tupla) {
         const nomeClasse = objetoTupla.constructor.name;
         const props = mapaPropriedadesTuplas[nomeClasse];
         if (props) {
-            resultado = props.map(prop => objetoTupla[prop]);
+            resultado = props.map((prop) => objetoTupla[prop]);
         }
-        else if (objetoTupla.elementos && Array.isArray(objetoTupla.elementos)) {
+        else if (objetoTupla.elementos &&
+            Array.isArray(objetoTupla.elementos)) {
             resultado = objetoTupla.elementos;
         }
     }
@@ -13753,14 +13894,13 @@ exports.default = {
             if (!(objetoTupla instanceof construtos_1.TuplaN)) {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(null, `A função "paraVetor" só pode ser chamada em tuplas.`, interpretador.linhaDeclaracaoAtual));
             }
-            const valoresPuros = objetoTupla.elementos.map(elemento => interpretador.resolverValor(elemento));
+            const valoresPuros = objetoTupla.elementos.map((elemento) => interpretador.resolverValor(elemento));
             return Promise.resolve(valoresPuros);
         },
         assinaturaFormato: 'tupla.paraVetor()',
-        documentacao: '# `tupla.paraVetor()` \n \n' +
-            'Converte a tupla atual em um array.',
+        documentacao: '# `tupla.paraVetor()` \n \n' + 'Converte a tupla atual em um array.',
         exemploCodigo: 'tupla.paraVetor()',
-    }
+    },
 };
 
 },{"../../../construtos":96,"../../../excecoes":165}],63:[function(require,module,exports){
@@ -13842,7 +13982,7 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Object.values(valor));
         },
-    }
+    },
 };
 
 },{"../construtos":96,"../informacao-elemento-sintatico":172}],64:[function(require,module,exports){
@@ -13963,7 +14103,7 @@ const implementacaoParticao = (interpretador, texto, separador, ...args) => {
         const depois = texto.substring(indice + separador.length);
         partes = [antes, separador, depois];
     }
-    const elementos = partes.map(p => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
+    const elementos = partes.map((p) => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
     const tupla = new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos);
     return Promise.resolve(tupla);
 };
@@ -14345,7 +14485,7 @@ const mapaConstrutoresTupla = {
     7: construtos_1.Septeto,
     8: construtos_1.Octeto,
     9: construtos_1.Noneto,
-    10: construtos_1.Deceto
+    10: construtos_1.Deceto,
 };
 exports.default = {
     adicionar: {
@@ -14976,7 +15116,7 @@ class AjudaComoConstruto {
         return retorno;
     }
     paraTextoSaida() {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }
 exports.AjudaComoConstruto = AjudaComoConstruto;
@@ -15082,9 +15222,12 @@ class Atribuir {
             const alvoComoVariavel = alvo;
             const tipoAlvo = alvoComoVariavel === null || alvoComoVariavel === void 0 ? void 0 : alvoComoVariavel.tipo;
             const alvoSuportaIndice = alvo instanceof variavel_1.Variavel &&
-                (tipoAlvo === 'vetor' || tipoAlvo === 'dicionário' || tipoAlvo === 'qualquer' || (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
+                (tipoAlvo === 'vetor' ||
+                    tipoAlvo === 'dicionário' ||
+                    tipoAlvo === 'qualquer' ||
+                    (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
             if (!alvoSuportaIndice) {
-                throw new Error("`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.");
+                throw new Error('`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.');
             }
             this.indice = indice;
         }
@@ -15153,8 +15296,7 @@ class Binario {
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
         }
-        if (this.esquerda.tipo === 'texto' ||
-            this.direita.tipo === 'texto') {
+        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
             return 'texto';
         }
         if (['numero', 'número'].includes(this.esquerda.tipo) ||
@@ -15320,7 +15462,9 @@ class Decorador {
                 continue;
             }
             const valor = this.atributos[chave];
-            const valorTexto = valor && typeof valor === 'object' && typeof valor.paraTexto === 'function' ? valor.paraTexto() : valor;
+            const valorTexto = valor && typeof valor === 'object' && typeof valor.paraTexto === 'function'
+                ? valor.paraTexto()
+                : valor;
             atributos += `${chave}=${valorTexto} `;
         }
         if (atributos.length > 0) {
@@ -16021,11 +16165,13 @@ class TuplaN extends tupla_1.Tupla {
         return await visitante.visitarExpressaoTuplaN(this);
     }
     paraTexto() {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTexto()).join(', ');
+        const elementosTexto = this.elementos.map((elemento) => elemento.paraTexto()).join(', ');
         return `(${elementosTexto})`;
     }
     paraTextoSaida() {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTextoSaida()).join(', ');
+        const elementosTexto = this.elementos
+            .map((elemento) => elemento.paraTextoSaida())
+            .join(', ');
         return `(${elementosTexto})`;
     }
 }
@@ -16915,7 +17061,7 @@ const geracao_identificadores_1 = require("../geracao-identificadores");
  * Uma declaração de função.
  */
 class FuncaoDeclaracao extends declaracao_1.Declaracao {
-    constructor(simbolo, funcao, tipoRetorno = 'qualquer', decoradores = [], acesso = 'publico', estatico = false, abstrato = false, eObtenedor = false, eDefinidor = false) {
+    constructor(simbolo, funcao, tipoRetorno = 'qualquer', decoradores = [], acesso = 'publico', estatico = false, abstrato = false, eObtenedor = false, eDefinidor = false, eFuncaoDeDecorador = false) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.id = (0, geracao_identificadores_1.uuidv4)();
         this.simbolo = simbolo;
@@ -16927,6 +17073,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
         this.abstrato = abstrato;
         this.eObtenedor = eObtenedor;
         this.eDefinidor = eDefinidor;
+        this.eFuncaoDeDecorador = eFuncaoDeDecorador;
     }
     async aceitar(visitante) {
         return await visitante.visitarDeclaracaoDefinicaoFuncao(this);
@@ -17566,7 +17713,11 @@ class EstilizadorDelegua {
      * Verifica se um objeto é uma Declaração.
      */
     ehDeclaracao(obj) {
-        return obj && typeof obj === 'object' && 'paraTexto' in obj && 'linha' in obj && 'hashArquivo' in obj;
+        return (obj &&
+            typeof obj === 'object' &&
+            'paraTexto' in obj &&
+            'linha' in obj &&
+            'hashArquivo' in obj);
     }
     /**
      * Verifica se um objeto é um Construto.
@@ -18793,24 +18944,60 @@ class FormatadorPitugues {
         this.nívelIndentação -= this.tamanhoIndentação;
     }
     // Métodos obrigatórios da interface, não usados no Pituguês.
-    visitarDeclaracaoCabecalhoPrograma() { return Promise.resolve(); }
-    visitarDeclaracaoConstMultiplo() { return Promise.resolve(); }
-    visitarDeclaracaoEscrevaMesmaLinha() { return Promise.resolve(); }
-    visitarDeclaracaoInicioAlgoritmo() { return Promise.resolve(); }
-    visitarDeclaracaoTendoComo() { return Promise.resolve(); }
-    visitarDeclaracaoVarMultiplo() { return Promise.resolve(); }
-    visitarExpressaoAcessoElementoMatriz() { return Promise.resolve(); }
-    visitarExpressaoAcessoMetodo() { return Promise.resolve(); }
-    visitarExpressaoAcessoPropriedade() { return Promise.resolve(); }
-    visitarExpressaoArgumentoReferenciaFuncao() { return Promise.resolve(); }
-    visitarExpressaoAtribuicaoPorIndicesMatriz() { return Promise.resolve(); }
-    visitarExpressaoComentario() { return Promise.resolve(); }
-    visitarExpressaoExpressaoRegular() { return Promise.resolve(); }
-    visitarExpressaoFimPara() { return Promise.resolve(); }
-    visitarExpressaoFormatacaoEscrita() { return Promise.resolve(); }
-    visitarExpressaoReferenciaFuncao() { return Promise.resolve(); }
-    visitarExpressaoSeparador() { return Promise.resolve(); }
-    visitarExpressaoTupla() { return Promise.resolve(); }
+    visitarDeclaracaoCabecalhoPrograma() {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoConstMultiplo() {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoEscrevaMesmaLinha() {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoInicioAlgoritmo() {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoTendoComo() {
+        return Promise.resolve();
+    }
+    visitarDeclaracaoVarMultiplo() {
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoElementoMatriz() {
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoMetodo() {
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoPropriedade() {
+        return Promise.resolve();
+    }
+    visitarExpressaoArgumentoReferenciaFuncao() {
+        return Promise.resolve();
+    }
+    visitarExpressaoAtribuicaoPorIndicesMatriz() {
+        return Promise.resolve();
+    }
+    visitarExpressaoComentario() {
+        return Promise.resolve();
+    }
+    visitarExpressaoExpressaoRegular() {
+        return Promise.resolve();
+    }
+    visitarExpressaoFimPara() {
+        return Promise.resolve();
+    }
+    visitarExpressaoFormatacaoEscrita() {
+        return Promise.resolve();
+    }
+    visitarExpressaoReferenciaFuncao() {
+        return Promise.resolve();
+    }
+    visitarExpressaoSeparador() {
+        return Promise.resolve();
+    }
+    visitarExpressaoTupla() {
+        return Promise.resolve();
+    }
     async visitarExpressaoTuplaN(expressao) {
         this.códigoFormatado += '(';
         for (let i = 0; i < expressao.elementos.length; i++) {
@@ -18824,7 +19011,7 @@ class FormatadorPitugues {
     }
     async visitarDeclaracaoDeExpressao(declaracao) {
         this.códigoFormatado += this.indentar();
-        this.códigoFormatado += await declaracao.expressao.aceitar(this) + `\n`;
+        this.códigoFormatado += (await declaracao.expressao.aceitar(this)) + `\n`;
     }
     async visitarDeclaracaoClasse(declaração) {
         this.adicionarLinha(`classe ${declaração.simbolo.lexema}:`);
@@ -18979,7 +19166,9 @@ class FormatadorPitugues {
         if (declaração.caminhoPegue) {
             this.adicionarLinha('pegue como erro:');
             this.aumentarIndentação();
-            const declaracoes = declaração.caminhoPegue instanceof construtos_1.FuncaoConstruto ? declaração.caminhoPegue.corpo : declaração.caminhoPegue;
+            const declaracoes = declaração.caminhoPegue instanceof construtos_1.FuncaoConstruto
+                ? declaração.caminhoPegue.corpo
+                : declaração.caminhoPegue;
             for (const instrução of declaracoes) {
                 await instrução.aceitar(this);
             }
@@ -18994,7 +19183,9 @@ class FormatadorPitugues {
         }
     }
     async visitarDeclaracaoEscreva(declaração) {
-        this.códigoFormatado += this.indentar() + `${declaração.simboloEscreva ? declaração.simboloEscreva.lexema : 'imprima'}(`;
+        this.códigoFormatado +=
+            this.indentar() +
+                `${declaração.simboloEscreva ? declaração.simboloEscreva.lexema : 'imprima'}(`;
         for (let i = 0; i < declaração.argumentos.length; i++) {
             this.códigoFormatado += await declaração.argumentos[i].aceitar(this);
             if (i < declaração.argumentos.length - 1)
@@ -19069,8 +19260,10 @@ class FormatadorPitugues {
         return `(${await expressão.expressao.aceitar(this)})`;
     }
     async visitarExpressaoUnaria(expressão) {
-        const operador = expressão.operador.tipo === pitugues_1.default.SUBTRACAO ? '-'
-            : expressão.operador.tipo === pitugues_1.default.NEGACAO ? 'não '
+        const operador = expressão.operador.tipo === pitugues_1.default.SUBTRACAO
+            ? '-'
+            : expressão.operador.tipo === pitugues_1.default.NEGACAO
+                ? 'não '
                 : '';
         const operando = await expressão.operando.aceitar(this);
         return expressão.incidenciaOperador === 'ANTES'
@@ -19079,7 +19272,7 @@ class FormatadorPitugues {
     }
     async visitarExpressaoDeChamada(expressão) {
         const função = await expressão.entidadeChamada.aceitar(this);
-        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        const argumentos = await Promise.all(expressão.argumentos.map((a) => a.aceitar(this)));
         return `${função}(${argumentos.join(', ')})`;
     }
     visitarExpressaoIsto() {
@@ -19089,7 +19282,7 @@ class FormatadorPitugues {
         return 'super()';
     }
     async visitarExpressaoVetor(expressão) {
-        const valores = await Promise.all(expressão.valores.map(v => v.aceitar(this)));
+        const valores = await Promise.all(expressão.valores.map((v) => v.aceitar(this)));
         return `[${valores.join(', ')}]`;
     }
     async visitarExpressaoDicionario(expressão) {
@@ -19127,15 +19320,18 @@ class FormatadorPitugues {
         return `${objeto}.${expressão.nome.lexema} = ${valor}`;
     }
     async visitarExpressaoFuncaoConstruto(expressão) {
-        const parâmetros = expressão.parametros.map(p => {
+        const parâmetros = expressão.parametros
+            .map((p) => {
             const tipo = p.tipoDado ? `: ${p.tipoDado}` : '';
             return p.nome.lexema + tipo;
-        }).join(', ');
+        })
+            .join(', ');
         let funçãoStr = `função(${parâmetros || ''}):\n`;
         this.aumentarIndentação();
         for (const instrução of expressão.corpo) {
             const linha = await instrução.aceitar(this);
-            if (linha) { // Only add if it returns something
+            if (linha) {
+                // Only add if it returns something
                 funçãoStr += this.indentar() + linha;
                 if (!linha.endsWith('\n'))
                     funçãoStr += '\n';
@@ -19145,7 +19341,7 @@ class FormatadorPitugues {
         return funçãoStr.trimEnd();
     }
     async visitarExpressaoLeia(expressão) {
-        const argumentos = await Promise.all(expressão.argumentos.map(a => a.aceitar(this)));
+        const argumentos = await Promise.all(expressão.argumentos.map((a) => a.aceitar(this)));
         return argumentos.length > 0 ? `input(${argumentos.join(', ')})` : 'input()';
     }
     async visitarExpressaoTipoDe(expressão) {
@@ -19231,12 +19427,12 @@ function uuidv4() {
         let r = Math.random() * 16; // random number between 0 and 16
         if (d > 0) {
             // Use timestamp until depleted
-            r = (d + r) % 16 | 0;
+            r = ((d + r) % 16) | 0;
             d = Math.floor(d / 16);
         }
         else {
             // Use microseconds since page-load if supported
-            r = (d2 + r) % 16 | 0;
+            r = ((d2 + r) % 16) | 0;
             d2 = Math.floor(d2 / 16);
         }
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
@@ -19708,23 +19904,23 @@ function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
 }
 function pontoEntradaAjuda(funcao, topico) {
     if (!funcao) {
-        return "Para usar a ajuda, use como uma função: ajuda(objeto).";
+        return 'Para usar a ajuda, use como uma função: ajuda(objeto).';
     }
     if (!topico) {
-        return "Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n" +
-            "Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n" +
-            "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n";
+        return ('Te damos as boas-vindas ao utilitário de ajuda de Delégua!\n\n' +
+            'Use ajuda(objeto) para obter informações sobre um objeto, função, classe ou módulo.\n' +
+            "Use ajuda('tópico') para obter informações sobre um tópico específico.\n\n");
     }
     return obterTopicoAjuda(topico);
 }
 function obterTopicoAjuda(topico) {
     switch (topico.constructor) {
         case construtos_1.Leia:
-            return `A instrução 'leia' permite capturar a entrada do usuário durante a execução do programa. ` +
+            return (`A instrução 'leia' permite capturar a entrada do usuário durante a execução do programa. ` +
                 `Você pode usar 'leia()' para ler uma linha de entrada do usuário e armazená-la em uma variável. ` +
                 `Exemplo de uso:\n\n` +
                 `\tvar minhaVariavel = leia()\n\n` +
-                `Isto irá ler a entrada do usuário e atribuí-la à variável 'minhaVariavel'.`;
+                `Isto irá ler a entrada do usuário e atribuí-la à variável 'minhaVariavel'.`);
         case funcao_padrao_1.FuncaoPadrao:
             return obterAjudaFuncaoPadrao(topico);
         case delegua_funcao_1.DeleguaFuncao:
@@ -19779,21 +19975,21 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
     const aridade = funcaoPadrao.valorAridade;
     const implementacao = funcaoPadrao.funcao;
     // Mapeamento de funções por nome
-    const nomeFuncao = Object.keys(bibliotecaGlobal).find(key => bibliotecaGlobal[key] === implementacao);
+    const nomeFuncao = Object.keys(bibliotecaGlobal).find((key) => bibliotecaGlobal[key] === implementacao);
     if (!nomeFuncao) {
         return 'Função não identificada. Não há documentação disponível.';
     }
     switch (nomeFuncao) {
         case 'aleatorio':
-            return `# aleatorio()\n\n` +
+            return (`# aleatorio()\n\n` +
                 `Retorna um número aleatório entre 0 e 1.\n\n` +
                 `**Sintaxe:** aleatorio()\n\n` +
                 `**Retorno:** Número real entre 0 (inclusivo) e 1 (exclusivo).\n\n` +
                 `**Exemplo:**\n` +
                 `\tvar numeroSorteado = aleatorio()\n` +
-                `\tescreva(numeroSorteado) // Pode retornar algo como 0.4829374657\n`;
+                `\tescreva(numeroSorteado) // Pode retornar algo como 0.4829374657\n`);
         case 'aleatorioEntre':
-            return `# aleatorioEntre(minimo, maximo)\n\n` +
+            return (`# aleatorioEntre(minimo, maximo)\n\n` +
                 `Retorna um número aleatório inteiro de acordo com os parâmetros passados.\n` +
                 `Mínimo (inclusivo) - Máximo (exclusivo).\n\n` +
                 `**Sintaxe:** aleatorioEntre(minimo: número, maximo: número)\n\n` +
@@ -19803,9 +19999,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Retorno:** Número inteiro entre minimo e maximo-1.\n\n` +
                 `**Exemplo:**\n` +
                 `\tvar dado = aleatorioEntre(1, 7)\n` +
-                `\tescreva(dado) // Retorna um número entre 1 e 6\n`;
+                `\tescreva(dado) // Retorna um número entre 1 e 6\n`);
         case 'algum':
-            return `# algum(vetor, funcaoPesquisa)\n\n` +
+            return (`# algum(vetor, funcaoPesquisa)\n\n` +
                 `Verifica se algum dos elementos do vetor satisfaz a condição definida pela função de pesquisa.\n\n` +
                 `**Sintaxe:** algum(vetor: qualquer[], funcaoPesquisa: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19815,9 +20011,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 2, 3, 4, 5]\n` +
                 `\tvar temPar = algum(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(temPar) // verdadeiro\n`;
+                `\tescreva(temPar) // verdadeiro\n`);
         case 'clonar':
-            return `# clonar(valor)\n\n` +
+            return (`# clonar(valor)\n\n` +
                 `Clona profundamente uma variável ou constante em Delégua, criando uma cópia independente.\n\n` +
                 `**Sintaxe:** clonar(valor: qualquer)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19828,9 +20024,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `\tvar copia = clonar(original)\n` +
                 `\tcopia[2][0] = 99\n` +
                 `\tescreva(original[2][0]) // 3 (não foi modificado)\n` +
-                `\tescreva(copia[2][0]) // 99\n`;
+                `\tescreva(copia[2][0]) // 99\n`);
         case 'encontrar':
-            return `# encontrar(vetor, funcaoPesquisa)\n\n` +
+            return (`# encontrar(vetor, funcaoPesquisa)\n\n` +
                 `Encontra o primeiro elemento de um vetor cuja função de pesquisa retorne verdadeiro.\n\n` +
                 `**Sintaxe:** encontrar(vetor: qualquer[], funcaoPesquisa: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19840,9 +20036,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 3, 5, 8, 10]\n` +
                 `\tvar primeiroPar = encontrar(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(primeiroPar) // 8\n`;
+                `\tescreva(primeiroPar) // 8\n`);
         case 'encontrarIndice':
-            return `# encontrarIndice(vetor, funcaoPesquisa)\n\n` +
+            return (`# encontrarIndice(vetor, funcaoPesquisa)\n\n` +
                 `Encontra o índice do primeiro elemento de um vetor cuja função de pesquisa retorne verdadeiro.\n\n` +
                 `**Sintaxe:** encontrarIndice(vetor: qualquer[], funcaoPesquisa: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19852,9 +20048,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar frutas = ["maçã", "banana", "laranja"]\n` +
                 `\tvar indice = encontrarIndice(frutas, funcao(f) { retorna f == "banana" })\n` +
-                `\tescreva(indice) // 1\n`;
+                `\tescreva(indice) // 1\n`);
         case 'encontrarUltimo':
-            return `# encontrarUltimo(vetor, funcaoPesquisa)\n\n` +
+            return (`# encontrarUltimo(vetor, funcaoPesquisa)\n\n` +
                 `Encontra o último elemento de um vetor cuja função de pesquisa retorne verdadeiro.\n\n` +
                 `**Sintaxe:** encontrarUltimo(vetor: qualquer[], funcaoPesquisa: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19864,9 +20060,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [2, 4, 6, 7, 9]\n` +
                 `\tvar ultimoPar = encontrarUltimo(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(ultimoPar) // 6\n`;
+                `\tescreva(ultimoPar) // 6\n`);
         case 'encontrarUltimoIndice':
-            return `# encontrarUltimoIndice(vetor, funcaoPesquisa)\n\n` +
+            return (`# encontrarUltimoIndice(vetor, funcaoPesquisa)\n\n` +
                 `Encontra o índice do último elemento de um vetor cuja função de pesquisa retorne verdadeiro.\n\n` +
                 `**Sintaxe:** encontrarUltimoIndice(vetor: qualquer[], funcaoPesquisa: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19876,9 +20072,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [2, 4, 6, 7, 9]\n` +
                 `\tvar indiceUltimoPar = encontrarUltimoIndice(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(indiceUltimoPar) // 2\n`;
+                `\tescreva(indiceUltimoPar) // 2\n`);
         case 'filtrarPor':
-            return `# filtrarPor(vetor, funcaoFiltragem)\n\n` +
+            return (`# filtrarPor(vetor, funcaoFiltragem)\n\n` +
                 `Cria um novo vetor com todos os elementos que passam no teste implementado pela função de filtragem.\n\n` +
                 `**Sintaxe:** filtrarPor(vetor: qualquer[], funcaoFiltragem: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19888,9 +20084,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 2, 3, 4, 5, 6]\n` +
                 `\tvar pares = filtrarPor(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(pares) // [2, 4, 6]\n`;
+                `\tescreva(pares) // [2, 4, 6]\n`);
         case 'incluido':
-            return `# incluido(vetor, valor)\n\n` +
+            return (`# incluido(vetor, valor)\n\n` +
                 `Verifica se um valor está incluído em um vetor.\n\n` +
                 `**Sintaxe:** incluido(vetor: qualquer[], valor: qualquer)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19900,9 +20096,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar frutas = ["maçã", "banana", "laranja"]\n` +
                 `\tescreva(incluido(frutas, "banana")) // verdadeiro\n` +
-                `\tescreva(incluido(frutas, "uva")) // falso\n`;
+                `\tescreva(incluido(frutas, "uva")) // falso\n`);
         case 'inteiro':
-            return `# inteiro(valor)\n\n` +
+            return (`# inteiro(valor)\n\n` +
                 `Converte um valor em um número inteiro.\n\n` +
                 `**Sintaxe:** inteiro(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19911,9 +20107,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tescreva(inteiro(3.14)) // 3\n` +
                 `\tescreva(inteiro("42")) // 42\n` +
-                `\tescreva(inteiro("3.99")) // 3\n`;
+                `\tescreva(inteiro("3.99")) // 3\n`);
         case 'intervalo':
-            return `# intervalo(valorInicial, valorFinal)\n\n` +
+            return (`# intervalo(valorInicial, valorFinal)\n\n` +
                 `Cria um vetor com números inteiros no intervalo especificado.\n` +
                 `O valor inicial é inclusivo e o valor final é exclusivo.\n\n` +
                 `**Sintaxe:** intervalo(valorInicial: número, valorFinal: número)\n\n` +
@@ -19923,9 +20119,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Retorno:** Vetor com os números no intervalo especificado.\n\n` +
                 `**Exemplo:**\n` +
                 `\tvar numeros = intervalo(1, 6)\n` +
-                `\tescreva(numeros) // [1, 2, 3, 4, 5]\n`;
+                `\tescreva(numeros) // [1, 2, 3, 4, 5]\n`);
         case 'mapear':
-            return `# mapear(vetor, funcaoMapeamento)\n\n` +
+            return (`# mapear(vetor, funcaoMapeamento)\n\n` +
                 `Cria um novo vetor com os resultados da aplicação de uma função a cada elemento do vetor original.\n\n` +
                 `**Sintaxe:** mapear(vetor: qualquer[], funcaoMapeamento: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19935,13 +20131,13 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 2, 3, 4]\n` +
                 `\tvar quadrados = mapear(numeros, funcao(n) { retorna n * n })\n` +
-                `\tescreva(quadrados) // [1, 4, 9, 16]\n`;
+                `\tescreva(quadrados) // [1, 4, 9, 16]\n`);
         case 'maximo':
             return `# maximo(vetor)\n\nRetorna o maior valor encontrado em um vetor de números.`;
         case 'minimo':
             return `# minimo(vetor)\n\nRetorna o menor valor encontrado em um vetor de números.`;
         case 'numero':
-            return `# numero(valor)\n\n` +
+            return (`# numero(valor)\n\n` +
                 `Converte um valor em um número (pode ter parte decimal).\n\n` +
                 `**Sintaxe:** numero(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19950,9 +20146,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tescreva(numero("3.14")) // 3.14\n` +
                 `\tescreva(numero("42")) // 42\n` +
-                `\tescreva(numero(5)) // 5\n`;
+                `\tescreva(numero(5)) // 5\n`);
         case 'ordenar':
-            return `# ordenar(vetor)\n\n` +
+            return (`# ordenar(vetor)\n\n` +
                 `Ordena os elementos de um vetor em ordem crescente (números) ou alfabética (textos).\n\n` +
                 `**Sintaxe:** ordenar(vetor: qualquer[])\n\n` +
                 `**Parâmetros:**\n` +
@@ -19961,9 +20157,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [5, 2, 8, 1, 9]\n` +
                 `\tordenar(numeros)\n` +
-                `\tescreva(numeros) // [1, 2, 5, 8, 9]\n`;
+                `\tescreva(numeros) // [1, 2, 5, 8, 9]\n`);
         case 'paraCada':
-            return `# paraCada(vetor, funcao)\n\n` +
+            return (`# paraCada(vetor, funcao)\n\n` +
                 `Executa uma função para cada elemento do vetor.\n\n` +
                 `**Sintaxe:** paraCada(vetor: qualquer[], funcao: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19974,9 +20170,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `\tvar nomes = ["Ana", "Bruno", "Carlos"]\n` +
                 `\tparaCada(nomes, funcao(nome) {\n` +
                 `\t\tescreva("Olá, " + nome)\n` +
-                `\t})\n`;
+                `\t})\n`);
         case 'primeiroEmCondicao':
-            return `# primeiroEmCondicao(vetor, funcaoFiltragem)\n\n` +
+            return (`# primeiroEmCondicao(vetor, funcaoFiltragem)\n\n` +
                 `Retorna o primeiro elemento que satisfaz a condição especificada pela função de filtragem.\n\n` +
                 `**Sintaxe:** primeiroEmCondicao(vetor: qualquer[], funcaoFiltragem: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19986,9 +20182,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 3, 5, 8, 10]\n` +
                 `\tvar resultado = primeiroEmCondicao(numeros, funcao(n) { retorna n > 5 })\n` +
-                `\tescreva(resultado) // 8\n`;
+                `\tescreva(resultado) // 8\n`);
         case 'real':
-            return `# real(valor)\n\n` +
+            return (`# real(valor)\n\n` +
                 `Converte um valor em um número real (ponto flutuante).\n\n` +
                 `**Sintaxe:** real(valor: número | texto)\n\n` +
                 `**Parâmetros:**\n` +
@@ -19996,9 +20192,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Retorno:** Número real correspondente ao valor fornecido.\n\n` +
                 `**Exemplo:**\n` +
                 `\tescreva(real("3.14")) // 3.14\n` +
-                `\tescreva(real(42)) // 42.0\n`;
+                `\tescreva(real(42)) // 42.0\n`);
         case 'reduzir':
-            return `# reduzir(vetor, funcaoReducao, valorInicial)\n\n` +
+            return (`# reduzir(vetor, funcaoReducao, valorInicial)\n\n` +
                 `Aplica uma função a um acumulador e cada elemento do vetor para reduzi-lo a um único valor.\n\n` +
                 `**Sintaxe:** reduzir(vetor: qualquer[], funcaoReducao: função, valorInicial?: qualquer)\n\n` +
                 `**Parâmetros:**\n` +
@@ -20009,11 +20205,11 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [1, 2, 3, 4]\n` +
                 `\tvar soma = reduzir(numeros, funcao(acc, n) { retorna acc + n }, 0)\n` +
-                `\tescreva(soma) // 10\n`;
+                `\tescreva(soma) // 10\n`);
         case 'somar':
             return `# somar(vetor)\n\nRetorna a soma de todos os elementos de um vetor numérico.`;
         case 'tamanho':
-            return `# tamanho(objeto)\n\n` +
+            return (`# tamanho(objeto)\n\n` +
                 `Retorna o tamanho de um objeto (vetor, texto, função, etc.).\n\n` +
                 `**Sintaxe:** tamanho(objeto: qualquer)\n\n` +
                 `**Parâmetros:**\n` +
@@ -20022,9 +20218,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `Para funções, retorna o número de parâmetros.\n\n` +
                 `**Exemplo:**\n` +
                 `\tescreva(tamanho([1, 2, 3])) // 3\n` +
-                `\tescreva(tamanho("Delégua")) // 7\n`;
+                `\tescreva(tamanho("Delégua")) // 7\n`);
         case 'texto':
-            return `# texto(valor)\n\n` +
+            return (`# texto(valor)\n\n` +
                 `Transforma o valor ou variável em texto.\n\n` +
                 `**Sintaxe:** texto(valor: qualquer)\n\n` +
                 `**Parâmetros:**\n` +
@@ -20033,9 +20229,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tescreva(texto(42)) // "42"\n` +
                 `\tescreva(texto(verdadeiro)) // "verdadeiro"\n` +
-                `\tescreva(texto([1, 2, 3])) // "[1, 2, 3]"\n`;
+                `\tescreva(texto([1, 2, 3])) // "[1, 2, 3]"\n`);
         case 'todosEmCondicao':
-            return `# todosEmCondicao(vetor, funcaoCondicional)\n\n` +
+            return (`# todosEmCondicao(vetor, funcaoCondicional)\n\n` +
                 `Retorna verdadeiro se todos os elementos do vetor satisfazem a condição especificada pela função.\n\n` +
                 `**Sintaxe:** todosEmCondicao(vetor: qualquer[], funcaoCondicional: função)\n\n` +
                 `**Parâmetros:**\n` +
@@ -20045,9 +20241,9 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar numeros = [2, 4, 6, 8]\n` +
                 `\tvar todosPares = todosEmCondicao(numeros, funcao(n) { retorna n % 2 == 0 })\n` +
-                `\tescreva(todosPares) // verdadeiro\n`;
+                `\tescreva(todosPares) // verdadeiro\n`);
         case 'tupla':
-            return `# tupla(vetor)\n\n` +
+            return (`# tupla(vetor)\n\n` +
                 `Transforma um vetor de elementos em uma tupla de N elementos, sendo N a largura do vetor.\n` +
                 `Tuplas são estruturas imutáveis de tamanho fixo.\n\n` +
                 `**Sintaxe:** tupla(vetor: qualquer[])\n\n` +
@@ -20057,10 +20253,10 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
                 `**Exemplo:**\n` +
                 `\tvar coordenadas = tupla([10, 20])\n` +
                 `\tescreva(coordenadas.primeiro) // 10\n` +
-                `\tescreva(coordenadas.segundo) // 20\n`;
+                `\tescreva(coordenadas.segundo) // 20\n`);
         default:
-            return `Função global identificada, mas documentação específica não disponível.\n` +
-                `Aridade: ${aridade} parâmetro(s).`;
+            return (`Função global identificada, mas documentação específica não disponível.\n` +
+                `Aridade: ${aridade} parâmetro(s).`);
     }
 }
 
@@ -20317,7 +20513,9 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
-                tipo: this.instancia instanceof objeto_delegua_classe_1.ObjetoDeleguaClasse ? 'objeto' : tipoDeDados(this.instancia),
+                tipo: this.instancia instanceof objeto_delegua_classe_1.ObjetoDeleguaClasse
+                    ? 'objeto'
+                    : tipoDeDados(this.instancia),
                 imutavel: false,
             };
         }
@@ -20400,11 +20598,11 @@ const chamavel_1 = require("./chamavel");
 const metodo_polimorfico_1 = require("./metodo-polimorfico");
 const objeto_delegua_classe_1 = require("./objeto-delegua-classe");
 const mapaDeNormalizacao = {
-    'numero': 'número',
-    'logico': 'lógico',
-    'funcao': 'função',
-    'dicionario': 'dicionário',
-    'modulo': 'módulo',
+    numero: 'número',
+    logico: 'lógico',
+    funcao: 'função',
+    dicionario: 'dicionário',
+    modulo: 'módulo',
 };
 function normalizarTipo(tipo) {
     if (!tipo || tipo === 'qualquer')
@@ -20655,7 +20853,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
         var _a, _b;
         const nome = (_b = (_a = this.simboloOriginal) === null || _a === void 0 ? void 0 : _a.lexema) !== null && _b !== void 0 ? _b : 'Objeto';
         const nomesMetodos = Object.keys(this.metodos).join(', ');
-        const nomesPropriedades = this.propriedades.map(p => p.nome.lexema).join(', ');
+        const nomesPropriedades = this.propriedades.map((p) => p.nome.lexema).join(', ');
         return `<[ ${nome} estático métodos=[${nomesMetodos}] propriedades=[${nomesPropriedades}] ]>`;
     }
     /**
@@ -20784,11 +20982,11 @@ const excecoes_1 = require("../../excecoes");
 const chamavel_1 = require("./chamavel");
 const tiposNumericos = ['inteiro', 'número', 'real', 'longo'];
 const mapaDeNormalizacao = {
-    'numero': 'número',
-    'logico': 'lógico',
-    'funcao': 'função',
-    'dicionario': 'dicionário',
-    'modulo': 'módulo',
+    numero: 'número',
+    logico: 'lógico',
+    funcao: 'função',
+    dicionario: 'dicionário',
+    modulo: 'módulo',
 };
 function normalizarTipo(tipo) {
     if (!tipo || tipo === 'qualquer')
@@ -20878,8 +21076,10 @@ class MetodoPolimorfico extends chamavel_1.Chamavel {
                     ? argumentos[i].valor
                     : argumentos[i];
                 // Se o valor é uma VariavelInterface, extrair o valor real
-                if (valorArgumento && typeof valorArgumento === 'object'
-                    && valorArgumento.hasOwnProperty('valor') && valorArgumento.hasOwnProperty('tipo')) {
+                if (valorArgumento &&
+                    typeof valorArgumento === 'object' &&
+                    valorArgumento.hasOwnProperty('valor') &&
+                    valorArgumento.hasOwnProperty('tipo')) {
                     valorArgumento = valorArgumento.valor;
                 }
                 const tipoArgumento = (0, inferenciador_1.inferirTipoVariavel)(valorArgumento);
@@ -20900,8 +21100,10 @@ class MetodoPolimorfico extends chamavel_1.Chamavel {
         if (!melhorSobrecarga) {
             const tiposArgs = argumentos.map((a) => {
                 let val = a && a.hasOwnProperty('valor') ? a.valor : a;
-                if (val && typeof val === 'object'
-                    && val.hasOwnProperty('valor') && val.hasOwnProperty('tipo')) {
+                if (val &&
+                    typeof val === 'object' &&
+                    val.hasOwnProperty('valor') &&
+                    val.hasOwnProperty('tipo')) {
                     val = val.valor;
                 }
                 return normalizarTipo((0, inferenciador_1.inferirTipoVariavel)(val));
@@ -21115,10 +21317,14 @@ const excecoes_1 = require("../../excecoes");
 class ObjetoDeleguaClasse {
     valorPadraoParaTipo(tipo) {
         switch (tipo) {
-            case 'numero': return 0;
-            case 'texto': return '';
-            case 'logico': return false;
-            default: return undefined;
+            case 'numero':
+                return 0;
+            case 'texto':
+                return '';
+            case 'logico':
+                return false;
+            default:
+                return undefined;
         }
     }
     constructor(classe) {
@@ -21189,7 +21395,7 @@ class ObjetoDeleguaClasse {
             return await metodoObtenedor.chamar(visitante, []);
         }
         // Auto-property: acessa o campo de armazenamento interno '_nome'
-        const propAuto = this.classe.propriedades.find(p => p.nome.lexema === simbolo.lexema);
+        const propAuto = this.classe.propriedades.find((p) => p.nome.lexema === simbolo.lexema);
         if (propAuto === null || propAuto === void 0 ? void 0 : propAuto.autoObter) {
             this.verificarAcessoLeitura(simbolo.lexema, simbolo, visitante);
             return this.propriedades['_' + simbolo.lexema];
@@ -21234,7 +21440,7 @@ class ObjetoDeleguaClasse {
             return;
         }
         // Auto-property: armazena no campo interno '_nome'
-        const propAuto = this.classe.propriedades.find(p => p.nome.lexema === simbolo.lexema);
+        const propAuto = this.classe.propriedades.find((p) => p.nome.lexema === simbolo.lexema);
         if (propAuto === null || propAuto === void 0 ? void 0 : propAuto.autoDefinir) {
             this.verificarAcessoLeitura(simbolo.lexema, simbolo, visitante);
             this.propriedades['_' + simbolo.lexema] = valor;
@@ -21531,7 +21737,7 @@ class InterpretadorBase {
         }
         // Se é array, resolve recursivamente todos os elementos
         if (Array.isArray(objeto)) {
-            return objeto.map(elemento => this.resolverValorRecursivo(elemento));
+            return objeto.map((elemento) => this.resolverValorRecursivo(elemento));
         }
         // Se é objeto plano, resolve recursivamente todas as propriedades
         if (objeto && objeto.constructor && objeto.constructor === Object) {
@@ -21574,8 +21780,18 @@ class InterpretadorBase {
     async visitarExpressaoTupla(expressao) {
         // Lista de propriedades válidas para tuplas (ignorar propriedades de controle)
         const propriedadesValidas = [
-            'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto',
-            'sexto', 'sétimo', 'setimo', 'oitavo', 'nono', 'décimo', 'decimo'
+            'primeiro',
+            'segundo',
+            'terceiro',
+            'quarto',
+            'quinto',
+            'sexto',
+            'sétimo',
+            'setimo',
+            'oitavo',
+            'nono',
+            'décimo',
+            'decimo',
         ];
         const valores = [];
         for (let propriedade of propriedadesValidas) {
@@ -21592,7 +21808,7 @@ class InterpretadorBase {
             const res = await this.avaliar(expressao.elementos[i]);
             elementos.push(this.resolverValor(res));
         }
-        const elementosComoConstrutos = elementos.map(valor => new construtos_1.Literal(expressao.hashArquivo, expressao.linha, valor));
+        const elementosComoConstrutos = elementos.map((valor) => new construtos_1.Literal(expressao.hashArquivo, expressao.linha, valor));
         return new construtos_1.TuplaN(expressao.hashArquivo, expressao.linha, elementosComoConstrutos);
     }
     async visitarExpressaoAtribuicaoPorIndicesMatriz(expressao) {
@@ -21934,8 +22150,12 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq ** dir;
                 }
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
@@ -21963,8 +22183,12 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq - dir;
                 }
                 return Number(valorEsquerdo) - Number(valorDireito);
@@ -21976,8 +22200,12 @@ class InterpretadorBase {
                 }
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq + dir;
                 }
                 if (this.tiposNumericos.includes(tipoEsquerdo) &&
@@ -22007,8 +22235,12 @@ class InterpretadorBase {
                 }
                 // Retorna BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq / dir; // Trunca automaticamente
                 }
                 return Math.floor(Number(valorEsquerdo) / Number(valorDireito));
@@ -22018,8 +22250,12 @@ class InterpretadorBase {
                 if ((typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') &&
                     tipoEsquerdo !== delegua_2.default.TEXTO &&
                     tipoDireito !== delegua_2.default.TEXTO) {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq * dir;
                 }
                 if (tipoEsquerdo === delegua_2.default.TEXTO ||
@@ -22052,7 +22288,8 @@ class InterpretadorBase {
             case delegua_1.default.MODULO:
             case delegua_1.default.MODULO_IGUAL:
                 // Se o operando esquerdo é uma string, usar formatação de string
-                if (tipoEsquerdo === delegua_2.default.TEXTO || typeof valorEsquerdo === 'string') {
+                if (tipoEsquerdo === delegua_2.default.TEXTO ||
+                    typeof valorEsquerdo === 'string') {
                     return this.formatarStringComOperadorPorcentagem(String(valorEsquerdo), direita, // Passar 'direita' ao invés de 'valorDireito' para preservar arrays de tuplas
                     expressao.operador);
                 }
@@ -22066,8 +22303,12 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq & dir;
                 }
                 return Number(valorEsquerdo) & Number(valorDireito);
@@ -22078,8 +22319,12 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq ^ dir;
                 }
                 return Number(valorEsquerdo) ^ Number(valorDireito);
@@ -22090,8 +22335,12 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt se qualquer operando for BigInt
                 if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq | dir;
                 }
                 return Number(valorEsquerdo) | Number(valorDireito);
@@ -22099,9 +22348,15 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
                 const tamanhoDeslocamentoEsquerda = Number(valorDireito);
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoEsquerda >= 32) {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                if (typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    tamanhoDeslocamentoEsquerda >= 32) {
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq << dir;
                 }
                 return Number(valorEsquerdo) << Number(valorDireito);
@@ -22109,9 +22364,15 @@ class InterpretadorBase {
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
                 // Auto-promove para BigInt (interno para longo) se qualquer operando for BigInt ou se deslocamento >= 32
                 const tamanhoDeslocamentoDireita = Number(valorDireito);
-                if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint' || tamanhoDeslocamentoDireita >= 32) {
-                    const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                    const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
+                if (typeof valorEsquerdo === 'bigint' ||
+                    typeof valorDireito === 'bigint' ||
+                    tamanhoDeslocamentoDireita >= 32) {
+                    const esq = typeof valorEsquerdo === 'bigint'
+                        ? valorEsquerdo
+                        : BigInt(Math.floor(Number(valorEsquerdo)));
+                    const dir = typeof valorDireito === 'bigint'
+                        ? valorDireito
+                        : BigInt(Math.floor(Number(valorDireito)));
                     return esq >> dir;
                 }
                 return Number(valorEsquerdo) >> Number(valorDireito);
@@ -22232,7 +22493,8 @@ class InterpretadorBase {
             // Casos que passam aqui: chamadas a métodos de bibliotecas de Delégua.
             if (typeof entidadeChamada === primitivos_1.default.FUNCAO) {
                 let objeto = null;
-                if (expressao.entidadeChamada.objeto) { // TODO: Qual o tipo certo aqui?
+                if (expressao.entidadeChamada.objeto) {
+                    // TODO: Qual o tipo certo aqui?
                     objeto = await this.avaliar(expressao.entidadeChamada.objeto);
                 }
                 return entidadeChamada.apply(this.resolverValor(objeto), argumentos);
@@ -22291,7 +22553,8 @@ class InterpretadorBase {
     }
     logicaContemOuEm(esquerda, direita, expressao) {
         const valorDireitoResolvido = this.resolverValor(direita);
-        if (Array.isArray(valorDireitoResolvido) || typeof valorDireitoResolvido === primitivos_1.default.TEXTO) {
+        if (Array.isArray(valorDireitoResolvido) ||
+            typeof valorDireitoResolvido === primitivos_1.default.TEXTO) {
             const avaliacao = valorDireitoResolvido.includes(esquerda);
             return expressao.negado ? !avaliacao : avaliacao;
         }
@@ -22323,13 +22586,19 @@ class InterpretadorBase {
                 const valorDireito = this.resolverValor(direita);
                 if (typeof valorDireito === 'number' || typeof valorDireito === 'bigint') {
                     if (typeof valorEsquerdo === 'bigint' || typeof valorDireito === 'bigint') {
-                        const esq = typeof valorEsquerdo === 'bigint' ? valorEsquerdo : BigInt(Math.floor(Number(valorEsquerdo)));
-                        const dir = typeof valorDireito === 'bigint' ? valorDireito : BigInt(Math.floor(Number(valorDireito)));
-                        return expressao.operador.tipo === delegua_1.default.E ? (esq & dir) : (esq | dir);
+                        const esq = typeof valorEsquerdo === 'bigint'
+                            ? valorEsquerdo
+                            : BigInt(Math.floor(Number(valorEsquerdo)));
+                        const dir = typeof valorDireito === 'bigint'
+                            ? valorDireito
+                            : BigInt(Math.floor(Number(valorDireito)));
+                        return expressao.operador.tipo === delegua_1.default.E
+                            ? esq & dir
+                            : esq | dir;
                     }
                     return expressao.operador.tipo === delegua_1.default.E
-                        ? (Number(valorEsquerdo) & Number(valorDireito))
-                        : (Number(valorEsquerdo) | Number(valorDireito));
+                        ? Number(valorEsquerdo) & Number(valorDireito)
+                        : Number(valorEsquerdo) | Number(valorDireito);
                 }
                 // Demais casos sem diferença de tipos
                 if (expressao.operador.tipo === delegua_1.default.OU) {
@@ -22423,7 +22692,7 @@ class InterpretadorBase {
                     const valorComoDupla = valorVetorResolvido[declaracao.posicaoAtual];
                     const promises = await Promise.all([
                         this.avaliar(declaracao.variavelIteracao.primeiro),
-                        this.avaliar(declaracao.variavelIteracao.segundo)
+                        this.avaliar(declaracao.variavelIteracao.segundo),
                     ]);
                     // TODO: O que fazer quando não forem literais?
                     this.pilhaEscoposExecucao.definirVariavel(String(promises[0].valor), valorComoDupla.primeiro);
@@ -22603,7 +22872,9 @@ class InterpretadorBase {
         let formatoTexto = '';
         for (const argumento of argumentos) {
             let resultadoAvaliacao = await this.avaliar(argumento);
-            if (resultadoAvaliacao && resultadoAvaliacao.hasOwnProperty && resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
+            if (resultadoAvaliacao &&
+                resultadoAvaliacao.hasOwnProperty &&
+                resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
                 resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
             }
             let valor = this.resolverValor(resultadoAvaliacao);
@@ -22844,12 +23115,12 @@ class InterpretadorBase {
         }, 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.', expressao.linha));
     }
     /**
-        * Método base para acesso a intervalo.
-        * Por padrão lança erro, pois a maioria dos dialetos (como Delégua padrão)
-        * ainda não suporta isso nativamente, apenas Pituguês.
-    */
+     * Método base para acesso a intervalo.
+     * Por padrão lança erro, pois a maioria dos dialetos (como Delégua padrão)
+     * ainda não suporta isso nativamente, apenas Pituguês.
+     */
     visitarExpressaoAcessoIntervaloVariavel(expressao) {
-        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, "Acesso por intervalo não implementado para este dialeto.", expressao.linha));
+        return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Acesso por intervalo não implementado para este dialeto.', expressao.linha));
     }
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
@@ -22866,14 +23137,12 @@ class InterpretadorBase {
             objeto[expressao.nome.lexema] = valor;
         }
     }
-    visitarDeclaracaoDefinicaoFuncao(declaracao) {
+    async visitarDeclaracaoDefinicaoFuncao(declaracao) {
         const funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         funcao.documentacao = declaracao.documentacao;
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
-        return Promise.resolve({
-            declaracao: funcao,
-        });
+        return { declaracao: funcao };
     }
     /**
      * Executa uma declaração de classe.
@@ -22933,9 +23202,7 @@ class InterpretadorBase {
             const funcao = new estruturas_1.DeleguaFuncao(nomeMetodo, metodoAtual.funcao, undefined, eInicializador);
             funcao.documentacao = metodoAtual.documentacao;
             // Numa classe estática, todos os métodos (exceto construtor) são estáticos.
-            const ehEstatico = declaracao.classeEstatica
-                ? !eInicializador
-                : metodoAtual.estatico;
+            const ehEstatico = declaracao.classeEstatica ? !eInicializador : metodoAtual.estatico;
             if (metodoAtual.eObtenedor) {
                 if (ehEstatico) {
                     obtenedoresEstaticos[nomeMetodo] = funcao;
@@ -22991,7 +23258,9 @@ class InterpretadorBase {
         // Toda classe sem superclasse explícita herda implicitamente de `Objeto`.
         // Isso só deve acontecer quando OBJETO_BASE já estiver inicializado e a classe
         // atual não for o próprio OBJETO_BASE, para evitar cadeias de herança recursivas.
-        if (descritorTipoClasse.superClasses.length === 0 && estruturas_1.OBJETO_BASE && descritorTipoClasse !== estruturas_1.OBJETO_BASE) {
+        if (descritorTipoClasse.superClasses.length === 0 &&
+            estruturas_1.OBJETO_BASE &&
+            descritorTipoClasse !== estruturas_1.OBJETO_BASE) {
             descritorTipoClasse.superClasses = [estruturas_1.OBJETO_BASE];
         }
         // Calcular o OReM (linearização C3) após os pais estarem definidos.
@@ -23254,21 +23523,25 @@ class InterpretadorBase {
         let valoresArray;
         // Verificar se é uma TuplaN (verifica instanceof OU propriedade elementos/tipo para maior compatibilidade)
         if (valores instanceof construtos_1.TuplaN ||
-            (valores && valores.tipo === 'tupla' && valores.elementos && Array.isArray(valores.elementos))) {
+            (valores &&
+                valores.tipo === 'tupla' &&
+                valores.elementos &&
+                Array.isArray(valores.elementos))) {
             valoresArray = valores.elementos.map((elem) => {
-                if (elem instanceof construtos_1.Literal || (elem && typeof elem === 'object' && elem.hasOwnProperty('valor'))) {
+                if (elem instanceof construtos_1.Literal ||
+                    (elem && typeof elem === 'object' && elem.hasOwnProperty('valor'))) {
                     return this.resolverValor(elem.valor);
                 }
                 return this.resolverValor(elem);
             });
         }
         else if (Array.isArray(valores)) {
-            valoresArray = valores.map(v => this.resolverValor(v));
+            valoresArray = valores.map((v) => this.resolverValor(v));
         }
         else {
             const valorResolvido = this.resolverValor(valores);
             if (Array.isArray(valorResolvido)) {
-                valoresArray = valorResolvido.map(v => this.resolverValor(v));
+                valoresArray = valorResolvido.map((v) => this.resolverValor(v));
             }
             else {
                 valoresArray = [valorResolvido];
@@ -23390,7 +23663,9 @@ class InterpretadorBase {
             return objeto.valor.paraTexto();
         if (objeto instanceof construtos_1.Literal)
             return this.paraTexto(objeto.valor);
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse || objeto instanceof estruturas_1.DeleguaFuncao || objeto instanceof estruturas_1.DescritorTipoClasse)
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+            objeto instanceof estruturas_1.DeleguaFuncao ||
+            objeto instanceof estruturas_1.DescritorTipoClasse)
             return objeto.paraTexto();
         if (objeto instanceof quebras_1.RetornoQuebra) {
             if (typeof objeto.valor === 'boolean')
@@ -23655,10 +23930,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         return objeto;
     }
     serializarSemEspacos(objeto) {
-        return JSON
-            .stringify(objeto)
-            .replace(/,\s+/g, ',')
-            .replace(/:\s+/g, ':');
+        return JSON.stringify(objeto).replace(/,\s+/g, ',').replace(/:\s+/g, ':');
     }
     paraTexto(objeto) {
         if (objeto === null || objeto === undefined)
@@ -23673,7 +23945,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             return objeto.valor.paraTexto();
         if (objeto instanceof construtos_1.Literal || objeto instanceof construtos_1.Tupla)
             return objeto.paraTextoSaida();
-        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse || objeto instanceof estruturas_1.DeleguaFuncao || objeto instanceof estruturas_1.DescritorTipoClasse)
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
+            objeto instanceof estruturas_1.DeleguaFuncao ||
+            objeto instanceof estruturas_1.DescritorTipoClasse)
             return objeto.paraTexto();
         if (objeto instanceof quebras_1.RetornoQuebra) {
             if (typeof objeto.valor === 'boolean')
@@ -23774,15 +24048,25 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
     async visitarDeclaracaoAjuda(declaracao) {
         return Promise.resolve((0, comum_1.pontoEntradaAjuda)(declaracao.funcao, declaracao.elemento));
     }
-    visitarDeclaracaoDefinicaoFuncao(declaracao) {
-        const funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
+    async visitarDeclaracaoDefinicaoFuncao(declaracao) {
+        var _a, _b;
+        let funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         funcao.documentacao = declaracao.documentacao;
+        if (declaracao.decoradores && declaracao.decoradores.length > 0) {
+            for (const decorador of [...declaracao.decoradores].reverse()) {
+                const nomeDecorador = decorador.nome.slice(1);
+                const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
+                const funcaoDecoradora = variavelDecoradora.valor;
+                const resultado = await funcaoDecoradora.chamar(this, [{ nome: null, valor: funcao }]);
+                funcao = this.resolverValorRecursivo(resultado);
+            }
+        }
         // TODO: Depreciar essa abordagem a favor do uso por referências?
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, funcao);
         this.pilhaEscoposExecucao.registrarReferenciaFuncao(declaracao.id, funcao);
         return Promise.resolve({
-            tipo: `função<${funcao.declaracao.tipo || 'qualquer'}>`,
-            tipoExplicito: funcao.declaracao.tipoExplicito,
+            tipo: `função<${((_a = funcao.declaracao) === null || _a === void 0 ? void 0 : _a.tipo) || 'qualquer'}>`,
+            tipoExplicito: (_b = funcao.declaracao) === null || _b === void 0 ? void 0 : _b.tipoExplicito,
             declaracao: funcao,
         });
     }
@@ -23949,11 +24233,11 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                     const valorComoDupla = valorVetorOuDicionarioResolvido[paraCada.posicaoAtual];
                     const nomesVariaveis = await Promise.all([
                         this.avaliar(paraCada.variavelIteracao.primeiro),
-                        this.avaliar(paraCada.variavelIteracao.segundo)
+                        this.avaliar(paraCada.variavelIteracao.segundo),
                     ]);
                     const valoresDupla = await Promise.all([
                         this.avaliar(valorComoDupla.primeiro),
-                        this.avaliar(valorComoDupla.segundo)
+                        this.avaliar(valorComoDupla.segundo),
                     ]);
                     // nomesVariaveis são strings (nomes das variáveis)
                     this.pilhaEscoposExecucao.definirVariavel(String(nomesVariaveis[0]), valoresDupla[0]);
@@ -24699,18 +24983,20 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         // Tratamento especial para expressões unárias aplicadas a chamadas de método em literais numéricos.
         // Por exemplo: -5.absoluto() deve ser avaliado como (-5).absoluto(), não como -(5.absoluto())
         // Isso garante que o operador unário seja aplicado ao literal antes de chamar o método.
-        if ((expressao.operador.tipo === delegua_2.default.SUBTRACAO || expressao.operador.tipo === delegua_2.default.ADICAO) &&
+        if ((expressao.operador.tipo === delegua_2.default.SUBTRACAO ||
+            expressao.operador.tipo === delegua_2.default.ADICAO) &&
             expressao.operando instanceof construtos_1.Chamada) {
             const entidadeChamada = expressao.operando.entidadeChamada;
             // Verifica se é AcessoMetodo ou AcessoMetodoOuPropriedade
-            if (entidadeChamada instanceof construtos_1.AcessoMetodo || entidadeChamada instanceof construtos_1.AcessoMetodoOuPropriedade) {
+            if (entidadeChamada instanceof construtos_1.AcessoMetodo ||
+                entidadeChamada instanceof construtos_1.AcessoMetodoOuPropriedade) {
                 const objetoAcesso = entidadeChamada.objeto;
                 // Verifica se o objeto do método é um literal numérico
                 if (objetoAcesso instanceof construtos_1.Literal && typeof objetoAcesso.valor === 'number') {
                     // Cria um novo literal com o sinal aplicado
-                    const novoLiteral = new construtos_1.Literal(objetoAcesso.hashArquivo, objetoAcesso.linha, expressao.operador.tipo === delegua_2.default.SUBTRACAO ?
-                        -objetoAcesso.valor :
-                        +objetoAcesso.valor);
+                    const novoLiteral = new construtos_1.Literal(objetoAcesso.hashArquivo, objetoAcesso.linha, expressao.operador.tipo === delegua_2.default.SUBTRACAO
+                        ? -objetoAcesso.valor
+                        : +objetoAcesso.valor);
                     // Cria um novo acesso com o literal modificado
                     let novoAcesso;
                     if (entidadeChamada instanceof construtos_1.AcessoMetodo) {
@@ -24732,7 +25018,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
     async visitarExpressaoVetor(expressao) {
         // Delega ao interpretador base para processar o vetor
         const vetor = await super.visitarExpressaoVetor(expressao);
-        // Adiciona referência no montão (comportamento específico deste interpretador)                                                                             
+        // Adiciona referência no montão (comportamento específico deste interpretador)
         const enderecoVetorMontao = this.montao.adicionarReferencia(vetor);
         this.pilhaEscoposExecucao.registrarReferenciaMontao(enderecoVetorMontao);
         return new estruturas_1.ReferenciaMontao(enderecoVetorMontao);
@@ -26066,7 +26352,9 @@ class LexadorPitugues {
         }
         const deslocamento = ehFString ? 2 : 1;
         const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + deslocamento, this.atual);
-        if (textoCompleto.length === 0 && !this.eFinalDoCodigo() && this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
+        if (textoCompleto.length === 0 &&
+            !this.eFinalDoCodigo() &&
+            this.codigo[this.linha].charAt(this.atual + 1) === delimitador) {
             this.avancar(); // Avança para o próximo delimitador
             this.analisarTextoMultilinha(delimitador);
             return;
@@ -26075,25 +26363,26 @@ class LexadorPitugues {
         this.simbolos.push(new simbolo_1.Simbolo(tipoSimbolo, textoCompleto, valor, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
     analisarNumero() {
-        const linhaPrimeiroDigito = this.linha;
-        while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
+        const linhaInicial = this.linha;
+        while (this.linha === linhaInicial &&
+            this.eDigito(this.simboloAtual()))
             this.avancar();
-        }
-        if (this.simboloAtual() == '.' && this.eDigito(this.proximoSimbolo())) {
+        const temPonto = this.simboloAtual() === '.';
+        const proximoEhDigito = this.eDigito(this.proximoSimbolo());
+        if (this.linha === linhaInicial && temPonto && proximoEhDigito) {
             this.avancar();
-            while (this.eDigito(this.simboloAtual())) {
+            while (this.linha === linhaInicial &&
+                this.eDigito(this.simboloAtual()))
                 this.avancar();
-            }
         }
         let numeroCompleto;
-        if (linhaPrimeiroDigito < this.linha) {
-            const linhaNumero = this.codigo[linhaPrimeiroDigito];
-            numeroCompleto = linhaNumero.substring(this.inicioSimbolo, linhaNumero.length);
+        if (linhaInicial < this.linha) {
+            numeroCompleto = this.codigo[linhaInicial].substring(this.inicioSimbolo, this.codigo[linhaInicial].length);
         }
         else {
             numeroCompleto = this.codigo[this.linha].substring(this.inicioSimbolo, this.atual);
         }
-        this.simbolos.push(new simbolo_1.Simbolo(pitugues_2.default.NUMERO, numeroCompleto, parseFloat(numeroCompleto), linhaPrimeiroDigito + 1, this.hashArquivo));
+        this.simbolos.push(new simbolo_1.Simbolo(pitugues_2.default.NUMERO, numeroCompleto, parseFloat(numeroCompleto), linhaInicial + 1, this.hashArquivo));
     }
     identificarPalavraChave() {
         const linhaPrimeiroCaracter = this.linha;
@@ -26197,8 +26486,13 @@ class LexadorPitugues {
                 this.avancar();
                 break;
             case '.':
-                this.adicionarSimbolo(pitugues_2.default.PONTO);
-                this.avancar();
+                if (this.eDigito(this.proximoSimbolo())) {
+                    this.analisarNumero();
+                }
+                else {
+                    this.adicionarSimbolo(pitugues_2.default.PONTO);
+                    this.avancar();
+                }
                 break;
             case '-':
                 this.avancar();
@@ -26677,9 +26971,31 @@ class LexadorPrisma {
     }
     eAlfabeto(caractere) {
         const acentuacoes = [
-            'á', 'Á', 'ã', 'Ã', 'â', 'Â', 'à', 'À',
-            'é', 'É', 'ê', 'Ê', 'í', 'Í', 'ó', 'Ó',
-            'õ', 'Õ', 'ô', 'Ô', 'ú', 'Ú', 'ç', 'Ç', '_',
+            'á',
+            'Á',
+            'ã',
+            'Ã',
+            'â',
+            'Â',
+            'à',
+            'À',
+            'é',
+            'É',
+            'ê',
+            'Ê',
+            'í',
+            'Í',
+            'ó',
+            'Ó',
+            'õ',
+            'Õ',
+            'ô',
+            'Ô',
+            'ú',
+            'Ú',
+            'ç',
+            'Ç',
+            '_',
         ];
         return ((caractere >= 'a' && caractere <= 'z') ||
             (caractere >= 'A' && caractere <= 'Z') ||
@@ -29199,7 +29515,7 @@ exports.palavrasReservadasDelegua = {
     falso: delegua_1.default.FALSO,
     faca: delegua_1.default.FAZER,
     fazer: delegua_1.default.FAZER,
-    'faça': delegua_1.default.FAZER,
+    faça: delegua_1.default.FAZER,
     finalmente: delegua_1.default.FINALMENTE,
     fixo: delegua_1.default.CONSTANTE,
     funcao: delegua_1.default.FUNCAO,
@@ -29245,7 +29561,7 @@ exports.palavrasReservadasDelegua = {
     var: delegua_1.default.VARIAVEL,
     variavel: delegua_1.default.VARIAVEL,
     variável: delegua_1.default.VARIAVEL,
-    verdadeiro: delegua_1.default.VERDADEIRO
+    verdadeiro: delegua_1.default.VERDADEIRO,
 };
 exports.palavrasReservadasMicroGramatica = {
     e: delegua_1.default.E,
@@ -43114,7 +43430,8 @@ ${labelProximo}:`;
 ${labelFim}:`;
     }
     traduzirDeclaracaoExpressao(declaracao) {
-        if (declaracao.expressao && this.dicionarioConstrutos[declaracao.expressao.constructor.name]) {
+        if (declaracao.expressao &&
+            this.dicionarioConstrutos[declaracao.expressao.constructor.name]) {
             this.dicionarioConstrutos[declaracao.expressao.constructor.name](declaracao.expressao);
         }
     }
@@ -43138,7 +43455,9 @@ ${labelInicio}:`;
     }
     traduzirDeclaracaoFalhar(declaracao) {
         let mensagem = '"Erro"';
-        if (declaracao.explicacao && typeof declaracao.explicacao === 'object' && 'constructor' in declaracao.explicacao) {
+        if (declaracao.explicacao &&
+            typeof declaracao.explicacao === 'object' &&
+            'constructor' in declaracao.explicacao) {
             const explicacao = declaracao.explicacao;
             if (explicacao.constructor && this.dicionarioConstrutos[explicacao.constructor.name]) {
                 mensagem = this.dicionarioConstrutos[explicacao.constructor.name](explicacao);
@@ -43158,7 +43477,9 @@ ${labelInicio}:`;
 ${nomeFuncao}:
     push {fp, lr}
     mov fp, sp`;
-        if (declaracao.funcao && declaracao.funcao.corpo && Array.isArray(declaracao.funcao.corpo)) {
+        if (declaracao.funcao &&
+            declaracao.funcao.corpo &&
+            Array.isArray(declaracao.funcao.corpo)) {
             declaracao.funcao.corpo.forEach((decl) => {
                 if (this.dicionarioDeclaracoes[decl.constructor.name]) {
                     this.dicionarioDeclaracoes[decl.constructor.name](decl);
@@ -43176,7 +43497,9 @@ ${nomeFuncao}:
     traduzirDeclaracaoLeia(declaracao) {
         var _a;
         let nomeVar;
-        if (declaracao.argumentos && declaracao.argumentos[0] && declaracao.argumentos[0] instanceof construtos_1.Variavel) {
+        if (declaracao.argumentos &&
+            declaracao.argumentos[0] &&
+            declaracao.argumentos[0] instanceof construtos_1.Variavel) {
             nomeVar = (_a = declaracao.argumentos[0].simbolo) === null || _a === void 0 ? void 0 : _a.lexema;
         }
         if (!nomeVar)
@@ -43274,7 +43597,8 @@ ${labelFim}:`;
         this.text += `
     b ${labelFim}
 ${labelSenao}:`;
-        if (declaracao.caminhoSenao && this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name]) {
+        if (declaracao.caminhoSenao &&
+            this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name]) {
             this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name](declaracao.caminhoSenao);
         }
         this.text += `
@@ -43447,7 +43771,8 @@ section .text
     ${this.alvo === 'linux' ? 'global _start' : 'global main'}
 ${this.alvo === 'linux' ? '_start:' : 'main:'}`;
         if (this.alvo === 'windows') {
-            this.text = `
+            this.text =
+                `
 extern printf
 ` + this.text;
         }
@@ -43762,7 +44087,8 @@ ${labelProximo}:`;
 ${labelFim}:`;
     }
     traduzirDeclaracaoExpressao(declaracao) {
-        if (declaracao.expressao && this.dicionarioConstrutos[declaracao.expressao.constructor.name]) {
+        if (declaracao.expressao &&
+            this.dicionarioConstrutos[declaracao.expressao.constructor.name]) {
             this.dicionarioConstrutos[declaracao.expressao.constructor.name](declaracao.expressao);
         }
     }
@@ -43787,7 +44113,9 @@ ${labelInicio}:`;
     }
     traduzirDeclaracaoFalhar(declaracao) {
         let mensagem = '"Erro"';
-        if (declaracao.explicacao && typeof declaracao.explicacao === 'object' && 'constructor' in declaracao.explicacao) {
+        if (declaracao.explicacao &&
+            typeof declaracao.explicacao === 'object' &&
+            'constructor' in declaracao.explicacao) {
             const explicacao = declaracao.explicacao;
             if (explicacao.constructor && this.dicionarioConstrutos[explicacao.constructor.name]) {
                 mensagem = this.dicionarioConstrutos[explicacao.constructor.name](explicacao);
@@ -43814,7 +44142,9 @@ ${labelInicio}:`;
 ${nomeFuncao}:
     push rbp
     mov rbp, rsp`;
-        if (declaracao.funcao && declaracao.funcao.corpo && Array.isArray(declaracao.funcao.corpo)) {
+        if (declaracao.funcao &&
+            declaracao.funcao.corpo &&
+            Array.isArray(declaracao.funcao.corpo)) {
             declaracao.funcao.corpo.forEach((decl) => {
                 if (this.dicionarioDeclaracoes[decl.constructor.name]) {
                     this.dicionarioDeclaracoes[decl.constructor.name](decl);
@@ -43833,7 +44163,9 @@ ${nomeFuncao}:
     traduzirDeclaracaoLeia(declaracao) {
         var _a;
         let nomeVar;
-        if (declaracao.argumentos && declaracao.argumentos[0] && declaracao.argumentos[0] instanceof construtos_1.Variavel) {
+        if (declaracao.argumentos &&
+            declaracao.argumentos[0] &&
+            declaracao.argumentos[0] instanceof construtos_1.Variavel) {
             nomeVar = (_a = declaracao.argumentos[0].simbolo) === null || _a === void 0 ? void 0 : _a.lexema;
         }
         if (!nomeVar)
@@ -43932,7 +44264,8 @@ ${labelFim}:`;
         this.text += `
     jmp ${labelFim}
 ${labelSenao}:`;
-        if (declaracao.caminhoSenao && this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name]) {
+        if (declaracao.caminhoSenao &&
+            this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name]) {
             this.dicionarioDeclaracoes[declaracao.caminhoSenao.constructor.name](declaracao.caminhoSenao);
         }
         this.text += `
@@ -44502,7 +44835,7 @@ class TradutorAssemblyScript {
         return resultado;
     }
     traduzirDeclaracaoVarMultiplo(declaracaoVarMultiplo) {
-        const variaveis = declaracaoVarMultiplo.simbolos.map(s => s.lexema).join(', ');
+        const variaveis = declaracaoVarMultiplo.simbolos.map((s) => s.lexema).join(', ');
         let resultado = 'let ';
         resultado += variaveis;
         resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoVarMultiplo.tipo);
@@ -44521,7 +44854,7 @@ class TradutorAssemblyScript {
         return resultado;
     }
     traduzirDeclaracaoConstMultiplo(declaracaoConstMultiplo) {
-        const constantes = declaracaoConstMultiplo.simbolos.map(s => s.lexema).join(', ');
+        const constantes = declaracaoConstMultiplo.simbolos.map((s) => s.lexema).join(', ');
         let resultado = 'const ';
         resultado += constantes;
         resultado += this.resolveTipoDeclaracaoVarEContante(declaracaoConstMultiplo.tipo);
@@ -44676,7 +45009,9 @@ class TradutorAssemblyScript {
         const declaracoesCorpo = corpoBloco.declaracoes || [];
         let resultadoCorpo = '{\n';
         this.indentacao += 4;
-        resultadoCorpo += ' '.repeat(this.indentacao) + `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
+        resultadoCorpo +=
+            ' '.repeat(this.indentacao) +
+                `const ${nomeVariavel} = ${nomeVetor}[__i_${nomeVariavel}];\n`;
         for (const declaracaoOuConstruto of declaracoesCorpo) {
             resultadoCorpo += ' '.repeat(this.indentacao);
             const nomeConstrutor = declaracaoOuConstruto.constructor.name;
@@ -44897,7 +45232,9 @@ class TradutorAssemblyScript {
             if (typeof chave === 'string') {
                 chaveStr = `"${chave}"`;
             }
-            else if (chave && chave.constructor && this.dicionarioConstrutos[chave.constructor.name]) {
+            else if (chave &&
+                chave.constructor &&
+                this.dicionarioConstrutos[chave.constructor.name]) {
                 // Se for um Construto, traduzi-lo
                 chaveStr = this.dicionarioConstrutos[chave.constructor.name](chave);
             }
@@ -44992,7 +45329,7 @@ class TradutorAssemblyScript {
         return `[${primeiro}, ${segundo}, ${terceiro}, ${quarto}, ${quinto}, ${sexto}, ${setimo}, ${oitavo}, ${nono}, ${decimo}]`;
     }
     traduzirConstrutoTuplaN(tuplaN) {
-        const elementos = tuplaN.elementos.map(elemento => this.dicionarioConstrutos[elemento.constructor.name](elemento));
+        const elementos = tuplaN.elementos.map((elemento) => this.dicionarioConstrutos[elemento.constructor.name](elemento));
         return `[${elementos.join(', ')}]`;
     }
     traduzirConstrutoSeTernario(seTernario) {
@@ -45071,7 +45408,7 @@ class TradutorAssemblyScript {
         // Check if this is a native library function call
         if (chamada.entidadeChamada instanceof construtos_1.Variavel) {
             const nomeVariavel = chamada.entidadeChamada.simbolo.lexema;
-            const argumentosTexto = chamada.argumentos.map(arg => this.dicionarioConstrutos[arg.constructor.name](arg));
+            const argumentosTexto = chamada.argumentos.map((arg) => this.dicionarioConstrutos[arg.constructor.name](arg));
             const funcaoNativa = this.traduzirFuncaoNativaGlobal(nomeVariavel, argumentosTexto);
             if (funcaoNativa) {
                 return funcaoNativa;
@@ -45418,7 +45755,7 @@ class TradutorElixir {
     async extrairCamposStruct(declaracao) {
         const campos = new Set();
         // Procurar pelo construtor
-        const construtor = declaracao.metodos.find(m => m.simbolo.lexema === 'construtor' || m.simbolo.lexema === 'inicializar');
+        const construtor = declaracao.metodos.find((m) => m.simbolo.lexema === 'construtor' || m.simbolo.lexema === 'inicializar');
         if (!construtor) {
             return [];
         }
@@ -45427,7 +45764,7 @@ class TradutorElixir {
             this.extrairCamposDeDeclaracao(declaracaoCorpo, campos);
         }
         // Converter para atoms do Elixir
-        return Array.from(campos).map(c => `:${this.converterIdentificador(c)}`);
+        return Array.from(campos).map((c) => `:${this.converterIdentificador(c)}`);
     }
     /**
      * Extrai campos de uma declaração recursivamente
@@ -45469,7 +45806,7 @@ class TradutorElixir {
         // Construtor vira função new/N
         if (metodo.simbolo.lexema === 'construtor' || metodo.simbolo.lexema === 'inicializar') {
             resultado += `def new(`;
-            const parametros = metodo.funcao.parametros.map(p => this.converterIdentificador(p.nome.lexema));
+            const parametros = metodo.funcao.parametros.map((p) => this.converterIdentificador(p.nome.lexema));
             resultado += parametros.join(', ');
             resultado += ') do\n';
             this.aumentarIndentacao();
@@ -45487,7 +45824,7 @@ class TradutorElixir {
             resultado += `def ${nomeMetodo}(`;
             const nomeParametroStruct = this.converterIdentificador(nomeModulo.toLowerCase());
             this.nomeParametroStruct = nomeParametroStruct;
-            const parametros = [nomeParametroStruct].concat(metodo.funcao.parametros.map(p => this.converterIdentificador(p.nome.lexema)));
+            const parametros = [nomeParametroStruct].concat(metodo.funcao.parametros.map((p) => this.converterIdentificador(p.nome.lexema)));
             resultado += parametros.join(', ');
             resultado += ') do\n';
             this.aumentarIndentacao();
@@ -45577,7 +45914,7 @@ class TradutorElixir {
         let resultado = this.adicionarIndentacao();
         resultado += `def ${nomeFuncao}(`;
         // Parâmetros
-        const parametros = declaracao.funcao.parametros.map(p => this.converterIdentificador(p.nome.lexema));
+        const parametros = declaracao.funcao.parametros.map((p) => this.converterIdentificador(p.nome.lexema));
         resultado += parametros.join(', ');
         resultado += ') do\n';
         // Corpo
@@ -45854,7 +46191,9 @@ class TradutorElixir {
             case 'ordenar':
                 return `Enum.sort(${objeto})`;
             case 'juntar':
-                return argumentos.length > 0 ? `Enum.join(${objeto}, ${argumentos[0]})` : `Enum.join(${objeto})`;
+                return argumentos.length > 0
+                    ? `Enum.join(${objeto}, ${argumentos[0]})`
+                    : `Enum.join(${objeto})`;
             case 'fatiar':
                 if (argumentos.length >= 2) {
                     return `Enum.slice(${objeto}, ${argumentos[0]}, ${argumentos[1]})`;
@@ -45993,7 +46332,7 @@ class TradutorElixir {
     async visitarExpressaoFuncaoConstruto(expressao) {
         let resultado = 'fn ';
         // Parâmetros
-        const parametros = expressao.parametros.map(p => this.converterIdentificador(p.nome.lexema));
+        const parametros = expressao.parametros.map((p) => this.converterIdentificador(p.nome.lexema));
         resultado += parametros.join(', ');
         resultado += ' ->';
         // Corpo - se for uma única expressão, inline; se for bloco, multi-linha
@@ -46759,7 +47098,8 @@ class TradutorJavaScript {
         if (argumento instanceof construtos_1.Variavel) {
             return argumento.simbolo.lexema;
         }
-        if (argumento instanceof construtos_1.ReferenciaFuncao || argumento instanceof construtos_1.ArgumentoReferenciaFuncao) {
+        if (argumento instanceof construtos_1.ReferenciaFuncao ||
+            argumento instanceof construtos_1.ArgumentoReferenciaFuncao) {
             return argumento.simboloFuncao.lexema;
         }
         return (_c = (_b = (_a = this.dicionarioConstrutos)[argumento.constructor.name]) === null || _b === void 0 ? void 0 : _b.call(_a, argumento)) !== null && _c !== void 0 ? _c : '';
@@ -47000,7 +47340,7 @@ class TradutorMermaidJs {
         var _a, _b;
         const nomeClasse = declaracao.simbolo.lexema;
         const superClasse = declaracao.superClasse
-            ? (((_a = declaracao.superClasse.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) || ((_b = declaracao.superClasse.nome) === null || _b === void 0 ? void 0 : _b.lexema))
+            ? ((_a = declaracao.superClasse.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) || ((_b = declaracao.superClasse.nome) === null || _b === void 0 ? void 0 : _b.lexema)
             : undefined;
         const linha = declaracao.linha;
         // Cria arestas de entrada e saída para a classe
@@ -47261,9 +47601,7 @@ class TradutorMermaidJs {
         // Caminho então, normalmente um `Bloco`.
         const verticesEntao = await declaracao.caminhoEntao.aceitar(this);
         vertices = vertices.concat(verticesEntao);
-        const ultimaArestaEntao = verticesEntao.length > 0
-            ? verticesEntao[verticesEntao.length - 1].destino
-            : aresta;
+        const ultimaArestaEntao = verticesEntao.length > 0 ? verticesEntao[verticesEntao.length - 1].destino : aresta;
         if (declaracao.caminhoSenao) {
             this.anteriores = [];
             // Verifica se é "senão se" ou apenas "senão"
@@ -47311,9 +47649,7 @@ class TradutorMermaidJs {
             verticesTente.push(...verticesDeclaracao);
         }
         vertices = vertices.concat(verticesTente);
-        const ultimaArestaTente = verticesTente.length > 0
-            ? verticesTente[verticesTente.length - 1].destino
-            : aresta;
+        const ultimaArestaTente = verticesTente.length > 0 ? verticesTente[verticesTente.length - 1].destino : aresta;
         const anterioresAposTente = [];
         // Caminho pegue (catch) - se existir
         if (declaracao.caminhoPegue) {
@@ -47499,7 +47835,7 @@ class TradutorMermaidJs {
     async visitarExpressaoFuncaoConstruto(expressao) {
         let texto = 'função anônima';
         if (expressao.parametros && expressao.parametros.length > 0) {
-            const parametros = expressao.parametros.map(p => p.nome.lexema).join(', ');
+            const parametros = expressao.parametros.map((p) => p.nome.lexema).join(', ');
             texto += `(${parametros})`;
         }
         else {
@@ -48041,7 +48377,7 @@ class TradutorPython {
         }
         const funcao = argumento;
         // Extrai os nomes dos parâmetros
-        const parametros = funcao.parametros.map(param => param.nome.lexema).join(', ');
+        const parametros = funcao.parametros.map((param) => param.nome.lexema).join(', ');
         // Python lambdas suportam apenas uma expressão
         // Assumimos que a função tem um corpo simples com uma declaração de retorno
         let expressao = '';
@@ -49786,7 +50122,7 @@ class TradutorRuby {
         }
         const funcao = argumento;
         // Extrai os nomes dos parâmetros
-        const parametros = funcao.parametros.map(param => param.nome.lexema).join(', ');
+        const parametros = funcao.parametros.map((param) => param.nome.lexema).join(', ');
         // Assumimos que a função tem um corpo simples com uma declaração de retorno
         let expressao = '';
         if (funcao.corpo.length > 0) {

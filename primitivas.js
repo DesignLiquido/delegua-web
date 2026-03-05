@@ -506,7 +506,7 @@ exports.default = {
         implementacao: (interpretador, valor) => {
             return Promise.resolve(Object.values(valor));
         },
-    }
+    },
 };
 
 },{"../construtos":40,"../informacao-elemento-sintatico":73}],8:[function(require,module,exports){
@@ -627,7 +627,7 @@ const implementacaoParticao = (interpretador, texto, separador, ...args) => {
         const depois = texto.substring(indice + separador.length);
         partes = [antes, separador, depois];
     }
-    const elementos = partes.map(p => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
+    const elementos = partes.map((p) => new construtos_1.Literal(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, p, 'texto'));
     const tupla = new construtos_1.TuplaN(interpretador.hashArquivoDeclaracaoAtual, interpretador.linhaDeclaracaoAtual, elementos);
     return Promise.resolve(tupla);
 };
@@ -1009,7 +1009,7 @@ const mapaConstrutoresTupla = {
     7: construtos_1.Septeto,
     8: construtos_1.Octeto,
     9: construtos_1.Noneto,
-    10: construtos_1.Deceto
+    10: construtos_1.Deceto,
 };
 exports.default = {
     adicionar: {
@@ -1640,7 +1640,7 @@ class AjudaComoConstruto {
         return retorno;
     }
     paraTextoSaida() {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
 }
 exports.AjudaComoConstruto = AjudaComoConstruto;
@@ -1746,9 +1746,12 @@ class Atribuir {
             const alvoComoVariavel = alvo;
             const tipoAlvo = alvoComoVariavel === null || alvoComoVariavel === void 0 ? void 0 : alvoComoVariavel.tipo;
             const alvoSuportaIndice = alvo instanceof variavel_1.Variavel &&
-                (tipoAlvo === 'vetor' || tipoAlvo === 'dicionário' || tipoAlvo === 'qualquer' || (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
+                (tipoAlvo === 'vetor' ||
+                    tipoAlvo === 'dicionário' ||
+                    tipoAlvo === 'qualquer' ||
+                    (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
             if (!alvoSuportaIndice) {
-                throw new Error("`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.");
+                throw new Error('`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.');
             }
             this.indice = indice;
         }
@@ -1817,8 +1820,7 @@ class Binario {
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
         }
-        if (this.esquerda.tipo === 'texto' ||
-            this.direita.tipo === 'texto') {
+        if (this.esquerda.tipo === 'texto' || this.direita.tipo === 'texto') {
             return 'texto';
         }
         if (['numero', 'número'].includes(this.esquerda.tipo) ||
@@ -1984,7 +1986,9 @@ class Decorador {
                 continue;
             }
             const valor = this.atributos[chave];
-            const valorTexto = valor && typeof valor === 'object' && typeof valor.paraTexto === 'function' ? valor.paraTexto() : valor;
+            const valorTexto = valor && typeof valor === 'object' && typeof valor.paraTexto === 'function'
+                ? valor.paraTexto()
+                : valor;
             atributos += `${chave}=${valorTexto} `;
         }
         if (atributos.length > 0) {
@@ -2685,11 +2689,13 @@ class TuplaN extends tupla_1.Tupla {
         return await visitante.visitarExpressaoTuplaN(this);
     }
     paraTexto() {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTexto()).join(', ');
+        const elementosTexto = this.elementos.map((elemento) => elemento.paraTexto()).join(', ');
         return `(${elementosTexto})`;
     }
     paraTextoSaida() {
-        const elementosTexto = this.elementos.map(elemento => elemento.paraTextoSaida()).join(', ');
+        const elementosTexto = this.elementos
+            .map((elemento) => elemento.paraTextoSaida())
+            .join(', ');
         return `(${elementosTexto})`;
     }
 }
@@ -3219,12 +3225,12 @@ function uuidv4() {
         let r = Math.random() * 16; // random number between 0 and 16
         if (d > 0) {
             // Use timestamp until depleted
-            r = (d + r) % 16 | 0;
+            r = ((d + r) % 16) | 0;
             d = Math.floor(d / 16);
         }
         else {
             // Use microseconds since page-load if supported
-            r = (d2 + r) % 16 | 0;
+            r = ((d2 + r) % 16) | 0;
             d2 = Math.floor(d2 / 16);
         }
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
