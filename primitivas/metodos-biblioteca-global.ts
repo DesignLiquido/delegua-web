@@ -294,7 +294,7 @@ export const metodosBibliotecaGlobal: MetodosBibliotecaGlobal = [
     {
         nome: 'todos',
            documentacao: '### Descrição\n\n' +
-            'Verifica se todos os elementos do vetor são verdadeiros.' +
+            'Verifica se todos os elementos do vetor são de valoração verdadeira.' +
             '\n\n### Exemplo de Código\n' +
             '```delegua\n' +
             'numeros = [1, 2, 3, 4, 5]\n' +
