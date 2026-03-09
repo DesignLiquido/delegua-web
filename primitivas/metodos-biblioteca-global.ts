@@ -292,19 +292,6 @@ export const metodosBibliotecaGlobal: MetodosBibliotecaGlobal = [
         exemploCodigo: 'texto(valor)'
     },
     {
-        nome: 'todos',
-           documentacao: '### Descrição\n\n' +
-            'Verifica se todos os elementos do vetor são de valoração verdadeira.' +
-            '\n\n### Exemplo de Código\n' +
-            '```delegua\n' +
-            'numeros = [1, 2, 3, 4, 5]\n' +
-            'escreva(todos(numeros)) // verdadeiro\n' +
-            'vetorFalso = [1, falso,]\n' +
-            'escreva(todos(vetorFalso)) // falso\n' +
-            '```',
-        exemploCodigo: 'todos(vetor)'
-    },
-    {
         nome: 'todosEmCondicao',
         documentacao: '### Descrição\n\n' +
             'Retorna verdadeiro se todos os elementos do vetor retornam verdadeiro ao serem aplicados como argumentos da função passada como segundo parâmetro. Retorna falso em caso contrário.' +
