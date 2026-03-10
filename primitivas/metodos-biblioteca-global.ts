@@ -292,18 +292,6 @@ export const metodosBibliotecaGlobal: MetodosBibliotecaGlobal = [
         exemploCodigo: 'texto(valor)'
     },
     {
-        nome: 'todos',
-        documentacao: '### Descrição\n\n' +
-            'Verifica se todos os elementos do vetor satisfazem a condição fornecida pela função de teste.' +
-            '\n\n### Exemplo de Código\n' +
-            '```delegua\n' +
-            'var numeros = [2, 4, 6, 8, 10];\n' +
-            'funcao ehPar(valor) { retorna valor % 2 == 0; }\n' +
-            'escreva(todos(numeros, ehPar)); // verdadeiro\n' +
-            '```',
-        exemploCodigo: 'todos(vetor, funcaoTeste)'
-    },
-    {
         nome: 'todosEmCondicao',
         documentacao: '### Descrição\n\n' +
             'Retorna verdadeiro se todos os elementos do vetor retornam verdadeiro ao serem aplicados como argumentos da função passada como segundo parâmetro. Retorna falso em caso contrário.' +
