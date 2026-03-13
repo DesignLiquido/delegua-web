@@ -825,7 +825,8 @@ const configurarAtualizacaoAutomatica = function () {
     if (!editor) {
         Monaco?.editor?.create(document.getElementById('editor'), {
             value: '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.',
-            language: 'delegua'
+            language: 'delegua',
+            automaticLayout: true
         });
         editor = Monaco?.editor.getEditors()[0];
     }
