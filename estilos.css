@@ -1,14 +1,26 @@
+html, body {
+  height: 100%;
+}
+
 html {
   font-family: "Roboto Mono";
   color: #000000;
 }
 
+body {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
 nav {
+  grid-column: 1/-1;
   display: flex;
   align-items: center;
   padding-bottom: 5px;
   border-bottom: 1px solid #f0f0f0;
-  width: 100% !important;
   justify-content: space-between;
 }
 nav .navbar-central {
@@ -97,12 +109,10 @@ nav .icone-burger {
 }
 
 #editor {
-  width: 65%;
-  height: calc(100% - 65px);
-  left: 0;
-  position: fixed;
+  min-height: 0;
   border-right: 1px solid #d9d9d9;
   border-top: 1px solid #d9d9d9;
+  overflow: hidden;
 }
 
 textarea {
@@ -134,15 +144,9 @@ textarea {
   }
 }
 @media only screen and (max-width: 768px) {
-  #editor {
-    width: 100% !important;
-    height: 70% !important;
-    position: relative !important;
-  }
-  #resultadoEditor {
-    width: 100% !important;
-    height: 29% !important;
-    position: relative !important;
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 70vh 29vh;
   }
   #botaoTraduzir,
   #botaoExecutar {
@@ -155,10 +159,7 @@ textarea {
   }
 }
 #resultadoEditor {
-  width: calc(35% - 4px);
-  height: calc(100% - 65px);
-  right: 0;
-  position: fixed;
+  min-height: 0;
   border-right: 1px solid #d9d9d9;
   border-top: 1px solid #d9d9d9;
   overflow-y: scroll;

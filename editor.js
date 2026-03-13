@@ -23,6 +23,7 @@ var MarkerSeverity;
     MarkerSeverity[MarkerSeverity["Error"] = 8] = "Error";
 })(MarkerSeverity || (MarkerSeverity = {}));
 let errosComCorrecao = new Map();
+let fixesTiposDocstring = new Map();
 const mostrarResultadoExecutar = function (resultadoExecucao) {
     const paragrafo = document.createElement("p");
     paragrafo.innerHTML = resultadoExecucao.replace(/\s/g, '&nbsp;');
@@ -184,17 +185,210 @@ const compartilharCodigo = function () {
 };
 const analisarCodigo = function () {
     return __awaiter(this, void 0, void 0, function* () {
-        const codigo = Monaco.editor.getModels()[0].getValue().split("\n");
+        const codigoTexto = Monaco.editor.getModels()[0].getValue();
+        const codigo = codigoTexto.split("\n");
+        const editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
         const retornoLexador = deleguaWeb.lexador.mapear(codigo, -1);
         const retornoAvaliadorSintatico = yield deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
         if (retornoAvaliadorSintatico.erros.length > 0) {
+            Monaco.editor.setModelMarkers(editor.getModel(), 'delegua-tipos', []);
+            fixesTiposDocstring.clear();
             return mapearErros(retornoAvaliadorSintatico.erros);
         }
         const analisadorSemantico = yield deleguaWeb.analisadorSemantico.analisar(retornoAvaliadorSintatico.declaracoes);
         const errosAnaliseSemantica = analisadorSemantico.diagnosticos;
         mapearAvisos(errosAnaliseSemantica);
+        const { markers: markersTipos, fixes } = detectarTiposNaoAnotados(codigoTexto);
+        fixesTiposDocstring = fixes;
+        Monaco.editor.setModelMarkers(editor.getModel(), 'delegua-tipos', markersTipos);
     });
 };
+function stripDocstring(raw) {
+    return raw
+        .replace(/^\/\*\*\s*/, '')
+        .replace(/\s*\*\/\s*$/, '')
+        .split('\n')
+        .map(l => l.replace(/^\s*\*\s?/, ''))
+        .join('\n')
+        .trim();
+}
+function analisarDocumentario(conteudo) {
+    var _a, _b, _c;
+    const REGEX_PARAMETRO = /^@(?:par[aâ]metro|param)\s+(?:\{([^}]+)\}\s+)?(\S+)\s*(.*)$/;
+    const REGEX_RETORNA = /^@(?:retorna)\s*(?:\{([^}]+)\}\s*)?(.*)$/;
+    const REGEX_EXEMPLO = /^@(?:exemplo)\s*(.*)$/;
+    const REGEX_DEPRECIADO = /^@depreciado\s*(.*)$/;
+    const REGEX_VEJA = /^@veja\s+(\S+).*$/;
+    const REGEX_TAG = /^@\w+/;
+    const resultado = { descricao: '', parametros: [], veja: [] };
+    const linhas = conteudo.split('\n');
+    const segmentos = [];
+    let atual = { tag: '', linhas: [] };
+    for (const linha of linhas) {
+        if (REGEX_TAG.test(linha)) {
+            segmentos.push(atual);
+            const tag = (_b = (_a = linha.match(/^@(\w+)/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : '';
+            atual = { tag, linhas: [linha] };
+        }
+        else {
+            atual.linhas.push(linha);
+        }
+    }
+    segmentos.push(atual);
+    for (const seg of segmentos) {
+        if (seg.tag === '') {
+            resultado.descricao = seg.linhas.join('\n').trim();
+            continue;
+        }
+        const primeiraLinha = (_c = seg.linhas[0]) !== null && _c !== void 0 ? _c : '';
+        let mr;
+        mr = primeiraLinha.match(REGEX_PARAMETRO);
+        if (mr) {
+            resultado.parametros.push({ tipo: mr[1] || undefined, nome: mr[2], descricao: mr[3].trim() });
+            continue;
+        }
+        mr = primeiraLinha.match(REGEX_RETORNA);
+        if (mr) {
+            resultado.retorna = { tipo: mr[1] || undefined, descricao: mr[2].trim() };
+            continue;
+        }
+        mr = primeiraLinha.match(REGEX_EXEMPLO);
+        if (mr) {
+            const restoLinha = mr[1].trim();
+            const linhasExtras = seg.linhas.slice(1).join('\n').trim();
+            resultado.exemplo = restoLinha
+                ? restoLinha + (linhasExtras ? '\n' + linhasExtras : '')
+                : linhasExtras;
+            continue;
+        }
+        mr = primeiraLinha.match(REGEX_DEPRECIADO);
+        if (mr) {
+            resultado.depreciado = mr[1].trim();
+            continue;
+        }
+        mr = primeiraLinha.match(REGEX_VEJA);
+        if (mr) {
+            resultado.veja.push(mr[1]);
+            continue;
+        }
+    }
+    return resultado;
+}
+function extrairFuncoesDocumentadas(codigo) {
+    const mapa = new Map();
+    const REGEX_FUNCAO_DOC = /\/\*\*([\s\S]*?)\*\/\s*(?:funcao|função)\s+([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\s*\(([^)]*)\)/g;
+    let m;
+    while ((m = REGEX_FUNCAO_DOC.exec(codigo)) !== null) {
+        const corpo = stripDocstring('/**' + m[1] + '*/');
+        const doc = analisarDocumentario(corpo);
+        // Se não há @parametro no docstring, extrair parâmetros da assinatura da função
+        if (doc.parametros.length === 0 && m[3].trim()) {
+            doc.parametros = m[3].split(',')
+                .map(p => {
+                const partes = p.trim().split(':').map(s => s.trim());
+                return { nome: partes[0], tipo: partes[1] || undefined, descricao: '' };
+            })
+                .filter(p => p.nome);
+        }
+        mapa.set(m[2], doc);
+    }
+    return mapa;
+}
+function extrairClassesDocumentadas(codigo) {
+    const mapa = new Map();
+    const REGEX_CLASSE_DOC = /\/\*\*([\s\S]*?)\*\/\s*classe\s+(?:abstrat[ao]\s+)?([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)/g;
+    let m;
+    while ((m = REGEX_CLASSE_DOC.exec(codigo)) !== null) {
+        const corpo = stripDocstring('/**' + m[1] + '*/');
+        mapa.set(m[2], analisarDocumentario(corpo));
+    }
+    return mapa;
+}
+function detectarTiposNaoAnotados(codigo) {
+    const markers = [];
+    const fixes = new Map();
+    const REGEX_FUNCAO_DOC = /\/\*\*([\s\S]*?)\*\/\s*(?:funcao|função)\s+([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\s*\(([^)]*)\)/g;
+    let m;
+    while ((m = REGEX_FUNCAO_DOC.exec(codigo)) !== null) {
+        const corpo = stripDocstring('/**' + m[1] + '*/');
+        const doc = analisarDocumentario(corpo);
+        const paramsAssinatura = m[3].split(',').map(p => {
+            const partes = p.trim().split(':').map(s => s.trim());
+            return { nome: partes[0], temTipo: partes.length > 1 && !!partes[1] };
+        }).filter(p => p.nome);
+        const fixesParaFuncao = [];
+        for (const paramDoc of doc.parametros) {
+            if (!paramDoc.tipo)
+                continue;
+            const paramSig = paramsAssinatura.find(p => p.nome === paramDoc.nome);
+            if (paramSig && !paramSig.temTipo) {
+                fixesParaFuncao.push({ nome: paramDoc.nome, tipo: paramDoc.tipo });
+            }
+        }
+        if (fixesParaFuncao.length === 0)
+            continue;
+        const posicaoFuncao = m.index + m[0].search(/(?:funcao|função)/);
+        const linhaFuncao = codigo.substring(0, posicaoFuncao).split('\n').length;
+        const linhaTxt = codigo.split('\n')[linhaFuncao - 1];
+        // Emit one Info marker per untyped param, positioned exactly on the param name
+        for (const fix of fixesParaFuncao) {
+            const iParam = linhaTxt.indexOf(fix.nome);
+            if (iParam === -1)
+                continue;
+            markers.push({
+                severity: MarkerSeverity.Info,
+                message: `Adicionar tipo '${fix.tipo}' ao parâmetro '${fix.nome}' (docstring)`,
+                startLineNumber: linhaFuncao,
+                startColumn: iParam + 1,
+                endLineNumber: linhaFuncao,
+                endColumn: iParam + fix.nome.length + 1,
+                source: 'delegua-tipos'
+            });
+        }
+        fixes.set(linhaFuncao, { fixes: fixesParaFuncao, linhaFuncao });
+    }
+    return { markers, fixes };
+}
+function formatarDocumentario(nome, doc) {
+    var _a;
+    const contents = [];
+    let titulo = `**${nome}**`;
+    if (doc.parametros.length > 0) {
+        const params = doc.parametros.map(p => p.tipo ? `${p.nome}: ${p.tipo}` : p.nome).join(', ');
+        titulo += `(${params})`;
+    }
+    if ((_a = doc.retorna) === null || _a === void 0 ? void 0 : _a.tipo) {
+        titulo += ` → ${doc.retorna.tipo}`;
+    }
+    contents.push({ value: titulo });
+    if (doc.depreciado) {
+        contents.push({ value: `⚠️ **Depreciado:** ${doc.depreciado}` });
+    }
+    if (doc.descricao) {
+        contents.push({ value: doc.descricao });
+    }
+    if (doc.parametros.length > 0) {
+        const linhas = doc.parametros.map(p => {
+            const tipo = ` _(${p.tipo || 'qualquer'})_`;
+            const descTexto = p.descricao ? p.descricao.replace(/^[—–-]\s*/, '') : '';
+            const desc = descTexto ? ` — ${descTexto}` : '';
+            return `- \`${p.nome}\`${tipo}${desc}`;
+        });
+        contents.push({ value: `**Parâmetros:**\n${linhas.join('\n')}` });
+    }
+    if (doc.retorna) {
+        const tipo = doc.retorna.tipo ? ` _(${doc.retorna.tipo})_` : '';
+        contents.push({ value: `**Retorna:**${tipo} ${doc.retorna.descricao}` });
+    }
+    if (doc.exemplo) {
+        contents.push({ value: `**Exemplo:**` });
+        contents.push({ value: `\`\`\`delegua\n${doc.exemplo}\n\`\`\`` });
+    }
+    if (doc.veja.length > 0) {
+        contents.push({ value: `**Veja também:** ${doc.veja.join(', ')}` });
+    }
+    return contents;
+}
 function definirLinguagemDelegua() {
     return {
         defaultToken: 'invalid',
@@ -425,6 +619,7 @@ function definirLinguagemDelegua() {
                 [/[\/*]/, 'comment']
             ],
             jsdoc: [
+                [/@[a-zA-ZÀ-ú]\w*/, 'delegua.doc.tag'],
                 [/[^\/*]+/, 'comment.doc'],
                 [/\*\//, 'comment.doc', '@pop'],
                 [/[\/*]/, 'comment.doc']
@@ -523,6 +718,42 @@ function gerarAcaoImplementarInterface(model, correcao) {
         isPreferred: true
     };
 }
+function gerarAcaoTiposDocstring(model, fix) {
+    const linhaTxt = model.getLineContent(fix.linhaFuncao);
+    const iParenOpen = linhaTxt.indexOf('(');
+    const iParenClose = linhaTxt.lastIndexOf(')');
+    if (iParenOpen === -1 || iParenClose === -1)
+        return null;
+    const paramsStr = linhaTxt.substring(iParenOpen + 1, iParenClose);
+    const novosParams = paramsStr.split(',').map((p) => {
+        var _a, _b;
+        const nomeParam = p.trim().split(':')[0].trim();
+        const fixParam = fix.fixes.find(f => f.nome === nomeParam);
+        if (fixParam) {
+            const leading = (_b = (_a = p.match(/^(\s*)/)) === null || _a === void 0 ? void 0 : _a[1]) !== null && _b !== void 0 ? _b : '';
+            return `${leading}${nomeParam}: ${fixParam.tipo}`;
+        }
+        return p;
+    }).join(',');
+    const titulo = fix.fixes.length === 1
+        ? `Adicionar tipo '${fix.fixes[0].tipo}' ao parâmetro '${fix.fixes[0].nome}'`
+        : `Adicionar tipos de parâmetros do docstring`;
+    return {
+        title: titulo,
+        kind: 'quickfix',
+        edit: {
+            edits: [{
+                    resource: model.uri,
+                    textEdit: {
+                        range: new Monaco.Range(fix.linhaFuncao, iParenOpen + 1, fix.linhaFuncao, iParenClose + 2),
+                        text: `(${novosParams})`
+                    },
+                    versionId: model.getVersionId()
+                }]
+        },
+        isPreferred: true
+    };
+}
 let tempoEsperaMudancas = null;
 const configurarAtualizacaoAutomatica = function () {
     var _a;
@@ -530,7 +761,8 @@ const configurarAtualizacaoAutomatica = function () {
     if (!editor) {
         (_a = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor) === null || _a === void 0 ? void 0 : _a.create(document.getElementById('editor'), {
             value: '// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.',
-            language: 'delegua'
+            language: 'delegua',
+            automaticLayout: true
         });
         editor = Monaco === null || Monaco === void 0 ? void 0 : Monaco.editor.getEditors()[0];
     }
@@ -593,10 +825,24 @@ const configurarLinguagemDelegua = function () {
         mimetypes: ['application/delegua'],
     });
     Monaco.languages.setMonarchTokensProvider('delegua', definirLinguagemDelegua());
+    Monaco.editor.defineTheme('delegua-escuro', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [{ token: 'delegua.doc.tag', foreground: '569CD6' }],
+        colors: {}
+    });
+    Monaco.editor.defineTheme('delegua-claro', {
+        base: 'vs',
+        inherit: true,
+        rules: [{ token: 'delegua.doc.tag', foreground: '0070C1' }],
+        colors: {}
+    });
+    Monaco.editor.setTheme('delegua-escuro');
     Monaco.languages.registerSignatureHelpProvider('delegua', {
         signatureHelpTriggerCharacters: ['(', ','],
         signatureHelpRetriggerCharacters: [','],
         provideSignatureHelp: (model, position) => {
+            var _a;
             const linha = model.getLineContent(position.lineNumber);
             const textoAntesCursor = linha.substring(0, position.column - 1);
             // Encontrar a chamada de função mais recente antes do cursor
@@ -659,6 +905,47 @@ const configurarLinguagemDelegua = function () {
                             dispose: () => { }
                         };
                     }
+                }
+            }
+            // Verificar funções documentadas pelo usuário
+            const matchFuncaoLocal = textoAntesCursor.match(/(?<!\.)([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\([^)]*$/);
+            if (matchFuncaoLocal) {
+                const nomeFuncao = matchFuncaoLocal[1];
+                const funcoesDocumentadas = extrairFuncoesDocumentadas(model.getValue());
+                const doc = funcoesDocumentadas.get(nomeFuncao);
+                if (doc && doc.parametros.length > 0) {
+                    const dentroParenteses = textoAntesCursor.split('(').pop();
+                    const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
+                    const prefixo = `${nomeFuncao}(`;
+                    let labelCompleto = prefixo;
+                    const parametros = [];
+                    doc.parametros.forEach((param, index) => {
+                        const inicioParam = labelCompleto.length;
+                        const nomeParam = param.tipo ? `${param.nome}: ${param.tipo}` : param.nome;
+                        labelCompleto += nomeParam;
+                        const fimParam = labelCompleto.length;
+                        parametros.push({
+                            label: [inicioParam, fimParam],
+                            documentation: param.descricao || param.nome
+                        });
+                        if (index < doc.parametros.length - 1) {
+                            labelCompleto += ', ';
+                        }
+                    });
+                    const sufixoRetorno = ((_a = doc.retorna) === null || _a === void 0 ? void 0 : _a.tipo) ? ` → ${doc.retorna.tipo}` : '';
+                    labelCompleto += `)${sufixoRetorno}`;
+                    return {
+                        value: {
+                            signatures: [{
+                                    label: labelCompleto,
+                                    documentation: doc.descricao,
+                                    parameters: parametros
+                                }],
+                            activeSignature: 0,
+                            activeParameter: Math.min(numeroVirgulas, parametros.length - 1)
+                        },
+                        dispose: () => { }
+                    };
                 }
             }
             return {
@@ -958,6 +1245,18 @@ const configurarLinguagemDelegua = function () {
                 }
                 return { contents };
             }
+            // Verificar funções e classes documentadas pelo usuário
+            const codigoAtual = model.getValue();
+            const funcoesDocumentadas = extrairFuncoesDocumentadas(codigoAtual);
+            const docFuncao = funcoesDocumentadas.get(palavra.word);
+            if (docFuncao) {
+                return { contents: formatarDocumentario(palavra.word, docFuncao) };
+            }
+            const classesDocumentadas = extrairClassesDocumentadas(codigoAtual);
+            const docClasse = classesDocumentadas.get(palavra.word);
+            if (docClasse) {
+                return { contents: formatarDocumentario(palavra.word, docClasse) };
+            }
             return { contents: [] };
         }
     });
@@ -966,9 +1265,16 @@ const configurarLinguagemDelegua = function () {
             const acoes = [];
             for (const marcador of context.markers) {
                 const correcao = errosComCorrecao.get(marcador.startLineNumber);
-                if (!correcao)
+                if (correcao) {
+                    acoes.push(gerarAcaoImplementarInterface(model, correcao));
                     continue;
-                acoes.push(gerarAcaoImplementarInterface(model, correcao));
+                }
+                const fixTipo = fixesTiposDocstring.get(marcador.startLineNumber);
+                if (fixTipo) {
+                    const acao = gerarAcaoTiposDocstring(model, fixTipo);
+                    if (acao)
+                        acoes.push(acao);
+                }
             }
             return { actions: acoes, dispose() { } };
         }
@@ -1007,5 +1313,6 @@ botaoExecutar.addEventListener("click", function () {
     executarCodigo();
 });
 const definirTema = (tema) => {
-    Monaco.editor.setTheme(tema);
+    const temaCustomizado = tema === 'vs-dark' ? 'delegua-escuro' : tema === 'vs' ? 'delegua-claro' : tema;
+    Monaco.editor.setTheme(temaCustomizado);
 };
