@@ -61,7 +61,7 @@ const deleguaCodeSnippets = [
 		prefixo: "se senaose senao",
 		corpo: [
 			"se (${1:condicao1}) {",
-			"\t$escreva('correspondente 1');",
+			"\tescreva('correspondente 1');",
 			"} senao se (${2:condicao2}) {",
 			"\tescreva('correspondente 2');",
 			"} senao {",
