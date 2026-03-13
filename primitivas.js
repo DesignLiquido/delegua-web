@@ -3122,6 +3122,7 @@ exports.Variavel = Variavel;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
+const comentario_como_construto_1 = require("./comentario-como-construto");
 const separador_1 = require("./separador");
 class Vetor {
     constructor(hashArquivo, linha, valores, tipo) {
@@ -3135,7 +3136,7 @@ class Vetor {
      * (Separador, comentários) que podem aparecer entre os elementos.
      */
     get elementos() {
-        return this.valores.filter((v) => v.constructor !== separador_1.Separador);
+        return this.valores.filter((v) => v.constructor !== separador_1.Separador && v.constructor !== comentario_como_construto_1.ComentarioComoConstruto);
     }
     get tamanho() {
         return this.elementos.length;
@@ -3152,7 +3153,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{"./separador":51}],69:[function(require,module,exports){
+},{"./comentario-como-construto":25,"./separador":51}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
