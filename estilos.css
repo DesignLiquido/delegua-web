@@ -217,6 +217,48 @@ textarea {
   height: 55%;
 }
 
+body[data-tema=escuro] {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+body[data-tema=escuro] nav {
+  border-bottom-color: #3c3c3c;
+}
+body[data-tema=escuro] nav .icone-burger {
+  background-color: #d4d4d4;
+}
+body[data-tema=escuro] select {
+  background-color: #3c3c3c;
+  color: #d4d4d4;
+  border-color: #3c3c3c;
+}
+body[data-tema=escuro] #botaoTraduzir,
+body[data-tema=escuro] #botaoCompartilhar,
+body[data-tema=escuro] #botaoExecutar {
+  color: #d4d4d4;
+}
+body[data-tema=escuro] #editor {
+  border-color: #3c3c3c;
+}
+body[data-tema=escuro] #resultadoEditor {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-color: #3c3c3c;
+}
+body[data-tema=escuro] .sidenav {
+  background-color: #252526;
+}
+body[data-tema=escuro] .sidenav a {
+  color: #cccccc;
+}
+body[data-tema=escuro] .sidenav a:hover {
+  color: #ffffff;
+}
+body[data-tema=escuro] .exemplos {
+  border-color: #3c3c3c;
+  color: #d4d4d4;
+}
+
 .toast-notificacao {
   position: fixed;
   top: 20px;
