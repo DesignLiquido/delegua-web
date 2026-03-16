@@ -236,6 +236,58 @@ textarea {
     height: 55%;
 }
 
+body[data-tema="escuro"] {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+
+    nav {
+        border-bottom-color: #3c3c3c;
+
+        .icone-burger {
+            background-color: #d4d4d4;
+        }
+    }
+
+    select {
+        background-color: #3c3c3c;
+        color: #d4d4d4;
+        border-color: #3c3c3c;
+    }
+
+    #botaoTraduzir,
+    #botaoCompartilhar,
+    #botaoExecutar {
+        color: #d4d4d4;
+    }
+
+    #editor {
+        border-color: #3c3c3c;
+    }
+
+    #resultadoEditor {
+        background-color: #1e1e1e;
+        color: #d4d4d4;
+        border-color: #3c3c3c;
+    }
+
+    .sidenav {
+        background-color: #252526;
+
+        a {
+            color: #cccccc;
+        }
+
+        a:hover {
+            color: #ffffff;
+        }
+    }
+
+    .exemplos {
+        border-color: #3c3c3c;
+        color: #d4d4d4;
+    }
+}
+
 .toast-notificacao {
     position: fixed;
     top: 20px;

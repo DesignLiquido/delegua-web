@@ -909,6 +909,7 @@ const configurarLinguagemDelegua = function () {
         colors: {}
     });
     Monaco.editor.setTheme('delegua-escuro');
+    document.body.setAttribute('data-tema', 'escuro');
 
     Monaco.languages.registerSignatureHelpProvider('delegua', {
         signatureHelpTriggerCharacters: ['(', ','],
@@ -1445,4 +1446,6 @@ botaoExecutar.addEventListener("click", function () {
 const definirTema = (tema: string) => {
     const temaCustomizado = tema === 'vs-dark' ? 'delegua-escuro' : tema === 'vs' ? 'delegua-claro' : tema;
     Monaco.editor.setTheme(temaCustomizado);
+    const temaEscuro = tema === 'vs-dark' || tema === 'hc-black';
+    document.body.setAttribute('data-tema', temaEscuro ? 'escuro' : 'claro');
 }
