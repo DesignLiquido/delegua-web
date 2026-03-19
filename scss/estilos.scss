@@ -286,6 +286,103 @@ body[data-tema="escuro"] {
         border-color: #3c3c3c;
         color: #d4d4d4;
     }
+
+    .modal-leia-caixa {
+        background-color: #2d2d2d;
+        border-color: #3c3c3c;
+    }
+
+    .modal-leia-mensagem {
+        color: #d4d4d4;
+    }
+
+    .modal-leia-input {
+        background-color: #3c3c3c;
+        border-color: #555;
+        color: #d4d4d4;
+    }
+
+    .modal-leia-btn-cancelar {
+        color: #d4d4d4;
+        border-color: #555;
+        &:hover { background-color: #3c3c3c; }
+    }
+}
+
+// Modal de entrada para leia()
+.modal-leia-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-leia-caixa {
+    background-color: variaveis.$branco;
+    border: 1px solid variaveis.$borda;
+    border-radius: 4px;
+    padding: 20px 24px;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-leia-mensagem {
+    font-size: 14px;
+    color: variaveis.$preto;
+}
+
+.modal-leia-input {
+    border: 1px solid variaveis.$borda;
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-family: "Roboto Mono", monospace;
+    font-size: 13px;
+    width: 100%;
+    box-sizing: border-box;
+    color: variaveis.$preto;
+    background-color: variaveis.$branco;
+
+    &:focus {
+        outline: 2px solid #0078d4;
+        outline-offset: 1px;
+    }
+}
+
+.modal-leia-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.modal-leia-btn {
+    cursor: pointer;
+    border-radius: 3px;
+    padding: 5px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid transparent;
+
+    &-ok {
+        background-color: #0078d4;
+        color: #fff;
+        border-color: #0078d4;
+        &:hover { background-color: #106ebe; }
+        &:active { background-color: #005a9e; }
+    }
+
+    &-cancelar {
+        background-color: transparent;
+        color: variaveis.$preto;
+        border-color: variaveis.$borda;
+        &:hover { background-color: variaveis.$claro; }
+    }
 }
 
 .toast-notificacao {
