@@ -104,8 +104,40 @@ class DeleguaWeb {
         this.interpretador = new interpretador_web_1.InterpretadorWeb("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: (mensagem, callback) => {
-                const resposta = window.prompt(mensagem);
-                callback(resposta);
+                const overlay = document.getElementById('modalLeia');
+                const labelEl = document.getElementById('modalLeiaLabel');
+                const inputEl = document.getElementById('modalLeiaInput');
+                const btnOk = document.getElementById('modalLeiaOk');
+                const btnCancelar = document.getElementById('modalLeiaCancelar');
+                const botaoExecutar = document.getElementById('botaoExecutar');
+                labelEl.textContent = mensagem || '> ';
+                inputEl.value = '';
+                overlay.style.display = 'flex';
+                botaoExecutar.disabled = true;
+                requestAnimationFrame(() => inputEl.focus());
+                const resolver = (valor) => {
+                    overlay.style.display = 'none';
+                    botaoExecutar.disabled = false;
+                    inputEl.removeEventListener('keydown', onKeydown);
+                    btnOk.removeEventListener('click', onOk);
+                    btnCancelar.removeEventListener('click', onCancelar);
+                    callback(valor);
+                };
+                const onOk = () => resolver(inputEl.value);
+                const onCancelar = () => resolver(null);
+                const onKeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        resolver(inputEl.value);
+                    }
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        resolver(null);
+                    }
+                };
+                btnOk.addEventListener('click', onOk);
+                btnCancelar.addEventListener('click', onCancelar);
+                inputEl.addEventListener('keydown', onKeydown);
             }
         };
         this.documentacoesBibliotecas = {};
@@ -3653,7 +3685,10 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 switch (condicao.constructor) {
                     case construtos_1.Literal:
                         const condicaoLiteral = condicao;
-                        if (condicaoLiteral.tipo !== tipo) {
+                        const tiposNumericos = ['inteiro', 'número', 'real'];
+                        const ambosSaoNumericos = tiposNumericos.includes(condicaoLiteral.tipo) &&
+                            tiposNumericos.includes(tipo);
+                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos) {
                             this.erro({
                                 lexema: condicaoLiteral.valor,
                                 tipo: condicaoLiteral.tipo,
@@ -3772,7 +3807,14 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             this.verificarOperadorBinario(binario.direita);
         }
         const operadoresMatematicos = ['ADICAO', 'SUBTRACAO', 'MULTIPLICACAO', 'DIVISAO', 'MODULO'];
-        const operadoresComparacao = ['MAIOR', 'MAIOR_IGUAL', 'MENOR', 'MENOR_IGUAL', 'IGUAL', 'DIFERENTE'];
+        const operadoresComparacao = [
+            'MAIOR',
+            'MAIOR_IGUAL',
+            'MENOR',
+            'MENOR_IGUAL',
+            'IGUAL',
+            'DIFERENTE',
+        ];
         if (operadoresMatematicos.includes(binario.operador.tipo)) {
             this.verificarTiposOperandos(binario);
         }
@@ -5570,6 +5612,16 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         if (entidadeChamada.constructor === construtos_1.Variavel) {
             const entidadeChamadaResolvidaVariavel = entidadeChamada;
+            const informacoesFuncaoBibliotecaGlobal = this.pilhaEscopos.obterBibliotecaGlobal(entidadeChamadaResolvidaVariavel.simbolo.lexema);
+            if (informacoesFuncaoBibliotecaGlobal &&
+                Array.isArray(informacoesFuncaoBibliotecaGlobal.subElementos) &&
+                informacoesFuncaoBibliotecaGlobal.subElementos.length > 0) {
+                const erros = this.validarArgumentosEntidadeChamada(informacoesFuncaoBibliotecaGlobal.subElementos, argumentos);
+                if (erros.length > 0) {
+                    throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamadaResolvidaVariavel.simbolo, `Erros ao resolver argumentos de chamada a ${entidadeChamadaResolvidaVariavel.simbolo.lexema}: \n${erros.reduce((mensagem, erro) => (mensagem += `${erro}\n`), '')}`);
+                }
+                return entidadeChamadaResolvidaVariavel;
+            }
             if (tipoPrimitiva === 'qualquer') {
                 // Provavelmente uma chamada a alguma função da biblioteca global.
                 // Até então, é sempre do tipo `InformacaoElementoSintatico`.
@@ -9264,12 +9316,8 @@ class AvaliadorSintaticoPitugues {
         }
         else {
             // Bloco de múltiplas linhas baseado em indentação
-            let espacosAtual = this
-                .localizacoes[simboloAtual.linha]
-                .espacosIndentacao;
-            const espacosAnterior = this
-                .localizacoes[simboloAnterior.linha]
-                .espacosIndentacao;
+            let espacosAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
+            const espacosAnterior = this.localizacoes[simboloAnterior.linha].espacosIndentacao;
             if (espacosAtual <= espacosAnterior) {
                 throw this.erro(simboloAtual, `Indentação inconsistente na linha ${simboloAtual.linha}. ` +
                     `Esperado: >= ${espacosAnterior}. ` +
@@ -9283,9 +9331,7 @@ class AvaliadorSintaticoPitugues {
                     declaracoes = declaracoes.concat(retorno);
                 simboloAtual = this.simboloAtual();
                 if (simboloAtual) {
-                    espacosAtual = this
-                        .localizacoes[simboloAtual.linha]
-                        .espacosIndentacao;
+                    espacosAtual = this.localizacoes[simboloAtual.linha].espacosIndentacao;
                 }
             }
         }
@@ -11204,6 +11250,16 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
                     this.avancarEDevolverAnterior();
                     return new construtos_1.ExpressaoRegular(this.hashArquivo, simboloAtual, valor);
                 }
+            case tenda_1.default.BIBLIOTECA_GLOBAL: {
+                const simboloBiblioteca = this.avancarEDevolverAnterior();
+                return new construtos_1.Variavel(this.hashArquivo, simboloBiblioteca, 'qualquer');
+            }
+            case tenda_1.default.INFINITO:
+                this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), Infinity, 'número');
+            case tenda_1.default.NAN:
+                this.avancarEDevolverAnterior();
+                return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), NaN, 'número');
             case tenda_1.default.FALSO:
                 this.avancarEDevolverAnterior();
                 return new construtos_1.Literal(this.hashArquivo, Number(simboloAtual.linha), false, 'lógico');
@@ -11262,6 +11318,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         throw this.erro(this.simbolos[this.atual], 'Esperado expressão.');
     }
     async chamar() {
+        var _a;
         let expressao = await this.primario();
         while (true) {
             let tipoPrimitiva = undefined;
@@ -11269,7 +11326,21 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
                 expressao = await this.finalizarChamada(expressao, tipoPrimitiva);
             }
             else if (this.verificarSeSimboloAtualEIgualA(tenda_1.default.PONTO)) {
-                const nome = this.consumir(tenda_1.default.IDENTIFICADOR, "Esperado nome de método ou propriedade após '.'.");
+                // Alguns tokens de biblioteca global são palavras reservadas (ex: `exiba`, `leia`, `entrada`),
+                // mas precisam ser aceitos como nomes de métodos após o ponto.
+                const tiposAceitosComoNomeDeMetodo = [
+                    tenda_1.default.IDENTIFICADOR,
+                    tenda_1.default.EXIBA,
+                    tenda_1.default.LEIA,
+                    tenda_1.default.ENTRADA,
+                ];
+                let nome;
+                if (tiposAceitosComoNomeDeMetodo.includes((_a = this.simbolos[this.atual]) === null || _a === void 0 ? void 0 : _a.tipo)) {
+                    nome = this.avancarEDevolverAnterior();
+                }
+                else {
+                    nome = this.consumir(tenda_1.default.IDENTIFICADOR, "Esperado nome de método ou propriedade após '.'.");
+                }
                 tipoPrimitiva = expressao.tipo;
                 expressao = new construtos_1.AcessoMetodoOuPropriedade(this.hashArquivo, expressao, nome);
             }
@@ -11810,7 +11881,9 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
                         if (this.primitivasConhecidas.hasOwnProperty(entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema)) {
                             return this.primitivasConhecidas[entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema].tipo;
                         }
-                        throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamadaAcessoMetodoOuPropriedade.simbolo, `Primitiva '${entidadeChamadaAcessoMetodoOuPropriedade.simbolo.lexema}' não existe.`);
+                        // Para métodos de namespaces da biblioteca global (Lista, Matemática, etc.),
+                        // o tipo não é conhecido estaticamente. Retorna 'qualquer'.
+                        return 'qualquer';
                     case construtos_1.AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
@@ -11958,6 +12031,10 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
     inicializarPilhaEscopos() {
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
+        // Registrar namespaces da biblioteca global de Tenda.
+        for (const nomeBiblioteca of ['Data', 'Lista', 'Matemática', 'Saída', 'Texto']) {
+            this.pilhaEscopos.definirInformacoesVariavel(nomeBiblioteca, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeBiblioteca, 'qualquer'));
+        }
         // TODO: Escrever algum tipo de validação aqui.
         for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
             for (const [nomeTipo, tipo] of Object.entries(tipos)) {
@@ -12956,15 +13033,13 @@ async function aleatorio(interpretador) {
  * @returns {Promise<number>} Um número real entre os valores máximo e mínimo especificados.
  */
 async function aleatorioEntre(interpretador, minimo, maximo) {
-    if (arguments.length <= 0) {
+    if (arguments.length <= 1) {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'A função recebe ao menos um parâmetro.'));
     }
-    const valorMinimo = minimo.hasOwnProperty('valor')
-        ? minimo.valor
-        : minimo;
+    const valorMinimo = interpretador.resolverValor(minimo);
     if (arguments.length === 2) {
         if (typeof valorMinimo !== 'number') {
             return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
@@ -12980,9 +13055,7 @@ async function aleatorioEntre(interpretador, minimo, maximo) {
             linha: interpretador.linhaDeclaracaoAtual,
         }, 'A quantidade de parâmetros máxima para esta função é 2.'));
     }
-    const valorMaximo = maximo.hasOwnProperty('valor')
-        ? maximo.valor
-        : maximo;
+    const valorMaximo = interpretador.resolverValor(maximo);
     if (typeof valorMinimo !== 'number' || typeof valorMaximo !== 'number') {
         return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao({
             hashArquivo: interpretador.hashArquivoDeclaracaoAtual,
@@ -23978,6 +24051,27 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
     pontoInicializacaoBibliotecasGlobais() {
         (0, comum_1.carregarBibliotecasGlobais)(this.pilhaEscoposExecucao);
     }
+    async avaliarArgumentosEscreva(argumentos) {
+        if (this.constructor !== Interpretador) {
+            return await super.avaliarArgumentosEscreva(argumentos);
+        }
+        let formatoTexto = '';
+        for (const argumento of argumentos) {
+            let resultadoAvaliacao = await this.avaliar(argumento);
+            if (resultadoAvaliacao &&
+                resultadoAvaliacao.hasOwnProperty &&
+                resultadoAvaliacao.hasOwnProperty('valorRetornado')) {
+                resultadoAvaliacao = resultadoAvaliacao.valorRetornado;
+            }
+            if (argumento instanceof construtos_1.Atribuir || argumento instanceof construtos_1.AtribuicaoPorIndice) {
+                formatoTexto += `${argumento.paraTexto()} `;
+                continue;
+            }
+            const valor = this.resolverValor(resultadoAvaliacao);
+            formatoTexto += `${this.paraTexto(valor)} `;
+        }
+        return formatoTexto.trimEnd();
+    }
     resolverReferenciaMontao(referenciaMontao) {
         const valorMontao = this.montao.obterReferencia(this.hashArquivoDeclaracaoAtual, this.linhaDeclaracaoAtual, referenciaMontao.endereco);
         return valorMontao;
@@ -24139,7 +24233,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 const nomeDecorador = decorador.nome.slice(1);
                 const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
                 const funcaoDecoradora = variavelDecoradora.valor;
-                const resultado = await funcaoDecoradora.chamar(this, [{ nome: null, valor: funcao }]);
+                const resultado = await funcaoDecoradora.chamar(this, [
+                    { nome: null, valor: funcao },
+                ]);
                 funcao = this.resolverValorRecursivo(resultado);
             }
         }
@@ -25254,6 +25350,7 @@ const lexador_1 = require("../lexador");
 const inferenciador_1 = require("../inferenciador");
 const delegua_1 = __importDefault(require("../tipos-de-dados/delegua"));
 const tiposNumericos = ['inteiro', 'número', 'numero', 'real', 'longo'];
+const tiposLogicos = ['logico', 'lógico'];
 class PilhaEscoposExecucao {
     constructor() {
         this.pilha = [];
@@ -25284,6 +25381,8 @@ class PilhaEscoposExecucao {
         if (tipoVariavel === tipoValor)
             return true;
         if (tiposNumericos.includes(tipoVariavel) && tiposNumericos.includes(tipoValor))
+            return true;
+        if (tiposLogicos.includes(tipoVariavel) && tiposLogicos.includes(tipoValor))
             return true;
         return false;
     }
@@ -25699,6 +25798,24 @@ class LexadorCalango {
         const textoCompleto = this.codigo[this.linha].substring(this.inicioSimbolo + 1, this.atual);
         this.simbolos.push(new simbolo_1.Simbolo(calango_2.default.TEXTO, textoCompleto, textoCompleto, linhaPrimeiroCaracter + 1, this.hashArquivo));
     }
+    analisarCaracter() {
+        const linhaPrimeiroCaracter = this.linha;
+        // Restringe leitura à linha atual (como analisarNumero), evitando
+        // que avancar() mude this.linha e corrompa o cálculo do substring.
+        while (this.simboloAtual() !== "'" && this.linha === linhaPrimeiroCaracter && !this.eFinalDoCodigo()) {
+            this.avancar();
+        }
+        if (this.linha !== linhaPrimeiroCaracter || this.eFinalDoCodigo()) {
+            this.erros.push({
+                linha: linhaPrimeiroCaracter + 1,
+                caractere: this.simboloAnterior(),
+                mensagem: 'Caractere não finalizado.',
+            });
+            return;
+        }
+        const valorCaracter = this.codigo[linhaPrimeiroCaracter].substring(this.inicioSimbolo + 1, this.atual);
+        this.simbolos.push(new simbolo_1.Simbolo(calango_2.default.LITERAL_CARACTER, valorCaracter, valorCaracter, linhaPrimeiroCaracter + 1, this.hashArquivo));
+    }
     analisarNumero() {
         const linhaPrimeiroDigito = this.linha;
         while (this.eDigito(this.simboloAtual()) && this.linha === linhaPrimeiroDigito) {
@@ -25761,6 +25878,23 @@ class LexadorCalango {
                 this.analisarTexto('"');
                 this.avancar();
                 break;
+            case "'":
+                this.avancar();
+                this.analisarCaracter();
+                this.avancar();
+                break;
+            case ':':
+                this.adicionarSimbolo(calango_2.default.DOIS_PONTOS);
+                this.avancar();
+                break;
+            case '[':
+                this.adicionarSimbolo(calango_2.default.COLCHETE_ESQUERDO);
+                this.avancar();
+                break;
+            case ']':
+                this.adicionarSimbolo(calango_2.default.COLCHETE_DIREITO);
+                this.avancar();
+                break;
             case '(':
                 this.adicionarSimbolo(calango_2.default.PARENTESE_ESQUERDO);
                 this.avancar();
@@ -25768,6 +25902,36 @@ class LexadorCalango {
             case ')':
                 this.adicionarSimbolo(calango_2.default.PARENTESE_DIREITO);
                 this.avancar();
+                break;
+            case ',':
+                this.adicionarSimbolo(calango_2.default.VIRGULA);
+                this.avancar();
+                break;
+            case '+':
+                this.adicionarSimbolo(calango_2.default.ADICAO);
+                this.avancar();
+                break;
+            case '-':
+                this.adicionarSimbolo(calango_2.default.SUBTRACAO);
+                this.avancar();
+                break;
+            case '*':
+                this.adicionarSimbolo(calango_2.default.MULTIPLICACAO);
+                this.avancar();
+                break;
+            case '/':
+                if (this.proximoSimbolo() === '/') {
+                    // Comentário de linha: consumir até ao fim da linha sem emitir símbolo.
+                    // Guardamos o número da linha para parar quando avancar() mudar para a próxima.
+                    const linhaComentario = this.linha;
+                    while (this.linha === linhaComentario && !this.eFinalDoCodigo()) {
+                        this.avancar();
+                    }
+                }
+                else {
+                    this.adicionarSimbolo(calango_2.default.DIVISAO);
+                    this.avancar();
+                }
                 break;
             case '=':
                 this.adicionarSimbolo(calango_2.default.IGUAL_ATRIBUICAO);
@@ -25789,9 +25953,21 @@ class LexadorCalango {
                     this.adicionarSimbolo(calango_2.default.MENOR_IGUAL, '<=');
                     this.avancar();
                 }
+                else if (this.simboloAtual() === '>') {
+                    this.adicionarSimbolo(calango_2.default.DIFERENTE, '<>');
+                    this.avancar();
+                }
                 else {
                     this.adicionarSimbolo(calango_2.default.MENOR);
                 }
+                break;
+            case '%':
+                this.adicionarSimbolo(calango_2.default.MODULO);
+                this.avancar();
+                break;
+            case '^':
+                this.adicionarSimbolo(calango_2.default.EXPONENCIACAO);
+                this.avancar();
                 break;
             default:
                 if (this.eDigito(caractere))
@@ -26446,15 +26622,13 @@ class LexadorPitugues {
     }
     analisarNumero() {
         const linhaInicial = this.linha;
-        while (this.linha === linhaInicial &&
-            this.eDigito(this.simboloAtual()))
+        while (this.linha === linhaInicial && this.eDigito(this.simboloAtual()))
             this.avancar();
         const temPonto = this.simboloAtual() === '.';
         const proximoEhDigito = this.eDigito(this.proximoSimbolo());
         if (this.linha === linhaInicial && temPonto && proximoEhDigito) {
             this.avancar();
-            while (this.linha === linhaInicial &&
-                this.eDigito(this.simboloAtual()))
+            while (this.linha === linhaInicial && this.eDigito(this.simboloAtual()))
                 this.avancar();
         }
         let numeroCompleto;
@@ -27810,16 +27984,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const calango_1 = __importDefault(require("../../../tipos-de-simbolos/calango"));
 exports.default = {
     algoritmo: calango_1.default.ALGORITMO,
-    principal: calango_1.default.PRINCIPAL,
-    fimPrincipal: calango_1.default.FIM_PRINCIPAL,
+    ate: calango_1.default.ATE,
+    caracter: calango_1.default.CARACTER,
+    caso: calango_1.default.CASO,
+    de: calango_1.default.DE,
+    div: calango_1.default.DIVISAO_INTEIRA,
+    escolha: calango_1.default.ESCOLHA,
+    enquanto: calango_1.default.ENQUANTO,
+    entao: calango_1.default.ENTAO,
     escreva: calango_1.default.ESCREVA,
     escreval: calango_1.default.ESCREVAL,
-    inteiro: calango_1.default.INTEIRO,
-    leia: calango_1.default.LEIA,
-    se: calango_1.default.SE,
-    entao: calango_1.default.ENTAO,
-    senao: calango_1.default.SENAO,
+    faca: calango_1.default.FACA,
+    falso: calango_1.default.FALSO,
+    fimEnquanto: calango_1.default.FIM_ENQUANTO,
+    fimEscolha: calango_1.default.FIM_ESCOLHA,
+    fimFuncao: calango_1.default.FIM_FUNCAO,
+    fimPara: calango_1.default.FIM_PARA,
+    fimProcedimento: calango_1.default.FIM_PROCEDIMENTO,
+    fimPrincipal: calango_1.default.FIM_PRINCIPAL,
     fimSe: calango_1.default.FIM_SE,
+    outroCaso: calango_1.default.OUTRO_CASO,
+    procedimento: calango_1.default.PROCEDIMENTO,
+    inteiro: calango_1.default.INTEIRO,
+    funcao: calango_1.default.FUNCAO,
+    interrompa: calango_1.default.INTERROMPA,
+    leia: calango_1.default.LEIA,
+    logico: calango_1.default.LOGICO,
+    mod: calango_1.default.MODULO,
+    nao: calango_1.default.NEGACAO,
+    para: calango_1.default.PARA,
+    passo: calango_1.default.PASSO,
+    principal: calango_1.default.PRINCIPAL,
+    real: calango_1.default.REAL,
+    retorna: calango_1.default.RETORNA,
+    se: calango_1.default.SE,
+    senao: calango_1.default.SENAO,
+    texto: calango_1.default.TIPO_TEXTO,
+    verdadeiro: calango_1.default.VERDADEIRO,
 };
 
 },{"../../../tipos-de-simbolos/calango":254}],235:[function(require,module,exports){
@@ -29792,14 +29993,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     ADICAO: 'ADICAO',
     ALGORITMO: 'ALGORITMO',
+    CARACTER: 'CARACTER',
     DIFERENTE: 'DIFERENTE',
     DIVISAO: 'DIVISAO',
     DIVISAO_INTEIRA: 'DIVISAO_INTEIRA',
     E: 'E',
+    ENQUANTO: 'ENQUANTO',
     ENTAO: 'ENTAO',
     ESCREVA: 'ESCREVA',
     ESCREVAL: 'ESCREVAL',
     EXPONENCIACAO: 'EXPONENCIACAO',
+    FACA: 'FACA',
+    FALSO: 'FALSO',
+    ATE: 'ATE',
+    CASO: 'CASO',
+    COLCHETE_DIREITO: 'COLCHETE_DIREITO',
+    COLCHETE_ESQUERDO: 'COLCHETE_ESQUERDO',
+    DE: 'DE',
+    DOIS_PONTOS: 'DOIS_PONTOS',
+    ESCOLHA: 'ESCOLHA',
+    FIM_ESCOLHA: 'FIM_ESCOLHA',
+    FIM_FUNCAO: 'FIM_FUNCAO',
+    FIM_PROCEDIMENTO: 'FIM_PROCEDIMENTO',
+    FUNCAO: 'FUNCAO',
+    FIM_ENQUANTO: 'FIM_ENQUANTO',
+    FIM_PARA: 'FIM_PARA',
     FIM_PRINCIPAL: 'FIM_PRINCIPAL',
     FIM_SE: 'FIM_SE',
     IDENTIFICADOR: 'IDENTIFICADOR',
@@ -29807,7 +30025,10 @@ exports.default = {
     IGUAL_ATRIBUICAO: 'IGUAL_ATRIBUICAO',
     IGUAL_IGUAL: 'IGUAL_IGUAL',
     INTEIRO: 'INTEIRO',
+    INTERROMPA: 'INTERROMPA',
     LEIA: 'LEIA',
+    LITERAL_CARACTER: 'LITERAL_CARACTER',
+    LOGICO: 'LOGICO',
     MAIOR: 'MAIOR',
     MAIOR_IGUAL: 'MAIOR_IGUAL',
     MENOR: 'MENOR',
@@ -29820,13 +30041,21 @@ exports.default = {
     PARENTESE_DIREITO: 'PARENTESE_DIREITO',
     PARENTESE_ESQUERDO: 'PARENTESE_ESQUERDO',
     PRINCIPAL: 'PRINCIPAL',
+    OUTRO_CASO: 'OUTRO_CASO',
+    PARA: 'PARA',
+    PROCEDIMENTO: 'PROCEDIMENTO',
+    PASSO: 'PASSO',
     PONTO: 'PONTO',
     PONTO_E_VIRGULA: 'PONTO_E_VIRGULA',
     QUEBRA_LINHA: 'QUEBRA_LINHA',
+    REAL: 'REAL',
+    RETORNA: 'RETORNA',
     SE: 'SE',
     SENAO: 'SENAO',
     SUBTRACAO: 'SUBTRACAO',
     TEXTO: 'TEXTO',
+    TIPO_TEXTO: 'TIPO_TEXTO',
+    VERDADEIRO: 'VERDADEIRO',
     VIRGULA: 'VIRGULA',
 };
 
@@ -46039,7 +46268,7 @@ class TradutorAssemblyScript {
         let resultado = '';
         this.indentacao += 4;
         resultado += ' '.repeat(this.indentacao);
-        for (let condicao of (caminho.condicoes || [])) {
+        for (let condicao of caminho.condicoes || []) {
             resultado +=
                 'case ' + this.dicionarioConstrutos[condicao.constructor.name](condicao) + ':\n';
             resultado += ' '.repeat(this.indentacao);
@@ -51805,19 +52034,30 @@ class TradutorWebAssembly {
         const dir = this.traduzirConstruto(construto.direita);
         const op = construto.operador.lexema;
         switch (op) {
-            case '+': return `(i64.add ${esq} ${dir})`;
-            case '-': return `(i64.sub ${esq} ${dir})`;
-            case '*': return `(i64.mul ${esq} ${dir})`;
-            case '/': return `(i64.div_s ${esq} ${dir})`;
-            case '%': return `(i64.rem_s ${esq} ${dir})`;
-            case '<': return `(i64.extend_i32_s (i64.lt_s ${esq} ${dir}))`;
-            case '>': return `(i64.extend_i32_s (i64.gt_s ${esq} ${dir}))`;
-            case '<=': return `(i64.extend_i32_s (i64.le_s ${esq} ${dir}))`;
-            case '>=': return `(i64.extend_i32_s (i64.ge_s ${esq} ${dir}))`;
+            case '+':
+                return `(i64.add ${esq} ${dir})`;
+            case '-':
+                return `(i64.sub ${esq} ${dir})`;
+            case '*':
+                return `(i64.mul ${esq} ${dir})`;
+            case '/':
+                return `(i64.div_s ${esq} ${dir})`;
+            case '%':
+                return `(i64.rem_s ${esq} ${dir})`;
+            case '<':
+                return `(i64.extend_i32_s (i64.lt_s ${esq} ${dir}))`;
+            case '>':
+                return `(i64.extend_i32_s (i64.gt_s ${esq} ${dir}))`;
+            case '<=':
+                return `(i64.extend_i32_s (i64.le_s ${esq} ${dir}))`;
+            case '>=':
+                return `(i64.extend_i32_s (i64.ge_s ${esq} ${dir}))`;
             case '==':
-            case '===': return `(i64.extend_i32_s (i64.eq ${esq} ${dir}))`;
+            case '===':
+                return `(i64.extend_i32_s (i64.eq ${esq} ${dir}))`;
             case '!=':
-            case '!==': return `(i64.extend_i32_s (i64.ne ${esq} ${dir}))`;
+            case '!==':
+                return `(i64.extend_i32_s (i64.ne ${esq} ${dir}))`;
             default:
                 return `(i64.const 0) ;; operador não suportado: ${op}`;
         }
@@ -52349,12 +52589,7 @@ class TradutorWebAssembly {
             const { watLiteral } = this.escaparStringWat(s.conteudo);
             return `  (data (i32.const ${s.deslocamento}) "${watLiteral}")`;
         });
-        const partes = [
-            '(module',
-            ...linhasImports,
-            '',
-            linhaMemoria,
-        ];
+        const partes = ['(module', ...linhasImports, '', linhaMemoria];
         if (linhasDados.length > 0) {
             partes.push('');
             partes.push(...linhasDados);

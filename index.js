@@ -78,8 +78,40 @@ class DeleguaWeb {
         this.interpretador = new interpretador_web_1.InterpretadorWeb("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: (mensagem, callback) => {
-                const resposta = window.prompt(mensagem);
-                callback(resposta);
+                const overlay = document.getElementById('modalLeia');
+                const labelEl = document.getElementById('modalLeiaLabel');
+                const inputEl = document.getElementById('modalLeiaInput');
+                const btnOk = document.getElementById('modalLeiaOk');
+                const btnCancelar = document.getElementById('modalLeiaCancelar');
+                const botaoExecutar = document.getElementById('botaoExecutar');
+                labelEl.textContent = mensagem || '> ';
+                inputEl.value = '';
+                overlay.style.display = 'flex';
+                botaoExecutar.disabled = true;
+                requestAnimationFrame(() => inputEl.focus());
+                const resolver = (valor) => {
+                    overlay.style.display = 'none';
+                    botaoExecutar.disabled = false;
+                    inputEl.removeEventListener('keydown', onKeydown);
+                    btnOk.removeEventListener('click', onOk);
+                    btnCancelar.removeEventListener('click', onCancelar);
+                    callback(valor);
+                };
+                const onOk = () => resolver(inputEl.value);
+                const onCancelar = () => resolver(null);
+                const onKeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        resolver(inputEl.value);
+                    }
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        resolver(null);
+                    }
+                };
+                btnOk.addEventListener('click', onOk);
+                btnCancelar.addEventListener('click', onCancelar);
+                inputEl.addEventListener('keydown', onKeydown);
             }
         };
         this.documentacoesBibliotecas = {};

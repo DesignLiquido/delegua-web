@@ -9,6 +9,17 @@ const deleguaCodeSnippets = [
         descricao: "Laço de repetição \"para\""
     },
     {
+        prefixo: "enquanto",
+        corpo: [
+            "var ${1:i} = 1;",
+            "enquanto (${1:i} <= 5) {",
+            "\tescreva(${1:i});",
+            "\t${1:i} = ${1:i} + 1;",
+            "}"
+        ],
+        descricao: "Laço de repetição \"enquanto\""
+    },
+    {
         prefixo: "fazer enquanto",
         corpo: [
             "$var i = 0;",
