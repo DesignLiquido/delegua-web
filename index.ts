@@ -23,7 +23,7 @@ import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
-import * as json from "./bibliotecas/delegua-json";
+import * as json from "@designliquido/delegua-json";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 
