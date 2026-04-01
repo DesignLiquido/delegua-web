@@ -2408,11 +2408,12 @@ exports.ListaCompreensao = ListaCompreensao;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
 class Literal {
-    constructor(hashArquivo, linha, valor, tipo = 'qualquer') {
+    constructor(hashArquivo, linha, valor, tipo = 'qualquer', delimitadorTexto) {
         this.linha = linha;
         this.hashArquivo = hashArquivo;
         this.valor = valor;
         this.tipo = tipo;
+        this.delimitadorTexto = delimitadorTexto;
     }
     async aceitar(visitante) {
         return await visitante.visitarExpressaoLiteral(this);

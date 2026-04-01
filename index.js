@@ -59,7 +59,7 @@ const fisica = __importStar(require("@designliquido/delegua-fisica"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
 const tempo = __importStar(require("@designliquido/delegua-tempo"));
 const objeto_data_1 = require("@designliquido/delegua-tempo/objeto-data");
-const json = __importStar(require("./bibliotecas/delegua-json"));
+const json = __importStar(require("@designliquido/delegua-json"));
 const delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
 const interpretador_web_1 = require("./interpretador-web");
 class DeleguaWeb {
