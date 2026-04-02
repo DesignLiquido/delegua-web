@@ -3451,11 +3451,15 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.pilhaVariaveis = new pilha_variaveis_1.PilhaVariaveis();
         this.gerenciadorEscopos = new gerenciador_escopos_1.GerenciadorEscopos();
         this.funcoes = {};
-        this.classesDeclararadas = new Set();
+        this.classesDeclaradas = new Set();
         this.classesRegistradas = new Map();
+        this.classesExternasConhecidas = new Set();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
         this.diagnosticos = [];
+    }
+    definirClassesExternasConhecidas(classesExternasConhecidas) {
+        this.classesExternasConhecidas = new Set(classesExternasConhecidas);
     }
     verificarTipoAtribuido(declaracao) {
         if (declaracao.tipo) {
@@ -3641,6 +3645,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         // Marca como inicializada após atribuição
         this.gerenciadorEscopos.marcarComoInicializada(simboloAlvo.lexema, expressao.valor);
+        // Marca variáveis usadas no valor atribuído (ex: idade = ano - inteiro(leia(...))).
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
         // Atualiza tipo se a variável não foi tipada explicitamente
         if (variavel.tipo === 'qualquer') {
             const tipoInferido = this.obterTipoExpressao(expressao.valor);
@@ -3715,9 +3721,33 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 this.variaveis[simboloAlvo.lexema].valor = expressao.valor;
             }
         } */
+        return Promise.resolve();
     }
     async visitarDeclaracaoDeExpressao(declaracao) {
         return await declaracao.expressao.aceitar(this);
+    }
+    async visitarExpressaoBloco(declaracao) {
+        this.gerenciadorEscopos.empilharEscopo();
+        try {
+            for (const declaracaoBloco of declaracao.declaracoes) {
+                await declaracaoBloco.aceitar(this);
+            }
+        }
+        finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
+        return Promise.resolve();
+    }
+    visitarExpressaoAcessoIndiceVariavel(expressao) {
+        this.marcarVariaveisUsadasEmExpressao(expressao.entidadeChamada);
+        this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+        return Promise.resolve();
+    }
+    visitarExpressaoAtribuicaoPorIndice(expressao) {
+        this.marcarVariaveisUsadasEmExpressao(expressao.objeto);
+        this.marcarVariaveisUsadasEmExpressao(expressao.indice);
+        this.marcarVariaveisUsadasEmExpressao(expressao.valor);
+        return Promise.resolve();
     }
     visitarDeclaracaoAjuda(declaracao) {
         if (declaracao.elemento) {
@@ -3733,7 +3763,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     }
     visitarDeclaracaoEscolha(declaracao) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral;
-        const tipo = identificadorOuLiteral.tipo;
+        const tipo = identificadorOuLiteral.tipo || 'qualquer';
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
                 switch (condicao.constructor) {
@@ -3764,8 +3794,16 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         return Promise.resolve();
     }
-    visitarDeclaracaoEnquanto(declaracao) {
-        return this.verificarCondicao(declaracao.condicao);
+    async visitarDeclaracaoEnquanto(declaracao) {
+        // Marca variáveis usadas na condição.
+        this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+        // Verifica a condição (incluindo validações de tipo para operadores lógicos).
+        await this.verificarCondicao(declaracao.condicao);
+        // Visita corpo para que usos/atribuições dentro do laço sejam analisados.
+        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
+            await declaracaoCorpo.aceitar(this);
+        }
+        return Promise.resolve();
     }
     visitarDeclaracaoFazer(declaracao) {
         // Marca variáveis usadas na condição
@@ -3774,25 +3812,31 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return this.verificarCondicao(declaracao.condicaoEnquanto);
     }
     async visitarDeclaracaoPara(declaracao) {
-        if (Array.isArray(declaracao.inicializador)) {
-            for (const inicializador of declaracao.inicializador) {
-                await inicializador.aceitar(this);
+        this.gerenciadorEscopos.empilharEscopo();
+        try {
+            if (Array.isArray(declaracao.inicializador)) {
+                for (const inicializador of declaracao.inicializador) {
+                    await inicializador.aceitar(this);
+                }
+            }
+            else if (declaracao.inicializador) {
+                await declaracao.inicializador.aceitar(this);
+            }
+            // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
+            if (declaracao.condicao) {
+                this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
+                await this.verificarCondicao(declaracao.condicao);
+            }
+            if (declaracao.incrementar) {
+                this.marcarVariaveisUsadasEmExpressao(declaracao.incrementar);
+                this.verificarExpressao(declaracao.incrementar);
+            }
+            for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
+                await declaracaoCorpo.aceitar(this);
             }
         }
-        else if (declaracao.inicializador) {
-            await declaracao.inicializador.aceitar(this);
-        }
-        // O laço precisa visitar condição/incremento/corpo para registrar usos de variáveis.
-        if (declaracao.condicao) {
-            this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
-            await this.verificarCondicao(declaracao.condicao);
-        }
-        if (declaracao.incrementar) {
-            this.marcarVariaveisUsadasEmExpressao(declaracao.incrementar);
-            this.verificarExpressao(declaracao.incrementar);
-        }
-        for (const declaracaoCorpo of declaracao.corpo.declaracoes) {
-            await declaracaoCorpo.aceitar(this);
+        finally {
+            this.gerenciadorEscopos.desempilharEscopo();
         }
         return Promise.resolve();
     }
@@ -3801,11 +3845,25 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.marcarVariaveisUsadasEmExpressao(declaracao.vetorOuDicionario);
         return Promise.resolve();
     }
-    visitarDeclaracaoSe(declaracao) {
+    async visitarDeclaracaoSe(declaracao) {
         // Marca variáveis usadas na condição
         this.marcarVariaveisUsadasEmExpressao(declaracao.condicao);
         // Verifica a condição (incluindo validação de tipos para operadores lógicos)
-        return this.verificarCondicao(declaracao.condicao);
+        await this.verificarCondicao(declaracao.condicao);
+        if (declaracao.caminhoEntao) {
+            await declaracao.caminhoEntao.aceitar(this);
+        }
+        if (declaracao.caminhosSeSenao && declaracao.caminhosSeSenao.length > 0) {
+            for (const caminhoSeSenao of declaracao.caminhosSeSenao) {
+                this.marcarVariaveisUsadasEmExpressao(caminhoSeSenao.condicao);
+                await this.verificarCondicao(caminhoSeSenao.condicao);
+                await caminhoSeSenao.caminho.aceitar(this);
+            }
+        }
+        if (declaracao.caminhoSenao) {
+            await declaracao.caminhoSenao.aceitar(this);
+        }
+        return Promise.resolve();
     }
     /**
      * Verifica uma expressão recursivamente, incluindo operações binárias
@@ -3952,6 +4010,9 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         const tipoEsquerda = this.obterTipoExpressao(binario.esquerda);
         const tipoDireita = this.obterTipoExpressao(binario.direita);
         const tiposNumericos = ['inteiro', 'número', 'real'];
+        if (!tipoEsquerda || !tipoDireita) {
+            return;
+        }
         if ((tipoEsquerda === 'texto' && tiposNumericos.includes(tipoDireita)) ||
             (tiposNumericos.includes(tipoEsquerda) && tipoDireita === 'texto')) {
             this.aviso(binario.operador, `Esta comparação ocorre entre tipos ${tipoEsquerda} e ${tipoDireita}, e o resultado pode não ser o desejado.`);
@@ -4254,7 +4315,10 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         // Inferir tipo do inicializador se não foi especificado explicitamente
         let tipoInferido = declaracao.tipo;
         if (!tipoInferido && declaracao.inicializador) {
-            tipoInferido = this.obterTipoExpressao(declaracao.inicializador);
+            const tipoInicializador = this.obterTipoExpressao(declaracao.inicializador);
+            if (tipoInicializador) {
+                tipoInferido = tipoInicializador;
+            }
         }
         // Sugestão de tipo melhor quando 'qualquer' é usado explicitamente
         if (declaracao.tipoExplicito &&
@@ -4268,8 +4332,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                         textoOriginal: 'qualquer',
                         textoSubstituto: tipoMelhor,
                         linha: declaracao.simbolo.linha,
-                        colunaInicio: declaracao.simbolo.colunaInicio,
-                        colunaFim: declaracao.simbolo.colunaFim,
+                        colunaInicio: declaracao.simbolo.colunaInicio || 0,
+                        colunaFim: declaracao.simbolo.colunaFim || 0,
                     },
                 ]);
             }
@@ -4304,7 +4368,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         return Promise.resolve();
     }
     visitarExpressaoRetornar(declaracao) {
-        return Promise.resolve(null);
+        return Promise.resolve(undefined);
     }
     visitarExpressaoDeVariavel(expressao) {
         if (expressao instanceof construtos_1.Variavel) {
@@ -4388,11 +4452,11 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             if (nomeSuperclasse === declaracao.simbolo.lexema) {
                 this.erro(superClasseVariavel.simbolo, `A classe '${declaracao.simbolo.lexema}' não pode herdar de si mesma.`);
             }
-            else if (!this.classesDeclararadas.has(nomeSuperclasse)) {
+            else if (!this.classesDeclaradas.has(nomeSuperclasse) && !this.classesExternasConhecidas.has(nomeSuperclasse)) {
                 this.erro(superClasseVariavel.simbolo, `Superclasse '${nomeSuperclasse}' não foi declarada.`);
             }
         }
-        this.classesDeclararadas.add(declaracao.simbolo.lexema);
+        this.classesDeclaradas.add(declaracao.simbolo.lexema);
         this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
         // Visita corpos dos métodos com contexto de classe ativo
         const classeAnterior = this.classeAtualEmAnalise;
@@ -4404,7 +4468,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         this.classeAtualEmAnalise = classeAnterior;
     }
-    visitarDeclaracaoDefinicaoFuncao(declaracao) {
+    async visitarDeclaracaoDefinicaoFuncao(declaracao) {
         var _a;
         if (declaracao.funcao.tipo === undefined) {
             this.erro(declaracao.simbolo, `Declaração de retorno da função é inválido.`);
@@ -4420,7 +4484,10 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                     this.erro(declaracao.simbolo, `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`);
                 }
             }
-            const retornos = declaracao.funcao.corpo.flatMap((c) => (0, comum_1.buscarRetornos)(c));
+            let retornos = [];
+            for (const declaracaoCorpo of declaracao.funcao.corpo) {
+                retornos = retornos.concat((0, comum_1.buscarRetornos)(declaracaoCorpo));
+            }
             // Filtra retornos com tipo 'qualquer' (não determinado em tempo de análise sintática)
             const retornosComTipoIndeterminado = retornos.filter((retorno) => retorno.valor !== null &&
                 retorno.valor !== undefined &&
@@ -4431,7 +4498,8 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 declaracao.funcao.tipoExplicito &&
                 retornosComTipoIndeterminado.length > 0) {
                 const retornoComValor = retornosComTipoIndeterminado[0];
-                const tipoInferido = this.obterTipoExpressao(retornoComValor.valor);
+                const valorRetorno = retornoComValor.valor;
+                const tipoInferido = this.obterTipoExpressao(valorRetorno);
                 if (tipoInferido && tipoInferido !== 'qualquer') {
                     this.erro(declaracao.simbolo, `A função não pode ter nenhum tipo de retorno. Tipo inferido do retorno: '${tipoInferido}'.`);
                 }
@@ -4459,14 +4527,38 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         this.funcoes[declaracao.simbolo.lexema] = {
             valor: declaracao.funcao,
         };
+        this.gerenciadorEscopos.empilharEscopo();
+        try {
+            for (const parametro of declaracao.funcao.parametros) {
+                this.gerenciadorEscopos.declarar(parametro.nome.lexema, {
+                    nome: parametro.nome.lexema,
+                    tipo: parametro.tipoDado || 'qualquer',
+                    imutavel: false,
+                    valor: undefined,
+                    inicializada: true,
+                    usada: false,
+                    hashArquivo: parametro.nome.hashArquivo,
+                    linha: parametro.nome.linha,
+                });
+            }
+            for (const declaracaoCorpo of declaracao.funcao.corpo) {
+                await declaracaoCorpo.aceitar(this);
+            }
+        }
+        finally {
+            this.gerenciadorEscopos.desempilharEscopo();
+        }
         return Promise.resolve();
     }
     verificarVariaveisNaoUsadas() {
         const naoUsadas = this.gerenciadorEscopos.obterVariaveisNaoUsadas();
         for (let variavel of naoUsadas) {
             // Verifica se já existe um erro associado à variável.
-            const temErro = this.diagnosticos.some((d) => d.severidade === erros_1.DiagnosticoSeveridade.ERRO &&
-                d.simbolo.lexema === variavel.nome);
+            const temErro = this.diagnosticos.some((d) => {
+                var _a;
+                return d.severidade === erros_1.DiagnosticoSeveridade.ERRO &&
+                    ((_a = d.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === variavel.nome;
+            });
             // Se a variável já tem um erro associado, não emitir aviso de não usada.
             if (temErro) {
                 continue;
@@ -4481,7 +4573,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     }
     async analisar(declaracoes) {
         this.gerenciadorEscopos = new gerenciador_escopos_1.GerenciadorEscopos();
-        this.classesDeclararadas = new Set();
+        this.classesDeclaradas = new Set();
         this.classesRegistradas = new Map();
         this.classeAtualEmAnalise = null;
         this.atual = 0;
@@ -4663,6 +4755,13 @@ const comum_1 = __importDefault(require("../tipos-de-simbolos/comum"));
  * de tipos de símbolos comuns entre todos os dialetos.
  */
 class AvaliadorSintaticoBase {
+    constructor() {
+        this.simbolos = [];
+        this.erros = [];
+        this.hashArquivo = -1;
+        this.atual = 0;
+        this.blocos = 0;
+    }
     erro(simbolo, mensagemDeErro) {
         const excecao = new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(simbolo, mensagemDeErro);
         return excecao;
@@ -4694,6 +4793,8 @@ class AvaliadorSintaticoBase {
         return this.simbolos[this.atual].tipo === tipo;
     }
     verificarTipoProximoSimbolo(tipo) {
+        if (this.atual + 1 >= this.simbolos.length)
+            return false;
         return this.simbolos[this.atual + 1].tipo === tipo;
     }
     estaNoFinal() {
@@ -4853,7 +4954,7 @@ class AvaliadorSintaticoBase {
             }
             const parametro = {};
             if (this.simbolos[this.atual].tipo === comum_1.default.MULTIPLICACAO) {
-                this.consumir(comum_1.default.MULTIPLICACAO, null);
+                this.avancarEDevolverAnterior();
                 parametro.abrangencia = 'multiplo';
             }
             else {
@@ -17472,6 +17573,9 @@ exports.Expressao = Expressao;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Extensao = void 0;
 const declaracao_1 = require("./declaracao");
+/**
+ * Declaração de Extensão de Classe.
+ */
 class Extensao extends declaracao_1.Declaracao {
     constructor(simboloTipo, metodos, ehGlobal, hashArquivo) {
         super(Number(simboloTipo.linha), hashArquivo);
@@ -18665,6 +18769,135 @@ class FormatadorDelegua {
         this.deveIndentar = true;
         this.delimitadorTexto = opcoes.delimitadorTexto || 'aspas-simples';
     }
+    visitarDeclaracaoAjuda(declaracao) {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}ajuda(`;
+        if (declaracao.elemento) {
+            this.formatarDeclaracaoOuConstruto(declaracao.elemento);
+        }
+        this.codigoFormatado += `)${this.quebraLinha}`;
+    }
+    visitarDeclaracaoExtensao(declaracao) {
+        const global = declaracao.ehGlobal ? 'global ' : '';
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}extensão ${global}de ${declaracao.simboloTipo.lexema} {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let metodo of declaracao.metodos) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
+            this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
+    }
+    visitarDeclaracaoInterface(declaracao) {
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}interface ${declaracao.simbolo.lexema} {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let propriedade of declaracao.propriedades) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${propriedade.tipo || 'qualquer'}${this.quebraLinha}`;
+        }
+        for (let metodo of declaracao.metodos) {
+            this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.nome.lexema}(`;
+            for (let parametro of metodo.parametros) {
+                this.codigoFormatado += `${parametro.nome.lexema}: ${parametro.tipoDado || 'qualquer'}, `;
+            }
+            if (metodo.parametros.length > 0) {
+                this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+            }
+            this.codigoFormatado += `)`;
+            if (metodo.tipoRetorno) {
+                this.codigoFormatado += `: ${metodo.tipoRetorno}`;
+            }
+            this.codigoFormatado += this.quebraLinha;
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
+    }
+    visitarExpressaoAjuda(expressao) {
+        this.codigoFormatado += `ajuda(`;
+        if (expressao.valor) {
+            this.formatarDeclaracaoOuConstruto(expressao.valor);
+        }
+        this.codigoFormatado += `)`;
+    }
+    visitarExpressaoEnquanto(expressao) {
+        this.codigoFormatado += `enquanto `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of expressao.corpo.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+    visitarExpressaoElvis(expressao) {
+        this.formatarDeclaracaoOuConstruto(expressao.esquerda);
+        this.codigoFormatado += ` ?? `;
+        this.formatarDeclaracaoOuConstruto(expressao.direita);
+    }
+    visitarExpressaoFazer(expressao) {
+        this.codigoFormatado += `fazer {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of expressao.caminhoFazer.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}} enquanto `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicaoEnquanto);
+    }
+    visitarExpressaoListaCompreensao(listaCompreensao) {
+        this.codigoFormatado += `[`;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.expressaoRetorno);
+        this.codigoFormatado += ` para cada `;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.referenciaVariavelIteracao);
+        this.codigoFormatado += ` de `;
+        this.formatarDeclaracaoOuConstruto(listaCompreensao.paraCada.vetorOuDicionario);
+        this.codigoFormatado += `]`;
+    }
+    visitarExpressaoPara(expressao) {
+        this.codigoFormatado += `para `;
+        this.devePularLinha = false;
+        if (expressao.inicializador) {
+            if (Array.isArray(expressao.inicializador)) {
+                this.deveIndentar = false;
+                for (let declaracaoInicializador of expressao.inicializador) {
+                    this.formatarDeclaracaoOuConstruto(declaracaoInicializador);
+                }
+                this.deveIndentar = true;
+            }
+            else {
+                this.formatarDeclaracaoOuConstruto(expressao.inicializador);
+            }
+        }
+        this.codigoFormatado += `; `;
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += `; `;
+        this.formatarDeclaracaoOuConstruto(expressao.incrementar);
+        this.devePularLinha = true;
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of expressao.corpo.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+    visitarExpressaoParaCada(expressao) {
+        this.codigoFormatado += `para cada ${expressao.variavelIteracao} de `;
+        this.formatarDeclaracaoOuConstruto(expressao.vetorOuDicionario);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracao of expressao.corpo.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracao);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}`;
+    }
+    visitarExpressaoSeTernario(expressao) {
+        this.formatarDeclaracaoOuConstruto(expressao.condicao);
+        this.codigoFormatado += ` ? `;
+        this.formatarDeclaracaoOuConstruto(expressao.expressaoSe);
+        this.codigoFormatado += ` : `;
+        this.formatarDeclaracaoOuConstruto(expressao.expressaoSenao);
+    }
     obterDelimitadorTexto(expressao) {
         if (this.delimitadorTexto === 'aspas-duplas') {
             return '"';
@@ -18795,6 +19028,9 @@ class FormatadorDelegua {
     visitarDeclaracaoDeExpressao(declaracao) {
         this.codigoFormatado += ' '.repeat(this.indentacaoAtual);
         this.formatarDeclaracaoOuConstruto(declaracao.expressao);
+        if (!this.codigoFormatado.endsWith(this.quebraLinha)) {
+            this.codigoFormatado += this.quebraLinha;
+        }
     }
     visitarDeclaracaoDefinicaoFuncao(declaracao) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}função `;
@@ -18806,7 +19042,13 @@ class FormatadorDelegua {
     visitarDeclaracaoEnquanto(declaracao) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}enquanto `;
         this.formatarDeclaracaoOuConstruto(declaracao.condicao);
-        this.formatarDeclaracaoOuConstruto(declaracao.corpo);
+        this.codigoFormatado += ` {${this.quebraLinha}`;
+        this.indentacaoAtual += this.tamanhoIndentacao;
+        for (let declaracaoBloco of declaracao.corpo.declaracoes) {
+            this.formatarDeclaracaoOuConstruto(declaracaoBloco);
+        }
+        this.indentacaoAtual -= this.tamanhoIndentacao;
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
     }
     visitarDeclaracaoEscolha(declaracao) {
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}escolha `;
@@ -19229,7 +19471,7 @@ class FormatadorDelegua {
         this.formatarDeclaracaoOuConstruto(expressao.valor);
     }
     visitarExpressaoUnaria(expressao) {
-        let operador;
+        let operador = '';
         switch (expressao.operador.tipo) {
             case delegua_1.default.INCREMENTAR:
                 operador = `++`;
@@ -19273,6 +19515,12 @@ class FormatadorDelegua {
         switch (declaracaoOuConstruto.constructor) {
             case construtos_1.AcessoIndiceVariavel:
                 this.visitarExpressaoAcessoIndiceVariavel(declaracaoOuConstruto);
+                break;
+            case construtos_1.AcessoMetodo:
+                this.visitarExpressaoAcessoMetodo(declaracaoOuConstruto);
+                break;
+            case construtos_1.AcessoPropriedade:
+                this.visitarExpressaoAcessoPropriedade(declaracaoOuConstruto);
                 break;
             case construtos_1.AcessoMetodoOuPropriedade:
                 this.visitarExpressaoAcessoMetodoOuPropriedade(declaracaoOuConstruto);
@@ -19319,6 +19567,9 @@ class FormatadorDelegua {
             case declaracoes_1.Enquanto:
                 this.visitarDeclaracaoEnquanto(declaracaoOuConstruto);
                 break;
+            case declaracoes_1.Extensao:
+                this.visitarDeclaracaoExtensao(declaracaoOuConstruto);
+                break;
             case declaracoes_1.Escreva:
                 this.visitarDeclaracaoEscreva(declaracaoOuConstruto);
                 break;
@@ -19342,6 +19593,9 @@ class FormatadorDelegua {
                 break;
             case declaracoes_1.Importar:
                 this.visitarDeclaracaoImportar(declaracaoOuConstruto);
+                break;
+            case declaracoes_1.InterfaceDeclaracao:
+                this.visitarDeclaracaoInterface(declaracaoOuConstruto);
                 break;
             case construtos_1.ImportarComoConstruto:
                 this.visitarExpressaoImportar(declaracaoOuConstruto);
