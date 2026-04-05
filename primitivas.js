@@ -3462,6 +3462,7 @@ exports.default = {
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     ELVIS: 'ELVIS',
+    ESTRANGEIRA: 'ESTRANGEIRA',
     EXTENSAO: 'EXTENSAO',
     EM: 'EM',
     ENQUANTO: 'ENQUANTO',

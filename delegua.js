@@ -2978,16 +2978,25 @@ exports.AnalisadorSemanticoBase = void 0;
 const construtos_1 = require("../construtos");
 const declaracoes_1 = require("../declaracoes");
 const interfaces_1 = require("../interfaces");
+const quebras_1 = require("../quebras");
+const gerenciador_escopos_1 = require("./gerenciador-escopos");
 /**
  * Essa classe só existe para eliminar redundância entre todos os analisadores
  * semânticos. Por padrão, quando um método não é implementado, ao invés de dar erro,
  * simplesmente passa por ele (`return Promise.resolve()`).
  */
 class AnalisadorSemanticoBase {
+    constructor() {
+        this.gerenciadorEscopos = new gerenciador_escopos_1.GerenciadorEscopos();
+        this.diagnosticos = [];
+    }
     diagnosticoJaExiste(simbolo, mensagem) {
-        return this.diagnosticos.some((d) => d.linha === simbolo.linha &&
-            d.mensagem === mensagem &&
-            d.simbolo.lexema === simbolo.lexema);
+        return this.diagnosticos.some((d) => {
+            var _a;
+            return d.linha === simbolo.linha &&
+                d.mensagem === mensagem &&
+                ((_a = d.simbolo) === null || _a === void 0 ? void 0 : _a.lexema) === simbolo.lexema;
+        });
     }
     erro(simbolo, mensagem) {
         if (this.diagnosticoJaExiste(simbolo, mensagem)) {
@@ -3129,6 +3138,10 @@ class AnalisadorSemanticoBase {
      * Marca as variáveis usadas em uma expressão.
      */
     marcarVariaveisUsadasEmExpressao(expressao) {
+        if (expressao instanceof declaracoes_1.Expressao) {
+            this.marcarVariaveisUsadasEmExpressao(expressao.expressao);
+            return;
+        }
         if (expressao instanceof construtos_1.Variavel) {
             this.gerenciadorEscopos.marcarComoUsada(expressao.simbolo.lexema);
             return;
@@ -3175,7 +3188,17 @@ class AnalisadorSemanticoBase {
             }
             return;
         }
+        if (expressao instanceof construtos_1.Literal && typeof expressao.valor === 'string') {
+            this.verificarInterpolacaoTexto(expressao.valor, expressao);
+            return;
+        }
         // TODO: Adicionar outros tipos de expressões conforme necessário.
+    }
+    /**
+     * Stub para ser sobrescrito por subclasses que implementam análise de interpolações.
+     */
+    verificarInterpolacaoTexto(_texto, _literal) {
+        // implementado nas subclasses
     }
     /**
      * Analisa se todos os caminhos retornam
@@ -3363,7 +3386,7 @@ class AnalisadorSemanticoBase {
         return Promise.resolve();
     }
     visitarExpressaoContinua(declaracao) {
-        return null;
+        return new quebras_1.ContinuarQuebra();
     }
     visitarExpressaoDeChamada(expressao) {
         return Promise.resolve();
@@ -3381,7 +3404,7 @@ class AnalisadorSemanticoBase {
         return Promise.resolve();
     }
     visitarExpressaoExpressaoRegular(expressao) {
-        return;
+        return Promise.resolve(new RegExp(''));
     }
     visitarDeclaracaoEscrevaMesmaLinha(declaracao) {
         return Promise.resolve();
@@ -3408,13 +3431,13 @@ class AnalisadorSemanticoBase {
         return Promise.resolve();
     }
     visitarExpressaoRetornar(declaracao) {
-        return;
+        return Promise.resolve(new quebras_1.RetornoQuebra(null));
     }
     visitarExpressaoSuper(expressao) {
         return Promise.resolve();
     }
     visitarExpressaoSustar(declaracao) {
-        return null;
+        return new quebras_1.SustarQuebra();
     }
     visitarExpressaoTupla(expressao) {
         return Promise.resolve();
@@ -3431,7 +3454,7 @@ class AnalisadorSemanticoBase {
 }
 exports.AnalisadorSemanticoBase = AnalisadorSemanticoBase;
 
-},{"../construtos":96,"../declaracoes":144,"../interfaces":183}],36:[function(require,module,exports){
+},{"../construtos":96,"../declaracoes":144,"../interfaces":183,"../quebras":250,"./gerenciador-escopos":39}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemantico = void 0;
@@ -3439,6 +3462,8 @@ const construtos_1 = require("../construtos");
 const declaracoes_1 = require("../declaracoes");
 const erros_1 = require("../interfaces/erros");
 const comum_1 = require("../avaliador-sintatico/comum");
+const micro_avaliador_sintatico_1 = require("../avaliador-sintatico/micro-avaliador-sintatico");
+const micro_lexador_1 = require("../lexador/micro-lexador");
 const analisador_semantico_base_1 = require("./analisador-semantico-base");
 const gerenciador_escopos_1 = require("./gerenciador-escopos");
 const pilha_variaveis_1 = require("./pilha-variaveis");
@@ -3448,6 +3473,8 @@ const pilha_variaveis_1 = require("./pilha-variaveis");
 class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemanticoBase {
     constructor() {
         super();
+        this.microLexador = new micro_lexador_1.MicroLexador();
+        this.microAvaliadorSintatico = new micro_avaliador_sintatico_1.MicroAvaliadorSintatico();
         this.pilhaVariaveis = new pilha_variaveis_1.PilhaVariaveis();
         this.gerenciadorEscopos = new gerenciador_escopos_1.GerenciadorEscopos();
         this.funcoes = {};
@@ -4167,39 +4194,23 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
     }
     /**
-     * Verifica interpolações de texto e marca variáveis como usadas
+     * Verifica interpolações de texto e marca variáveis como usadas,
+     * compreendendo cada expressão interpolada com MicroLexador e MicroAvaliadorSintatico.
      */
     verificarInterpolacaoTexto(texto, literal) {
-        // Regex para encontrar ${identificador}
-        const regexInterpolacao = /\$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+        const regexInterpolacao = /\$\{(.*?)\}/g;
         let match;
         while ((match = regexInterpolacao.exec(texto)) !== null) {
-            const nomeVariavel = match[1];
-            // Verifica se a variável existe
-            const variavel = this.gerenciadorEscopos.buscar(nomeVariavel);
-            const funcao = this.funcoes[nomeVariavel];
-            if (!variavel && !funcao) {
-                this.erro({
-                    lexema: nomeVariavel,
-                    tipo: 'IDENTIFICADOR',
-                    linha: literal.linha,
-                    hashArquivo: literal.hashArquivo,
-                    literal: null,
-                }, `Variável ou função '${nomeVariavel}' usada em interpolação não existe.`);
-            }
-            else if (variavel) {
-                // Marca como usada
-                this.gerenciadorEscopos.marcarComoUsada(nomeVariavel);
-                // Verifica se foi inicializada
-                if (!variavel.inicializada) {
-                    this.aviso({
-                        lexema: nomeVariavel,
-                        tipo: 'IDENTIFICADOR',
-                        linha: literal.linha,
-                        hashArquivo: literal.hashArquivo,
-                        literal: null,
-                    }, `Variável '${nomeVariavel}' usada em interpolação pode não ter sido inicializada.`);
+            const expressaoInterpolacao = match[1].trim();
+            try {
+                const retornoMicroLexador = this.microLexador.mapear(expressaoInterpolacao);
+                const retornoMicro = this.microAvaliadorSintatico.analisar(retornoMicroLexador, literal.linha);
+                for (const construto of retornoMicro.declaracoes) {
+                    this.marcarVariaveisUsadasEmExpressao(construto);
                 }
+            }
+            catch (_) {
+                // Erros de sintaxe na interpolação são tratados em tempo de execução
             }
         }
     }
@@ -4458,12 +4469,18 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         this.classesDeclaradas.add(declaracao.simbolo.lexema);
         this.classesRegistradas.set(declaracao.simbolo.lexema, declaracao);
-        // Visita corpos dos métodos com contexto de classe ativo
+        // Visita corpos dos métodos com contexto de classe ativo.
+        // Métodos abstratos implícitos e métodos de classes estrangeiras têm corpo vazio —
+        // não há declarações para visitar.
         const classeAnterior = this.classeAtualEmAnalise;
         this.classeAtualEmAnalise = declaracao;
-        for (const metodo of declaracao.metodos) {
-            for (const stmt of metodo.funcao.corpo) {
-                await stmt.aceitar(this);
+        if (!declaracao.estrangeira) {
+            for (const metodo of declaracao.metodos) {
+                if (metodo.abstrato)
+                    continue;
+                for (const stmt of metodo.funcao.corpo) {
+                    await stmt.aceitar(this);
+                }
             }
         }
         this.classeAtualEmAnalise = classeAnterior;
@@ -4596,7 +4613,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
 }
 exports.AnalisadorSemantico = AnalisadorSemantico;
 
-},{"../avaliador-sintatico/comum":45,"../construtos":96,"../declaracoes":144,"../interfaces/erros":180,"./analisador-semantico-base":35,"./gerenciador-escopos":39,"./pilha-variaveis":41}],37:[function(require,module,exports){
+},{"../avaliador-sintatico/comum":45,"../avaliador-sintatico/micro-avaliador-sintatico":58,"../construtos":96,"../declaracoes":144,"../interfaces/erros":180,"../lexador/micro-lexador":247,"./analisador-semantico-base":35,"./gerenciador-escopos":39,"./pilha-variaveis":41}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -7031,12 +7048,15 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async declaracaoDeClasse() {
         var _a;
-        // Modificadores opcionais no nível da classe: `abstrata` e/ou `estática`.
-        // Sintaxe: `classe abstrata NomeDaClasse` ou `classe estática NomeDaClasse`.
+        // Modificadores opcionais no nível da classe: `abstrata`, `estrangeira` e/ou `estática`.
+        // Sintaxe: `classe abstrata NomeDaClasse`, `classe estrangeira NomeDaClasse`, etc.
         let ehAbstrata = false;
+        let ehEstrangeira = false;
         let ehEstatica = false;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.ABSTRATO))
             ehAbstrata = true;
+        if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.ESTRANGEIRA))
+            ehEstrangeira = true;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.ESTATICO))
             ehEstatica = true;
         // Também permite a ordem invertida: `classe estática abstrata`
@@ -7179,7 +7199,6 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                             params = await this.logicaComumParametros();
                         }
                         this.consumir(delegua_2.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros do método.");
-                        const ehAbstrato = ehAbstratoPadrao;
                         // Tipo de retorno opcional (igual a corpoDaFuncao())
                         let tipoRetorno = 'qualquer';
                         let definicaoExplicitaDeTipo = false;
@@ -7188,10 +7207,21 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                             this.avancarEDevolverAnterior();
                             definicaoExplicitaDeTipo = true;
                         }
+                        // Método de classe estrangeira não pode ter corpo.
+                        if (ehEstrangeira &&
+                            this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_ESQUERDA)) {
+                            throw this.erro(this.simbolos[this.atual], "Métodos de classe estrangeira não podem ter corpo.");
+                        }
+                        // Método é abstrato quando: (a) está dentro de um bloco `abstrato {}`,
+                        // ou (b) a classe é abstrata/estrangeira e o próximo token não é `{`.
+                        const ehAbstrato = ehAbstratoPadrao ||
+                            ehEstrangeira ||
+                            (ehAbstrata &&
+                                !this.verificarTipoSimboloAtual(delegua_2.default.CHAVE_ESQUERDA));
                         if (ehAbstrato) {
-                            // Método abstrato: sem corpo
+                            // Método abstrato/estrangeiro: sem corpo
                             this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
-                            const corpoVazio = new construtos_1.FuncaoConstruto(this.hashArquivo, nomeMetodo.linha, params, [], tipoRetorno);
+                            const corpoVazio = new construtos_1.FuncaoConstruto(this.hashArquivo, nomeMetodo.linha, params, [], tipoRetorno, definicaoExplicitaDeTipo);
                             const metodoAbstrato = new declaracoes_1.FuncaoDeclaracao(nomeMetodo, corpoVazio, tipoRetorno);
                             metodoAbstrato.estatico = ehEstatico;
                             metodoAbstrato.abstrato = true;
@@ -7389,7 +7419,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 }
             }
         }
-        const definicaoClasse = new declaracoes_1.Classe(simbolo, superClasses, metodos, propriedades, pilhaDecoradoresClasse, ehAbstrata, ehEstatica, implementaInterfaces, mesclas);
+        const definicaoClasse = new declaracoes_1.Classe(simbolo, superClasses, metodos, propriedades, pilhaDecoradoresClasse, ehAbstrata, ehEstrangeira, ehEstatica, implementaInterfaces, mesclas);
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;
         return definicaoClasse;
@@ -17308,7 +17338,7 @@ class Classe extends declaracao_1.Declaracao {
         var _a;
         return (_a = this.superClasses[0]) !== null && _a !== void 0 ? _a : null;
     }
-    constructor(simbolo, superClasses = [], metodos, propriedades = [], decoradores = [], abstrata = false, classeEstatica = false, implementa = [], mesclas = []) {
+    constructor(simbolo, superClasses = [], metodos, propriedades = [], decoradores = [], abstrata = false, estrangeira = false, classeEstatica = false, implementa = [], mesclas = []) {
         super(Number(simbolo.linha), simbolo.hashArquivo);
         this.simbolo = simbolo;
         this.superClasses = superClasses;
@@ -17317,6 +17347,7 @@ class Classe extends declaracao_1.Declaracao {
         this.propriedades = propriedades;
         this.decoradores = decoradores;
         this.abstrata = abstrata;
+        this.estrangeira = estrangeira;
         this.classeEstatica = classeEstatica;
         this.implementa = implementa;
     }
@@ -18975,7 +19006,12 @@ class FormatadorDelegua {
         return '';
     }
     visitarDeclaracaoClasse(declaracao) {
-        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${declaracao.simbolo.lexema} {${this.quebraLinha}`;
+        const modificador = declaracao.estrangeira
+            ? 'estrangeira '
+            : declaracao.abstrata
+                ? 'abstrata '
+                : '';
+        this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}classe ${modificador}${declaracao.simbolo.lexema} {${this.quebraLinha}`;
         this.indentacaoAtual += this.tamanhoIndentacao;
         for (let propriedade of declaracao.propriedades) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${propriedade.nome.lexema}: ${propriedade.tipo || 'qualquer'}${this.quebraLinha}`;
@@ -18983,7 +19019,24 @@ class FormatadorDelegua {
         this.codigoFormatado += `${this.quebraLinha}`;
         for (let metodo of declaracao.metodos) {
             this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}${metodo.simbolo.lexema}`;
-            this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+            if (declaracao.estrangeira) {
+                // Métodos estrangeiros: emitir apenas a assinatura, sem corpo.
+                this.codigoFormatado += `(`;
+                for (let argumento of metodo.funcao.parametros) {
+                    this.codigoFormatado += `${argumento.nome.lexema}: ${argumento.tipoDado || 'qualquer'}, `;
+                }
+                if (metodo.funcao.parametros.length > 0) {
+                    this.codigoFormatado = this.codigoFormatado.slice(0, -2);
+                }
+                this.codigoFormatado += `)`;
+                if (metodo.funcao.tipoExplicito && metodo.funcao.tipo) {
+                    this.codigoFormatado += `: ${metodo.funcao.tipo}`;
+                }
+                this.codigoFormatado += this.quebraLinha;
+            }
+            else {
+                this.visitarExpressaoFuncaoConstruto(metodo.funcao);
+            }
         }
         this.indentacaoAtual -= this.tamanhoIndentacao;
         this.codigoFormatado += `${' '.repeat(this.indentacaoAtual)}}${this.quebraLinha}`;
@@ -21456,6 +21509,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
     }
     constructor(simboloOriginal, superClasses, metodos, propriedades) {
         super();
+        this.dialetoRequerExpansaoPropriedadesEspacoMemoria = false;
         this.simboloOriginal = simboloOriginal;
         if (Array.isArray(superClasses)) {
             this.superClasses = superClasses;
@@ -21477,6 +21531,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
         this.propriedades = propriedades || [];
         this.dialetoRequerDeclaracaoPropriedades = false;
         this.abstrata = false;
+        this.estrangeira = false;
         this.classeEstatica = false;
         this.metodosAbstratos = [];
         this.acessoMetodos = {};
@@ -21499,7 +21554,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
                 }
             }
             if (candidato === null) {
-                throw new excecoes_1.ErroEmTempoDeExecucao(null, 'Hierarquia de classes inconsistente: não foi possível calcular o OReM (C3).');
+                throw new excecoes_1.ErroEmTempoDeExecucao(undefined, 'Hierarquia de classes inconsistente: não foi possível calcular o OReM (C3).');
             }
             resultado.push(candidato);
             for (const lista of listas) {
@@ -21647,6 +21702,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
         return new metodo_polimorfico_1.MetodoPolimorfico(nome, todasSobrecargas);
     }
     encontrarPropriedade(nome) {
+        var _a;
         if (nome in this.propriedades) {
             return this.propriedades[nome];
         }
@@ -21656,7 +21712,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
             }
         }
         if (this.dialetoRequerDeclaracaoPropriedades) {
-            throw new excecoes_1.ErroEmTempoDeExecucao(this.simboloOriginal, `Propriedade "${nome}" não declarada na classe ${this.simboloOriginal.lexema}.`);
+            throw new excecoes_1.ErroEmTempoDeExecucao(this.simboloOriginal, `Propriedade "${nome}" não declarada na classe ${(_a = this.simboloOriginal) === null || _a === void 0 ? void 0 : _a.lexema}.`);
         }
         return undefined;
     }
@@ -21687,12 +21743,15 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
         return inicializador ? inicializador.aridade() : 0;
     }
     async chamar(visitante, argumentos) {
-        var _a, _b;
+        var _a, _b, _c;
         if (this.classeEstatica) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simboloOriginal, `Não é possível instanciar a classe estática '${(_a = this.simboloOriginal) === null || _a === void 0 ? void 0 : _a.lexema}'.`);
         }
         if (this.abstrata) {
             throw new excecoes_1.ErroEmTempoDeExecucao(this.simboloOriginal, `Não é possível instanciar a classe abstrata '${(_b = this.simboloOriginal) === null || _b === void 0 ? void 0 : _b.lexema}'.`);
+        }
+        if (this.estrangeira) {
+            throw new excecoes_1.ErroEmTempoDeExecucao(this.simboloOriginal, `Não é possível instanciar a classe estrangeira '${(_c = this.simboloOriginal) === null || _c === void 0 ? void 0 : _c.lexema}' diretamente.`);
         }
         const instancia = new objeto_delegua_classe_1.ObjetoDeleguaClasse(this);
         const inicializador = this.encontrarMetodo('construtor');
@@ -24074,6 +24133,7 @@ class InterpretadorBase {
         descritorTipoClasse.obtenedoresEstaticos = obtenedoresEstaticos;
         descritorTipoClasse.definidoresEstaticos = definidoresEstaticos;
         descritorTipoClasse.abstrata = declaracao.abstrata;
+        descritorTipoClasse.estrangeira = declaracao.estrangeira;
         descritorTipoClasse.classeEstatica = declaracao.classeEstatica;
         descritorTipoClasse.metodosAbstratos = metodosAbstratos;
         descritorTipoClasse.acessoMetodos = acessoMetodos;
@@ -24114,9 +24174,9 @@ class InterpretadorBase {
         }
         // Verifica se a subclasse concreta implementa todos os métodos abstratos
         // da(s) superclasse(s) abstrata(s).
-        if (!declaracao.abstrata) {
+        if (!declaracao.abstrata && !declaracao.estrangeira) {
             for (const superClasse of superClassesResolvidas) {
-                if (superClasse.abstrata) {
+                if (superClasse.abstrata || superClasse.estrangeira) {
                     superClasse.verificarImplementacaoAbstrata(descritorTipoClasse);
                 }
             }
@@ -30552,6 +30612,7 @@ exports.palavrasReservadasDelegua = {
     enquanto: delegua_1.default.ENQUANTO,
     extensao: delegua_1.default.EXTENSAO,
     extensão: delegua_1.default.EXTENSAO,
+    estrangeira: delegua_1.default.ESTRANGEIRA,
     estatica: delegua_1.default.ESTATICO,
     estática: delegua_1.default.ESTATICO,
     estatico: delegua_1.default.ESTATICO,
@@ -30885,6 +30946,7 @@ exports.default = {
     DOIS_PONTOS: 'DOIS_PONTOS',
     E: 'E',
     ELVIS: 'ELVIS',
+    ESTRANGEIRA: 'ESTRANGEIRA',
     EXTENSAO: 'EXTENSAO',
     EM: 'EM',
     ENQUANTO: 'ENQUANTO',
@@ -47593,6 +47655,17 @@ class TradutorElixir {
     converterNomeModulo(nome) {
         return nome.charAt(0).toUpperCase() + nome.slice(1);
     }
+    mapearTipoParaTypespec(tipo) {
+        switch (tipo) {
+            case 'texto': return 'String.t()';
+            case 'numero':
+            case 'inteiro': return 'integer()';
+            case 'real': return 'float()';
+            case 'logico': return 'boolean()';
+            case 'vazio': return 'no_return()';
+            default: return 'term()';
+        }
+    }
     /**
      * Gera nome único para variável temporária
      */
@@ -47677,16 +47750,27 @@ class TradutorElixir {
         this.aumentarIndentacao();
         const moduloAnterior = this.moduloAtual;
         this.moduloAtual = nomeModulo;
-        // Extrair campos do struct do construtor
-        const camposStruct = await this.extrairCamposStruct(declaracao);
-        if (camposStruct.length > 0) {
-            resultado += this.adicionarIndentacao();
-            resultado += `defstruct [${camposStruct.join(', ')}]\n\n`;
+        if (declaracao.estrangeira) {
+            // Classe estrangeira: emitir @callback para cada método, definindo a interface esperada do módulo.
+            resultado += this.adicionarIndentacao() + `@moduledoc "Classe estrangeira — implementação externa."\n`;
+            for (const metodo of declaracao.metodos) {
+                const params = metodo.funcao.parametros.map(() => 'term()').join(', ');
+                const retorno = this.mapearTipoParaTypespec(metodo.funcao.tipo);
+                resultado += this.adicionarIndentacao() + `@callback ${metodo.simbolo.lexema}(${params}) :: ${retorno}\n`;
+            }
         }
-        // Traduzir métodos
-        for (const metodo of declaracao.metodos) {
-            const traducaoMetodo = await this.traduzirMetodoClasse(metodo, nomeModulo);
-            resultado += traducaoMetodo + '\n\n';
+        else {
+            // Extrair campos do struct do construtor
+            const camposStruct = await this.extrairCamposStruct(declaracao);
+            if (camposStruct.length > 0) {
+                resultado += this.adicionarIndentacao();
+                resultado += `defstruct [${camposStruct.join(', ')}]\n\n`;
+            }
+            // Traduzir métodos
+            for (const metodo of declaracao.metodos) {
+                const traducaoMetodo = await this.traduzirMetodoClasse(metodo, nomeModulo);
+                resultado += traducaoMetodo + '\n\n';
+            }
         }
         this.diminuirIndentacao();
         resultado += this.adicionarIndentacao() + 'end';
@@ -49288,9 +49372,10 @@ class TradutorMermaidJs {
             : undefined;
         const linha = declaracao.linha;
         // Cria arestas de entrada e saída para a classe
-        const textoInicio = `Classe${nomeClasse}Inicio[Início: Classe ${nomeClasse}]`;
+        const rotulo = declaracao.estrangeira ? 'Classe Estrangeira' : 'Classe';
+        const textoInicio = `Classe${nomeClasse}Inicio[Início: ${rotulo} ${nomeClasse}]`;
         const arestaInicial = new mermaid_1.ArestaFluxograma(declaracao, textoInicio);
-        const textoFim = `Classe${nomeClasse}Fim[Fim: Classe ${nomeClasse}]`;
+        const textoFim = `Classe${nomeClasse}Fim[Fim: ${rotulo} ${nomeClasse}]`;
         const arestaFinal = new mermaid_1.ArestaFluxograma(declaracao, textoFim);
         // Cria o subgrafo da classe
         const subgrafo = new mermaid_1.SubgrafoClasse(nomeClasse, linha, arestaInicial, arestaFinal, superClasse);
