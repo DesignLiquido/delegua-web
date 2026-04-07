@@ -1732,12 +1732,12 @@ class Atribuir {
         this.valor = valor;
         if (indice !== undefined) {
             const alvoComoVariavel = alvo;
-            const tipoAlvo = alvoComoVariavel === null || alvoComoVariavel === void 0 ? void 0 : alvoComoVariavel.tipo;
+            const tipoAlvo = alvoComoVariavel?.tipo;
             const alvoSuportaIndice = alvo instanceof variavel_1.Variavel &&
                 (tipoAlvo === 'vetor' ||
                     tipoAlvo === 'dicionário' ||
                     tipoAlvo === 'qualquer' ||
-                    (tipoAlvo === null || tipoAlvo === void 0 ? void 0 : tipoAlvo.endsWith('[]')));
+                    tipoAlvo?.endsWith('[]'));
             if (!alvoSuportaIndice) {
                 throw new Error('`indice` só pode ser informado quando o alvo for uma variável de vetor ou dicionário.');
             }
