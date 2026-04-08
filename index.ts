@@ -23,7 +23,7 @@ import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
-import * as json from "./bibliotecas/delegua-json";
+import * as json from "@designliquido/delegua-json";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 
@@ -64,8 +64,38 @@ export class DeleguaWeb {
 
         (this.interpretador as any).interfaceEntradaSaida = {
             question: (mensagem: string, callback: (resposta: any) => any) => {
-                const resposta = window.prompt(mensagem);
-                callback(resposta);
+                const overlay      = document.getElementById('modalLeia')         as HTMLElement;
+                const labelEl      = document.getElementById('modalLeiaLabel')    as HTMLLabelElement;
+                const inputEl      = document.getElementById('modalLeiaInput')    as HTMLInputElement;
+                const btnOk        = document.getElementById('modalLeiaOk')       as HTMLButtonElement;
+                const btnCancelar  = document.getElementById('modalLeiaCancelar') as HTMLButtonElement;
+                const botaoExecutar = document.getElementById('botaoExecutar')    as HTMLButtonElement;
+
+                labelEl.textContent = mensagem || '> ';
+                inputEl.value = '';
+                overlay.style.display = 'flex';
+                botaoExecutar.disabled = true;
+                requestAnimationFrame(() => inputEl.focus());
+
+                const resolver = (valor: string | null) => {
+                    overlay.style.display = 'none';
+                    botaoExecutar.disabled = false;
+                    inputEl.removeEventListener('keydown', onKeydown);
+                    btnOk.removeEventListener('click', onOk);
+                    btnCancelar.removeEventListener('click', onCancelar);
+                    callback(valor);
+                };
+
+                const onOk       = () => resolver(inputEl.value);
+                const onCancelar = () => resolver(null);
+                const onKeydown  = (e: KeyboardEvent) => {
+                    if (e.key === 'Enter')  { e.preventDefault(); resolver(inputEl.value); }
+                    if (e.key === 'Escape') { e.preventDefault(); resolver(null); }
+                };
+
+                btnOk.addEventListener('click', onOk);
+                btnCancelar.addEventListener('click', onCancelar);
+                inputEl.addEventListener('keydown', onKeydown);
             }
         }
 

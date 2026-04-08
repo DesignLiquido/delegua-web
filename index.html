@@ -46,7 +46,7 @@
     </div>
     <select onchange="definirTema(this.value)" id="temaEditor">
       <option value="vs">Padrão</option>
-      <option value="vs-dark">Visual Studio Escuro</option>
+      <option value="vs-dark" selected>Visual Studio Escuro</option>
       <option value="hc-black">Escuro</option>
       <option value="hc-light">Claro</option>
     </select>
@@ -87,6 +87,20 @@
   <script src="./editor.js"></script>
   <script src="./menu.js"></script>
   <script src="./exemplos.js"></script>
+
+  <!-- Modal de entrada para leia() -->
+  <div id="modalLeia" class="modal-leia-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="modalLeiaLabel" style="display:none;">
+    <div class="modal-leia-caixa">
+      <label id="modalLeiaLabel" class="modal-leia-mensagem" for="modalLeiaInput"></label>
+      <input id="modalLeiaInput" type="text" class="modal-leia-input"
+             autocomplete="off" spellcheck="false" />
+      <div class="modal-leia-botoes">
+        <button id="modalLeiaOk" class="modal-leia-btn modal-leia-btn-ok">OK</button>
+        <button id="modalLeiaCancelar" class="modal-leia-btn modal-leia-btn-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

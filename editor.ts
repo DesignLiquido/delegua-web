@@ -909,6 +909,7 @@ const configurarLinguagemDelegua = function () {
         colors: {}
     });
     Monaco.editor.setTheme('delegua-escuro');
+    document.body.setAttribute('data-tema', 'escuro');
 
     Monaco.languages.registerSignatureHelpProvider('delegua', {
         signatureHelpTriggerCharacters: ['(', ','],
@@ -1134,11 +1135,17 @@ const configurarLinguagemDelegua = function () {
             }
 
             // Extrair variáveis definidas no código (como módulos importados)
-            const regexVariaveis = /(?:var|variavel|variável|const|constante|fixo)\s+(\w+)\s*=/g;
+            const regexVariaveis = /(?:var|variavel|variável|const|constante|fixo)\s+(\w+)/g;
             const variaveisEncontradas = new Set<string>();
             let match;
 
             while ((match = regexVariaveis.exec(textoCompleto)) !== null) {
+                variaveisEncontradas.add(match[1]);
+            }
+
+            // Extrair variáveis de laço: para (var i = ...) ou para (var item de lista)
+            const regexLaco = /\bpara\s*\(\s*(?:var|variavel|variável)?\s*(\w+)\s*(?:=|de)\b/g;
+            while ((match = regexLaco.exec(textoCompleto)) !== null) {
                 variaveisEncontradas.add(match[1]);
             }
 
@@ -1153,6 +1160,82 @@ const configurarLinguagemDelegua = function () {
                     sortText: `0${nomeVar}` // Priorizar na lista
                 };
             });
+
+            // Extrair funções declaradas: funcao nomeFuncao(params)
+            const regexFuncoes = /\bfuncao\s+(\w+)\s*\(([^)]*)\)/g;
+            const funcoesEncontradas = new Map<string, string[]>();
+            while ((match = regexFuncoes.exec(textoCompleto)) !== null) {
+                const nomeFuncao = match[1];
+                const params = match[2]
+                    .split(',')
+                    .map((p: string) => p.trim())
+                    .filter((p: string) => p.length > 0);
+                funcoesEncontradas.set(nomeFuncao, params);
+            }
+
+            // Extrair funções anônimas atribuídas: var nome = funcao(params)
+            const regexFuncaoAnonima = /(?:var|variavel|variável|const|constante|fixo)\s+(\w+)\s*=\s*funcao\s*\(([^)]*)\)/g;
+            while ((match = regexFuncaoAnonima.exec(textoCompleto)) !== null) {
+                const nomeFuncao = match[1];
+                const params = match[2]
+                    .split(',')
+                    .map((p: string) => p.trim())
+                    .filter((p: string) => p.length > 0);
+                funcoesEncontradas.set(nomeFuncao, params);
+                variaveisEncontradas.delete(nomeFuncao); // evitar duplicata como variável
+            }
+
+            const sugestoesFuncoes = Array.from(funcoesEncontradas.entries()).map(([nomeFuncao, params]) => {
+                const argsSnippet = params.map((p, i) => `\${${i + 1}:${p}}`).join(', ');
+                return {
+                    label: nomeFuncao,
+                    kind: 2, // Function
+                    insertText: params.length > 0 ? `${nomeFuncao}(${argsSnippet})` : `${nomeFuncao}()`,
+                    insertTextRules: 4, // InsertAsSnippet
+                    documentation: `Função ${nomeFuncao}(${params.join(', ')})`,
+                    detail: `(${params.join(', ')})`,
+                    sortText: `0${nomeFuncao}`
+                };
+            });
+
+            // Extrair parâmetros da função atual (função que contém o cursor)
+            const linhasCodigo = textoCompleto.split('\n');
+            const linhaAtual = position.lineNumber - 1;
+            const sugestoesParametros: any[] = [];
+            for (let i = linhaAtual; i >= 0; i--) {
+                const matchFuncaoLocal = linhasCodigo[i].match(/\bfuncao\s+\w*\s*\(([^)]*)\)/);
+                if (matchFuncaoLocal) {
+                    matchFuncaoLocal[1]
+                        .split(',')
+                        .map((p: string) => p.trim().split(':')[0].trim())
+                        .filter((p: string) => p.length > 0)
+                        .forEach((param: string) => {
+                            sugestoesParametros.push({
+                                label: param,
+                                kind: 5, // Field (parâmetro)
+                                insertText: param,
+                                documentation: `Parâmetro ${param}`,
+                                sortText: `0${param}`
+                            });
+                        });
+                    break;
+                }
+            }
+
+            // Extrair nomes de classes declaradas
+            const regexClasse = /\bclasse\s+(?:abstrata?\s+)?([A-ZÂÁÊÉÍÓÔÕÚ]\w*)/g;
+            const classesEncontradas = new Set<string>();
+            while ((match = regexClasse.exec(textoCompleto)) !== null) {
+                classesEncontradas.add(match[1]);
+            }
+
+            const sugestoesClasses = Array.from(classesEncontradas).map(nomeClasse => ({
+                label: nomeClasse,
+                kind: 7, // Class
+                insertText: nomeClasse,
+                documentation: `Classe ${nomeClasse}`,
+                sortText: `0${nomeClasse}`
+            }));
 
             // Sugestões padrão (primitivas e snippets)
             const formatoPrimitivas = primitivas
@@ -1181,7 +1264,7 @@ const configurarLinguagemDelegua = function () {
                     })
                 : [];
 
-            const sugestoes = [...sugestoesVariaveis, ...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
+            const sugestoes = [...sugestoesParametros, ...sugestoesFuncoes, ...sugestoesClasses, ...sugestoesVariaveis, ...formatoPrimitivas, ...formatoSnippets].filter(s => s.insertText);
             return { suggestions: sugestoes };
         }
     });
@@ -1445,4 +1528,6 @@ botaoExecutar.addEventListener("click", function () {
 const definirTema = (tema: string) => {
     const temaCustomizado = tema === 'vs-dark' ? 'delegua-escuro' : tema === 'vs' ? 'delegua-claro' : tema;
     Monaco.editor.setTheme(temaCustomizado);
+    const temaEscuro = tema === 'vs-dark' || tema === 'hc-black';
+    document.body.setAttribute('data-tema', temaEscuro ? 'escuro' : 'claro');
 }

@@ -26,6 +26,11 @@
   resolved "https://registry.npmjs.org/@designliquido/delegua-fisica/-/delegua-fisica-0.1.0.tgz"
   integrity sha512-7wMUG2JK/V0SQz7Vo3dYxohH30vPwOJXA+NoN9tYU5ECdjv2mIJc72ELjcI+OJtwczHOXyfhTmHIFOgDJ9DZGw==
 
+"@designliquido/delegua-json@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-json/-/delegua-json-0.2.1.tgz#57c2e9dc45525ebdf1b4ee6038b11b6a18d3181c"
+  integrity sha512-Ym+Tw98Pll84TNSrEnQrFZC0PcKos66qnrEqwUDDxP/6cdnbu2bvTW05wVLXWBZPVUutCld8Qt1RhzJWLr1kVQ==
+
 "@designliquido/delegua-matematica@^0.3.0":
   version "0.3.0"
   resolved "https://registry.npmjs.org/@designliquido/delegua-matematica/-/delegua-matematica-0.3.0.tgz"
@@ -38,10 +43,10 @@
   dependencies:
     dayjs "^1.11.13"
 
-"@designliquido/delegua@^1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.13.1.tgz#f8b0aa188d2a92c9393edab07a39f1b144990e5d"
-  integrity sha512-zYOm+M8XFkn5sOE5vsWnyXn6WhLvsfYsXZ1A0DrhhhjT5uQUe5KojtEHI4btTP5ikb/IUpkM9m3FIIoOoeG+Tg==
+"@designliquido/delegua@^1.16.1":
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.16.1.tgz#4b26e4e220557da15bc1ae1ae08d413855cac135"
+  integrity sha512-hM20N9aEHEdqA7biOLfjGLrkIXjP3auIg4NAP5cpyxMjhJKM28/Zzybnbt1R7ZRFHh5EwNR+xbtjTywkLNftzQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"

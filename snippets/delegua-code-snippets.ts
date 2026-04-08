@@ -9,6 +9,17 @@ const deleguaCodeSnippets = [
 		descricao: "Laço de repetição \"para\""
 	},
 	{
+		prefixo: "enquanto",
+		corpo: [
+			"var ${1:i} = 1;",
+			"enquanto (${1:i} <= 5) {",
+			"\tescreva(${1:i});",
+			"\t${1:i} = ${1:i} + 1;",
+			"}"
+		],
+		descricao: "Laço de repetição \"enquanto\""
+	},
+	{
 		prefixo: "fazer enquanto",
 		corpo: [
 			"$var i = 0;",
@@ -61,7 +72,7 @@ const deleguaCodeSnippets = [
 		prefixo: "se senaose senao",
 		corpo: [
 			"se (${1:condicao1}) {",
-			"\t$escreva('correspondente 1');",
+			"\tescreva('correspondente 1');",
 			"} senao se (${2:condicao2}) {",
 			"\tescreva('correspondente 2');",
 			"} senao {",
