@@ -24,6 +24,9 @@ import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
 import * as json from "@designliquido/delegua-json";
+export { FormatadorDelegua } from "@designliquido/delegua/formatadores/formatador-delegua";
+export { EstilizadorDelegua } from "@designliquido/delegua/estilizador/estilizador-delegua";
+export { QuebradorDeLinha } from "@designliquido/delegua/estilizador/quebrador-linha";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 

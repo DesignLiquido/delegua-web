@@ -467,6 +467,13 @@ body.configuracoes-pagina {
         margin-top: 8px;
     }
 
+    .configuracoes-subtitulo {
+        font-size: 15px;
+        margin-top: 18px;
+        padding-top: 10px;
+        border-top: 1px solid variaveis.$borda;
+    }
+
     select,
     input {
         border: 1px solid variaveis.$borda;
@@ -513,6 +520,10 @@ body[data-tema="escuro"] {
     }
 
     .configuracoes-formulario {
+        .configuracoes-subtitulo {
+            border-top-color: #3c3c3c;
+        }
+
         select,
         input {
             background-color: #3c3c3c;

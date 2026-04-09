@@ -60,6 +60,21 @@
 
                 <label for="limiteIteracoesConfig">Limite de iterações de laço</label>
                 <input id="limiteIteracoesConfig" type="number" min="1000" max="100000000" step="1000" />
+
+                <h2 class="configuracoes-subtitulo">Formatação</h2>
+
+                <label for="tamanhoIndentacaoConfig">Tamanho da indentação</label>
+                <input id="tamanhoIndentacaoConfig" type="number" min="2" max="8" step="1" />
+
+                <label for="delimitadorTextoConfig">Delimitador de texto</label>
+                <select id="delimitadorTextoConfig">
+                    <option value="preservar">Preservar</option>
+                    <option value="aspas-simples">Aspas simples</option>
+                    <option value="aspas-duplas">Aspas duplas</option>
+                </select>
+
+                <label for="maximoCaracteresLinhaConfig">Máximo de caracteres por linha</label>
+                <input id="maximoCaracteresLinhaConfig" type="number" min="40" max="240" step="5" />
             </div>
 
             <div class="configuracoes-acoes">

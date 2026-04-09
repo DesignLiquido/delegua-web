@@ -29,11 +29,17 @@ const botaoExecutar = document.getElementById("botaoExecutar");
 
 const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
+const FormatadorDelegua = Delegua.FormatadorDelegua;
+const EstilizadorDelegua = Delegua.EstilizadorDelegua;
+const QuebradorDeLinha = Delegua.QuebradorDeLinha;
 
 interface ConfiguracoesDeleguaWeb {
     temaEditor: string;
     linguagemTraducao: 'javascript' | 'python';
     tempoAnaliseAutomaticaMs: number;
+    tamanhoIndentacaoFormatacao: number;
+    maximoCaracteresPorLinhaFormatacao: number;
+    delimitadorTextoFormatacao: 'aspas-simples' | 'aspas-duplas' | 'preservar';
 }
 
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
@@ -41,6 +47,9 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     temaEditor: 'vs-dark',
     linguagemTraducao: 'javascript',
     tempoAnaliseAutomaticaMs: 500,
+    tamanhoIndentacaoFormatacao: 4,
+    maximoCaracteresPorLinhaFormatacao: 100,
+    delimitadorTextoFormatacao: 'preservar',
 };
 
 function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
@@ -54,6 +63,9 @@ function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
         const temaEditor = String(configuracoes?.temaEditor || CONFIGURACOES_PADRAO.temaEditor);
         const linguagemTraducao = String(configuracoes?.linguagemTraducao || CONFIGURACOES_PADRAO.linguagemTraducao).toLowerCase();
         const tempoAnaliseAutomaticaMs = Number(configuracoes?.tempoAnaliseAutomaticaMs);
+        const tamanhoIndentacaoFormatacao = Number(configuracoes?.tamanhoIndentacaoFormatacao);
+        const maximoCaracteresPorLinhaFormatacao = Number(configuracoes?.maximoCaracteresPorLinhaFormatacao);
+        const delimitadorTextoFormatacao = String(configuracoes?.delimitadorTextoFormatacao || CONFIGURACOES_PADRAO.delimitadorTextoFormatacao);
 
         return {
             temaEditor: ['vs', 'vs-dark', 'hc-black', 'hc-light'].includes(temaEditor)
@@ -63,6 +75,15 @@ function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
             tempoAnaliseAutomaticaMs: Number.isFinite(tempoAnaliseAutomaticaMs) && tempoAnaliseAutomaticaMs >= 150
                 ? tempoAnaliseAutomaticaMs
                 : CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs,
+            tamanhoIndentacaoFormatacao: Number.isFinite(tamanhoIndentacaoFormatacao) && tamanhoIndentacaoFormatacao >= 2 && tamanhoIndentacaoFormatacao <= 8
+                ? tamanhoIndentacaoFormatacao
+                : CONFIGURACOES_PADRAO.tamanhoIndentacaoFormatacao,
+            maximoCaracteresPorLinhaFormatacao: Number.isFinite(maximoCaracteresPorLinhaFormatacao) && maximoCaracteresPorLinhaFormatacao >= 40 && maximoCaracteresPorLinhaFormatacao <= 240
+                ? maximoCaracteresPorLinhaFormatacao
+                : CONFIGURACOES_PADRAO.maximoCaracteresPorLinhaFormatacao,
+            delimitadorTextoFormatacao: delimitadorTextoFormatacao === 'aspas-simples' || delimitadorTextoFormatacao === 'aspas-duplas' || delimitadorTextoFormatacao === 'preservar'
+                ? delimitadorTextoFormatacao
+                : CONFIGURACOES_PADRAO.delimitadorTextoFormatacao,
         };
     } catch {
         return { ...CONFIGURACOES_PADRAO };
@@ -212,6 +233,40 @@ const executarCodigo = async function () {
     } catch (erro) {
         const erroFormatado = "Erro: " + erro
         mostrarResultadoExecutar(erroFormatado)
+    }
+};
+
+const formatarCodigoDelegua = async function (codigo: string, configuracoes: ConfiguracoesDeleguaWeb): Promise<string | null> {
+    try {
+        const retornoLexador = deleguaWeb.lexador.mapear(codigo.split("\n"), -1);
+        if (retornoLexador.erros.length > 0) {
+            return null;
+        }
+
+        const retornoAvaliadorSintatico = await deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+        if (retornoAvaliadorSintatico.erros.length > 0) {
+            return null;
+        }
+
+        const estilizador = new EstilizadorDelegua();
+        const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
+
+        const formatador = new FormatadorDelegua("\n", configuracoes.tamanhoIndentacaoFormatacao, {
+            delimitadorTexto: configuracoes.delimitadorTextoFormatacao,
+        });
+
+        let codigoFormatado = formatador.formatar(declaracoesEstilizadas);
+
+        const quebradorDeLinha = new QuebradorDeLinha(
+            configuracoes.maximoCaracteresPorLinhaFormatacao,
+            configuracoes.tamanhoIndentacaoFormatacao,
+            "\n"
+        );
+        codigoFormatado = quebradorDeLinha.quebrar(codigoFormatado);
+
+        return codigoFormatado.trimEnd();
+    } catch {
+        return null;
     }
 };
 
@@ -1645,6 +1700,40 @@ const configurarLinguagemDelegua = function () {
             return { actions: acoes, dispose() {} };
         }
     });
+
+    Monaco.languages.registerDocumentFormattingEditProvider('delegua', {
+        provideDocumentFormattingEdits: async (model: any) => {
+            const configuracoes = obterConfiguracoesDeleguaWeb();
+            const codigoAtual = model.getValue();
+            const codigoFormatado = await formatarCodigoDelegua(codigoAtual, configuracoes);
+
+            if (!codigoFormatado || codigoFormatado === codigoAtual) {
+                return [];
+            }
+
+            return [{
+                range: model.getFullModelRange(),
+                text: codigoFormatado,
+            }];
+        }
+    });
+
+    Monaco.languages.registerDocumentRangeFormattingEditProvider('delegua', {
+        provideDocumentRangeFormattingEdits: async (model: any, range: any) => {
+            const configuracoes = obterConfiguracoesDeleguaWeb();
+            const codigoSelecionado = model.getValueInRange(range);
+            const codigoFormatado = await formatarCodigoDelegua(codigoSelecionado, configuracoes);
+
+            if (!codigoFormatado || codigoFormatado === codigoSelecionado) {
+                return [];
+            }
+
+            return [{
+                range,
+                text: codigoFormatado,
+            }];
+        }
+    });
 }
 
 window.addEventListener("load", () => {
@@ -1671,6 +1760,12 @@ window.addEventListener("load", () => {
 
     const editor = Monaco.editor.getEditors()[0];
     const modelo = editor.getModel();
+    editor.updateOptions({
+        tabSize: configuracoes.tamanhoIndentacaoFormatacao,
+        insertSpaces: true,
+        wordWrap: 'bounded',
+        wordWrapColumn: configuracoes.maximoCaracteresPorLinhaFormatacao,
+    });
     if (codigo) {
         const codigoDecodificado = atob(codigo);
         modelo.setValue(codigoDecodificado);

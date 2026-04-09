@@ -3,6 +3,9 @@ interface ConfiguracoesDeleguaWeb {
     linguagemTraducao: 'javascript' | 'python';
     tempoAnaliseAutomaticaMs: number;
     limiteIteracoesLaco: number;
+    tamanhoIndentacaoFormatacao: number;
+    delimitadorTextoFormatacao: 'aspas-simples' | 'aspas-duplas' | 'preservar';
+    maximoCaracteresPorLinhaFormatacao: number;
 }
 
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
@@ -11,6 +14,9 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     linguagemTraducao: 'javascript',
     tempoAnaliseAutomaticaMs: 500,
     limiteIteracoesLaco: 1_000_000,
+    tamanhoIndentacaoFormatacao: 4,
+    delimitadorTextoFormatacao: 'preservar',
+    maximoCaracteresPorLinhaFormatacao: 100,
 };
 
 function validarTemaEditor(valor: unknown): string {
@@ -38,12 +44,36 @@ function validarLimiteIteracoes(valor: unknown): number {
         : CONFIGURACOES_PADRAO.limiteIteracoesLaco;
 }
 
+function validarTamanhoIndentacao(valor: unknown): number {
+    const tamanho = Number(valor);
+    return Number.isFinite(tamanho) && tamanho >= 2 && tamanho <= 8
+        ? Math.round(tamanho)
+        : CONFIGURACOES_PADRAO.tamanhoIndentacaoFormatacao;
+}
+
+function validarDelimitadorTexto(valor: unknown): 'aspas-simples' | 'aspas-duplas' | 'preservar' {
+    const delimitador = String(valor || '');
+    return delimitador === 'aspas-simples' || delimitador === 'aspas-duplas' || delimitador === 'preservar'
+        ? delimitador
+        : CONFIGURACOES_PADRAO.delimitadorTextoFormatacao;
+}
+
+function validarMaximoCaracteresPorLinha(valor: unknown): number {
+    const limite = Number(valor);
+    return Number.isFinite(limite) && limite >= 40 && limite <= 240
+        ? Math.round(limite)
+        : CONFIGURACOES_PADRAO.maximoCaracteresPorLinhaFormatacao;
+}
+
 function normalizarConfiguracoes(origem: any): ConfiguracoesDeleguaWeb {
     return {
         temaEditor: validarTemaEditor(origem?.temaEditor),
         linguagemTraducao: validarLinguagem(origem?.linguagemTraducao),
         tempoAnaliseAutomaticaMs: validarTempoAnalise(origem?.tempoAnaliseAutomaticaMs),
         limiteIteracoesLaco: validarLimiteIteracoes(origem?.limiteIteracoesLaco),
+        tamanhoIndentacaoFormatacao: validarTamanhoIndentacao(origem?.tamanhoIndentacaoFormatacao),
+        delimitadorTextoFormatacao: validarDelimitadorTexto(origem?.delimitadorTextoFormatacao),
+        maximoCaracteresPorLinhaFormatacao: validarMaximoCaracteresPorLinha(origem?.maximoCaracteresPorLinhaFormatacao),
     };
 }
 
@@ -84,6 +114,9 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
     const linguagemTraducao = document.getElementById('linguagemTraducaoConfig') as HTMLSelectElement | null;
     const tempoAnalise = document.getElementById('tempoAnaliseConfig') as HTMLInputElement | null;
     const limiteIteracoes = document.getElementById('limiteIteracoesConfig') as HTMLInputElement | null;
+    const tamanhoIndentacao = document.getElementById('tamanhoIndentacaoConfig') as HTMLInputElement | null;
+    const delimitadorTexto = document.getElementById('delimitadorTextoConfig') as HTMLSelectElement | null;
+    const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
 
     if (temaEditor) {
         temaEditor.value = configuracoes.temaEditor;
@@ -101,6 +134,18 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
         limiteIteracoes.value = String(configuracoes.limiteIteracoesLaco);
     }
 
+    if (tamanhoIndentacao) {
+        tamanhoIndentacao.value = String(configuracoes.tamanhoIndentacaoFormatacao);
+    }
+
+    if (delimitadorTexto) {
+        delimitadorTexto.value = configuracoes.delimitadorTextoFormatacao;
+    }
+
+    if (maximoCaracteresPorLinha) {
+        maximoCaracteresPorLinha.value = String(configuracoes.maximoCaracteresPorLinhaFormatacao);
+    }
+
     aplicarTemaPagina(configuracoes.temaEditor);
 }
 
@@ -109,12 +154,18 @@ function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
     const linguagemTraducao = document.getElementById('linguagemTraducaoConfig') as HTMLSelectElement | null;
     const tempoAnalise = document.getElementById('tempoAnaliseConfig') as HTMLInputElement | null;
     const limiteIteracoes = document.getElementById('limiteIteracoesConfig') as HTMLInputElement | null;
+    const tamanhoIndentacao = document.getElementById('tamanhoIndentacaoConfig') as HTMLInputElement | null;
+    const delimitadorTexto = document.getElementById('delimitadorTextoConfig') as HTMLSelectElement | null;
+    const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
 
     return normalizarConfiguracoes({
         temaEditor: temaEditor?.value,
         linguagemTraducao: linguagemTraducao?.value,
         tempoAnaliseAutomaticaMs: tempoAnalise?.value,
         limiteIteracoesLaco: limiteIteracoes?.value,
+        tamanhoIndentacaoFormatacao: tamanhoIndentacao?.value,
+        delimitadorTextoFormatacao: delimitadorTexto?.value,
+        maximoCaracteresPorLinhaFormatacao: maximoCaracteresPorLinha?.value,
     });
 }
 
