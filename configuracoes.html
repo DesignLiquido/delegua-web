@@ -1,0 +1,78 @@
+<html lang="pt">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8" />
+
+    <title>Linguagem Delégua por Design Líquido - Configurações</title>
+    <link rel="stylesheet" href="./estilos.css" />
+    <link rel="stylesheet" href="./codigos.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet" />
+    <script src="menu.js"></script>
+</head>
+
+<body class="configuracoes-pagina">
+    <div id="menuOpcoes" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="fecharMenu()">&times;</a>
+        <a href="index.html">Editor</a>
+        <a href="exemplos.html">Exemplos</a>
+        <a href="configuracoes.html">Configurações</a>
+    </div>
+
+    <nav>
+        <div class="navbar-esquerda">
+            <div onclick="abrirMenu()">
+                <div class="icone-burger"></div>
+                <div class="icone-burger"></div>
+                <div class="icone-burger"></div>
+            </div>
+        </div>
+        <div class="navbar-central">
+            <p>Configurações</p>
+        </div>
+        <div></div>
+    </nav>
+
+    <main class="configuracoes-container">
+        <section class="configuracoes-cartao">
+            <h1>Preferências do Editor</h1>
+            <p class="configuracoes-descricao">
+                As opções abaixo são salvas no navegador e usadas automaticamente no Editor.
+            </p>
+
+            <div class="configuracoes-formulario">
+                <label for="temaEditorConfig">Tema do Editor</label>
+                <select id="temaEditorConfig">
+                    <option value="vs">Padrão</option>
+                    <option value="vs-dark">Visual Studio Escuro</option>
+                    <option value="hc-black">Escuro</option>
+                    <option value="hc-light">Claro</option>
+                </select>
+
+                <label for="linguagemTraducaoConfig">Linguagem de Tradução</label>
+                <select id="linguagemTraducaoConfig">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                </select>
+
+                <label for="tempoAnaliseConfig">Tempo de análise automática (ms)</label>
+                <input id="tempoAnaliseConfig" type="number" min="150" max="10000" step="50" />
+
+                <label for="limiteIteracoesConfig">Limite de iterações de laço</label>
+                <input id="limiteIteracoesConfig" type="number" min="1000" max="100000000" step="1000" />
+            </div>
+
+            <div class="configuracoes-acoes">
+                <a href="index.html" class="modal-leia-btn modal-leia-btn-cancelar configuracoes-link-acao">Voltar ao Editor</a>
+                <button id="botaoRestaurarConfiguracoes" type="button" class="modal-leia-btn modal-leia-btn-cancelar">Restaurar padrão</button>
+                <button id="botaoSalvarConfiguracoes" type="button" class="modal-leia-btn modal-leia-btn-ok">Salvar</button>
+            </div>
+
+            <p id="mensagemConfiguracoes" class="configuracoes-mensagem" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <script src="./configuracoes.js"></script>
+</body>
+
+</html>

@@ -43,6 +43,10 @@
             "to": "dist/exemplos.html"
         },
         {
+            "from": "configuracoes.html",
+            "to": "dist/configuracoes.html"
+        },
+        {
             "from": "favicon.ico",
             "to": "dist/favicon.ico"
         },

@@ -30,6 +30,45 @@ const botaoExecutar = document.getElementById("botaoExecutar");
 const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 
+interface ConfiguracoesDeleguaWeb {
+    temaEditor: string;
+    linguagemTraducao: 'javascript' | 'python';
+    tempoAnaliseAutomaticaMs: number;
+}
+
+const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
+const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
+    temaEditor: 'vs-dark',
+    linguagemTraducao: 'javascript',
+    tempoAnaliseAutomaticaMs: 500,
+};
+
+function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
+    try {
+        const configuracoesBrutas = localStorage.getItem(CHAVE_CONFIGURACOES_LOCAL_STORAGE);
+        if (!configuracoesBrutas) {
+            return { ...CONFIGURACOES_PADRAO };
+        }
+
+        const configuracoes = JSON.parse(configuracoesBrutas);
+        const temaEditor = String(configuracoes?.temaEditor || CONFIGURACOES_PADRAO.temaEditor);
+        const linguagemTraducao = String(configuracoes?.linguagemTraducao || CONFIGURACOES_PADRAO.linguagemTraducao).toLowerCase();
+        const tempoAnaliseAutomaticaMs = Number(configuracoes?.tempoAnaliseAutomaticaMs);
+
+        return {
+            temaEditor: ['vs', 'vs-dark', 'hc-black', 'hc-light'].includes(temaEditor)
+                ? temaEditor
+                : CONFIGURACOES_PADRAO.temaEditor,
+            linguagemTraducao: linguagemTraducao === 'python' ? 'python' : 'javascript',
+            tempoAnaliseAutomaticaMs: Number.isFinite(tempoAnaliseAutomaticaMs) && tempoAnaliseAutomaticaMs >= 150
+                ? tempoAnaliseAutomaticaMs
+                : CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs,
+        };
+    } catch {
+        return { ...CONFIGURACOES_PADRAO };
+    }
+}
+
 enum MarkerSeverity {
     Hint = 1,
     Info = 2,
@@ -42,6 +81,7 @@ let errosComCorrecao: Map<number, CorrecaoImplementacaoInterface> = new Map();
 type FixTipoParam = { nome: string; tipo: string };
 type FixTipoFuncao = { fixes: FixTipoParam[]; linhaFuncao: number };
 let fixesTiposDocstring: Map<number, FixTipoFuncao> = new Map();
+let tempoAnaliseAutomaticaMs = CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs;
 
 const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     const paragrafo: any = document.createElement("p");
@@ -867,7 +907,7 @@ const configurarAtualizacaoAutomatica = function () {
         tempoEsperaMudancas = setTimeout(function () {
             tempoEsperaMudancas = null;
             analisarCodigo();
-        }, 500);
+        }, tempoAnaliseAutomaticaMs);
     });
 };
 
@@ -1001,7 +1041,7 @@ const configurarLinguagemDelegua = function () {
     Monaco.languages.registerSignatureHelpProvider('delegua', {
         signatureHelpTriggerCharacters: ['(', ','],
         signatureHelpRetriggerCharacters: [','],
-        provideSignatureHelp: (model: Monaco.editor.ITextModel, position: Monaco.Position): SinaturaProviderResult => {
+        provideSignatureHelp: (model: any, position: any): SinaturaProviderResult => {
             const linha: string = model.getLineContent(position.lineNumber);
             const textoAntesCursor: string = linha.substring(0, position.column - 1);
             
@@ -1134,7 +1174,7 @@ const configurarLinguagemDelegua = function () {
 
     Monaco.languages.registerCompletionItemProvider('delegua', {
         triggerCharacters: ['.'],
-        provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
+        provideCompletionItems: (model: any, position: any) => {
             const linha: string = model.getLineContent(position.lineNumber);
             const textoAntesCursor: string = linha.substring(0, position.column - 1);
 
@@ -1372,6 +1412,21 @@ const configurarLinguagemDelegua = function () {
         startColumn: number;
     }
 
+    interface Metodo {
+        documentacao?: string;
+        exemploCodigo?: string;
+    }
+
+    interface ModuloInfo {
+        descricao?: string;
+        metodosDestaque?: string[];
+        repositorio?: string | null;
+    }
+
+    interface HoverProvider {
+        contents: HoverContentItem[];
+    }
+
     const documentacaoKeywords: Record<string, KeywordDoc> = {
         'interface': {
             titulo: 'interface',
@@ -1445,13 +1500,15 @@ const configurarLinguagemDelegua = function () {
         },
     };
 
+    interface MapaDocumentacoesBibliotecasInterface extends Record<string, Metodo | undefined> {}
+
     Monaco.languages.registerHoverProvider('delegua', {
-        provideHover: function (model, position) {
-            const palavra = model.getWordAtPosition(position);
+        provideHover: function (model: any, position: any): HoverProvider {
+            const palavra: WordPosition | null = model.getWordAtPosition(position);
             if (!palavra) return { contents: [] };
 
             // Verificar keywords OOP
-            const docKeyword = documentacaoKeywords[palavra.word];
+            const docKeyword: KeywordDoc | undefined = documentacaoKeywords[palavra.word];
             if (docKeyword) {
                 return {
                     contents: [
@@ -1463,7 +1520,7 @@ const configurarLinguagemDelegua = function () {
             }
 
             // Verificar primitivas nativas
-            const primitiva = primitivas.find(p => p.nome === palavra.word);
+            const primitiva: IPrimitiva | undefined = primitivas.find(p => p.nome === palavra.word);
             if (primitiva) {
                 return {
                     contents: [
@@ -1476,24 +1533,24 @@ const configurarLinguagemDelegua = function () {
             
             // Verificar métodos de bibliotecas (ex: criptografia.md5)
             // Precisamos verificar se há um ponto antes da palavra atual
-            const linha = model.getLineContent(position.lineNumber);
-            const inicioColuna = palavra.startColumn - 1;
+            const linha: string = model.getLineContent(position.lineNumber);
+            const inicioColuna: number = palavra.startColumn - 1;
             
             // Verificar se há um ponto antes da palavra
             if (inicioColuna > 0 && linha[inicioColuna - 1] === '.') {
                 // Procurar o nome da biblioteca antes do ponto
-                const textoAntesPonto = linha.substring(0, inicioColuna - 1);
-                const matchBiblioteca = textoAntesPonto.match(/(\w+)$/);
+                const textoAntesPonto: string = linha.substring(0, inicioColuna - 1);
+                const matchBiblioteca: RegExpMatchArray | null = textoAntesPonto.match(/(\w+)$/);
                 
                 if (matchBiblioteca) {
-                    const nomeBiblioteca = matchBiblioteca[1];
-                    const nomeMetodo = palavra.word;
-                    const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                    const nomeBiblioteca: string = matchBiblioteca[1];
+                    const nomeMetodo: string = palavra.word;
+                    const documentacaoBiblioteca: MapaDocumentacoesBibliotecasInterface | undefined = documentacoesBibliotecas[nomeBiblioteca];
                     
                     if (documentacaoBiblioteca && nomeMetodo) {
-                        const metodo = documentacaoBiblioteca[nomeMetodo];
+                        const metodo: Metodo | undefined = documentacaoBiblioteca[nomeMetodo];
                         if (metodo) {
-                            const contents = [
+                            const contents: HoverContentItem[] = [
                                 { value: `**${nomeBiblioteca}.${nomeMetodo}**` }
                             ];
                             
@@ -1512,54 +1569,54 @@ const configurarLinguagemDelegua = function () {
             }
             
             // Verificar se é o nome de um módulo (sem ponto depois)
-            const nomeModulo = palavra.word;
-            const infoModulo = informacoesModulos[nomeModulo as keyof typeof informacoesModulos];
-            const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo as keyof typeof documentacoesBibliotecas];
+            const nomeModulo: string = palavra.word;
+            const infoModulo: ModuloInfo | undefined = informacoesModulos[nomeModulo as keyof typeof informacoesModulos];
+            const documentacaoBiblioteca: MapaDocumentacoesBibliotecasInterface | undefined = documentacoesBibliotecas[nomeModulo as keyof typeof documentacoesBibliotecas];
             
             if (infoModulo || documentacaoBiblioteca) {
-                const contents = [
+                const conteudos: HoverContentItem[] = [
                     { value: `**${nomeModulo}** _(módulo)_` }
                 ];
                 
                 if (infoModulo?.descricao) {
-                    contents.push({ value: infoModulo.descricao });
+                    conteudos.push({ value: infoModulo.descricao });
                 }
                 
                 // Listar métodos disponíveis
                 if (documentacaoBiblioteca) {
-                    const metodos = Object.keys(documentacaoBiblioteca);
-                    const metodosExibir = infoModulo?.metodosDestaque?.length > 0 
-                        ? infoModulo.metodosDestaque 
+                    const metodos: string[] = Object.keys(documentacaoBiblioteca);
+                    const metodosExibir: string[] = (infoModulo?.metodosDestaque?.length ?? 0) > 0 
+                        ? infoModulo?.metodosDestaque ?? metodos.slice(0, 5)
                         : metodos.slice(0, 5);
                     
                     if (metodosExibir.length > 0) {
-                        const listaMetodos = metodosExibir.map(m => `- \`${nomeModulo}.${m}()\``).join('\n');
-                        const sufixo = metodos.length > metodosExibir.length 
+                        const listaMetodos: string = metodosExibir.map(m => `- \`${nomeModulo}.${m}()\``).join('\n');
+                        const sufixo: string = metodos.length > metodosExibir.length 
                             ? `\n\n_...e mais ${metodos.length - metodosExibir.length} métodos_` 
                             : '';
-                        contents.push({ 
+                        conteudos.push({ 
                             value: `**Métodos disponíveis:**\n${listaMetodos}${sufixo}` 
                         });
                     }
                 }
                 
                 if (infoModulo?.repositorio) {
-                    contents.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
+                    conteudos.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
                 }
 
-                return { contents };
+                return { contents: conteudos };
             }
 
             // Verificar funções e classes documentadas pelo usuário
-            const codigoAtual = model.getValue();
-            const funcoesDocumentadas = extrairFuncoesDocumentadas(codigoAtual);
-            const docFuncao = funcoesDocumentadas.get(palavra.word);
+            const codigoAtual: string = model.getValue();
+            const funcoesDocumentadas: Map<string, DocumentarioAnalisado> = extrairFuncoesDocumentadas(codigoAtual);
+            const docFuncao: DocumentarioAnalisado | undefined = funcoesDocumentadas.get(palavra.word);
             if (docFuncao) {
                 return { contents: formatarDocumentario(palavra.word, docFuncao) };
             }
 
-            const classesDocumentadas = extrairClassesDocumentadas(codigoAtual);
-            const docClasse = classesDocumentadas.get(palavra.word);
+            const classesDocumentadas: Map<string, DocumentarioAnalisado> = extrairClassesDocumentadas(codigoAtual);
+            const docClasse: DocumentarioAnalisado | undefined = classesDocumentadas.get(palavra.word);
             if (docClasse) {
                 return { contents: formatarDocumentario(palavra.word, docClasse) };
             }
@@ -1593,6 +1650,20 @@ const configurarLinguagemDelegua = function () {
 window.addEventListener("load", () => {
     configurarLinguagemDelegua();
     configurarAtualizacaoAutomatica();
+
+    const configuracoes = obterConfiguracoesDeleguaWeb();
+    tempoAnaliseAutomaticaMs = configuracoes.tempoAnaliseAutomaticaMs;
+
+    const seletorTema = document.getElementById('temaEditor') as HTMLSelectElement | null;
+    if (seletorTema) {
+        seletorTema.value = configuracoes.temaEditor;
+    }
+    definirTema(configuracoes.temaEditor);
+
+    const seletorLinguagem = document.getElementById('linguagem') as HTMLSelectElement | null;
+    if (seletorLinguagem) {
+        seletorLinguagem.value = configuracoes.linguagemTraducao === 'python' ? 'Python' : 'JavaScript';
+    }
 
     const searchParams = new URLSearchParams(window.location.search.split('?')[1]);
     const exemploId: any = searchParams.get('exemploId');

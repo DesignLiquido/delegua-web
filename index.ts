@@ -29,6 +29,34 @@ import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 
 import { InterpretadorWeb } from "./interpretador-web";
 
+interface ConfiguracoesDeleguaWeb {
+    limiteIteracoesLaco: number;
+}
+
+const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
+const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
+    limiteIteracoesLaco: 1_000_000,
+};
+
+function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
+    try {
+        const configuracoesBrutas = localStorage.getItem(CHAVE_CONFIGURACOES_LOCAL_STORAGE);
+        if (!configuracoesBrutas) {
+            return { ...CONFIGURACOES_PADRAO };
+        }
+
+        const configuracoes = JSON.parse(configuracoesBrutas);
+        const limiteIteracoesLaco = Number(configuracoes?.limiteIteracoesLaco);
+        return {
+            limiteIteracoesLaco: Number.isFinite(limiteIteracoesLaco) && limiteIteracoesLaco > 0
+                ? limiteIteracoesLaco
+                : CONFIGURACOES_PADRAO.limiteIteracoesLaco,
+        };
+    } catch {
+        return { ...CONFIGURACOES_PADRAO };
+    }
+}
+
 export class DeleguaWeb {
     nomeArquivo: string;
 
@@ -99,8 +127,9 @@ export class DeleguaWeb {
             }
         }
 
+        const configuracoes = obterConfiguracoesDeleguaWeb();
         let contadorIteracoes = 0;
-        let limiteIteracoes = 1_000_000;
+        let limiteIteracoes = configuracoes.limiteIteracoesLaco;
         (this.interpretador as any).funcaoVerificarIteracao = async () => {
             contadorIteracoes++;
             if (contadorIteracoes >= limiteIteracoes) {
