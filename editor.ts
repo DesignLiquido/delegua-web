@@ -29,6 +29,7 @@ const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     paragrafo.innerHTML = conteudo || '&nbsp;';
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv?.appendChild(paragrafo);
+    resultadoEditorDiv.scrollTop = resultadoEditorDiv.scrollHeight;
 };
 
 const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
