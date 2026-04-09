@@ -25,7 +25,8 @@ let fixesTiposDocstring: Map<number, FixTipoFuncao> = new Map();
 
 const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     const paragrafo: any = document.createElement("p");
-    paragrafo.innerHTML = resultadoExecucao.replace(/\s/g, '&nbsp;');
+    const conteudo = resultadoExecucao.replace(/\s/g, '&nbsp;');
+    paragrafo.innerHTML = conteudo || '&nbsp;';
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv?.appendChild(paragrafo);
 };
