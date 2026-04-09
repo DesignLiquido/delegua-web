@@ -26,12 +26,16 @@ const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
+const statusFormatacao = document.getElementById("statusFormatacao") as HTMLElement | null;
 
 const Delegua = (window as any).Delegua;
 const Monaco = (window as any).monaco;
 const FormatadorDelegua = Delegua.FormatadorDelegua;
 const EstilizadorDelegua = Delegua.EstilizadorDelegua;
 const QuebradorDeLinha = Delegua.QuebradorDeLinha;
+const RegraFortalecerTipos = Delegua.RegraFortalecerTipos;
+const RegraConvencaoNomenclatura = Delegua.RegraConvencaoNomenclatura;
+const RegraParadigmaConsistente = Delegua.RegraParadigmaConsistente;
 
 interface ConfiguracoesDeleguaWeb {
     temaEditor: string;
@@ -40,6 +44,14 @@ interface ConfiguracoesDeleguaWeb {
     tamanhoIndentacaoFormatacao: number;
     maximoCaracteresPorLinhaFormatacao: number;
     delimitadorTextoFormatacao: 'aspas-simples' | 'aspas-duplas' | 'preservar';
+    habilitarEstilizador: boolean;
+    regraFortalecerTipos: boolean;
+    regraConvencaoNomenclatura: boolean;
+    regraParadigmaConsistente: boolean;
+    convencaoVariavel: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
+    convencaoConstante: 'CAIXA_ALTA' | 'caixaCamelo';
+    convencaoFuncao: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
+    paradigmaConsistente: 'imperativo' | 'infinitivo' | 'ambos';
 }
 
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
@@ -50,6 +62,14 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     tamanhoIndentacaoFormatacao: 4,
     maximoCaracteresPorLinhaFormatacao: 100,
     delimitadorTextoFormatacao: 'preservar',
+    habilitarEstilizador: true,
+    regraFortalecerTipos: false,
+    regraConvencaoNomenclatura: false,
+    regraParadigmaConsistente: false,
+    convencaoVariavel: 'caixaCamelo',
+    convencaoConstante: 'CAIXA_ALTA',
+    convencaoFuncao: 'caixaCamelo',
+    paradigmaConsistente: 'ambos',
 };
 
 function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
@@ -66,6 +86,10 @@ function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
         const tamanhoIndentacaoFormatacao = Number(configuracoes?.tamanhoIndentacaoFormatacao);
         const maximoCaracteresPorLinhaFormatacao = Number(configuracoes?.maximoCaracteresPorLinhaFormatacao);
         const delimitadorTextoFormatacao = String(configuracoes?.delimitadorTextoFormatacao || CONFIGURACOES_PADRAO.delimitadorTextoFormatacao);
+        const convencaoVariavel = String(configuracoes?.convencaoVariavel || CONFIGURACOES_PADRAO.convencaoVariavel);
+        const convencaoConstante = String(configuracoes?.convencaoConstante || CONFIGURACOES_PADRAO.convencaoConstante);
+        const convencaoFuncao = String(configuracoes?.convencaoFuncao || CONFIGURACOES_PADRAO.convencaoFuncao);
+        const paradigmaConsistente = String(configuracoes?.paradigmaConsistente || CONFIGURACOES_PADRAO.paradigmaConsistente);
 
         return {
             temaEditor: ['vs', 'vs-dark', 'hc-black', 'hc-light'].includes(temaEditor)
@@ -84,6 +108,30 @@ function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
             delimitadorTextoFormatacao: delimitadorTextoFormatacao === 'aspas-simples' || delimitadorTextoFormatacao === 'aspas-duplas' || delimitadorTextoFormatacao === 'preservar'
                 ? delimitadorTextoFormatacao
                 : CONFIGURACOES_PADRAO.delimitadorTextoFormatacao,
+            habilitarEstilizador: typeof configuracoes?.habilitarEstilizador === 'boolean'
+                ? configuracoes.habilitarEstilizador
+                : CONFIGURACOES_PADRAO.habilitarEstilizador,
+            regraFortalecerTipos: typeof configuracoes?.regraFortalecerTipos === 'boolean'
+                ? configuracoes.regraFortalecerTipos
+                : CONFIGURACOES_PADRAO.regraFortalecerTipos,
+            regraConvencaoNomenclatura: typeof configuracoes?.regraConvencaoNomenclatura === 'boolean'
+                ? configuracoes.regraConvencaoNomenclatura
+                : CONFIGURACOES_PADRAO.regraConvencaoNomenclatura,
+            regraParadigmaConsistente: typeof configuracoes?.regraParadigmaConsistente === 'boolean'
+                ? configuracoes.regraParadigmaConsistente
+                : CONFIGURACOES_PADRAO.regraParadigmaConsistente,
+            convencaoVariavel: convencaoVariavel === 'caixaCamelo' || convencaoVariavel === 'caixa_cobra' || convencaoVariavel === 'CaixaPascal'
+                ? convencaoVariavel
+                : CONFIGURACOES_PADRAO.convencaoVariavel,
+            convencaoConstante: convencaoConstante === 'CAIXA_ALTA' || convencaoConstante === 'caixaCamelo'
+                ? convencaoConstante
+                : CONFIGURACOES_PADRAO.convencaoConstante,
+            convencaoFuncao: convencaoFuncao === 'caixaCamelo' || convencaoFuncao === 'caixa_cobra' || convencaoFuncao === 'CaixaPascal'
+                ? convencaoFuncao
+                : CONFIGURACOES_PADRAO.convencaoFuncao,
+            paradigmaConsistente: paradigmaConsistente === 'imperativo' || paradigmaConsistente === 'infinitivo' || paradigmaConsistente === 'ambos'
+                ? paradigmaConsistente
+                : CONFIGURACOES_PADRAO.paradigmaConsistente,
         };
     } catch {
         return { ...CONFIGURACOES_PADRAO };
@@ -103,6 +151,24 @@ type FixTipoParam = { nome: string; tipo: string };
 type FixTipoFuncao = { fixes: FixTipoParam[]; linhaFuncao: number };
 let fixesTiposDocstring: Map<number, FixTipoFuncao> = new Map();
 let tempoAnaliseAutomaticaMs = CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs;
+
+function atualizarStatusFormatacao(configuracoes: ConfiguracoesDeleguaWeb): void {
+    if (!statusFormatacao) {
+        return;
+    }
+
+    const totalRegras = 3;
+    const regrasAtivas = Number(configuracoes.regraFortalecerTipos)
+        + Number(configuracoes.regraConvencaoNomenclatura)
+        + Number(configuracoes.regraParadigmaConsistente);
+
+    if (!configuracoes.habilitarEstilizador) {
+        statusFormatacao.textContent = `Estilizador: desligado | Coluna: ${configuracoes.maximoCaracteresPorLinhaFormatacao}`;
+        return;
+    }
+
+    statusFormatacao.textContent = `Estilizador: ligado | Regras: ${regrasAtivas}/${totalRegras} | Coluna: ${configuracoes.maximoCaracteresPorLinhaFormatacao}`;
+}
 
 const mostrarResultadoExecutar = function (resultadoExecucao: string) {
     const paragrafo: any = document.createElement("p");
@@ -248,8 +314,30 @@ const formatarCodigoDelegua = async function (codigo: string, configuracoes: Con
             return null;
         }
 
-        const estilizador = new EstilizadorDelegua();
-        const declaracoesEstilizadas = estilizador.estilizar(retornoAvaliadorSintatico.declaracoes);
+        const regrasEstilizador: any[] = [];
+        if (configuracoes.habilitarEstilizador) {
+            if (configuracoes.regraFortalecerTipos && RegraFortalecerTipos) {
+                regrasEstilizador.push(new RegraFortalecerTipos());
+            }
+
+            if (configuracoes.regraConvencaoNomenclatura && RegraConvencaoNomenclatura) {
+                regrasEstilizador.push(new RegraConvencaoNomenclatura({
+                    variavel: configuracoes.convencaoVariavel,
+                    constante: configuracoes.convencaoConstante,
+                    funcao: configuracoes.convencaoFuncao,
+                }));
+            }
+
+            if (configuracoes.regraParadigmaConsistente && RegraParadigmaConsistente) {
+                regrasEstilizador.push(new RegraParadigmaConsistente({
+                    paradigma: configuracoes.paradigmaConsistente,
+                }));
+            }
+        }
+
+        const declaracoesEstilizadas = configuracoes.habilitarEstilizador
+            ? new EstilizadorDelegua(regrasEstilizador).estilizar(retornoAvaliadorSintatico.declaracoes)
+            : retornoAvaliadorSintatico.declaracoes;
 
         const formatador = new FormatadorDelegua("\n", configuracoes.tamanhoIndentacaoFormatacao, {
             delimitadorTexto: configuracoes.delimitadorTextoFormatacao,
@@ -1740,19 +1828,34 @@ window.addEventListener("load", () => {
     configurarLinguagemDelegua();
     configurarAtualizacaoAutomatica();
 
+    const aplicarConfiguracoesNoEditor = (configuracoes: ConfiguracoesDeleguaWeb) => {
+        tempoAnaliseAutomaticaMs = configuracoes.tempoAnaliseAutomaticaMs;
+        atualizarStatusFormatacao(configuracoes);
+
+        const seletorTema = document.getElementById('temaEditor') as HTMLSelectElement | null;
+        if (seletorTema) {
+            seletorTema.value = configuracoes.temaEditor;
+        }
+        definirTema(configuracoes.temaEditor);
+
+        const seletorLinguagem = document.getElementById('linguagem') as HTMLSelectElement | null;
+        if (seletorLinguagem) {
+            seletorLinguagem.value = configuracoes.linguagemTraducao === 'python' ? 'Python' : 'JavaScript';
+        }
+
+        const editorExistente = Monaco.editor.getEditors()[0];
+        if (editorExistente) {
+            editorExistente.updateOptions({
+                tabSize: configuracoes.tamanhoIndentacaoFormatacao,
+                insertSpaces: true,
+                wordWrap: 'bounded',
+                wordWrapColumn: configuracoes.maximoCaracteresPorLinhaFormatacao,
+            });
+        }
+    };
+
     const configuracoes = obterConfiguracoesDeleguaWeb();
-    tempoAnaliseAutomaticaMs = configuracoes.tempoAnaliseAutomaticaMs;
-
-    const seletorTema = document.getElementById('temaEditor') as HTMLSelectElement | null;
-    if (seletorTema) {
-        seletorTema.value = configuracoes.temaEditor;
-    }
-    definirTema(configuracoes.temaEditor);
-
-    const seletorLinguagem = document.getElementById('linguagem') as HTMLSelectElement | null;
-    if (seletorLinguagem) {
-        seletorLinguagem.value = configuracoes.linguagemTraducao === 'python' ? 'Python' : 'JavaScript';
-    }
+    aplicarConfiguracoesNoEditor(configuracoes);
 
     const searchParams = new URLSearchParams(window.location.search.split('?')[1]);
     const exemploId: any = searchParams.get('exemploId');
@@ -1760,12 +1863,6 @@ window.addEventListener("load", () => {
 
     const editor = Monaco.editor.getEditors()[0];
     const modelo = editor.getModel();
-    editor.updateOptions({
-        tabSize: configuracoes.tamanhoIndentacaoFormatacao,
-        insertSpaces: true,
-        wordWrap: 'bounded',
-        wordWrapColumn: configuracoes.maximoCaracteresPorLinhaFormatacao,
-    });
     if (codigo) {
         const codigoDecodificado = atob(codigo);
         modelo.setValue(codigoDecodificado);
@@ -1778,6 +1875,14 @@ window.addEventListener("load", () => {
     }
 
     Monaco.editor.setModelLanguage(modelo, 'delegua');
+
+    window.addEventListener('storage', (evento: StorageEvent) => {
+        if (evento.key && evento.key !== CHAVE_CONFIGURACOES_LOCAL_STORAGE) {
+            return;
+        }
+
+        aplicarConfiguracoesNoEditor(obterConfiguracoesDeleguaWeb());
+    });
 });
 
 botaoTraduzir?.addEventListener("click", function () {

@@ -6,6 +6,14 @@ interface ConfiguracoesDeleguaWeb {
     tamanhoIndentacaoFormatacao: number;
     delimitadorTextoFormatacao: 'aspas-simples' | 'aspas-duplas' | 'preservar';
     maximoCaracteresPorLinhaFormatacao: number;
+    habilitarEstilizador: boolean;
+    regraFortalecerTipos: boolean;
+    regraConvencaoNomenclatura: boolean;
+    regraParadigmaConsistente: boolean;
+    convencaoVariavel: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
+    convencaoConstante: 'CAIXA_ALTA' | 'caixaCamelo';
+    convencaoFuncao: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
+    paradigmaConsistente: 'imperativo' | 'infinitivo' | 'ambos';
 }
 
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
@@ -17,6 +25,14 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     tamanhoIndentacaoFormatacao: 4,
     delimitadorTextoFormatacao: 'preservar',
     maximoCaracteresPorLinhaFormatacao: 100,
+    habilitarEstilizador: true,
+    regraFortalecerTipos: false,
+    regraConvencaoNomenclatura: false,
+    regraParadigmaConsistente: false,
+    convencaoVariavel: 'caixaCamelo',
+    convencaoConstante: 'CAIXA_ALTA',
+    convencaoFuncao: 'caixaCamelo',
+    paradigmaConsistente: 'ambos',
 };
 
 function validarTemaEditor(valor: unknown): string {
@@ -65,6 +81,38 @@ function validarMaximoCaracteresPorLinha(valor: unknown): number {
         : CONFIGURACOES_PADRAO.maximoCaracteresPorLinhaFormatacao;
 }
 
+function validarBooleano(valor: unknown, padrao: boolean): boolean {
+    return typeof valor === 'boolean' ? valor : padrao;
+}
+
+function validarConvencaoVariavel(valor: unknown): 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal' {
+    const opcao = String(valor || '');
+    return opcao === 'caixaCamelo' || opcao === 'caixa_cobra' || opcao === 'CaixaPascal'
+        ? opcao
+        : CONFIGURACOES_PADRAO.convencaoVariavel;
+}
+
+function validarConvencaoConstante(valor: unknown): 'CAIXA_ALTA' | 'caixaCamelo' {
+    const opcao = String(valor || '');
+    return opcao === 'CAIXA_ALTA' || opcao === 'caixaCamelo'
+        ? opcao
+        : CONFIGURACOES_PADRAO.convencaoConstante;
+}
+
+function validarConvencaoFuncao(valor: unknown): 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal' {
+    const opcao = String(valor || '');
+    return opcao === 'caixaCamelo' || opcao === 'caixa_cobra' || opcao === 'CaixaPascal'
+        ? opcao
+        : CONFIGURACOES_PADRAO.convencaoFuncao;
+}
+
+function validarParadigmaConsistente(valor: unknown): 'imperativo' | 'infinitivo' | 'ambos' {
+    const opcao = String(valor || '');
+    return opcao === 'imperativo' || opcao === 'infinitivo' || opcao === 'ambos'
+        ? opcao
+        : CONFIGURACOES_PADRAO.paradigmaConsistente;
+}
+
 function normalizarConfiguracoes(origem: any): ConfiguracoesDeleguaWeb {
     return {
         temaEditor: validarTemaEditor(origem?.temaEditor),
@@ -74,6 +122,14 @@ function normalizarConfiguracoes(origem: any): ConfiguracoesDeleguaWeb {
         tamanhoIndentacaoFormatacao: validarTamanhoIndentacao(origem?.tamanhoIndentacaoFormatacao),
         delimitadorTextoFormatacao: validarDelimitadorTexto(origem?.delimitadorTextoFormatacao),
         maximoCaracteresPorLinhaFormatacao: validarMaximoCaracteresPorLinha(origem?.maximoCaracteresPorLinhaFormatacao),
+        habilitarEstilizador: validarBooleano(origem?.habilitarEstilizador, CONFIGURACOES_PADRAO.habilitarEstilizador),
+        regraFortalecerTipos: validarBooleano(origem?.regraFortalecerTipos, CONFIGURACOES_PADRAO.regraFortalecerTipos),
+        regraConvencaoNomenclatura: validarBooleano(origem?.regraConvencaoNomenclatura, CONFIGURACOES_PADRAO.regraConvencaoNomenclatura),
+        regraParadigmaConsistente: validarBooleano(origem?.regraParadigmaConsistente, CONFIGURACOES_PADRAO.regraParadigmaConsistente),
+        convencaoVariavel: validarConvencaoVariavel(origem?.convencaoVariavel),
+        convencaoConstante: validarConvencaoConstante(origem?.convencaoConstante),
+        convencaoFuncao: validarConvencaoFuncao(origem?.convencaoFuncao),
+        paradigmaConsistente: validarParadigmaConsistente(origem?.paradigmaConsistente),
     };
 }
 
@@ -117,6 +173,14 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
     const tamanhoIndentacao = document.getElementById('tamanhoIndentacaoConfig') as HTMLInputElement | null;
     const delimitadorTexto = document.getElementById('delimitadorTextoConfig') as HTMLSelectElement | null;
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
+    const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
+    const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig') as HTMLInputElement | null;
+    const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
+    const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
+    const convencaoVariavel = document.getElementById('convencaoVariavelConfig') as HTMLSelectElement | null;
+    const convencaoConstante = document.getElementById('convencaoConstanteConfig') as HTMLSelectElement | null;
+    const convencaoFuncao = document.getElementById('convencaoFuncaoConfig') as HTMLSelectElement | null;
+    const paradigmaConsistente = document.getElementById('paradigmaConsistenteConfig') as HTMLSelectElement | null;
 
     if (temaEditor) {
         temaEditor.value = configuracoes.temaEditor;
@@ -146,7 +210,61 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
         maximoCaracteresPorLinha.value = String(configuracoes.maximoCaracteresPorLinhaFormatacao);
     }
 
+    if (habilitarEstilizador) {
+        habilitarEstilizador.checked = configuracoes.habilitarEstilizador;
+    }
+
+    if (regraFortalecerTipos) {
+        regraFortalecerTipos.checked = configuracoes.regraFortalecerTipos;
+    }
+
+    if (regraConvencaoNomenclatura) {
+        regraConvencaoNomenclatura.checked = configuracoes.regraConvencaoNomenclatura;
+    }
+
+    if (regraParadigmaConsistente) {
+        regraParadigmaConsistente.checked = configuracoes.regraParadigmaConsistente;
+    }
+
+    if (convencaoVariavel) {
+        convencaoVariavel.value = configuracoes.convencaoVariavel;
+    }
+
+    if (convencaoConstante) {
+        convencaoConstante.value = configuracoes.convencaoConstante;
+    }
+
+    if (convencaoFuncao) {
+        convencaoFuncao.value = configuracoes.convencaoFuncao;
+    }
+
+    if (paradigmaConsistente) {
+        paradigmaConsistente.value = configuracoes.paradigmaConsistente;
+    }
+
+    atualizarEstadoOpcoesEstilizador();
+
     aplicarTemaPagina(configuracoes.temaEditor);
+}
+
+function atualizarEstadoOpcoesEstilizador(): void {
+    const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
+    const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
+    const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
+
+    const convencaoVariavel = document.getElementById('convencaoVariavelConfig') as HTMLSelectElement | null;
+    const convencaoConstante = document.getElementById('convencaoConstanteConfig') as HTMLSelectElement | null;
+    const convencaoFuncao = document.getElementById('convencaoFuncaoConfig') as HTMLSelectElement | null;
+    const paradigmaConsistente = document.getElementById('paradigmaConsistenteConfig') as HTMLSelectElement | null;
+
+    const estilizadorLigado = !!habilitarEstilizador?.checked;
+    const convLigada = estilizadorLigado && !!regraConvencaoNomenclatura?.checked;
+    const paradigmaLigado = estilizadorLigado && !!regraParadigmaConsistente?.checked;
+
+    if (convencaoVariavel) convencaoVariavel.disabled = !convLigada;
+    if (convencaoConstante) convencaoConstante.disabled = !convLigada;
+    if (convencaoFuncao) convencaoFuncao.disabled = !convLigada;
+    if (paradigmaConsistente) paradigmaConsistente.disabled = !paradigmaLigado;
 }
 
 function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
@@ -157,6 +275,14 @@ function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
     const tamanhoIndentacao = document.getElementById('tamanhoIndentacaoConfig') as HTMLInputElement | null;
     const delimitadorTexto = document.getElementById('delimitadorTextoConfig') as HTMLSelectElement | null;
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
+    const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
+    const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig') as HTMLInputElement | null;
+    const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
+    const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
+    const convencaoVariavel = document.getElementById('convencaoVariavelConfig') as HTMLSelectElement | null;
+    const convencaoConstante = document.getElementById('convencaoConstanteConfig') as HTMLSelectElement | null;
+    const convencaoFuncao = document.getElementById('convencaoFuncaoConfig') as HTMLSelectElement | null;
+    const paradigmaConsistente = document.getElementById('paradigmaConsistenteConfig') as HTMLSelectElement | null;
 
     return normalizarConfiguracoes({
         temaEditor: temaEditor?.value,
@@ -166,6 +292,14 @@ function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
         tamanhoIndentacaoFormatacao: tamanhoIndentacao?.value,
         delimitadorTextoFormatacao: delimitadorTexto?.value,
         maximoCaracteresPorLinhaFormatacao: maximoCaracteresPorLinha?.value,
+        habilitarEstilizador: habilitarEstilizador?.checked,
+        regraFortalecerTipos: regraFortalecerTipos?.checked,
+        regraConvencaoNomenclatura: regraConvencaoNomenclatura?.checked,
+        regraParadigmaConsistente: regraParadigmaConsistente?.checked,
+        convencaoVariavel: convencaoVariavel?.value,
+        convencaoConstante: convencaoConstante?.value,
+        convencaoFuncao: convencaoFuncao?.value,
+        paradigmaConsistente: paradigmaConsistente?.value,
     });
 }
 
@@ -175,6 +309,13 @@ window.addEventListener('load', () => {
 
     const seletorTema = document.getElementById('temaEditorConfig') as HTMLSelectElement | null;
     seletorTema?.addEventListener('change', () => aplicarTemaPagina(seletorTema.value));
+
+    const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
+    const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
+    const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
+    habilitarEstilizador?.addEventListener('change', atualizarEstadoOpcoesEstilizador);
+    regraConvencaoNomenclatura?.addEventListener('change', atualizarEstadoOpcoesEstilizador);
+    regraParadigmaConsistente?.addEventListener('change', atualizarEstadoOpcoesEstilizador);
 
     const botaoSalvar = document.getElementById('botaoSalvarConfiguracoes') as HTMLButtonElement | null;
     botaoSalvar?.addEventListener('click', () => {

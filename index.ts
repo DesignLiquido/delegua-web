@@ -27,6 +27,9 @@ import * as json from "@designliquido/delegua-json";
 export { FormatadorDelegua } from "@designliquido/delegua/formatadores/formatador-delegua";
 export { EstilizadorDelegua } from "@designliquido/delegua/estilizador/estilizador-delegua";
 export { QuebradorDeLinha } from "@designliquido/delegua/estilizador/quebrador-linha";
+export { RegraFortalecerTipos } from "@designliquido/delegua/estilizador/regras/regra-fortalecer-tipos";
+export { RegraConvencaoNomenclatura } from "@designliquido/delegua/estilizador/regras/regra-convencao-nomenclatura";
+export { RegraParadigmaConsistente } from "@designliquido/delegua/estilizador/regras/regra-paradigma-consistente";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 

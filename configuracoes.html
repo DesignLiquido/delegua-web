@@ -75,6 +75,55 @@
 
                 <label for="maximoCaracteresLinhaConfig">Máximo de caracteres por linha</label>
                 <input id="maximoCaracteresLinhaConfig" type="number" min="40" max="240" step="5" />
+
+                <h2 class="configuracoes-subtitulo">Regras do Estilizador</h2>
+
+                <label class="configuracoes-checkbox" for="habilitarEstilizadorConfig">
+                    <input id="habilitarEstilizadorConfig" type="checkbox" />
+                    <span>Estilizador</span>
+                </label>
+
+                <label class="configuracoes-checkbox" for="regraFortalecerTiposConfig">
+                    <input id="regraFortalecerTiposConfig" type="checkbox" />
+                    <span>Regra: Fortalecer tipos</span>
+                </label>
+
+                <label class="configuracoes-checkbox" for="regraConvencaoNomenclaturaConfig">
+                    <input id="regraConvencaoNomenclaturaConfig" type="checkbox" />
+                    <span>Regra: Convenção de nomenclatura</span>
+                </label>
+
+                <label for="convencaoVariavelConfig">Convenção de variável</label>
+                <select id="convencaoVariavelConfig">
+                    <option value="caixaCamelo">caixaCamelo</option>
+                    <option value="caixa_cobra">caixa_cobra</option>
+                    <option value="CaixaPascal">CaixaPascal</option>
+                </select>
+
+                <label for="convencaoConstanteConfig">Convenção de constante</label>
+                <select id="convencaoConstanteConfig">
+                    <option value="CAIXA_ALTA">CAIXA_ALTA</option>
+                    <option value="caixaCamelo">caixaCamelo</option>
+                </select>
+
+                <label for="convencaoFuncaoConfig">Convenção de função</label>
+                <select id="convencaoFuncaoConfig">
+                    <option value="caixaCamelo">caixaCamelo</option>
+                    <option value="caixa_cobra">caixa_cobra</option>
+                    <option value="CaixaPascal">CaixaPascal</option>
+                </select>
+
+                <label class="configuracoes-checkbox" for="regraParadigmaConsistenteConfig">
+                    <input id="regraParadigmaConsistenteConfig" type="checkbox" />
+                    <span>Regra: Paradigma consistente</span>
+                </label>
+
+                <label for="paradigmaConsistenteConfig">Paradigma</label>
+                <select id="paradigmaConsistenteConfig">
+                    <option value="ambos">ambos</option>
+                    <option value="imperativo">imperativo</option>
+                    <option value="infinitivo">infinitivo</option>
+                </select>
             </div>
 
             <div class="configuracoes-acoes">

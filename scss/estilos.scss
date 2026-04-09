@@ -35,12 +35,28 @@ nav {
 
     .navbar-direita {
         display: flex;
-        width: 300px;
+        width: auto;
+        min-width: 360px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        row-gap: 4px;
         gap: 15px;
 
-        div{
+        > div{
             display: flex;
-            gap: 80px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .status-formatacao {
+            flex-basis: 100%;
+            text-align: right;
+            font-size: 11px;
+            color: #5e5e5e;
+            min-height: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -113,7 +129,8 @@ nav {
 #botaoExecutar {
     cursor: pointer;
     background-color: transparent;
-    width: 0px !important;
+    width: 28px !important;
+    min-width: 28px;
     border: transparent;
     color: variaveis.$preto;
 }
@@ -155,6 +172,12 @@ textarea {
         div{
             order: 1;
             gap: 64px;
+        }
+
+        .status-formatacao {
+            order: 3;
+            width: 100%;
+            text-align: right;
         }
     }
 }
@@ -245,6 +268,10 @@ body[data-tema="escuro"] {
 
         .icone-burger {
             background-color: #d4d4d4;
+        }
+
+        .status-formatacao {
+            color: #b8b8b8;
         }
     }
 
@@ -481,6 +508,20 @@ body.configuracoes-pagina {
         padding: 7px 8px;
         font-family: "Roboto Mono", monospace;
         font-size: 13px;
+    }
+
+    .configuracoes-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        margin-top: 8px;
+
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            transform: translateY(1px);
+        }
     }
 }
 
