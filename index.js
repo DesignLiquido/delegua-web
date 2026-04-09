@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleguaWeb = void 0;
+exports.DeleguaWeb = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
 const lexador_1 = require("@designliquido/delegua/lexador");
 const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
 const analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
@@ -60,8 +60,42 @@ const matematica = __importStar(require("@designliquido/delegua-matematica"));
 const tempo = __importStar(require("@designliquido/delegua-tempo"));
 const objeto_data_1 = require("@designliquido/delegua-tempo/objeto-data");
 const json = __importStar(require("@designliquido/delegua-json"));
+var formatador_delegua_1 = require("@designliquido/delegua/formatadores/formatador-delegua");
+Object.defineProperty(exports, "FormatadorDelegua", { enumerable: true, get: function () { return formatador_delegua_1.FormatadorDelegua; } });
+var estilizador_delegua_1 = require("@designliquido/delegua/estilizador/estilizador-delegua");
+Object.defineProperty(exports, "EstilizadorDelegua", { enumerable: true, get: function () { return estilizador_delegua_1.EstilizadorDelegua; } });
+var quebrador_linha_1 = require("@designliquido/delegua/estilizador/quebrador-linha");
+Object.defineProperty(exports, "QuebradorDeLinha", { enumerable: true, get: function () { return quebrador_linha_1.QuebradorDeLinha; } });
+var regra_fortalecer_tipos_1 = require("@designliquido/delegua/estilizador/regras/regra-fortalecer-tipos");
+Object.defineProperty(exports, "RegraFortalecerTipos", { enumerable: true, get: function () { return regra_fortalecer_tipos_1.RegraFortalecerTipos; } });
+var regra_convencao_nomenclatura_1 = require("@designliquido/delegua/estilizador/regras/regra-convencao-nomenclatura");
+Object.defineProperty(exports, "RegraConvencaoNomenclatura", { enumerable: true, get: function () { return regra_convencao_nomenclatura_1.RegraConvencaoNomenclatura; } });
+var regra_paradigma_consistente_1 = require("@designliquido/delegua/estilizador/regras/regra-paradigma-consistente");
+Object.defineProperty(exports, "RegraParadigmaConsistente", { enumerable: true, get: function () { return regra_paradigma_consistente_1.RegraParadigmaConsistente; } });
 const delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
 const interpretador_web_1 = require("./interpretador-web");
+const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
+const CONFIGURACOES_PADRAO = {
+    limiteIteracoesLaco: 1000000,
+};
+function obterConfiguracoesDeleguaWeb() {
+    try {
+        const configuracoesBrutas = localStorage.getItem(CHAVE_CONFIGURACOES_LOCAL_STORAGE);
+        if (!configuracoesBrutas) {
+            return Object.assign({}, CONFIGURACOES_PADRAO);
+        }
+        const configuracoes = JSON.parse(configuracoesBrutas);
+        const limiteIteracoesLaco = Number(configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.limiteIteracoesLaco);
+        return {
+            limiteIteracoesLaco: Number.isFinite(limiteIteracoesLaco) && limiteIteracoesLaco > 0
+                ? limiteIteracoesLaco
+                : CONFIGURACOES_PADRAO.limiteIteracoesLaco,
+        };
+    }
+    catch (_a) {
+        return Object.assign({}, CONFIGURACOES_PADRAO);
+    }
+}
 class DeleguaWeb {
     constructor(nomeArquivo, funcaoDeRetorno = null) {
         this.teveErro = false;
@@ -114,6 +148,32 @@ class DeleguaWeb {
                 inputEl.addEventListener('keydown', onKeydown);
             }
         };
+        const configuracoes = obterConfiguracoesDeleguaWeb();
+        let contadorIteracoes = 0;
+        let limiteIteracoes = configuracoes.limiteIteracoesLaco;
+        this.interpretador.funcaoVerificarIteracao = () => __awaiter(this, void 0, void 0, function* () {
+            contadorIteracoes++;
+            if (contadorIteracoes >= limiteIteracoes) {
+                yield new Promise((resolve, reject) => {
+                    const overlay = document.getElementById('modalLacoInfinito');
+                    const btnContinuar = document.getElementById('modalLacoInfinitoContinuar');
+                    const btnAbortar = document.getElementById('modalLacoInfinitoAbortar');
+                    const botaoExecutar = document.getElementById('botaoExecutar');
+                    overlay.style.display = 'flex';
+                    botaoExecutar.disabled = true;
+                    const fechar = () => {
+                        overlay.style.display = 'none';
+                        botaoExecutar.disabled = false;
+                        btnContinuar.removeEventListener('click', onContinuar);
+                        btnAbortar.removeEventListener('click', onAbortar);
+                    };
+                    const onContinuar = () => { fechar(); limiteIteracoes = Infinity; resolve(); };
+                    const onAbortar = () => { fechar(); reject(new Error('Execução abortada pelo usuário.')); };
+                    btnContinuar.addEventListener('click', onContinuar);
+                    btnAbortar.addEventListener('click', onAbortar);
+                });
+            }
+        });
         this.documentacoesBibliotecas = {};
         this.registrarModuloComPrimitivas("criptografia", criptografia);
         this.documentacoesBibliotecas["criptografia"] = delegua_modulo_1.DeleguaModuloCriptografia;
@@ -156,14 +216,20 @@ class DeleguaWeb {
                 for (const erroLexador of retornoImportador.retornoLexador.erros) {
                     this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
                 }
-                return;
+                return {
+                    erros: retornoImportador.retornoLexador.erros,
+                    resultado: [],
+                };
             }
             if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
                 for (const erroAvaliadorSintatico of retornoImportador
                     .retornoAvaliadorSintatico.erros) {
                     this.erro(erroAvaliadorSintatico.simbolo, erroAvaliadorSintatico.message);
                 }
-                return;
+                return {
+                    erros: retornoImportador.retornoAvaliadorSintatico.erros,
+                    resultado: [],
+                };
             }
             const retornoInterpretador = yield this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico.declaracoes, manterAmbiente);
             if (retornoInterpretador.erros.length > 0) {

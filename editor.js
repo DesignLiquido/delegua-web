@@ -13,8 +13,96 @@ const resultadoEditorDiv = document.getElementById("resultadoEditor");
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
+const statusFormatacao = document.getElementById("statusFormatacao");
 const Delegua = window.Delegua;
 const Monaco = window.monaco;
+const FormatadorDelegua = Delegua.FormatadorDelegua;
+const EstilizadorDelegua = Delegua.EstilizadorDelegua;
+const QuebradorDeLinha = Delegua.QuebradorDeLinha;
+const RegraFortalecerTipos = Delegua.RegraFortalecerTipos;
+const RegraConvencaoNomenclatura = Delegua.RegraConvencaoNomenclatura;
+const RegraParadigmaConsistente = Delegua.RegraParadigmaConsistente;
+const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
+const CONFIGURACOES_PADRAO = {
+    temaEditor: 'vs-dark',
+    linguagemTraducao: 'javascript',
+    tempoAnaliseAutomaticaMs: 500,
+    tamanhoIndentacaoFormatacao: 4,
+    maximoCaracteresPorLinhaFormatacao: 100,
+    delimitadorTextoFormatacao: 'preservar',
+    habilitarEstilizador: true,
+    regraFortalecerTipos: false,
+    regraConvencaoNomenclatura: false,
+    regraParadigmaConsistente: false,
+    convencaoVariavel: 'caixaCamelo',
+    convencaoConstante: 'CAIXA_ALTA',
+    convencaoFuncao: 'caixaCamelo',
+    paradigmaConsistente: 'ambos',
+};
+function obterConfiguracoesDeleguaWeb() {
+    try {
+        const configuracoesBrutas = localStorage.getItem(CHAVE_CONFIGURACOES_LOCAL_STORAGE);
+        if (!configuracoesBrutas) {
+            return Object.assign({}, CONFIGURACOES_PADRAO);
+        }
+        const configuracoes = JSON.parse(configuracoesBrutas);
+        const temaEditor = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.temaEditor) || CONFIGURACOES_PADRAO.temaEditor);
+        const linguagemTraducao = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.linguagemTraducao) || CONFIGURACOES_PADRAO.linguagemTraducao).toLowerCase();
+        const tempoAnaliseAutomaticaMs = Number(configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.tempoAnaliseAutomaticaMs);
+        const tamanhoIndentacaoFormatacao = Number(configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.tamanhoIndentacaoFormatacao);
+        const maximoCaracteresPorLinhaFormatacao = Number(configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.maximoCaracteresPorLinhaFormatacao);
+        const delimitadorTextoFormatacao = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.delimitadorTextoFormatacao) || CONFIGURACOES_PADRAO.delimitadorTextoFormatacao);
+        const convencaoVariavel = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.convencaoVariavel) || CONFIGURACOES_PADRAO.convencaoVariavel);
+        const convencaoConstante = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.convencaoConstante) || CONFIGURACOES_PADRAO.convencaoConstante);
+        const convencaoFuncao = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.convencaoFuncao) || CONFIGURACOES_PADRAO.convencaoFuncao);
+        const paradigmaConsistente = String((configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.paradigmaConsistente) || CONFIGURACOES_PADRAO.paradigmaConsistente);
+        return {
+            temaEditor: ['vs', 'vs-dark', 'hc-black', 'hc-light'].includes(temaEditor)
+                ? temaEditor
+                : CONFIGURACOES_PADRAO.temaEditor,
+            linguagemTraducao: linguagemTraducao === 'python' ? 'python' : 'javascript',
+            tempoAnaliseAutomaticaMs: Number.isFinite(tempoAnaliseAutomaticaMs) && tempoAnaliseAutomaticaMs >= 150
+                ? tempoAnaliseAutomaticaMs
+                : CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs,
+            tamanhoIndentacaoFormatacao: Number.isFinite(tamanhoIndentacaoFormatacao) && tamanhoIndentacaoFormatacao >= 2 && tamanhoIndentacaoFormatacao <= 8
+                ? tamanhoIndentacaoFormatacao
+                : CONFIGURACOES_PADRAO.tamanhoIndentacaoFormatacao,
+            maximoCaracteresPorLinhaFormatacao: Number.isFinite(maximoCaracteresPorLinhaFormatacao) && maximoCaracteresPorLinhaFormatacao >= 40 && maximoCaracteresPorLinhaFormatacao <= 240
+                ? maximoCaracteresPorLinhaFormatacao
+                : CONFIGURACOES_PADRAO.maximoCaracteresPorLinhaFormatacao,
+            delimitadorTextoFormatacao: delimitadorTextoFormatacao === 'aspas-simples' || delimitadorTextoFormatacao === 'aspas-duplas' || delimitadorTextoFormatacao === 'preservar'
+                ? delimitadorTextoFormatacao
+                : CONFIGURACOES_PADRAO.delimitadorTextoFormatacao,
+            habilitarEstilizador: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.habilitarEstilizador) === 'boolean'
+                ? configuracoes.habilitarEstilizador
+                : CONFIGURACOES_PADRAO.habilitarEstilizador,
+            regraFortalecerTipos: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraFortalecerTipos) === 'boolean'
+                ? configuracoes.regraFortalecerTipos
+                : CONFIGURACOES_PADRAO.regraFortalecerTipos,
+            regraConvencaoNomenclatura: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraConvencaoNomenclatura) === 'boolean'
+                ? configuracoes.regraConvencaoNomenclatura
+                : CONFIGURACOES_PADRAO.regraConvencaoNomenclatura,
+            regraParadigmaConsistente: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraParadigmaConsistente) === 'boolean'
+                ? configuracoes.regraParadigmaConsistente
+                : CONFIGURACOES_PADRAO.regraParadigmaConsistente,
+            convencaoVariavel: convencaoVariavel === 'caixaCamelo' || convencaoVariavel === 'caixa_cobra' || convencaoVariavel === 'CaixaPascal'
+                ? convencaoVariavel
+                : CONFIGURACOES_PADRAO.convencaoVariavel,
+            convencaoConstante: convencaoConstante === 'CAIXA_ALTA' || convencaoConstante === 'caixaCamelo'
+                ? convencaoConstante
+                : CONFIGURACOES_PADRAO.convencaoConstante,
+            convencaoFuncao: convencaoFuncao === 'caixaCamelo' || convencaoFuncao === 'caixa_cobra' || convencaoFuncao === 'CaixaPascal'
+                ? convencaoFuncao
+                : CONFIGURACOES_PADRAO.convencaoFuncao,
+            paradigmaConsistente: paradigmaConsistente === 'imperativo' || paradigmaConsistente === 'infinitivo' || paradigmaConsistente === 'ambos'
+                ? paradigmaConsistente
+                : CONFIGURACOES_PADRAO.paradigmaConsistente,
+        };
+    }
+    catch (_a) {
+        return Object.assign({}, CONFIGURACOES_PADRAO);
+    }
+}
 var MarkerSeverity;
 (function (MarkerSeverity) {
     MarkerSeverity[MarkerSeverity["Hint"] = 1] = "Hint";
@@ -24,6 +112,21 @@ var MarkerSeverity;
 })(MarkerSeverity || (MarkerSeverity = {}));
 let errosComCorrecao = new Map();
 let fixesTiposDocstring = new Map();
+let tempoAnaliseAutomaticaMs = CONFIGURACOES_PADRAO.tempoAnaliseAutomaticaMs;
+function atualizarStatusFormatacao(configuracoes) {
+    if (!statusFormatacao) {
+        return;
+    }
+    const totalRegras = 3;
+    const regrasAtivas = Number(configuracoes.regraFortalecerTipos)
+        + Number(configuracoes.regraConvencaoNomenclatura)
+        + Number(configuracoes.regraParadigmaConsistente);
+    if (!configuracoes.habilitarEstilizador) {
+        statusFormatacao.textContent = `Estilizador: desligado | Coluna: ${configuracoes.maximoCaracteresPorLinhaFormatacao}`;
+        return;
+    }
+    statusFormatacao.textContent = `Estilizador: ligado | Regras: ${regrasAtivas}/${totalRegras} | Coluna: ${configuracoes.maximoCaracteresPorLinhaFormatacao}`;
+}
 const mostrarResultadoExecutar = function (resultadoExecucao) {
     const paragrafo = document.createElement("p");
     const conteudo = resultadoExecucao.replace(/\s/g, '&nbsp;');
@@ -136,6 +239,51 @@ const executarCodigo = function () {
         catch (erro) {
             const erroFormatado = "Erro: " + erro;
             mostrarResultadoExecutar(erroFormatado);
+        }
+    });
+};
+const formatarCodigoDelegua = function (codigo, configuracoes) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const retornoLexador = deleguaWeb.lexador.mapear(codigo.split("\n"), -1);
+            if (retornoLexador.erros.length > 0) {
+                return null;
+            }
+            const retornoAvaliadorSintatico = yield deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
+            if (retornoAvaliadorSintatico.erros.length > 0) {
+                return null;
+            }
+            const regrasEstilizador = [];
+            if (configuracoes.habilitarEstilizador) {
+                if (configuracoes.regraFortalecerTipos && RegraFortalecerTipos) {
+                    regrasEstilizador.push(new RegraFortalecerTipos());
+                }
+                if (configuracoes.regraConvencaoNomenclatura && RegraConvencaoNomenclatura) {
+                    regrasEstilizador.push(new RegraConvencaoNomenclatura({
+                        variavel: configuracoes.convencaoVariavel,
+                        constante: configuracoes.convencaoConstante,
+                        funcao: configuracoes.convencaoFuncao,
+                    }));
+                }
+                if (configuracoes.regraParadigmaConsistente && RegraParadigmaConsistente) {
+                    regrasEstilizador.push(new RegraParadigmaConsistente({
+                        paradigma: configuracoes.paradigmaConsistente,
+                    }));
+                }
+            }
+            const declaracoesEstilizadas = configuracoes.habilitarEstilizador
+                ? new EstilizadorDelegua(regrasEstilizador).estilizar(retornoAvaliadorSintatico.declaracoes)
+                : retornoAvaliadorSintatico.declaracoes;
+            const formatador = new FormatadorDelegua("\n", configuracoes.tamanhoIndentacaoFormatacao, {
+                delimitadorTexto: configuracoes.delimitadorTextoFormatacao,
+            });
+            let codigoFormatado = formatador.formatar(declaracoesEstilizadas);
+            const quebradorDeLinha = new QuebradorDeLinha(configuracoes.maximoCaracteresPorLinhaFormatacao, configuracoes.tamanhoIndentacaoFormatacao, "\n");
+            codigoFormatado = quebradorDeLinha.quebrar(codigoFormatado);
+            return codigoFormatado.trimEnd();
+        }
+        catch (_a) {
+            return null;
         }
     });
 };
@@ -780,7 +928,7 @@ const configurarAtualizacaoAutomatica = function () {
         tempoEsperaMudancas = setTimeout(function () {
             tempoEsperaMudancas = null;
             analisarCodigo();
-        }, 500);
+        }, tempoAnaliseAutomaticaMs);
     });
 };
 // Informações sobre os módulos disponíveis
@@ -860,23 +1008,23 @@ const configurarLinguagemDelegua = function () {
                     if (metodo && metodo.argumentos) {
                         // Contar quantos argumentos já foram digitados (contando vírgulas)
                         const dentroParenteses = textoAntesCursor.split('(').pop();
-                        const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
+                        const numeroVirgulas = ((dentroParenteses === null || dentroParenteses === void 0 ? void 0 : dentroParenteses.match(/,/g)) || []).length;
                         const parametroAtivo = numeroVirgulas;
                         // Construir o label e calcular os ranges para cada parâmetro
                         const prefixo = `${nomeBiblioteca}.${nomeMetodo}(`;
                         let labelCompleto = prefixo;
                         const parametros = [];
-                        metodo.argumentos.forEach((arg, index) => {
+                        metodo.argumentos.forEach((argumento, indice) => {
                             const inicioParam = labelCompleto.length;
-                            const nomeParam = `${arg.nome}${arg.opcional ? '?' : ''}`;
+                            const nomeParam = `${argumento.nome}${argumento.opcional ? '?' : ''}`;
                             labelCompleto += nomeParam;
                             const fimParam = labelCompleto.length;
                             parametros.push({
                                 label: [inicioParam, fimParam], // Range do parâmetro no label
-                                documentation: arg.descricao || `${arg.nome}: ${arg.tipo || 'qualquer'}`
+                                documentation: argumento.descricao || `${argumento.nome}: ${argumento.tipo || 'qualquer'}`
                             });
                             // Adicionar vírgula se não for o último parâmetro
-                            if (index < metodo.argumentos.length - 1) {
+                            if (indice < metodo.argumentos.length - 1) {
                                 labelCompleto += ', ';
                             }
                         });
@@ -895,7 +1043,7 @@ const configurarLinguagemDelegua = function () {
                                 }
                             }
                         }
-                        return {
+                        const resultado = {
                             value: {
                                 signatures: [{
                                         label: labelCompleto,
@@ -907,6 +1055,7 @@ const configurarLinguagemDelegua = function () {
                             },
                             dispose: () => { }
                         };
+                        return resultado;
                     }
                 }
             }
@@ -918,7 +1067,7 @@ const configurarLinguagemDelegua = function () {
                 const doc = funcoesDocumentadas.get(nomeFuncao);
                 if (doc && doc.parametros.length > 0) {
                     const dentroParenteses = textoAntesCursor.split('(').pop();
-                    const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
+                    const numeroVirgulas = ((dentroParenteses === null || dentroParenteses === void 0 ? void 0 : dentroParenteses.match(/,/g)) || []).length;
                     const prefixo = `${nomeFuncao}(`;
                     let labelCompleto = prefixo;
                     const parametros = [];
@@ -941,7 +1090,7 @@ const configurarLinguagemDelegua = function () {
                         value: {
                             signatures: [{
                                     label: labelCompleto,
-                                    documentation: doc.descricao,
+                                    documentation: doc.descricao || '',
                                     parameters: parametros
                                 }],
                             activeSignature: 0,
@@ -968,7 +1117,7 @@ const configurarLinguagemDelegua = function () {
                 const nomeBiblioteca = matchBiblioteca[1];
                 const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
                 if (documentacaoBiblioteca) {
-                    const sugestoesMetodos = Object.keys(documentacaoBiblioteca).map(nomeMetodo => {
+                    const sugestoesMetodos = Object.keys(documentacaoBiblioteca).map((nomeMetodo) => {
                         const metodo = documentacaoBiblioteca[nomeMetodo];
                         const argumentos = metodo.argumentos || [];
                         const argsTexto = argumentos
@@ -1235,7 +1384,7 @@ const configurarLinguagemDelegua = function () {
     };
     Monaco.languages.registerHoverProvider('delegua', {
         provideHover: function (model, position) {
-            var _a;
+            var _a, _b, _c;
             const palavra = model.getWordAtPosition(position);
             if (!palavra)
                 return { contents: [] };
@@ -1296,32 +1445,32 @@ const configurarLinguagemDelegua = function () {
             const infoModulo = informacoesModulos[nomeModulo];
             const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo];
             if (infoModulo || documentacaoBiblioteca) {
-                const contents = [
+                const conteudos = [
                     { value: `**${nomeModulo}** _(módulo)_` }
                 ];
                 if (infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.descricao) {
-                    contents.push({ value: infoModulo.descricao });
+                    conteudos.push({ value: infoModulo.descricao });
                 }
                 // Listar métodos disponíveis
                 if (documentacaoBiblioteca) {
                     const metodos = Object.keys(documentacaoBiblioteca);
-                    const metodosExibir = ((_a = infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.metodosDestaque) === null || _a === void 0 ? void 0 : _a.length) > 0
-                        ? infoModulo.metodosDestaque
+                    const metodosExibir = ((_b = (_a = infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.metodosDestaque) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0) > 0
+                        ? (_c = infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.metodosDestaque) !== null && _c !== void 0 ? _c : metodos.slice(0, 5)
                         : metodos.slice(0, 5);
                     if (metodosExibir.length > 0) {
                         const listaMetodos = metodosExibir.map(m => `- \`${nomeModulo}.${m}()\``).join('\n');
                         const sufixo = metodos.length > metodosExibir.length
                             ? `\n\n_...e mais ${metodos.length - metodosExibir.length} métodos_`
                             : '';
-                        contents.push({
+                        conteudos.push({
                             value: `**Métodos disponíveis:**\n${listaMetodos}${sufixo}`
                         });
                     }
                 }
                 if (infoModulo === null || infoModulo === void 0 ? void 0 : infoModulo.repositorio) {
-                    contents.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
+                    conteudos.push({ value: `[📦 Repositório](${infoModulo.repositorio})` });
                 }
-                return { contents };
+                return { contents: conteudos };
             }
             // Verificar funções e classes documentadas pelo usuário
             const codigoAtual = model.getValue();
@@ -1357,10 +1506,62 @@ const configurarLinguagemDelegua = function () {
             return { actions: acoes, dispose() { } };
         }
     });
+    Monaco.languages.registerDocumentFormattingEditProvider('delegua', {
+        provideDocumentFormattingEdits: (model) => __awaiter(this, void 0, void 0, function* () {
+            const configuracoes = obterConfiguracoesDeleguaWeb();
+            const codigoAtual = model.getValue();
+            const codigoFormatado = yield formatarCodigoDelegua(codigoAtual, configuracoes);
+            if (!codigoFormatado || codigoFormatado === codigoAtual) {
+                return [];
+            }
+            return [{
+                    range: model.getFullModelRange(),
+                    text: codigoFormatado,
+                }];
+        })
+    });
+    Monaco.languages.registerDocumentRangeFormattingEditProvider('delegua', {
+        provideDocumentRangeFormattingEdits: (model, range) => __awaiter(this, void 0, void 0, function* () {
+            const configuracoes = obterConfiguracoesDeleguaWeb();
+            const codigoSelecionado = model.getValueInRange(range);
+            const codigoFormatado = yield formatarCodigoDelegua(codigoSelecionado, configuracoes);
+            if (!codigoFormatado || codigoFormatado === codigoSelecionado) {
+                return [];
+            }
+            return [{
+                    range,
+                    text: codigoFormatado,
+                }];
+        })
+    });
 };
 window.addEventListener("load", () => {
     configurarLinguagemDelegua();
     configurarAtualizacaoAutomatica();
+    const aplicarConfiguracoesNoEditor = (configuracoes) => {
+        tempoAnaliseAutomaticaMs = configuracoes.tempoAnaliseAutomaticaMs;
+        atualizarStatusFormatacao(configuracoes);
+        const seletorTema = document.getElementById('temaEditor');
+        if (seletorTema) {
+            seletorTema.value = configuracoes.temaEditor;
+        }
+        definirTema(configuracoes.temaEditor);
+        const seletorLinguagem = document.getElementById('linguagem');
+        if (seletorLinguagem) {
+            seletorLinguagem.value = configuracoes.linguagemTraducao === 'python' ? 'Python' : 'JavaScript';
+        }
+        const editorExistente = Monaco.editor.getEditors()[0];
+        if (editorExistente) {
+            editorExistente.updateOptions({
+                tabSize: configuracoes.tamanhoIndentacaoFormatacao,
+                insertSpaces: true,
+                wordWrap: 'bounded',
+                wordWrapColumn: configuracoes.maximoCaracteresPorLinhaFormatacao,
+            });
+        }
+    };
+    const configuracoes = obterConfiguracoesDeleguaWeb();
+    aplicarConfiguracoesNoEditor(configuracoes);
     const searchParams = new URLSearchParams(window.location.search.split('?')[1]);
     const exemploId = searchParams.get('exemploId');
     const codigo = searchParams.get('codigo');
@@ -1378,15 +1579,21 @@ window.addEventListener("load", () => {
         modelo.setValue('// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.');
     }
     Monaco.editor.setModelLanguage(modelo, 'delegua');
+    window.addEventListener('storage', (evento) => {
+        if (evento.key && evento.key !== CHAVE_CONFIGURACOES_LOCAL_STORAGE) {
+            return;
+        }
+        aplicarConfiguracoesNoEditor(obterConfiguracoesDeleguaWeb());
+    });
 });
-botaoTraduzir.addEventListener("click", function () {
+botaoTraduzir === null || botaoTraduzir === void 0 ? void 0 : botaoTraduzir.addEventListener("click", function () {
     limparResultadoEditor();
     executarTradutor();
 });
-botaoCompartilhar.addEventListener("click", function () {
+botaoCompartilhar === null || botaoCompartilhar === void 0 ? void 0 : botaoCompartilhar.addEventListener("click", function () {
     compartilharCodigo();
 });
-botaoExecutar.addEventListener("click", function () {
+botaoExecutar === null || botaoExecutar === void 0 ? void 0 : botaoExecutar.addEventListener("click", function () {
     limparResultadoEditor();
     executarCodigo();
 });
