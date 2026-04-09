@@ -22,8 +22,8 @@ const deleguaCodeSnippets = [
 	{
 		prefixo: "fazer enquanto",
 		corpo: [
-			"$var i = 0;",
-			"$fazer { ",
+			"var i = 0;",
+			"fazer { ",
 			"\tescreva(i);",
 			"\ti = i + 1;",
 			"} enquanto(i < 5)"
