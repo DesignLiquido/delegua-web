@@ -26,7 +26,8 @@ let errosComCorrecao = new Map();
 let fixesTiposDocstring = new Map();
 const mostrarResultadoExecutar = function (resultadoExecucao) {
     const paragrafo = document.createElement("p");
-    paragrafo.innerHTML = resultadoExecucao.replace(/\s/g, '&nbsp;');
+    const conteudo = resultadoExecucao.replace(/\s/g, '&nbsp;');
+    paragrafo.innerHTML = conteudo || '&nbsp;';
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
 };
