@@ -48,7 +48,7 @@ export class DeleguaWeb {
     tradutorPython = new TradutorPython();
     tradutorAssemblyScript = new TradutorAssemblyScript();
 
-    constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
+    constructor(nomeArquivo: string, funcaoDeRetorno: Function | null = null) {
         this.nomeArquivo = nomeArquivo;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
@@ -98,6 +98,36 @@ export class DeleguaWeb {
                 inputEl.addEventListener('keydown', onKeydown);
             }
         }
+
+        let contadorIteracoes = 0;
+        let limiteIteracoes = 1_000_000;
+        (this.interpretador as any).funcaoVerificarIteracao = async () => {
+            contadorIteracoes++;
+            if (contadorIteracoes >= limiteIteracoes) {
+                await new Promise<void>((resolve, reject) => {
+                    const overlay      = document.getElementById('modalLacoInfinito')       as HTMLElement;
+                    const btnContinuar = document.getElementById('modalLacoInfinitoContinuar') as HTMLButtonElement;
+                    const btnAbortar   = document.getElementById('modalLacoInfinitoAbortar')   as HTMLButtonElement;
+                    const botaoExecutar = document.getElementById('botaoExecutar')           as HTMLButtonElement;
+
+                    overlay.style.display = 'flex';
+                    botaoExecutar.disabled = true;
+
+                    const fechar = () => {
+                        overlay.style.display = 'none';
+                        botaoExecutar.disabled = false;
+                        btnContinuar.removeEventListener('click', onContinuar);
+                        btnAbortar.removeEventListener('click', onAbortar);
+                    };
+
+                    const onContinuar = () => { fechar(); limiteIteracoes = Infinity; resolve(); };
+                    const onAbortar   = () => { fechar(); reject(new Error('Execução abortada pelo usuário.')); };
+
+                    btnContinuar.addEventListener('click', onContinuar);
+                    btnAbortar.addEventListener('click', onAbortar);
+                });
+            }
+        };
 
         this.documentacoesBibliotecas = {};
 
@@ -156,7 +186,10 @@ export class DeleguaWeb {
                     erroLexador.mensagem
                 );
             }
-            return;
+            return {
+                erros: retornoImportador.retornoLexador.erros,
+                resultado: [],
+            };
         }
 
         if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
@@ -167,7 +200,10 @@ export class DeleguaWeb {
                     erroAvaliadorSintatico.message
                 );
             }
-            return;
+            return {
+                erros: retornoImportador.retornoAvaliadorSintatico.erros,
+                resultado: [],
+            };
         }
 
         const retornoInterpretador = await this.interpretador.interpretar(

@@ -101,6 +101,24 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de detecção de laço infinito -->
+  <div id="modalLacoInfinito" class="modal-leia-overlay" role="alertdialog" aria-modal="true"
+       aria-labelledby="modalLacoInfinitoTitulo" style="display:none;">
+    <div class="modal-leia-caixa">
+      <p id="modalLacoInfinitoTitulo" class="modal-leia-mensagem" style="font-weight:bold;">
+        Possível laço infinito detectado
+      </p>
+      <p class="modal-leia-mensagem">
+        A execução ultrapassou 1.000.000 de iterações. O programa pode estar em um laço infinito.
+        Deseja continuar a execução ou abortar?
+      </p>
+      <div class="modal-leia-botoes">
+        <button id="modalLacoInfinitoContinuar" class="modal-leia-btn modal-leia-btn-ok">Continuar</button>
+        <button id="modalLacoInfinitoAbortar" class="modal-leia-btn modal-leia-btn-cancelar">Abortar</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>

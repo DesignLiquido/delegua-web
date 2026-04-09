@@ -2,6 +2,26 @@ import { IPrimitiva } from "./primitivas/primitiva-interface";
 import type { CorrecaoImplementacaoInterface, MembroInterfaceFaltando } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import type { DocumentarioAnalisado } from '@designliquido/delegua/interfaces/documentario/documentario-analisado';
 
+interface MetodoArgumento {
+    nome: string;
+    opcional?: boolean;
+}
+
+interface MetodoDocumentacao {
+    argumentos?: MetodoArgumento[];
+    documentacao?: string;
+    tipoRetorno?: string;
+}
+
+interface SugestaoMetodo {
+    label: string;
+    kind: number;
+    insertText: string;
+    insertTextRules: number;
+    documentation: string;
+    detail: string;
+}
+
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
@@ -96,7 +116,7 @@ const executarTradutor = async function () {
     //ts-ignore
     const linguagem = (<HTMLInputElement>document.querySelector("#linguagem")).value.toLowerCase()
 
-    const funcoes = {
+    const funcoes: { [key: string]: { tradutor: any; linguagem: string } } = {
         "python": { tradutor: deleguaWeb.tradutorPython, linguagem: "python" },
         "javascript": { tradutor: deleguaWeb.tradutorJavascript, linguagem: "javascript" },
         // "assemblyscript": { tradutor: delegua.tradutorAssemblyScript, linguagem: "typescript" },
@@ -106,8 +126,8 @@ const executarTradutor = async function () {
         const retornoAvaliadorSintatico =
             await deleguaWeb.avaliadorSintatico.analisar(retornoLexador);
 
-        const funcao = funcoes[linguagem]
-        const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes)
+        const funcao = funcoes[linguagem];
+        const retornoTradutor = funcao.tradutor.traduzir(retornoAvaliadorSintatico.declaracoes);
 
         if (retornoTradutor) {
             Monaco.editor.create(document.getElementById("resultadoEditor"), {
@@ -913,63 +933,128 @@ const configurarLinguagemDelegua = function () {
     Monaco.editor.setTheme('delegua-escuro');
     document.body.setAttribute('data-tema', 'escuro');
 
+    // Interfaces para documentação de métodos
+    interface ArgumentoMetodo {
+        nome: string;
+        opcional?: boolean;
+        descricao?: string;
+        tipo?: string;
+    }
+    
+    interface ParametroSignatura {
+        label: [number, number];
+        documentation: string;
+    }
+    
+    interface MetodoDocumentado {
+        argumentos: ArgumentoMetodo[];
+        tipoRetorno?: string;
+        documentacao?: string;
+    }
+    
+    interface ResultadoSignatureHelp {
+        value: {
+            signatures: Array<{
+                label: string;
+                documentation: string;
+                parameters: ParametroSignatura[];
+            }>;
+            activeSignature: number;
+            activeParameter: number;
+        };
+        dispose: () => void;
+    }
+
+    interface DocumentacaoBiblioteca {
+        [nomeMetodo: string]: MetodoDocumentado;
+    }
+
+    interface ParametroDocumentado {
+        nome: string;
+        tipo?: string;
+        descricao?: string;
+    }
+
+    interface RetornoDocumentado {
+        tipo?: string;
+    }
+
+    interface FuncaoDocumentada {
+        descricao?: string;
+        parametros: ParametroDocumentado[];
+        retorna?: RetornoDocumentado;
+    }
+
+    interface SinaturaProviderResult {
+        value: {
+            signatures: Array<{
+                label: string;
+                documentation: string;
+                parameters: ParametroSignatura[];
+            }>;
+            activeSignature: number;
+            activeParameter: number;
+        };
+        dispose: () => void;
+    }
+
     Monaco.languages.registerSignatureHelpProvider('delegua', {
         signatureHelpTriggerCharacters: ['(', ','],
         signatureHelpRetriggerCharacters: [','],
-        provideSignatureHelp: (model, position) => {
-            const linha = model.getLineContent(position.lineNumber);
-            const textoAntesCursor = linha.substring(0, position.column - 1);
+        provideSignatureHelp: (model: Monaco.editor.ITextModel, position: Monaco.Position): SinaturaProviderResult => {
+            const linha: string = model.getLineContent(position.lineNumber);
+            const textoAntesCursor: string = linha.substring(0, position.column - 1);
             
             // Encontrar a chamada de função mais recente antes do cursor
             // Match pattern: biblioteca.metodo( ou apenas metodo(
-            const matchFuncao = textoAntesCursor.match(/(\w+)\.(\w+)\([^)]*$/);
+            const matchFuncao: RegExpMatchArray | null = textoAntesCursor.match(/(\w+)\.(\w+)\([^)]*$/);
             
             if (matchFuncao) {
-                const nomeBiblioteca = matchFuncao[1];
-                const nomeMetodo = matchFuncao[2];
-                const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
+                const nomeBiblioteca: string = matchFuncao[1];
+                const nomeMetodo: string = matchFuncao[2];
+                const documentacaoBiblioteca: DocumentacaoBiblioteca | undefined = documentacoesBibliotecas[nomeBiblioteca];
                 
                 if (documentacaoBiblioteca) {
-                    const metodo = documentacaoBiblioteca[nomeMetodo];
+                    const metodo: MetodoDocumentado | undefined = documentacaoBiblioteca[nomeMetodo];
                     
                     if (metodo && metodo.argumentos) {
                         // Contar quantos argumentos já foram digitados (contando vírgulas)
-                        const dentroParenteses = textoAntesCursor.split('(').pop();
-                        const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
-                        const parametroAtivo = numeroVirgulas;
+                        const dentroParenteses: string | undefined = textoAntesCursor.split('(').pop();
+                        const numeroVirgulas: number = (dentroParenteses?.match(/,/g) || []).length;
+                        const parametroAtivo: number = numeroVirgulas;
                         
                         // Construir o label e calcular os ranges para cada parâmetro
-                        const prefixo = `${nomeBiblioteca}.${nomeMetodo}(`;
-                        let labelCompleto = prefixo;
-                        const parametros: any[] = [];
+                        const prefixo: string = `${nomeBiblioteca}.${nomeMetodo}(`;
+                        let labelCompleto: string = prefixo;
+                        const parametros: ParametroSignatura[] = [];
                         
-                        metodo.argumentos.forEach((arg, index) => {
-                            const inicioParam = labelCompleto.length;
-                            const nomeParam = `${arg.nome}${arg.opcional ? '?' : ''}`;
+                        metodo.argumentos.forEach((argumento: ArgumentoMetodo, indice: number): void => {
+                            const inicioParam: number = labelCompleto.length;
+                            const nomeParam: string = `${argumento.nome}${argumento.opcional ? '?' : ''}`;
                             labelCompleto += nomeParam;
-                            const fimParam = labelCompleto.length;
+                            const fimParam: number = labelCompleto.length;
                             
                             parametros.push({
                                 label: [inicioParam, fimParam], // Range do parâmetro no label
-                                documentation: arg.descricao || `${arg.nome}: ${arg.tipo || 'qualquer'}`
+                                documentation: argumento.descricao || `${argumento.nome}: ${argumento.tipo || 'qualquer'}`
                             });
                             
                             // Adicionar vírgula se não for o último parâmetro
-                            if (index < metodo.argumentos.length - 1) {
+                            if (indice < metodo.argumentos.length - 1) {
                                 labelCompleto += ', ';
                             }
                         });
                         
-                        const retornoTexto = metodo.tipoRetorno ? ` → ${metodo.tipoRetorno}` : '';
+                        const retornoTexto: string = metodo.tipoRetorno ? ` → ${metodo.tipoRetorno}` : '';
                         labelCompleto += `)${retornoTexto}`;
                         
                         // Extrair apenas a primeira descrição do markdown (após o título)
-                        let descricaoSimples = '';
+                        let descricaoSimples: string = '';
                         if (metodo.documentacao) {
-                            const linhas = metodo.documentacao.split('\n');
+                            const linhas: string[] = metodo.documentacao.split('\n');
                             // Pular o título (primeira linha) e linhas vazias, pegar a primeira linha de conteúdo
-                            for (let i = 1; i < linhas.length; i++) {
-                                const linha = linhas[i].trim();
+                            for (let i: number = 1; i < linhas.length; i++) {
+                                const linha: string = linhas[i].trim();
                                 if (linha && !linha.startsWith('#') && !linha.startsWith('```')) {
                                     descricaoSimples = linha;
                                     break;
@@ -977,7 +1062,7 @@ const configurarLinguagemDelegua = function () {
                             }
                         }
                         
-                        return {
+                        const resultado: SinaturaProviderResult = {
                             value: {
                                 signatures: [{
                                     label: labelCompleto,
@@ -987,31 +1072,32 @@ const configurarLinguagemDelegua = function () {
                                 activeSignature: 0,
                                 activeParameter: Math.min(parametroAtivo, parametros.length - 1)
                             },
-                            dispose: () => {}
+                            dispose: (): void => {}
                         };
+                        return resultado;
                     }
                 }
             }
             
             // Verificar funções documentadas pelo usuário
-            const matchFuncaoLocal = textoAntesCursor.match(/(?<!\.)([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\([^)]*$/);
+            const matchFuncaoLocal: RegExpMatchArray | null = textoAntesCursor.match(/(?<!\.)([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\([^)]*$/);
             if (matchFuncaoLocal) {
-                const nomeFuncao = matchFuncaoLocal[1];
-                const funcoesDocumentadas = extrairFuncoesDocumentadas(model.getValue());
-                const doc = funcoesDocumentadas.get(nomeFuncao);
+                const nomeFuncao: string = matchFuncaoLocal[1];
+                const funcoesDocumentadas: Map<string, FuncaoDocumentada> = extrairFuncoesDocumentadas(model.getValue());
+                const doc: FuncaoDocumentada | undefined = funcoesDocumentadas.get(nomeFuncao);
                 if (doc && doc.parametros.length > 0) {
-                    const dentroParenteses = textoAntesCursor.split('(').pop();
-                    const numeroVirgulas = (dentroParenteses.match(/,/g) || []).length;
+                    const dentroParenteses: string | undefined = textoAntesCursor.split('(').pop();
+                    const numeroVirgulas: number = (dentroParenteses?.match(/,/g) || []).length;
 
-                    const prefixo = `${nomeFuncao}(`;
-                    let labelCompleto = prefixo;
-                    const parametros: any[] = [];
+                    const prefixo: string = `${nomeFuncao}(`;
+                    let labelCompleto: string = prefixo;
+                    const parametros: ParametroSignatura[] = [];
 
-                    doc.parametros.forEach((param, index) => {
-                        const inicioParam = labelCompleto.length;
-                        const nomeParam = param.tipo ? `${param.nome}: ${param.tipo}` : param.nome;
+                    doc.parametros.forEach((param: ParametroDocumentado, index: number): void => {
+                        const inicioParam: number = labelCompleto.length;
+                        const nomeParam: string = param.tipo ? `${param.nome}: ${param.tipo}` : param.nome;
                         labelCompleto += nomeParam;
-                        const fimParam = labelCompleto.length;
+                        const fimParam: number = labelCompleto.length;
                         parametros.push({
                             label: [inicioParam, fimParam],
                             documentation: param.descricao || param.nome
@@ -1021,36 +1107,36 @@ const configurarLinguagemDelegua = function () {
                         }
                     });
 
-                    const sufixoRetorno = doc.retorna?.tipo ? ` → ${doc.retorna.tipo}` : '';
+                    const sufixoRetorno: string = doc.retorna?.tipo ? ` → ${doc.retorna.tipo}` : '';
                     labelCompleto += `)${sufixoRetorno}`;
 
                     return {
                         value: {
                             signatures: [{
                                 label: labelCompleto,
-                                documentation: doc.descricao,
+                                documentation: doc.descricao || '',
                                 parameters: parametros
                             }],
                             activeSignature: 0,
                             activeParameter: Math.min(numeroVirgulas, parametros.length - 1)
                         },
-                        dispose: () => {}
+                        dispose: (): void => {}
                     };
                 }
             }
 
             return {
                 value: { signatures: [], activeSignature: 0, activeParameter: 0 },
-                dispose: () => {}
+                dispose: (): void => {}
             };
         }
     });
 
     Monaco.languages.registerCompletionItemProvider('delegua', {
         triggerCharacters: ['.'],
-        provideCompletionItems: (model, position) => {
-            const linha = model.getLineContent(position.lineNumber);
-            const textoAntesCursor = linha.substring(0, position.column - 1);
+        provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
+            const linha: string = model.getLineContent(position.lineNumber);
+            const textoAntesCursor: string = linha.substring(0, position.column - 1);
 
             // Verificar se estamos após um ponto (ex: criptografia.)
             const matchBiblioteca = textoAntesCursor.match(/(\w+)\.(\w*)$/);
@@ -1060,12 +1146,12 @@ const configurarLinguagemDelegua = function () {
                 const documentacaoBiblioteca = documentacoesBibliotecas[nomeBiblioteca];
 
                 if (documentacaoBiblioteca) {
-                    const sugestoesMetodos = Object.keys(documentacaoBiblioteca).map(nomeMetodo => {
-                        const metodo = documentacaoBiblioteca[nomeMetodo];
-                        const argumentos = metodo.argumentos || [];
-                        const argsTexto = argumentos
-                            .map((arg, index) => {
-                                const placeholder = `\${${index + 1}:${arg.nome}}`;
+                    const sugestoesMetodos: SugestaoMetodo[] = Object.keys(documentacaoBiblioteca).map((nomeMetodo: string): SugestaoMetodo => {
+                        const metodo: MetodoDocumentacao = documentacaoBiblioteca[nomeMetodo];
+                        const argumentos: MetodoArgumento[] = metodo.argumentos || [];
+                        const argsTexto: string = argumentos
+                            .map((arg: MetodoArgumento, index: number): string => {
+                                const placeholder: string = `\${${index + 1}:${arg.nome}}`;
                                 return arg.opcional ? placeholder : placeholder;
                             })
                             .join(', ');
@@ -1271,7 +1357,22 @@ const configurarLinguagemDelegua = function () {
         }
     });
 
-    const documentacaoKeywords: Record<string, { titulo: string; descricao: string; exemplo: string }> = {
+    interface KeywordDoc {
+        titulo: string;
+        descricao: string;
+        exemplo: string;
+    }
+
+    interface HoverContentItem {
+        value: string;
+    }
+
+    interface WordPosition {
+        word: string;
+        startColumn: number;
+    }
+
+    const documentacaoKeywords: Record<string, KeywordDoc> = {
         'interface': {
             titulo: 'interface',
             descricao: 'Declara um contrato que classes podem implementar. Define assinaturas de métodos e propriedades sem implementação. A conformidade é verificada em tempo de análise.',
@@ -1412,8 +1513,8 @@ const configurarLinguagemDelegua = function () {
             
             // Verificar se é o nome de um módulo (sem ponto depois)
             const nomeModulo = palavra.word;
-            const infoModulo = informacoesModulos[nomeModulo];
-            const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo];
+            const infoModulo = informacoesModulos[nomeModulo as keyof typeof informacoesModulos];
+            const documentacaoBiblioteca = documentacoesBibliotecas[nomeModulo as keyof typeof documentacoesBibliotecas];
             
             if (infoModulo || documentacaoBiblioteca) {
                 const contents = [
@@ -1468,7 +1569,7 @@ const configurarLinguagemDelegua = function () {
     });
 
     Monaco.languages.registerCodeActionProvider('delegua', {
-        provideCodeActions(model, _range, context) {
+        provideCodeActions(model: any, _range: any, context: { markers: any; }) {
             const acoes: any[] = [];
 
             for (const marcador of context.markers) {
@@ -1505,7 +1606,7 @@ window.addEventListener("load", () => {
     }
     else if (exemploId) {
         modelo.setValue((window as any).Exemplos[exemploId]);
-        document.querySelector('#titulo-arquivo').innerHTML = `${exemploId}.delegua`;
+        document.querySelector('#titulo-arquivo')!.innerHTML = `${exemploId}.delegua`;
     } else {
         modelo.setValue('// Digite código em Delégua aqui, ou utilize o menu do topo superior esquerdo para selecionar exemplos de código em Delégua.');
     }
@@ -1513,16 +1614,16 @@ window.addEventListener("load", () => {
     Monaco.editor.setModelLanguage(modelo, 'delegua');
 });
 
-botaoTraduzir.addEventListener("click", function () {
+botaoTraduzir?.addEventListener("click", function () {
     limparResultadoEditor();
     executarTradutor();
 });
 
-botaoCompartilhar.addEventListener("click", function () {
+botaoCompartilhar?.addEventListener("click", function () {
     compartilharCodigo();
 });
 
-botaoExecutar.addEventListener("click", function () {
+botaoExecutar?.addEventListener("click", function () {
     limparResultadoEditor();
     executarCodigo();
 });
