@@ -30,6 +30,7 @@ const mostrarResultadoExecutar = function (resultadoExecucao) {
     paragrafo.innerHTML = conteudo || '&nbsp;';
     paragrafo.classList = " resultadoEditor";
     resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
+    resultadoEditorDiv.scrollTop = resultadoEditorDiv.scrollHeight;
 };
 const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 const limparResultadoEditor = function () {
