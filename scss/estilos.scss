@@ -318,9 +318,11 @@ body[data-tema="escuro"] {
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
 }
 
 .modal-leia-caixa {
+    pointer-events: auto;
     background-color: variaveis.$branco;
     border: 1px solid variaveis.$borda;
     border-radius: 4px;
