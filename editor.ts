@@ -37,6 +37,48 @@ const RegraFortalecerTipos = Delegua.RegraFortalecerTipos;
 const RegraConvencaoNomenclatura = Delegua.RegraConvencaoNomenclatura;
 const RegraParadigmaConsistente = Delegua.RegraParadigmaConsistente;
 
+class RegraExplicitarTiposParametrosLocal {
+    nome = 'explicitar-tipos-parametros';
+    descricao = 'Explicita o tipo `qualquer` em parâmetros sem tipo declarado';
+
+    aplicarEmDeclaracao(declaracao: any): any {
+        this.visitarObjeto(declaracao, new Set<any>());
+        return declaracao;
+    }
+
+    aplicarEmConstruto(construto: any): any {
+        this.visitarObjeto(construto, new Set<any>());
+        return construto;
+    }
+
+    private visitarObjeto(objeto: unknown, visitados: Set<any>): void {
+        if (!objeto || typeof objeto !== 'object' || visitados.has(objeto)) {
+            return;
+        }
+
+        visitados.add(objeto);
+
+        if (Array.isArray(objeto)) {
+            for (const item of objeto) {
+                this.visitarObjeto(item, visitados);
+            }
+            return;
+        }
+
+        if ('parametros' in (objeto as any) && Array.isArray((objeto as any).parametros)) {
+            for (const parametro of (objeto as any).parametros) {
+                if (!parametro.tipoDado) {
+                    parametro.tipoDado = 'qualquer';
+                }
+            }
+        }
+
+        for (const valor of Object.values(objeto as Record<string, unknown>)) {
+            this.visitarObjeto(valor, visitados);
+        }
+    }
+}
+
 interface ConfiguracoesDeleguaWeb {
     temaEditor: string;
     linguagemTraducao: 'javascript' | 'python';
@@ -46,6 +88,7 @@ interface ConfiguracoesDeleguaWeb {
     delimitadorTextoFormatacao: 'aspas-simples' | 'aspas-duplas' | 'preservar';
     habilitarEstilizador: boolean;
     regraFortalecerTipos: boolean;
+    regraExplicitarTiposParametros: boolean;
     regraConvencaoNomenclatura: boolean;
     regraParadigmaConsistente: boolean;
     convencaoVariavel: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
@@ -64,6 +107,7 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     delimitadorTextoFormatacao: 'preservar',
     habilitarEstilizador: true,
     regraFortalecerTipos: false,
+    regraExplicitarTiposParametros: false,
     regraConvencaoNomenclatura: false,
     regraParadigmaConsistente: false,
     convencaoVariavel: 'caixaCamelo',
@@ -114,6 +158,9 @@ function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
             regraFortalecerTipos: typeof configuracoes?.regraFortalecerTipos === 'boolean'
                 ? configuracoes.regraFortalecerTipos
                 : CONFIGURACOES_PADRAO.regraFortalecerTipos,
+            regraExplicitarTiposParametros: typeof configuracoes?.regraExplicitarTiposParametros === 'boolean'
+                ? configuracoes.regraExplicitarTiposParametros
+                : CONFIGURACOES_PADRAO.regraExplicitarTiposParametros,
             regraConvencaoNomenclatura: typeof configuracoes?.regraConvencaoNomenclatura === 'boolean'
                 ? configuracoes.regraConvencaoNomenclatura
                 : CONFIGURACOES_PADRAO.regraConvencaoNomenclatura,
@@ -157,8 +204,9 @@ function atualizarStatusFormatacao(configuracoes: ConfiguracoesDeleguaWeb): void
         return;
     }
 
-    const totalRegras = 3;
+    const totalRegras = 4;
     const regrasAtivas = Number(configuracoes.regraFortalecerTipos)
+        + Number(configuracoes.regraExplicitarTiposParametros)
         + Number(configuracoes.regraConvencaoNomenclatura)
         + Number(configuracoes.regraParadigmaConsistente);
 
@@ -318,6 +366,10 @@ const formatarCodigoDelegua = async function (codigo: string, configuracoes: Con
         if (configuracoes.habilitarEstilizador) {
             if (configuracoes.regraFortalecerTipos && RegraFortalecerTipos) {
                 regrasEstilizador.push(new RegraFortalecerTipos());
+            }
+
+            if (configuracoes.regraExplicitarTiposParametros) {
+                regrasEstilizador.push(new RegraExplicitarTiposParametrosLocal());
             }
 
             if (configuracoes.regraConvencaoNomenclatura && RegraConvencaoNomenclatura) {

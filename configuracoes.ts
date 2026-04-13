@@ -8,6 +8,7 @@ interface ConfiguracoesDeleguaWeb {
     maximoCaracteresPorLinhaFormatacao: number;
     habilitarEstilizador: boolean;
     regraFortalecerTipos: boolean;
+    regraExplicitarTiposParametros: boolean;
     regraConvencaoNomenclatura: boolean;
     regraParadigmaConsistente: boolean;
     convencaoVariavel: 'caixaCamelo' | 'caixa_cobra' | 'CaixaPascal';
@@ -27,6 +28,7 @@ const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
     maximoCaracteresPorLinhaFormatacao: 100,
     habilitarEstilizador: true,
     regraFortalecerTipos: false,
+    regraExplicitarTiposParametros: false,
     regraConvencaoNomenclatura: false,
     regraParadigmaConsistente: false,
     convencaoVariavel: 'caixaCamelo',
@@ -124,6 +126,7 @@ function normalizarConfiguracoes(origem: any): ConfiguracoesDeleguaWeb {
         maximoCaracteresPorLinhaFormatacao: validarMaximoCaracteresPorLinha(origem?.maximoCaracteresPorLinhaFormatacao),
         habilitarEstilizador: validarBooleano(origem?.habilitarEstilizador, CONFIGURACOES_PADRAO.habilitarEstilizador),
         regraFortalecerTipos: validarBooleano(origem?.regraFortalecerTipos, CONFIGURACOES_PADRAO.regraFortalecerTipos),
+        regraExplicitarTiposParametros: validarBooleano(origem?.regraExplicitarTiposParametros, CONFIGURACOES_PADRAO.regraExplicitarTiposParametros),
         regraConvencaoNomenclatura: validarBooleano(origem?.regraConvencaoNomenclatura, CONFIGURACOES_PADRAO.regraConvencaoNomenclatura),
         regraParadigmaConsistente: validarBooleano(origem?.regraParadigmaConsistente, CONFIGURACOES_PADRAO.regraParadigmaConsistente),
         convencaoVariavel: validarConvencaoVariavel(origem?.convencaoVariavel),
@@ -175,6 +178,7 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
     const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
     const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig') as HTMLInputElement | null;
+    const regraExplicitarTiposParametros = document.getElementById('regraExplicitarTiposParametrosConfig') as HTMLInputElement | null;
     const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
     const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
     const convencaoVariavel = document.getElementById('convencaoVariavelConfig') as HTMLSelectElement | null;
@@ -216,6 +220,10 @@ function preencherFormulario(configuracoes: ConfiguracoesDeleguaWeb): void {
 
     if (regraFortalecerTipos) {
         regraFortalecerTipos.checked = configuracoes.regraFortalecerTipos;
+    }
+
+    if (regraExplicitarTiposParametros) {
+        regraExplicitarTiposParametros.checked = configuracoes.regraExplicitarTiposParametros;
     }
 
     if (regraConvencaoNomenclatura) {
@@ -277,6 +285,7 @@ function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig') as HTMLInputElement | null;
     const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig') as HTMLInputElement | null;
     const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig') as HTMLInputElement | null;
+    const regraExplicitarTiposParametros = document.getElementById('regraExplicitarTiposParametrosConfig') as HTMLInputElement | null;
     const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig') as HTMLInputElement | null;
     const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig') as HTMLInputElement | null;
     const convencaoVariavel = document.getElementById('convencaoVariavelConfig') as HTMLSelectElement | null;
@@ -294,6 +303,7 @@ function obterConfiguracoesDoFormulario(): ConfiguracoesDeleguaWeb {
         maximoCaracteresPorLinhaFormatacao: maximoCaracteresPorLinha?.value,
         habilitarEstilizador: habilitarEstilizador?.checked,
         regraFortalecerTipos: regraFortalecerTipos?.checked,
+        regraExplicitarTiposParametros: regraExplicitarTiposParametros?.checked,
         regraConvencaoNomenclatura: regraConvencaoNomenclatura?.checked,
         regraParadigmaConsistente: regraParadigmaConsistente?.checked,
         convencaoVariavel: convencaoVariavel?.value,
