@@ -22,6 +22,42 @@ const QuebradorDeLinha = Delegua.QuebradorDeLinha;
 const RegraFortalecerTipos = Delegua.RegraFortalecerTipos;
 const RegraConvencaoNomenclatura = Delegua.RegraConvencaoNomenclatura;
 const RegraParadigmaConsistente = Delegua.RegraParadigmaConsistente;
+class RegraExplicitarTiposParametrosLocal {
+    constructor() {
+        this.nome = 'explicitar-tipos-parametros';
+        this.descricao = 'Explicita o tipo `qualquer` em parâmetros sem tipo declarado';
+    }
+    aplicarEmDeclaracao(declaracao) {
+        this.visitarObjeto(declaracao, new Set());
+        return declaracao;
+    }
+    aplicarEmConstruto(construto) {
+        this.visitarObjeto(construto, new Set());
+        return construto;
+    }
+    visitarObjeto(objeto, visitados) {
+        if (!objeto || typeof objeto !== 'object' || visitados.has(objeto)) {
+            return;
+        }
+        visitados.add(objeto);
+        if (Array.isArray(objeto)) {
+            for (const item of objeto) {
+                this.visitarObjeto(item, visitados);
+            }
+            return;
+        }
+        if ('parametros' in objeto && Array.isArray(objeto.parametros)) {
+            for (const parametro of objeto.parametros) {
+                if (!parametro.tipoDado) {
+                    parametro.tipoDado = 'qualquer';
+                }
+            }
+        }
+        for (const valor of Object.values(objeto)) {
+            this.visitarObjeto(valor, visitados);
+        }
+    }
+}
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
 const CONFIGURACOES_PADRAO = {
     temaEditor: 'vs-dark',
@@ -32,6 +68,7 @@ const CONFIGURACOES_PADRAO = {
     delimitadorTextoFormatacao: 'preservar',
     habilitarEstilizador: true,
     regraFortalecerTipos: false,
+    regraExplicitarTiposParametros: false,
     regraConvencaoNomenclatura: false,
     regraParadigmaConsistente: false,
     convencaoVariavel: 'caixaCamelo',
@@ -79,6 +116,9 @@ function obterConfiguracoesDeleguaWeb() {
             regraFortalecerTipos: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraFortalecerTipos) === 'boolean'
                 ? configuracoes.regraFortalecerTipos
                 : CONFIGURACOES_PADRAO.regraFortalecerTipos,
+            regraExplicitarTiposParametros: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraExplicitarTiposParametros) === 'boolean'
+                ? configuracoes.regraExplicitarTiposParametros
+                : CONFIGURACOES_PADRAO.regraExplicitarTiposParametros,
             regraConvencaoNomenclatura: typeof (configuracoes === null || configuracoes === void 0 ? void 0 : configuracoes.regraConvencaoNomenclatura) === 'boolean'
                 ? configuracoes.regraConvencaoNomenclatura
                 : CONFIGURACOES_PADRAO.regraConvencaoNomenclatura,
@@ -117,8 +157,9 @@ function atualizarStatusFormatacao(configuracoes) {
     if (!statusFormatacao) {
         return;
     }
-    const totalRegras = 3;
+    const totalRegras = 4;
     const regrasAtivas = Number(configuracoes.regraFortalecerTipos)
+        + Number(configuracoes.regraExplicitarTiposParametros)
         + Number(configuracoes.regraConvencaoNomenclatura)
         + Number(configuracoes.regraParadigmaConsistente);
     if (!configuracoes.habilitarEstilizador) {
@@ -257,6 +298,9 @@ const formatarCodigoDelegua = function (codigo, configuracoes) {
             if (configuracoes.habilitarEstilizador) {
                 if (configuracoes.regraFortalecerTipos && RegraFortalecerTipos) {
                     regrasEstilizador.push(new RegraFortalecerTipos());
+                }
+                if (configuracoes.regraExplicitarTiposParametros) {
+                    regrasEstilizador.push(new RegraExplicitarTiposParametrosLocal());
                 }
                 if (configuracoes.regraConvencaoNomenclatura && RegraConvencaoNomenclatura) {
                     regrasEstilizador.push(new RegraConvencaoNomenclatura({

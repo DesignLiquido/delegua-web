@@ -9,6 +9,7 @@ const CONFIGURACOES_PADRAO = {
     maximoCaracteresPorLinhaFormatacao: 100,
     habilitarEstilizador: true,
     regraFortalecerTipos: false,
+    regraExplicitarTiposParametros: false,
     regraConvencaoNomenclatura: false,
     regraParadigmaConsistente: false,
     convencaoVariavel: 'caixaCamelo',
@@ -93,6 +94,7 @@ function normalizarConfiguracoes(origem) {
         maximoCaracteresPorLinhaFormatacao: validarMaximoCaracteresPorLinha(origem === null || origem === void 0 ? void 0 : origem.maximoCaracteresPorLinhaFormatacao),
         habilitarEstilizador: validarBooleano(origem === null || origem === void 0 ? void 0 : origem.habilitarEstilizador, CONFIGURACOES_PADRAO.habilitarEstilizador),
         regraFortalecerTipos: validarBooleano(origem === null || origem === void 0 ? void 0 : origem.regraFortalecerTipos, CONFIGURACOES_PADRAO.regraFortalecerTipos),
+        regraExplicitarTiposParametros: validarBooleano(origem === null || origem === void 0 ? void 0 : origem.regraExplicitarTiposParametros, CONFIGURACOES_PADRAO.regraExplicitarTiposParametros),
         regraConvencaoNomenclatura: validarBooleano(origem === null || origem === void 0 ? void 0 : origem.regraConvencaoNomenclatura, CONFIGURACOES_PADRAO.regraConvencaoNomenclatura),
         regraParadigmaConsistente: validarBooleano(origem === null || origem === void 0 ? void 0 : origem.regraParadigmaConsistente, CONFIGURACOES_PADRAO.regraParadigmaConsistente),
         convencaoVariavel: validarConvencaoVariavel(origem === null || origem === void 0 ? void 0 : origem.convencaoVariavel),
@@ -138,6 +140,7 @@ function preencherFormulario(configuracoes) {
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig');
     const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig');
     const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig');
+    const regraExplicitarTiposParametros = document.getElementById('regraExplicitarTiposParametrosConfig');
     const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig');
     const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig');
     const convencaoVariavel = document.getElementById('convencaoVariavelConfig');
@@ -170,6 +173,9 @@ function preencherFormulario(configuracoes) {
     }
     if (regraFortalecerTipos) {
         regraFortalecerTipos.checked = configuracoes.regraFortalecerTipos;
+    }
+    if (regraExplicitarTiposParametros) {
+        regraExplicitarTiposParametros.checked = configuracoes.regraExplicitarTiposParametros;
     }
     if (regraConvencaoNomenclatura) {
         regraConvencaoNomenclatura.checked = configuracoes.regraConvencaoNomenclatura;
@@ -222,6 +228,7 @@ function obterConfiguracoesDoFormulario() {
     const maximoCaracteresPorLinha = document.getElementById('maximoCaracteresLinhaConfig');
     const habilitarEstilizador = document.getElementById('habilitarEstilizadorConfig');
     const regraFortalecerTipos = document.getElementById('regraFortalecerTiposConfig');
+    const regraExplicitarTiposParametros = document.getElementById('regraExplicitarTiposParametrosConfig');
     const regraConvencaoNomenclatura = document.getElementById('regraConvencaoNomenclaturaConfig');
     const regraParadigmaConsistente = document.getElementById('regraParadigmaConsistenteConfig');
     const convencaoVariavel = document.getElementById('convencaoVariavelConfig');
@@ -238,6 +245,7 @@ function obterConfiguracoesDoFormulario() {
         maximoCaracteresPorLinhaFormatacao: maximoCaracteresPorLinha === null || maximoCaracteresPorLinha === void 0 ? void 0 : maximoCaracteresPorLinha.value,
         habilitarEstilizador: habilitarEstilizador === null || habilitarEstilizador === void 0 ? void 0 : habilitarEstilizador.checked,
         regraFortalecerTipos: regraFortalecerTipos === null || regraFortalecerTipos === void 0 ? void 0 : regraFortalecerTipos.checked,
+        regraExplicitarTiposParametros: regraExplicitarTiposParametros === null || regraExplicitarTiposParametros === void 0 ? void 0 : regraExplicitarTiposParametros.checked,
         regraConvencaoNomenclatura: regraConvencaoNomenclatura === null || regraConvencaoNomenclatura === void 0 ? void 0 : regraConvencaoNomenclatura.checked,
         regraParadigmaConsistente: regraParadigmaConsistente === null || regraParadigmaConsistente === void 0 ? void 0 : regraParadigmaConsistente.checked,
         convencaoVariavel: convencaoVariavel === null || convencaoVariavel === void 0 ? void 0 : convencaoVariavel.value,
