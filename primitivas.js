@@ -3462,6 +3462,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     ADICAO: 'ADICAO',
+    ASSERCAO: 'ASSERCAO',
     ABSTRATO: 'ABSTRATO',
     AJUDA: 'AJUDA',
     ARROBA: 'ARROBA',
