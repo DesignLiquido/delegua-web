@@ -4233,9 +4233,12 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 ];
                 // Classes/construtores geralmente começam com letra maiúscula
                 const pareceSerClasse = nomeFuncao[0] === nomeFuncao[0].toUpperCase();
+                if (pareceSerClasse) {
+                    this.gerenciadorEscopos.marcarComoUsada(nomeFuncao);
+                    break;
+                }
                 // Só verifica se a função existe se não for embutidas e não parecer ser classe
                 if (!funcoesEmbutidas.includes(nomeFuncao) &&
-                    !pareceSerClasse &&
                     !this.funcoes[nomeFuncao] &&
                     !this.gerenciadorEscopos.buscar(nomeFuncao)) {
                     this.erro(entidadeChamadaVariavel.simbolo, `Chamada da função '${nomeFuncao}' não existe.`);
@@ -4547,6 +4550,9 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                 this.gerenciadorEscopos.marcarComoUsada(tipoBase);
         }
         for (const metodo of declaracao.metodos) {
+            const tipoRetorno = metodo.funcao.tipo?.replace('[]', '');
+            if (tipoRetorno)
+                this.gerenciadorEscopos.marcarComoUsada(tipoRetorno);
             for (const parametro of metodo.funcao.parametros) {
                 const tipoBase = parametro.tipoDado?.replace('[]', '');
                 if (tipoBase)
@@ -4562,6 +4568,12 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             for (const metodo of declaracao.metodos) {
                 if (metodo.abstrato)
                     continue;
+                const tipoRetornoMetodo = metodo.funcao.tipo;
+                if (tipoRetornoMetodo &&
+                    !['vazio', 'qualquer'].includes(tipoRetornoMetodo) &&
+                    metodo.funcao.corpo.length === 0) {
+                    this.aviso(metodo.simbolo, `Método especifica tipo de retorno '${tipoRetornoMetodo}', mas não há qualquer retorno correspondente no corpo do método.`);
+                }
                 for (const stmt of metodo.funcao.corpo) {
                     await stmt.aceitar(this);
                 }
@@ -4578,10 +4590,16 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
         }
         let tipoRetornoFuncao = declaracao.funcao.tipo;
         if (tipoRetornoFuncao) {
+            this.gerenciadorEscopos.marcarComoUsada(tipoRetornoFuncao);
             if (!['vazio', 'qualquer'].includes(tipoRetornoFuncao)) {
-                const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(declaracao.funcao.corpo);
-                if (!todosOsCaminhosRetornam) {
-                    this.erro(declaracao.simbolo, `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`);
+                if (declaracao.funcao.corpo.length === 0) {
+                    this.aviso(declaracao.simbolo, `Método especifica tipo de retorno '${tipoRetornoFuncao}', mas não há qualquer retorno correspondente no corpo do método.`);
+                }
+                else {
+                    const todosOsCaminhosRetornam = this.todosOsCaminhosRetornam(declaracao.funcao.corpo);
+                    if (!todosOsCaminhosRetornam) {
+                        this.erro(declaracao.simbolo, `Função '${declaracao.simbolo.lexema}' deve retornar '${tipoRetornoFuncao}' em todos os caminhos de execução.`);
+                    }
                 }
             }
             let retornos = [];
@@ -8351,7 +8369,7 @@ class AvaliadorSintaticoEguaClassico {
         if (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.NULO))
             return new construtos_1.Literal(this.hashArquivo, 0, null);
         if (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.ISTO))
-            return new construtos_1.Isto(this.hashArquivo, Number(this.simboloAnterior()));
+            return new construtos_1.Isto(this.hashArquivo, Number(this.simboloAnterior().linha), this.simboloAnterior());
         if (this.verificarSeSimboloAtualEIgualA(egua_classico_1.default.NUMERO, egua_classico_1.default.TEXTO)) {
             return new construtos_1.Literal(this.hashArquivo, 0, this.simboloAnterior().literal);
         }
@@ -46431,7 +46449,12 @@ ${labelFuncao}:
     }
     traduzirConstrutoLiteral(construto) {
         if (typeof construto.valor === 'string') {
-            return this.criaStringLiteral(construto);
+            return this.criarStringLiteral(construto);
+        }
+        if (typeof construto.valor === 'number' &&
+            Number.isFinite(construto.valor) &&
+            !Number.isInteger(construto.valor)) {
+            return this.criarLiteralPontoFlutuante(construto.valor);
         }
         return String(construto.valor);
     }
@@ -46563,7 +46586,10 @@ ${labelProximo}:`;
     traduzirDeclaracaoExpressao(declaracao) {
         if (declaracao.expressao &&
             this.dicionarioConstrutos[declaracao.expressao.constructor.name]) {
-            this.dicionarioConstrutos[declaracao.expressao.constructor.name](declaracao.expressao);
+            const resultado = this.dicionarioConstrutos[declaracao.expressao.constructor.name](declaracao.expressao);
+            if (typeof resultado === 'string' && resultado && resultado !== 'a0') {
+                this.emitirCarga('a0', resultado);
+            }
         }
     }
     traduzirDeclaracaoFazer(declaracao) {
@@ -46777,19 +46803,24 @@ ${labelSenao}:`;
             }
         }
     }
-    criaStringLiteral(literal) {
+    criarStringLiteral(literal) {
         const varLiteral = `Delegua_${this.gerarDigitoAleatorio()}`;
         this.data += `    ${varLiteral}: .asciz "${literal.valor}"\n`;
         return varLiteral;
     }
-    criaTamanhoNaMemoriaReferenteAVar(nomeStringLiteral) {
+    criarLiteralPontoFlutuante(valor) {
+        const varLiteral = `Delegua_${this.gerarDigitoAleatorio()}`;
+        this.data += `    ${varLiteral}: .double ${valor}\n`;
+        return varLiteral;
+    }
+    criarTamanhoNaMemoriaReferenteAVar(nomeStringLiteral) {
         return `tam_${nomeStringLiteral}`;
     }
     traduzirDeclaracaoEscreva(declaracaoEscreva) {
         let nomeStringLiteral = '';
         let tamanhoString = '';
         if (declaracaoEscreva.argumentos[0] instanceof construtos_1.Literal) {
-            nomeStringLiteral = this.criaStringLiteral(declaracaoEscreva.argumentos[0]);
+            nomeStringLiteral = this.criarStringLiteral(declaracaoEscreva.argumentos[0]);
             const stringValue = declaracaoEscreva.argumentos[0].valor;
             tamanhoString = String(stringValue.length);
         }
@@ -47611,7 +47642,7 @@ class TradutorAssemblyScript {
         this.dicionarioConstrutos = {
             AcessoIndiceVariavel: this.traduzirConstrutoAcessoIndiceVariavel.bind(this),
             AcessoMetodo: this.traduzirConstrutoAcessoMetodo.bind(this),
-            AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodo.bind(this),
+            AcessoMetodoOuPropriedade: this.traduzirConstrutoAcessoMetodoOuPropriedade.bind(this),
             AcessoPropriedade: this.traduzirConstrutoAcessoPropriedade.bind(this),
             Agrupamento: this.traduzirConstrutoAgrupamento.bind(this),
             ArgumentoReferenciaFuncao: this.traduzirConstrutoArgumentoReferenciaFuncao.bind(this),
@@ -47814,7 +47845,7 @@ class TradutorAssemblyScript {
             case 'aleatorio':
                 return `Math.random()`;
             case 'aleatorioEntre':
-            case 'aleatorioente':
+            case 'aleatorioentre':
                 if (argumentos.length >= 2) {
                     return `(Math.random() * (${argumentos[1]} - ${argumentos[0]}) + ${argumentos[0]})`;
                 }
@@ -48712,11 +48743,20 @@ class TradutorAssemblyScript {
         return resultado;
     }
     traduzirConstrutoAcessoMetodo(acessoMetodo) {
+        const nomeMetodo = acessoMetodo.nomeMetodo;
         if (acessoMetodo.objeto instanceof construtos_1.Variavel) {
             let objetoVariavel = acessoMetodo.objeto;
-            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(acessoMetodo.simbolo.lexema)}`;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(nomeMetodo)}`;
         }
-        return `this.${acessoMetodo.simbolo.lexema}`;
+        return `this.${nomeMetodo}`;
+    }
+    traduzirConstrutoAcessoMetodoOuPropriedade(acessoMetodoOuPropriedade) {
+        const nomeMetodo = acessoMetodoOuPropriedade.simbolo?.lexema;
+        if (acessoMetodoOuPropriedade.objeto instanceof construtos_1.Variavel) {
+            let objetoVariavel = acessoMetodoOuPropriedade.objeto;
+            return `${objetoVariavel.simbolo.lexema}.${this.traduzirFuncoesNativas(nomeMetodo)}`;
+        }
+        return `this.${nomeMetodo}`;
     }
     traduzirConstrutoAcessoIndiceVariavel(acessoIndiceVariavel) {
         let resultado = '';
