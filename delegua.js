@@ -3861,6 +3861,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     visitarDeclaracaoEscolha(declaracao) {
         const identificadorOuLiteral = declaracao.identificadorOuLiteral;
         const tipo = identificadorOuLiteral.tipo || 'qualquer';
+        const tiposLiteraisCasos = [];
         for (let caminho of declaracao.caminhos) {
             for (let condicao of caminho.condicoes) {
                 switch (condicao.constructor) {
@@ -3869,7 +3870,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                         const tiposNumericos = ['inteiro', 'número', 'real'];
                         const ambosSaoNumericos = tiposNumericos.includes(condicaoLiteral.tipo) &&
                             tiposNumericos.includes(tipo);
-                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos) {
+                        if (condicaoLiteral.tipo !== tipo && !ambosSaoNumericos && tipo !== 'qualquer') {
                             this.erro({
                                 lexema: condicaoLiteral.valor,
                                 tipo: condicaoLiteral.tipo,
@@ -3877,6 +3878,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                                 hashArquivo: condicaoLiteral.hashArquivo,
                             }, `'caso ${condicaoLiteral.valor}:' não é do mesmo tipo esperado em 'escolha' (esperado: ${tipo}, atual: ${condicaoLiteral.tipo}).`);
                         }
+                        tiposLiteraisCasos.push(condicaoLiteral.tipo);
                         break;
                     case construtos_1.Variavel:
                         const condicaoVariavel = condicao;
@@ -3886,6 +3888,23 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                             this.erro(condicaoVariavel.simbolo, `'caso ${condicaoVariavel.simbolo.lexema}:' não é do mesmo tipo esperado em 'escolha'`);
                         }
                         break;
+                }
+            }
+        }
+        if (tipo === 'qualquer' && tiposLiteraisCasos.length > 0 && identificadorOuLiteral instanceof construtos_1.Variavel) {
+            const tiposUnicos = [...new Set(tiposLiteraisCasos)];
+            if (tiposUnicos.length === 1) {
+                const tipoInferido = tiposUnicos[0];
+                const variavelEscopo = this.gerenciadorEscopos.buscar(identificadorOuLiteral.simbolo.lexema);
+                if (variavelEscopo) {
+                    this.sugestao(identificadorOuLiteral.simbolo, `Um tipo melhor pode ser inferido para '${identificadorOuLiteral.simbolo.lexema}': '${tipoInferido}'`, [{
+                            titulo: `Alterar tipo de '${identificadorOuLiteral.simbolo.lexema}' para '${tipoInferido}'`,
+                            textoOriginal: 'qualquer',
+                            textoSubstituto: tipoInferido,
+                            linha: variavelEscopo.linha,
+                            colunaInicio: 0,
+                            colunaFim: 0,
+                        }]);
                 }
             }
         }
@@ -4316,7 +4335,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
                     this.erro(argumento.simbolo, `Variável ou função '${argumento.simbolo.lexema}' não existe.`);
                     continue;
                 }
-                if (possivelVariavel && possivelVariavel.valor === undefined) {
+                if (possivelVariavel && !possivelVariavel.inicializada) {
                     this.aviso(argumento.simbolo, `Variável '${argumento.simbolo.lexema}' não foi inicializada.`);
                 }
             }
@@ -6862,9 +6881,26 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         // Isso ocorre quando a importação é feita de uma biblioteca Node.js.
         // Nesse caso, o tipo de `entidadeChamada.objeto` começa com uma letra maiúscula.
         if (entidadeChamada.objeto.tipo && entidadeChamada.objeto.tipo.match(/^[A-Z]/)) {
-            const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[entidadeChamada.objeto.tipo];
+            const tipoObjeto = entidadeChamada.objeto.tipo;
+            // Classe definida em código (local ou importada de arquivo .delegua) tem precedência.
+            if (tipoObjeto in this.tiposDefinidosEmCodigo) {
+                const classeDefinida = this.tiposDefinidosEmCodigo[tipoObjeto];
+                if (classeDefinida instanceof declaracoes_1.Classe) {
+                    const nomeMembro = entidadeChamada.simbolo.lexema;
+                    const metodo = classeDefinida.metodos?.find(m => m.simbolo.lexema === nomeMembro);
+                    if (metodo) {
+                        return metodo.tipo || 'qualquer';
+                    }
+                    const propriedade = classeDefinida.propriedades?.find(p => p.nome.lexema === nomeMembro);
+                    if (propriedade) {
+                        return propriedade.tipo || 'qualquer';
+                    }
+                    return 'qualquer';
+                }
+            }
+            const tipoCorrespondente = this.tiposDefinidosPorBibliotecas[tipoObjeto];
             if (!tipoCorrespondente) {
-                throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Tipo '${entidadeChamada.objeto.tipo}' não foi encontrado entre os tipos definidos por bibliotecas.`);
+                throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Tipo '${tipoObjeto}' não foi encontrado entre os tipos definidos por bibliotecas.`);
             }
             if (!(entidadeChamada.simbolo.lexema in tipoCorrespondente.metodos) &&
                 !(entidadeChamada.simbolo.lexema in tipoCorrespondente.propriedades)) {
@@ -10453,7 +10489,7 @@ class AvaliadorSintaticoPitugues {
         this.pilhaEscopos.empilhar(new informacao_escopo_1.InformacaoEscopo());
         // Funções nativas de Delégua (e de Pituguês também, por enquanto)
         this.pilhaEscopos.definirInformacoesVariavel('aleatorio', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('aleatorio', 'número'));
-        this.pilhaEscopos.definirInformacoesVariavel('aleatorioEntre', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('aleatorioEntre', 'número', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('aleatorio_entre', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('aleatorio_entre', 'número', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('minimo', 'número'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('maximo', 'número'),
         ]));
@@ -10469,19 +10505,19 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarIndice', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrarIndice', 'inteiro', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrar_indice', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrar_indice', 'inteiro', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrarUltimo', 'inteiro', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrar_ultimo', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrar_ultimo', 'inteiro', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('encontrarUltimoIndice', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrarUltimoIndice', 'inteiro', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('encontrar_ultimo_indice', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('encontrar_ultimo_indice', 'inteiro', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoPesquisa', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('filtrarPor', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('filtrarPor', 'qualquer[]', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('filtrar_por', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('filtrar_por', 'qualquer[]', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoFiltragem', 'função'),
         ]));
@@ -10520,11 +10556,11 @@ class AvaliadorSintaticoPitugues {
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoOrdenacao', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('paraCada', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('paraCada', 'qualquer[]', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('para_cada', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('para_cada', 'qualquer[]', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoFiltragem', 'função'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('primeiroEmCondicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('primeiroEmCondicao', 'qualquer', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('primeiro_em_condicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('primeiro_em_condicao', 'qualquer', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'qualquer[]'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoFiltragem', 'função'),
         ]));
@@ -10551,7 +10587,7 @@ class AvaliadorSintaticoPitugues {
         this.pilhaEscopos.definirInformacoesVariavel('todos', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todos', 'lógico', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
         ]));
-        this.pilhaEscopos.definirInformacoesVariavel('todosEmCondicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todosEmCondicao', 'lógico', true, [
+        this.pilhaEscopos.definirInformacoesVariavel('todos_em_condicao', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('todos_em_condicao', 'lógico', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('funcaoCondicional', 'função'),
         ]));
