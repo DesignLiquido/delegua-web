@@ -6913,6 +6913,17 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             const propriedadeCorrespondente = tipoCorrespondente.propriedades[entidadeChamada.simbolo.lexema];
             return propriedadeCorrespondente.tipo;
         }
+        // Chamada via 'isto': verificar métodos da classe em análise antes de checar primitivas.
+        if (entidadeChamada.objeto instanceof construtos_1.Isto) {
+            if (this.metodosClasseAtualEmAnalise) {
+                const nomeMembro = entidadeChamada.simbolo.lexema;
+                const metodo = this.metodosClasseAtualEmAnalise.find(m => m.simbolo.lexema === nomeMembro);
+                if (metodo) {
+                    return metodo.tipo || 'qualquer';
+                }
+            }
+            return 'qualquer';
+        }
         // Este caso ocorre quando a variável/constante é do tipo 'qualquer',
         // e a chamada normalmente é feita para uma primitiva.
         // A inferência, portanto, ocorre pelo uso da primitiva.
@@ -7422,7 +7433,20 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                     }
                     this.consumir(delegua_2.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros do operador.");
                     this.consumir(delegua_2.default.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do operador.");
-                    const corpoOp = await this.blocoEscopo();
+                    const indiceAberturaCorpoOp = this.atual - 1;
+                    const quantidadeErrosAntesCorpoOp = this.erros.length;
+                    let corpoOp = [];
+                    try {
+                        corpoOp = await this.blocoEscopo();
+                    }
+                    catch (erro) {
+                        this.erros.push(erro);
+                    }
+                    if (this.erros.length > quantidadeErrosAntesCorpoOp) {
+                        this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoOp);
+                        corpoOp = [];
+                        this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
+                    }
                     const corpoFuncaoOp = new construtos_1.FuncaoConstruto(this.hashArquivo, simboloNomeMetodo.linha, paramsOp, corpoOp);
                     const metodoOp = new declaracoes_1.FuncaoDeclaracao(simboloNomeMetodo, corpoFuncaoOp);
                     metodoOp.estatico = ehEstatico;
@@ -7480,7 +7504,20 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                             // Método concreto: com corpo.
                             // Inferência de tipo de retorno igual a corpoDaFuncao().
                             this.consumir(delegua_2.default.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do método.");
-                            const corpo = await this.blocoEscopo();
+                            const indiceAberturaCorpo = this.atual - 1;
+                            const quantidadeErrosAntesCorpo = this.erros.length;
+                            let corpo = [];
+                            try {
+                                corpo = await this.blocoEscopo();
+                            }
+                            catch (erro) {
+                                this.erros.push(erro);
+                            }
+                            if (this.erros.length > quantidadeErrosAntesCorpo) {
+                                this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpo);
+                                corpo = [];
+                                this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
+                            }
                             let expressoesRetorna = [];
                             for (const declaracao of corpo) {
                                 expressoesRetorna = expressoesRetorna.concat((0, comum_1.buscarRetornos)(declaracao));
@@ -7546,7 +7583,21 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                                         }
                                         this.consumir(delegua_2.default.PARENTESE_DIREITO, "Esperado ')' após parâmetros do acessor.");
                                         this.consumir(delegua_2.default.CHAVE_ESQUERDA, "Esperado '{' antes do corpo do acessor.");
-                                        const corpoAcessor = await this.blocoEscopo();
+                                        const indiceAberturaCorpoAcessor = this.atual - 1;
+                                        const quantidadeErrosAntesCorpoAcessor = this.erros.length;
+                                        let corpoAcessor = [];
+                                        try {
+                                            corpoAcessor = await this.blocoEscopo();
+                                        }
+                                        catch (erro) {
+                                            this.erros.push(erro);
+                                        }
+                                        if (this.erros.length >
+                                            quantidadeErrosAntesCorpoAcessor) {
+                                            this.atual = this.encontrarIndiceAposFechamentoDeBloco(indiceAberturaCorpoAcessor);
+                                            corpoAcessor = [];
+                                            this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
+                                        }
                                         // Inferência de tipo de retorno
                                         let tipoAcessor = 'qualquer';
                                         let expressoesRetornaAcessor = [];
@@ -7611,6 +7662,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 }
             }
         };
+        this.metodosClasseAtualEmAnalise = metodos;
         await compreenderMembros('publico', false);
         this.consumir(delegua_2.default.CHAVE_DIREITA, "Esperado '}' após o escopo da classe.");
         // Verificação em tempo de análise: classe deve implementar todos os contratos das interfaces.
@@ -7669,6 +7721,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         const definicaoClasse = new declaracoes_1.Classe(simbolo, superClasses, metodos, propriedades, pilhaDecoradoresClasse, ehAbstrata, ehEstrangeira, ehEstatica, implementaInterfaces, mesclas);
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         this.superclasseAtual = undefined;
+        this.metodosClasseAtualEmAnalise = undefined;
         return definicaoClasse;
     }
     /**
@@ -7816,6 +7869,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
      * @returns Sempre retorna `void`.
      */
     sincronizar() {
+        if (this.estaNoFinal()) {
+            return;
+        }
         this.avancarEDevolverAnterior(); // avança além do token com erro
         while (!this.estaNoFinal()) {
             // Um ponto-e-vírgula já consumido indica fronteira limpa entre declarações.
@@ -7838,6 +7894,21 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             }
             this.avancarEDevolverAnterior();
         }
+    }
+    encontrarIndiceAposFechamentoDeBloco(indiceAbertura) {
+        let aberturasPendentes = 1;
+        for (let indice = indiceAbertura + 1; indice < this.simbolos.length; indice++) {
+            if (this.simbolos[indice].tipo === delegua_2.default.CHAVE_ESQUERDA) {
+                aberturasPendentes++;
+            }
+            else if (this.simbolos[indice].tipo === delegua_2.default.CHAVE_DIREITA) {
+                aberturasPendentes--;
+                if (aberturasPendentes === 0) {
+                    return indice + 1;
+                }
+            }
+        }
+        return this.simbolos.length;
     }
     /**
      * Todas as resoluções triviais da linguagem, ou seja, todas as
