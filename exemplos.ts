@@ -193,6 +193,89 @@ enquanto (erro != 0) {
   escreva("erro: " + texto(erro));
 }`,
 
+  Interface: `interface Forma {
+    area(): numero;
+    perimetro(): numero;
+}
+
+classe Retangulo implementa Forma {
+    privado {
+        largura: numero;
+        altura: numero;
+    }
+    construtor(largura: numero, altura: numero) {
+        isto.largura = largura;
+        isto.altura = altura;
+    }
+    publico {
+        area(): numero {
+            retorna isto.largura * isto.altura;
+        }
+        perimetro(): numero {
+            retorna 2 * (isto.largura + isto.altura);
+        }
+    }
+}
+
+var r = Retangulo(5, 3);
+escreva("Área: " + texto(r.area()));
+escreva("Perímetro: " + texto(r.perimetro()));`,
+
+  HerancaMultipla: `classe Voador {
+    voar() {
+        escreva("Voando!");
+    }
+}
+
+classe Nadador {
+    nadar() {
+        escreva("Nadando!");
+    }
+}
+
+classe Pato herda Voador, Nadador {
+    grasnar() {
+        escreva("Quack!");
+    }
+}
+
+var pato = Pato();
+pato.voar();
+pato.nadar();
+pato.grasnar();`,
+
+  ClasseAbstrata: `classe abstrata Animal {
+    abstrato {
+        fazerSom(): texto;
+    }
+    publico {
+        apresentar() {
+            escreva("Eu faço: " + isto.fazerSom());
+        }
+    }
+}
+
+classe Gato herda Animal {
+    publico {
+        fazerSom(): texto {
+            retorna "Miau!";
+        }
+    }
+}
+
+classe Cachorro herda Animal {
+    publico {
+        fazerSom(): texto {
+            retorna "Au Au!";
+        }
+    }
+}
+
+var gato = Gato();
+var cachorro = Cachorro();
+gato.apresentar();
+cachorro.apresentar();`,
+
   FilaEstatica: `var maximoDeElementos = 4;
 var indexInicial = 0;
 var indexFinal = 0;

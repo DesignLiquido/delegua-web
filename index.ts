@@ -23,11 +23,45 @@ import * as matematica from "@designliquido/delegua-matematica";
 import * as tempo from "@designliquido/delegua-tempo";
 import { ObjetoData } from "@designliquido/delegua-tempo/objeto-data";
 
-import * as json from "./bibliotecas/delegua-json";
+import * as json from "@designliquido/delegua-json";
+export { FormatadorDelegua } from "@designliquido/delegua/formatadores/formatador-delegua";
+export { EstilizadorDelegua } from "@designliquido/delegua/estilizador/estilizador-delegua";
+export { QuebradorDeLinha } from "@designliquido/delegua/estilizador/quebrador-linha";
+export { RegraFortalecerTipos } from "@designliquido/delegua/estilizador/regras/regra-fortalecer-tipos";
+export { RegraConvencaoNomenclatura } from "@designliquido/delegua/estilizador/regras/regra-convencao-nomenclatura";
+export { RegraParadigmaConsistente } from "@designliquido/delegua/estilizador/regras/regra-paradigma-consistente";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 
 import { InterpretadorWeb } from "./interpretador-web";
+
+interface ConfiguracoesDeleguaWeb {
+    limiteIteracoesLaco: number;
+}
+
+const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
+const CONFIGURACOES_PADRAO: ConfiguracoesDeleguaWeb = {
+    limiteIteracoesLaco: 1_000_000,
+};
+
+function obterConfiguracoesDeleguaWeb(): ConfiguracoesDeleguaWeb {
+    try {
+        const configuracoesBrutas = localStorage.getItem(CHAVE_CONFIGURACOES_LOCAL_STORAGE);
+        if (!configuracoesBrutas) {
+            return { ...CONFIGURACOES_PADRAO };
+        }
+
+        const configuracoes = JSON.parse(configuracoesBrutas);
+        const limiteIteracoesLaco = Number(configuracoes?.limiteIteracoesLaco);
+        return {
+            limiteIteracoesLaco: Number.isFinite(limiteIteracoesLaco) && limiteIteracoesLaco > 0
+                ? limiteIteracoesLaco
+                : CONFIGURACOES_PADRAO.limiteIteracoesLaco,
+        };
+    } catch {
+        return { ...CONFIGURACOES_PADRAO };
+    }
+}
 
 export class DeleguaWeb {
     nomeArquivo: string;
@@ -48,7 +82,7 @@ export class DeleguaWeb {
     tradutorPython = new TradutorPython();
     tradutorAssemblyScript = new TradutorAssemblyScript();
 
-    constructor(nomeArquivo: string, funcaoDeRetorno: Function = null) {
+    constructor(nomeArquivo: string, funcaoDeRetorno: Function | null = null) {
         this.nomeArquivo = nomeArquivo;
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
 
@@ -64,10 +98,71 @@ export class DeleguaWeb {
 
         (this.interpretador as any).interfaceEntradaSaida = {
             question: (mensagem: string, callback: (resposta: any) => any) => {
-                const resposta = window.prompt(mensagem);
-                callback(resposta);
+                const overlay      = document.getElementById('modalLeia')         as HTMLElement;
+                const labelEl      = document.getElementById('modalLeiaLabel')    as HTMLLabelElement;
+                const inputEl      = document.getElementById('modalLeiaInput')    as HTMLInputElement;
+                const btnOk        = document.getElementById('modalLeiaOk')       as HTMLButtonElement;
+                const btnCancelar  = document.getElementById('modalLeiaCancelar') as HTMLButtonElement;
+                const botaoExecutar = document.getElementById('botaoExecutar')    as HTMLButtonElement;
+
+                labelEl.textContent = mensagem || '> ';
+                inputEl.value = '';
+                overlay.style.display = 'flex';
+                botaoExecutar.disabled = true;
+                requestAnimationFrame(() => inputEl.focus());
+
+                const resolver = (valor: string | null) => {
+                    overlay.style.display = 'none';
+                    botaoExecutar.disabled = false;
+                    inputEl.removeEventListener('keydown', onKeydown);
+                    btnOk.removeEventListener('click', onOk);
+                    btnCancelar.removeEventListener('click', onCancelar);
+                    callback(valor);
+                };
+
+                const onOk       = () => resolver(inputEl.value);
+                const onCancelar = () => resolver(null);
+                const onKeydown  = (e: KeyboardEvent) => {
+                    if (e.key === 'Enter')  { e.preventDefault(); resolver(inputEl.value); }
+                    if (e.key === 'Escape') { e.preventDefault(); resolver(null); }
+                };
+
+                btnOk.addEventListener('click', onOk);
+                btnCancelar.addEventListener('click', onCancelar);
+                inputEl.addEventListener('keydown', onKeydown);
             }
         }
+
+        const configuracoes = obterConfiguracoesDeleguaWeb();
+        let contadorIteracoes = 0;
+        let limiteIteracoes = configuracoes.limiteIteracoesLaco;
+        (this.interpretador as any).funcaoVerificarIteracao = async () => {
+            contadorIteracoes++;
+            if (contadorIteracoes >= limiteIteracoes) {
+                await new Promise<void>((resolve, reject) => {
+                    const overlay      = document.getElementById('modalLacoInfinito')       as HTMLElement;
+                    const btnContinuar = document.getElementById('modalLacoInfinitoContinuar') as HTMLButtonElement;
+                    const btnAbortar   = document.getElementById('modalLacoInfinitoAbortar')   as HTMLButtonElement;
+                    const botaoExecutar = document.getElementById('botaoExecutar')           as HTMLButtonElement;
+
+                    overlay.style.display = 'flex';
+                    botaoExecutar.disabled = true;
+
+                    const fechar = () => {
+                        overlay.style.display = 'none';
+                        botaoExecutar.disabled = false;
+                        btnContinuar.removeEventListener('click', onContinuar);
+                        btnAbortar.removeEventListener('click', onAbortar);
+                    };
+
+                    const onContinuar = () => { fechar(); limiteIteracoes = Infinity; resolve(); };
+                    const onAbortar   = () => { fechar(); reject(new Error('Execução abortada pelo usuário.')); };
+
+                    btnContinuar.addEventListener('click', onContinuar);
+                    btnAbortar.addEventListener('click', onAbortar);
+                });
+            }
+        };
 
         this.documentacoesBibliotecas = {};
 
@@ -126,7 +221,10 @@ export class DeleguaWeb {
                     erroLexador.mensagem
                 );
             }
-            return;
+            return {
+                erros: retornoImportador.retornoLexador.erros,
+                resultado: [],
+            };
         }
 
         if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
@@ -137,7 +235,10 @@ export class DeleguaWeb {
                     erroAvaliadorSintatico.message
                 );
             }
-            return;
+            return {
+                erros: retornoImportador.retornoAvaliadorSintatico.erros,
+                resultado: [],
+            };
         }
 
         const retornoInterpretador = await this.interpretador.interpretar(
