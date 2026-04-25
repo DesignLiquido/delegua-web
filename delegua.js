@@ -4125,6 +4125,9 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     verificarVariavel(variavel) {
         const variavelEscopo = this.gerenciadorEscopos.buscar(variavel.simbolo.lexema);
         if (!variavelEscopo) {
+            if (this.funcoes[variavel.simbolo.lexema]) {
+                return Promise.resolve();
+            }
             this.erro(variavel.simbolo, `Variável '${variavel.simbolo.lexema}' ainda não foi declarada até este ponto.`);
             return Promise.resolve();
         }
@@ -6212,9 +6215,28 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.NAO, delegua_2.default.NEGACAO, delegua_2.default.ADICAO, delegua_2.default.SUBTRACAO, delegua_2.default.BIT_NOT, delegua_2.default.INCREMENTAR, delegua_2.default.DECREMENTAR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = await this.unario();
+            if (operador.tipo === delegua_2.default.NEGACAO ||
+                operador.tipo === delegua_2.default.NAO) {
+                this.verificarOperandoNegacao(operador, direito);
+            }
             return new construtos_1.Unario(this.hashArquivo, operador, direito, 'ANTES');
         }
         return await this.chamar();
+    }
+    verificarOperandoNegacao(operador, operando) {
+        if (operando instanceof construtos_1.Literal) {
+            if (operando.tipo !== 'lógico') {
+                this.erros.push(this.erro(operador, `Operador '!' só pode ser usado com valores lógicos. Tipo recebido: ${operando.tipo}.`));
+            }
+            return;
+        }
+        if (operando instanceof construtos_1.Unario) {
+            const tipoOp = operando.operador.tipo;
+            if (tipoOp === delegua_2.default.NEGACAO || tipoOp === delegua_2.default.NAO) {
+                return;
+            }
+            this.verificarOperandoNegacao(operador, operando.operando);
+        }
     }
     /**
      * A exponenciacão é uma exceção na ordem de avaliação (resolve primeiro à direita).
@@ -10507,24 +10529,37 @@ class AvaliadorSintaticoPitugues {
         this.consumir(pitugues_2.default.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
         const possivelDocumentacao = this.declaracaoTextoDeDocumentacao();
         const metodos = [];
-        const propriedades = [];
-        const indentacaoLinha = this.localizacoes[this.simboloAtual().linha].espacosIndentacao;
+        const propriedadesDeClasse = [];
+        const indentacaoLinha = this
+            .localizacoes[this.simboloAtual().linha]
+            .espacosIndentacao;
         while (!this.estaNoFinal() &&
             this.localizacoes[this.simboloAtual().linha].espacosIndentacao === indentacaoLinha &&
             this.verificarSeSimboloAtualEIgualA(pitugues_2.default.CONSTRUTOR, pitugues_2.default.FUNCAO, pitugues_2.default.FUNÇÃO, pitugues_2.default.IDENTIFICADOR)) {
             const simboloAnterior = this.simbolos[this.atual - 1];
             if (simboloAnterior.tipo === pitugues_2.default.IDENTIFICADOR) {
-                this.consumir(pitugues_2.default.DOIS_PONTOS, "Esperado ':' antes do escopo da classe.");
-                const tipoPropriedade = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado tipo de propriedade após dois-pontos, em declaração de classe.');
-                const propriedade = new declaracoes_1.PropriedadeClasse(simboloAnterior, tipoPropriedade.lexema, []);
-                propriedades.push(propriedade);
+                if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.DOIS_PONTOS)) {
+                    const simboloTipo = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado tipo da propriedade após os dois pontos.');
+                    const propriedade = new declaracoes_1.PropriedadeClasse(simboloAnterior, simboloTipo.lexema, [], 'publico', false, undefined);
+                    propriedadesDeClasse.push(propriedade);
+                }
+                else if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.IGUAL)) {
+                    const valorPropriedade = await this.expressao();
+                    const propriedade = new declaracoes_1.PropriedadeClasse(simboloAnterior, undefined, [], 'publico', true, valorPropriedade);
+                    propriedadesDeClasse.push(propriedade);
+                }
+                else {
+                    throw this.erro(this.simboloAtual(), "Esperado ':' (para tipo) ou '=' (para valor) após o nome da propriedade.");
+                }
             }
             else {
-                metodos.push(await this.funcao('método', this.simbolos[this.atual - 1].tipo === pitugues_2.default.CONSTRUTOR));
+                const ehConstrutor = simboloAnterior.tipo === pitugues_2.default.CONSTRUTOR;
+                const metodoResolvido = await this.funcao('método', ehConstrutor);
+                metodos.push(metodoResolvido);
             }
         }
         this.superclasseAtual = undefined;
-        const definicaoClasse = new declaracoes_1.Classe(simbolo, superClasse ? [superClasse] : [], metodos, propriedades);
+        const definicaoClasse = new declaracoes_1.Classe(simbolo, superClasse ? [superClasse] : [], metodos, propriedadesDeClasse);
         if (possivelDocumentacao) {
             definicaoClasse.documentacao = possivelDocumentacao;
         }
@@ -13946,10 +13981,28 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
         }
         return expressao;
     }
+    verificarOperandoNegacao(operador, operando) {
+        if (operando instanceof construtos_1.Literal) {
+            if (operando.tipo !== 'lógico') {
+                this.erro(operador, `Operador '!' só pode ser usado com valores lógicos. Tipo recebido: ${operando.tipo}.`);
+            }
+            return;
+        }
+        if (operando instanceof construtos_1.Unario) {
+            const tipoOp = operando.operador.tipo;
+            if (tipoOp === delegua_1.default.NEGACAO) {
+                return;
+            }
+            this.verificarOperandoNegacao(operador, operando.operando);
+        }
+    }
     unario() {
         if (this.verificarSeSimboloAtualEIgualA(delegua_1.default.NEGACAO, delegua_1.default.SUBTRACAO, delegua_1.default.BIT_NOT, delegua_1.default.INCREMENTAR, delegua_1.default.DECREMENTAR)) {
             const operador = this.simbolos[this.atual - 1];
             const direito = this.unario();
+            if (operador.tipo === delegua_1.default.NEGACAO) {
+                this.verificarOperandoNegacao(operador, direito);
+            }
             return new construtos_1.Unario(-1, operador, direito, 'ANTES');
         }
         return this.chamar();
@@ -18793,7 +18846,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropriedadeClasse = void 0;
 const declaracao_1 = require("./declaracao");
 class PropriedadeClasse extends declaracao_1.Declaracao {
-    constructor(nome, tipo, decoradores = [], acesso = 'publico', estatico = false) {
+    constructor(nome, tipo, decoradores = [], acesso = 'publico', estatico = false, valorInicial) {
         super(Number(nome.linha), nome.hashArquivo);
         this.nome = nome;
         this.tipo = tipo;
@@ -18802,6 +18855,7 @@ class PropriedadeClasse extends declaracao_1.Declaracao {
         this.estatico = estatico;
         this.autoObter = false;
         this.autoDefinir = false;
+        this.valorInicial = valorInicial;
     }
     async aceitar(visitante) {
         return Promise.reject(new Error('Não utilizado por enquanto.'));
@@ -22800,6 +22854,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
     constructor(simboloOriginal, superClasses, metodos, propriedades) {
         super();
         this.dialetoRequerExpansaoPropriedadesEspacoMemoria = false;
+        this.sombrearPropriedadesDeClasse = false;
         this.simboloOriginal = simboloOriginal;
         if (Array.isArray(superClasses)) {
             this.superClasses = superClasses;
@@ -23605,7 +23660,13 @@ class ObjetoDeleguaClasse {
             throw new excecoes_1.ErroEmTempoDeExecucao(simbolo, `Propriedade '${simbolo.lexema}' é somente-leitura.`);
         }
         if (Object.prototype.hasOwnProperty.call(this.classe.membrosEstaticos, simbolo.lexema)) {
-            await this.classe.definirEstatico(simbolo.lexema, valor, visitante);
+            if (this.classe.sombrearPropriedadesDeClasse) {
+                this.verificarAcessoLeitura(simbolo.lexema, simbolo, visitante);
+                this.propriedades[simbolo.lexema] = valor;
+            }
+            else {
+                await this.classe.definirEstatico(simbolo.lexema, valor, visitante);
+            }
             return;
         }
         // Verificar acesso antes da atribuição.
@@ -25588,6 +25649,9 @@ class InterpretadorBase {
         let tipoResolvido = declaracao.tipo;
         if (tipoResolvido.startsWith('função<')) {
             tipoResolvido = tipoResolvido.replace('função<', '').replace('>', '');
+        }
+        if (!declaracao.tipoExplicito && tipoResolvido === delegua_2.default.QUALQUER && valorFinal instanceof Array) {
+            tipoResolvido = (0, inferenciador_1.inferirTipoVariavel)(valorFinal);
         }
         this.pilhaEscoposExecucao.definirVariavel(declaracao.simbolo.lexema, valorFinal, tipoResolvido, declaracao.tipoExplicito && declaracao.tipoOriginal !== 'qualquer');
         // TODO: É relevante registrar uma declaração de variável no
