@@ -24,7 +24,7 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
-        "@designliquido/delegua": "^1.19.0",
+        "@designliquido/delegua": "^1.20.0",
         "@designliquido/delegua-criptografia": "^0.3.3",
         "@designliquido/delegua-estatistica": "^0.1.0",
         "@designliquido/delegua-fisica": "^0.1.0",
