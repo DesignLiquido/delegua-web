@@ -1,26 +1,7 @@
+import { CorrecaoImplementacaoInterface, MembroInterfaceFaltando } from "@designliquido/delegua/interfaces";
 import { IPrimitiva } from "./primitivas/primitiva-interface";
-import type { CorrecaoImplementacaoInterface, MembroInterfaceFaltando } from '@designliquido/delegua/avaliador-sintatico/erro-avaliador-sintatico';
 import type { DocumentarioAnalisado } from '@designliquido/delegua/interfaces/documentario/documentario-analisado';
-
-interface MetodoArgumento {
-    nome: string;
-    opcional?: boolean;
-}
-
-interface MetodoDocumentacao {
-    argumentos?: MetodoArgumento[];
-    documentacao?: string;
-    tipoRetorno?: string;
-}
-
-interface SugestaoMetodo {
-    label: string;
-    kind: number;
-    insertText: string;
-    insertTextRules: number;
-    documentation: string;
-    detail: string;
-}
+import { MetodoArgumento, MetodoDocumentacao, SugestaoMetodo } from "./interfaces";
 
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
