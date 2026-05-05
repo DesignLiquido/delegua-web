@@ -1,3 +1,4 @@
+"use strict";
 define("vs/editor/editor.main.nls", {
     "vs/base/browser/ui/actionbar/actionViewItems": [
         "{0} ({1})"

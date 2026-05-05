@@ -1,3 +1,4 @@
+"use strict";
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
 const CONFIGURACOES_PADRAO = {
     temaEditor: 'vs-dark',

@@ -1,3 +1,4 @@
+"use strict";
 window.Exemplos = {
     OlaMundo: 'escreva("Olá, mundo!");',
     OperacoesBasicas: `var a = 10;

@@ -13,7 +13,7 @@ exports.InterpretadorWeb = void 0;
 const delegua_1 = require("@designliquido/delegua");
 const excecoes_1 = require("@designliquido/delegua/excecoes");
 class InterpretadorWeb extends delegua_1.Interpretador {
-    constructor(diretorioBase, performance = false, funcaoDeRetorno = null, funcaoDeRetornoMesmaLinha = null) {
+    constructor(diretorioBase, performance = false, funcaoDeRetorno = undefined, funcaoDeRetornoMesmaLinha = undefined) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
     }
     logicaComumImportar(caminho, linha) {

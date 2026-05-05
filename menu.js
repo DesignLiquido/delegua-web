@@ -1,3 +1,4 @@
+"use strict";
 function abrirMenu() {
     document.getElementById("menuOpcoes").style.width = "100%";
 }
