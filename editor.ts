@@ -1,6 +1,6 @@
-import { CorrecaoImplementacaoInterface, MembroInterfaceFaltando } from "@designliquido/delegua/interfaces";
+import { CorrecaoImplementacaoInterface, MembroInterfaceFaltandoInterface } from "@designliquido/delegua/interfaces";
 import { IPrimitiva } from "./primitivas/primitiva-interface";
-import type { DocumentarioAnalisado } from '@designliquido/delegua/interfaces/documentario/documentario-analisado';
+import type { DocumentarioAnalisadoInterface } from '@designliquido/delegua/interfaces/documentario';
 import { MetodoArgumento, MetodoDocumentacao, SugestaoMetodo } from "./interfaces";
 
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
@@ -480,7 +480,7 @@ function stripDocstring(raw: string): string {
         .trim();
 }
 
-function analisarDocumentario(conteudo: string): DocumentarioAnalisado {
+function analisarDocumentario(conteudo: string): DocumentarioAnalisadoInterface {
     const REGEX_PARAMETRO = /^@(?:par[aâ]metro|param)\s+(?:\{([^}]+)\}\s+)?(\S+)\s*(.*)$/;
     const REGEX_RETORNA = /^@(?:retorna)\s*(?:\{([^}]+)\}\s*)?(.*)$/;
     const REGEX_EXEMPLO = /^@(?:exemplo)\s*(.*)$/;
@@ -488,7 +488,7 @@ function analisarDocumentario(conteudo: string): DocumentarioAnalisado {
     const REGEX_VEJA = /^@veja\s+(\S+).*$/;
     const REGEX_TAG = /^@\w+/;
 
-    const resultado: DocumentarioAnalisado = { descricao: '', parametros: [], veja: [] };
+    const resultado: DocumentarioAnalisadoInterface = { descricao: '', parametros: [], veja: [] };
     const linhas = conteudo.split('\n');
 
     const segmentos: { tag: string; linhas: string[] }[] = [];
@@ -533,8 +533,8 @@ function analisarDocumentario(conteudo: string): DocumentarioAnalisado {
     return resultado;
 }
 
-function extrairFuncoesDocumentadas(codigo: string): Map<string, DocumentarioAnalisado> {
-    const mapa = new Map<string, DocumentarioAnalisado>();
+function extrairFuncoesDocumentadas(codigo: string): Map<string, DocumentarioAnalisadoInterface> {
+    const mapa = new Map<string, DocumentarioAnalisadoInterface>();
     const REGEX_FUNCAO_DOC = /\/\*\*([\s\S]*?)\*\/\s*(?:funcao|função)\s+([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\s*\(([^)]*)\)/g;
     let m: RegExpExecArray | null;
     while ((m = REGEX_FUNCAO_DOC.exec(codigo)) !== null) {
@@ -556,8 +556,8 @@ function extrairFuncoesDocumentadas(codigo: string): Map<string, DocumentarioAna
     return mapa;
 }
 
-function extrairClassesDocumentadas(codigo: string): Map<string, DocumentarioAnalisado> {
-    const mapa = new Map<string, DocumentarioAnalisado>();
+function extrairClassesDocumentadas(codigo: string): Map<string, DocumentarioAnalisadoInterface> {
+    const mapa = new Map<string, DocumentarioAnalisadoInterface>();
     const REGEX_CLASSE_DOC = /\/\*\*([\s\S]*?)\*\/\s*classe\s+(?:abstrat[ao]\s+)?([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)/g;
     let m: RegExpExecArray | null;
     while ((m = REGEX_CLASSE_DOC.exec(codigo)) !== null) {
@@ -613,7 +613,7 @@ function detectarTiposNaoAnotados(codigo: string): { markers: any[]; fixes: Map<
     return { markers, fixes };
 }
 
-function formatarDocumentario(nome: string, doc: DocumentarioAnalisado): { value: string }[] {
+function formatarDocumentario(nome: string, doc: DocumentarioAnalisadoInterface): { value: string }[] {
     const contents: { value: string }[] = [];
 
     let titulo = `**${nome}**`;
@@ -980,7 +980,7 @@ function definirLinguagemDelegua() {
   };
 }
 
-function gerarStubMembro(membro: MembroInterfaceFaltando): string {
+function gerarStubMembro(membro: MembroInterfaceFaltandoInterface): string {
     if (membro.tipo === 'metodo') {
         const params = (membro.parametros ?? [])
             .map(p => `${p.nome}${p.tipoDado ? ': ' + p.tipoDado : ''}`)
@@ -1785,14 +1785,14 @@ const configurarLinguagemDelegua = function () {
 
             // Verificar funções e classes documentadas pelo usuário
             const codigoAtual: string = model.getValue();
-            const funcoesDocumentadas: Map<string, DocumentarioAnalisado> = extrairFuncoesDocumentadas(codigoAtual);
-            const docFuncao: DocumentarioAnalisado | undefined = funcoesDocumentadas.get(palavra.word);
+            const funcoesDocumentadas: Map<string, DocumentarioAnalisadoInterface> = extrairFuncoesDocumentadas(codigoAtual);
+            const docFuncao: DocumentarioAnalisadoInterface | undefined = funcoesDocumentadas.get(palavra.word);
             if (docFuncao) {
                 return { contents: formatarDocumentario(palavra.word, docFuncao) };
             }
 
-            const classesDocumentadas: Map<string, DocumentarioAnalisado> = extrairClassesDocumentadas(codigoAtual);
-            const docClasse: DocumentarioAnalisado | undefined = classesDocumentadas.get(palavra.word);
+            const classesDocumentadas: Map<string, DocumentarioAnalisadoInterface> = extrairClassesDocumentadas(codigoAtual);
+            const docClasse: DocumentarioAnalisadoInterface | undefined = classesDocumentadas.get(palavra.word);
             if (docClasse) {
                 return { contents: formatarDocumentario(palavra.word, docClasse) };
             }

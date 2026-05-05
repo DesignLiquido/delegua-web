@@ -21,10 +21,10 @@
         "http-server": "^14.1.1",
         "sass": "^1.89.2",
         "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
+        "typescript": "^6.0.3"
     },
     "dependencies": {
-        "@designliquido/delegua": "^1.20.1",
+        "@designliquido/delegua": "^1.21.0",
         "@designliquido/delegua-criptografia": "^0.3.3",
         "@designliquido/delegua-estatistica": "^0.1.0",
         "@designliquido/delegua-fisica": "^0.1.0",

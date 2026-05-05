@@ -8,8 +8,8 @@ export class InterpretadorWeb
     constructor(
         diretorioBase: string,
         performance = false,
-        funcaoDeRetorno: Function = null,
-        funcaoDeRetornoMesmaLinha: Function = null
+        funcaoDeRetorno: Function | undefined = undefined,
+        funcaoDeRetornoMesmaLinha: Function | undefined = undefined
     ) {
         super(diretorioBase, performance, funcaoDeRetorno, funcaoDeRetornoMesmaLinha);
     }

@@ -8,6 +8,7 @@
       "dom"
     ],
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "sourceMap": false,
     "outDir": "dist",
     "esModuleInterop": true,

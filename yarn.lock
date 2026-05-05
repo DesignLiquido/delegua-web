@@ -43,10 +43,10 @@
   dependencies:
     dayjs "^1.11.13"
 
-"@designliquido/delegua@^1.20.1":
-  version "1.20.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.20.1.tgz#826b8a8294e3d385cebd63454609b6fabfefe197"
-  integrity sha512-VxW8f0/mC1l3ljpRKCA46lO6wDeebcP5bnav8Bez5YQMyejOPyqv7rTcHx/JnBhZ6C/RKGd5fJS93pSLrm/a/g==
+"@designliquido/delegua@^1.21.0":
+  version "1.21.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.21.0.tgz#3dee053c7f0a84d0de5259a2a875975750089415"
+  integrity sha512-yMjK8Q1N2EsIy9cJ8fkBsRl36EpbwgogjVhKOhawg4kt6LiADmYmC1GsfAFmgK32GevOk6ofU5dLOWlEkgCwmA==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -2388,10 +2388,10 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
-typescript@^5.8.3:
-  version "5.9.3"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz"
-  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==
+typescript@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-6.0.3.tgz#90251dc007916e972786cb94d74d15b185577d21"
+  integrity sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==
 
 umd@^3.0.0:
   version "3.0.3"
