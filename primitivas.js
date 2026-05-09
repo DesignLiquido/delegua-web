@@ -528,7 +528,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":40,"../informacao-elemento-sintatico":74}],8:[function(require,module,exports){
+},{"../construtos":40,"../informacao-elemento-sintatico":75}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -613,7 +613,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":74}],9:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":75}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implementacaoParticao = void 0;
@@ -1012,7 +1012,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":40,"../excecoes":71,"../informacao-elemento-sintatico":74}],10:[function(require,module,exports){
+},{"../construtos":40,"../excecoes":72,"../informacao-elemento-sintatico":75}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -1423,7 +1423,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":40,"../excecoes":71,"../inferenciador":73,"../informacao-elemento-sintatico":74}],11:[function(require,module,exports){
+},{"../construtos":40,"../excecoes":72,"../inferenciador":74,"../informacao-elemento-sintatico":75}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -1921,7 +1921,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":72}],26:[function(require,module,exports){
+},{"../geracao-identificadores":73}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -2429,7 +2429,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":72}],43:[function(require,module,exports){
+},{"../geracao-identificadores":73}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -3231,6 +3231,21 @@ exports.Vetor = Vetor;
 },{"./comentario-como-construto":26,"./separador":52}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErroDeAssertiva = void 0;
+const erro_em_tempo_de_execucao_1 = require("./erro-em-tempo-de-execucao");
+class ErroDeAssertiva extends erro_em_tempo_de_execucao_1.ErroEmTempoDeExecucao {
+    constructor(simbolo, mensagem, esperado, obtido) {
+        super(simbolo, mensagem);
+        this.esperado = esperado;
+        this.obtido = obtido;
+        Object.setPrototypeOf(this, ErroDeAssertiva.prototype);
+    }
+}
+exports.ErroDeAssertiva = ErroDeAssertiva;
+
+},{"./erro-em-tempo-de-execucao":71}],71:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
 class ErroEmTempoDeExecucao extends Error {
     constructor(simbolo, mensagem, linha) {
@@ -3243,7 +3258,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3260,9 +3275,10 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./erro-de-assertiva"), exports);
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 
-},{"./erro-em-tempo-de-execucao":70}],72:[function(require,module,exports){
+},{"./erro-de-assertiva":70,"./erro-em-tempo-de-execucao":71}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
@@ -3306,7 +3322,7 @@ function uuidv4() {
     });
 }
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3432,7 +3448,7 @@ function inferirTipoVariavel(variavel) {
     }
 }
 
-},{"./tipos-de-dados/delegua":75,"./tipos-de-dados/primitivos":76,"./tipos-de-simbolos/delegua":77}],74:[function(require,module,exports){
+},{"./tipos-de-dados/delegua":76,"./tipos-de-dados/primitivos":77,"./tipos-de-simbolos/delegua":78}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
@@ -3451,7 +3467,7 @@ class InformacaoElementoSintatico {
 }
 exports.InformacaoElementoSintatico = InformacaoElementoSintatico;
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -3485,7 +3501,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -3504,7 +3520,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
