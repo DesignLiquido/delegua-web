@@ -3373,8 +3373,10 @@ function inferirVetor(vetor) {
             }
             return `${tiposObjetosEmVetor.values().next().value}[]`;
         case 'Literal':
-            // TODO: Não sei se é seguro inferir pelo primeiro valor do vetor.
-            return `${vetor[0].tipo}[]`;
+            const tiposLiterais = new Set(vetor.map((e) => e.tipo));
+            if (tiposLiterais.size > 1)
+                return 'vetor';
+            return `${tiposLiterais.values().next().value}[]`;
         default:
             return 'vetor';
     }
@@ -3415,7 +3417,7 @@ function inferirTipoVariavel(variavel) {
         case 'DescritorTipoClasse':
         case 'ObjetoDeleguaClasse':
             return 'objeto';
-        case 'Simbolo': // TODO: Repensar.
+        case 'Simbolo':
             const simbolo = variavel;
             switch (simbolo.tipo) {
                 case primitivos_1.default.BOOLEANO:
