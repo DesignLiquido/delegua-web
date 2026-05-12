@@ -4,14 +4,12 @@ import { AnalisadorSemantico } from "@designliquido/delegua/analisador-semantico
 import { Interpretador } from "@designliquido/delegua/interpretador";
 
 import {
-    AvaliadorSintaticoInterface,
     LexadorInterface,
     RetornoExecucaoInterface,
     SimboloInterface,
 } from "@designliquido/delegua/interfaces";
 import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/interpretador/estruturas";
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
-import { Declaracao } from "@designliquido/delegua/declaracoes";
 import { InformacaoElementoSintatico } from "@designliquido/delegua/informacao-elemento-sintatico";
 
 import * as criptografia from "@designliquido/delegua-criptografia";
@@ -72,7 +70,7 @@ export class DeleguaWeb {
     dialeto: string = "delegua";
     interpretador: Interpretador;
     lexador: LexadorInterface<SimboloInterface>;
-    avaliadorSintatico: AvaliadorSintaticoInterface<SimboloInterface, Declaracao>;
+    avaliadorSintatico: AvaliadorSintatico;
     analisadorSemantico: AnalisadorSemantico;
     funcaoDeRetorno: Function;
 
@@ -96,7 +94,7 @@ export class DeleguaWeb {
             this.funcaoDeRetorno
         );
 
-        (this.interpretador as any).interfaceEntradaSaida = {
+        this.interpretador.interfaceEntradaSaida = {
             question: (mensagem: string, callback: (resposta: any) => any) => {
                 const overlay      = document.getElementById('modalLeia')         as HTMLElement;
                 const labelEl      = document.getElementById('modalLeiaLabel')    as HTMLLabelElement;
@@ -136,7 +134,7 @@ export class DeleguaWeb {
         const configuracoes = obterConfiguracoesDeleguaWeb();
         let contadorIteracoes = 0;
         let limiteIteracoes = configuracoes.limiteIteracoesLaco;
-        (this.interpretador as any).funcaoVerificarIteracao = async () => {
+        this.interpretador.funcaoVerificarIteracao = async () => {
             contadorIteracoes++;
             if (contadorIteracoes >= limiteIteracoes) {
                 await new Promise<void>((resolve, reject) => {
@@ -184,8 +182,9 @@ export class DeleguaWeb {
             moduloResolvido
         );
 
-        (this.avaliadorSintatico as any).tiposDefinidosEmCodigo[nomeModulo] = 'módulo';
-        const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoElementoSintatico }} = (this.avaliadorSintatico as any).primitivasConhecidas;
+        // TODO: Ainda é necessário?
+        // this.avaliadorSintatico.tiposDefinidosEmCodigo[nomeModulo] = modulo;
+        const primitivasConhecidas: { [nomeModuloOuClasse: string]: {[nomePrimitiva: string]: InformacaoElementoSintatico }} = this.avaliadorSintatico.primitivasConhecidas;
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
             // TODO: Pensar em como fazer a tipagem.
@@ -251,7 +250,7 @@ export class DeleguaWeb {
                 if (erroInterpretador.simbolo) {
                     this.erroEmTempoDeExecucao(erroInterpretador.simbolo);
                 } else {
-                    const erroEmJavaScript: any = erroInterpretador.erroInterno as any;
+                    const erroEmJavaScript: { message: string, stack?: string } = erroInterpretador.erroInterno;
                     console.error(
                         `Erro em JavaScript: ` + `${erroEmJavaScript.message}`
                     );
@@ -269,7 +268,7 @@ export class DeleguaWeb {
     }
 
     versao() {
-        return "0.63 (web)";
+        return "1.0 (web)";
     }
 
     reportar(linha: number, onde: any, mensagem: string) {

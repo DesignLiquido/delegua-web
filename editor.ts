@@ -46,15 +46,16 @@ class RegraExplicitarTiposParametrosLocal {
             return;
         }
 
-        if ('parametros' in (objeto as any) && Array.isArray((objeto as any).parametros)) {
-            for (const parametro of (objeto as any).parametros) {
+        const objetoComParametros = objeto as Record<string, unknown>;
+        if ('parametros' in objetoComParametros && Array.isArray(objetoComParametros.parametros)) {
+            for (const parametro of objetoComParametros.parametros) {
                 if (!parametro.tipoDado) {
                     parametro.tipoDado = 'qualquer';
                 }
             }
         }
 
-        for (const valor of Object.values(objeto as Record<string, unknown>)) {
+        for (const valor of Object.values(objetoComParametros)) {
             this.visitarObjeto(valor, visitados);
         }
     }
@@ -1122,7 +1123,7 @@ const informacoesModulos = {
 };
 
 const configurarLinguagemDelegua = function () {
-    const primitivas: IPrimitiva[] = (globalThis as any).primitivas;
+    const primitivas: IPrimitiva[] = (globalThis as unknown as { primitivas: IPrimitiva[] }).primitivas;
     const documentacoesBibliotecas: {[biblioteca: string]: any} = deleguaWeb.documentacoesBibliotecas;
     
     Monaco.languages?.register({
