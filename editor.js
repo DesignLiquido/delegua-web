@@ -46,14 +46,15 @@ class RegraExplicitarTiposParametrosLocal {
             }
             return;
         }
-        if ('parametros' in objeto && Array.isArray(objeto.parametros)) {
-            for (const parametro of objeto.parametros) {
+        const objetoComParametros = objeto;
+        if ('parametros' in objetoComParametros && Array.isArray(objetoComParametros.parametros)) {
+            for (const parametro of objetoComParametros.parametros) {
                 if (!parametro.tipoDado) {
                     parametro.tipoDado = 'qualquer';
                 }
             }
         }
-        for (const valor of Object.values(objeto)) {
+        for (const valor of Object.values(objetoComParametros)) {
             this.visitarObjeto(valor, visitados);
         }
     }

@@ -188,7 +188,8 @@ class DeleguaWeb {
         // TODO: Pensar numa forma de exportar sem precisar fazer isso.
         const moduloResolvido = this.montarModulo(modulo, ...modulosNode);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(nomeModulo, moduloResolvido);
-        this.avaliadorSintatico.tiposDefinidosEmCodigo[nomeModulo] = 'módulo';
+        // TODO: Ainda é necessário?
+        // this.avaliadorSintatico.tiposDefinidosEmCodigo[nomeModulo] = modulo;
         const primitivasConhecidas = this.avaliadorSintatico.primitivasConhecidas;
         primitivasConhecidas[nomeModulo] = {};
         for (const nomeComponente in moduloResolvido.componentes) {
@@ -251,7 +252,7 @@ class DeleguaWeb {
         });
     }
     versao() {
-        return "0.63 (web)";
+        return "1.0 (web)";
     }
     reportar(linha, onde, mensagem) {
         if (this.nomeArquivo)
