@@ -5448,6 +5448,28 @@ const primitivas_dicionario_1 = __importDefault(require("../bibliotecas/primitiv
 const primitivas_numero_1 = __importDefault(require("../bibliotecas/primitivas-numero"));
 const primitivas_texto_1 = __importDefault(require("../bibliotecas/primitivas-texto"));
 const primitivas_vetor_1 = __importDefault(require("../bibliotecas/primitivas-vetor"));
+// Constante usada em "declaracaoRetorna()"
+const simbolosInicioExpressao = new Set([
+    delegua_2.default.CHAVE_ESQUERDA,
+    delegua_2.default.COLCHETE_ESQUERDO,
+    delegua_2.default.FALSO,
+    delegua_2.default.FUNCAO,
+    delegua_2.default.FUNÇÃO,
+    delegua_2.default.IDENTIFICADOR,
+    delegua_2.default.ISTO,
+    delegua_2.default.NAO,
+    delegua_2.default.NEGACAO,
+    delegua_2.default.NUMERO,
+    delegua_2.default.NULO,
+    delegua_2.default.PARENTESE_ESQUERDO,
+    delegua_2.default.SUPER,
+    delegua_2.default.TEXTO,
+    delegua_2.default.VERDADEIRO,
+    delegua_2.default.ADICAO,
+    delegua_2.default.SUBTRACAO,
+    delegua_2.default.INCREMENTAR,
+    delegua_2.default.DECREMENTAR
+]);
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -7057,24 +7079,9 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
     }
     async declaracaoRetorna() {
         const simboloChave = this.simbolos[this.atual - 1];
-        let valor = null;
-        if ([
-            delegua_2.default.CHAVE_ESQUERDA,
-            delegua_2.default.COLCHETE_ESQUERDO,
-            delegua_2.default.FALSO,
-            delegua_2.default.FUNCAO,
-            delegua_2.default.FUNÇÃO,
-            delegua_2.default.IDENTIFICADOR,
-            delegua_2.default.ISTO,
-            delegua_2.default.NAO,
-            delegua_2.default.NEGACAO,
-            delegua_2.default.NUMERO,
-            delegua_2.default.NULO,
-            delegua_2.default.PARENTESE_ESQUERDO,
-            delegua_2.default.SUPER,
-            delegua_2.default.TEXTO,
-            delegua_2.default.VERDADEIRO,
-        ].includes(this.simbolos[this.atual].tipo)) {
+        const simboloAtual = this.simbolos[this.atual];
+        let valor;
+        if (simboloAtual && simbolosInicioExpressao.has(simboloAtual.tipo)) {
             valor = await this.expressao();
         }
         // Ponto-e-vírgula é opcional aqui.
@@ -7366,51 +7373,46 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
      */
     async declaracaoDeVariaveis() {
         const simboloVariavel = this.simboloAnterior();
-        const identificadores = [];
-        const retorno = [];
-        let tipo = 'qualquer';
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.CHAVE_ESQUERDA)) {
             return await this.declaracaoDesestruturacaoVariavel();
         }
+        const identificadores = [];
         do {
             identificadores.push(this.consumir(delegua_2.default.IDENTIFICADOR, 'Esperado nome da variável.'));
         } while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.VIRGULA));
+        let tipo = 'qualquer';
         let tipoExplicito = false;
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.DOIS_PONTOS)) {
             tipo = this.verificarDefinicaoTipoAtual();
             tipoExplicito = true;
             this.avancarEDevolverAnterior();
         }
-        if (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.IGUAL, delegua_2.default.SETA_ESQUERDA)) {
-            // Inicialização de variáveis sem valor.
-            for (let identificador of identificadores.values()) {
+        const retorno = [];
+        const decoradores = Array.from(this.pilhaDecoradores);
+        const temAtribuicao = this.verificarSeSimboloAtualEIgualA(delegua_2.default.IGUAL, delegua_2.default.SETA_ESQUERDA);
+        if (!temAtribuicao) {
+            for (const identificador of identificadores) {
                 this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(identificador.lexema, tipo));
-                retorno.push(new declaracoes_1.Var(identificador, undefined, tipo, tipoExplicito, Array.from(this.pilhaDecoradores)));
+                retorno.push(new declaracoes_1.Var(identificador, undefined, tipo, tipoExplicito, decoradores));
             }
-            this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
-            this.pilhaDecoradores = [];
-            return retorno;
         }
-        const inicializadores = [];
-        do {
-            inicializadores.push(await this.expressao());
-        } while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.VIRGULA));
-        if (identificadores.length !== inicializadores.length) {
-            throw this.erro(simboloVariavel, 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.');
-        }
-        for (let [indice, identificador] of identificadores.entries()) {
-            const tipoOriginal = tipo; // Preserva o tipo antes da inferência
-            tipo =
-                this.logicaComumInferenciaTiposVariaveisEConstantes(inicializadores[indice], tipo) ?? tipo;
-            if (tipo !== 'dicionário') {
-                this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(identificador.lexema, tipo));
+        else {
+            const inicializadores = [];
+            do {
+                inicializadores.push(await this.expressao());
+            } while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.VIRGULA));
+            if (identificadores.length !== inicializadores.length) {
+                throw this.erro(simboloVariavel, 'Quantidade de identificadores à esquerda do igual é diferente da quantidade de valores à direita.');
             }
-            else {
-                const inicializadorDicionario = inicializadores[indice];
-                this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, this.resolverInformacaoElementoSintaticoDeDicionario(inicializadorDicionario));
+            for (let [indice, identificador] of identificadores.entries()) {
+                const inicializador = inicializadores[indice];
+                const tipoInferido = this.logicaComumInferenciaTiposVariaveisEConstantes(inicializador, tipo) ?? tipo;
+                const informacaoSintatica = tipo === 'dicionário'
+                    ? this.resolverInformacaoElementoSintaticoDeDicionario(inicializador)
+                    : new informacao_elemento_sintatico_1.InformacaoElementoSintatico(identificador.lexema, tipoInferido);
+                this.pilhaEscopos.definirInformacoesVariavel(identificador.lexema, informacaoSintatica);
+                retorno.push(new declaracoes_1.Var(identificador, inicializador, tipoInferido, tipoExplicito, decoradores, tipo));
             }
-            retorno.push(new declaracoes_1.Var(identificador, inicializadores[indice], tipo, tipoExplicito, Array.from(this.pilhaDecoradores), tipoOriginal // Passa o tipo original para o construtor
-            ));
         }
         this.verificarSeSimboloAtualEIgualA(delegua_2.default.PONTO_E_VIRGULA);
         this.pilhaDecoradores = [];
@@ -9408,9 +9410,8 @@ class AvaliadorSintaticoPitugues {
         throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Primitiva '${entidadeChamada.simbolo.lexema}' não existe.`);
     }
     logicaComumInferenciaTiposVariaveisEConstantes(inicializador, tipoPrevio) {
-        if (tipoPrevio !== 'qualquer') {
+        if (tipoPrevio !== 'qualquer')
             return tipoPrevio;
-        }
         switch (inicializador.constructor) {
             case construtos_1.AcessoIndiceVariavel:
                 const entidadeChamadaAcessoIndiceVariavel = inicializador
@@ -9443,7 +9444,16 @@ class AvaliadorSintaticoPitugues {
                         return entidadeChamadaReferenciaFuncao.tipo;
                     case construtos_1.Variavel:
                         const entidadeChamadaVariavel = entidadeChamadaChamada;
-                        return entidadeChamadaVariavel.tipo;
+                        const tipoBruto = entidadeChamadaVariavel.tipo;
+                        if (tipoBruto &&
+                            tipoBruto.startsWith('função<') &&
+                            tipoBruto.endsWith('>')) {
+                            return tipoBruto.substring(7, tipoBruto.length - 1);
+                        }
+                        else if (tipoBruto === 'função') {
+                            return 'qualquer';
+                        }
+                        return tipoBruto;
                 }
                 break;
             case construtos_1.FuncaoConstruto:
@@ -9623,15 +9633,13 @@ class AvaliadorSintaticoPitugues {
         const qtdIdentificadores = identificadores.length;
         const qtdValores = inicializadores.length;
         const ehDesempacotamento = qtdIdentificadores > 1 && qtdValores === 1;
-        if (indexResto > -1) {
-            if (qtdValores < qtdIdentificadores - 1) {
-                if (!ehDesempacotamento ||
-                    (ehDesempacotamento && inicializadores[0] instanceof construtos_1.Literal)) {
-                    throw this.erro(this.simboloAnterior(), 'Quantidade insuficiente de valores para desempacotamento com operador de resto.');
-                }
+        if (indexResto > -1 && qtdValores < qtdIdentificadores - 1) {
+            if (!ehDesempacotamento ||
+                (ehDesempacotamento && inicializadores[0] instanceof construtos_1.Literal)) {
+                throw this.erro(this.simboloAnterior(), 'Quantidade insuficiente de valores para desempacotamento com operador de resto.');
             }
         }
-        else {
+        else if (indexResto === -1) {
             if (!ehDesempacotamento && qtdIdentificadores !== qtdValores) {
                 throw this.erro(this.simboloAnterior(), 'Quantidade de inicializadores à esquerda do igual é diferente da quantidade de identificadores à direita.');
             }
@@ -9644,41 +9652,52 @@ class AvaliadorSintaticoPitugues {
         }
         const retorno = [];
         let origemParaAtribuicao = inicializadores[0];
-        // Injeção de Código (Runtime Check)
+        // Injeção de código para variáveis temporárias
         if (ehDesempacotamento && !(inicializadores[0] instanceof construtos_1.Vetor)) {
             const linha = identificadores[0].linha;
-            // Cria variável temporária para evitar reavaliar a expressão original múltiplas vezes
             const nomeVarTemp = `__temp_desempacotamento_${new Date().getTime()}_${Math.floor(Math.random() * 1000)}`;
             const simboloVarTemp = new lexador_1.Simbolo(pitugues_2.default.IDENTIFICADOR, nomeVarTemp, null, linha, -1);
             retorno.push(new declaracoes_1.Var(simboloVarTemp, inicializadores[0], 'qualquer[]'));
             origemParaAtribuicao = new construtos_1.Variavel(this.hashArquivo, simboloVarTemp);
-            // Injeta validação de tamanho se não houver operador de resto
             if (indexResto === -1) {
                 retorno.push(this.construirValidacaoDesempacotamento(identificadores[0], origemParaAtribuicao, qtdIdentificadores));
             }
         }
-        let cursorValores = 0;
         const qtdParaResto = qtdValores - (qtdIdentificadores - 1);
-        for (let i = 0; i < identificadores.length; i++) {
+        const elementosAposResto = qtdIdentificadores - 1 - indexResto;
+        let cursorValores = 0;
+        let cursorDesempacotamento = 0;
+        for (let i = 0; i < qtdIdentificadores; i++) {
             const identificador = identificadores[i];
             let inicializador;
             let tipo = 'qualquer';
             if (i === indexResto) {
-                const valoresResto = inicializadores.slice(cursorValores, cursorValores + qtdParaResto);
+                let valoresResto;
+                if (ehDesempacotamento && inicializadores[0] instanceof construtos_1.Vetor) {
+                    const vetorLiteral = inicializadores[0];
+                    valoresResto = vetorLiteral.valores.slice(cursorDesempacotamento, vetorLiteral.valores.length - elementosAposResto);
+                    cursorDesempacotamento += valoresResto.length;
+                }
+                else {
+                    valoresResto = inicializadores.slice(cursorValores, cursorValores + qtdParaResto);
+                    cursorValores += qtdParaResto;
+                }
                 let tipoInferido = (0, inferenciador_1.inferirTipoVariavel)(valoresResto);
-                if (!tipoInferido.endsWith('[]'))
+                if (!tipoInferido.endsWith('[]')) {
                     tipoInferido = `${tipoInferido}[]`;
+                }
                 inicializador = new construtos_1.Vetor(identificador.hashArquivo, identificador.linha, valoresResto, tipoInferido);
                 tipo = tipoInferido;
-                cursorValores += qtdParaResto;
             }
             else if (ehDesempacotamento) {
                 if (inicializadores[0] instanceof construtos_1.Vetor) {
-                    inicializador = inicializadores[0].valores[i];
+                    const vetorLiteral = inicializadores[0];
+                    inicializador = vetorLiteral.valores[cursorDesempacotamento];
                 }
                 else {
                     inicializador = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, origemParaAtribuicao, new construtos_1.Literal(this.hashArquivo, identificador.linha, i, 'número'), new lexador_1.Simbolo(pitugues_2.default.COLCHETE_DIREITO, ']', null, identificador.linha, -1));
                 }
+                cursorDesempacotamento++;
             }
             else {
                 inicializador = inicializadores[cursorValores];
