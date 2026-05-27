@@ -1796,8 +1796,12 @@ exports.Atribuir = Atribuir;
 
 },{"./variavel":68}],23:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
+const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
  * Implementa as seguintes operações para Delégua e todos os dialetos:
@@ -1835,6 +1839,17 @@ class Binario {
      * @returns O tipo deduzido.
      */
     deduzirTipo() {
+        if ([
+            delegua_1.default.MAIOR,
+            delegua_1.default.MAIOR_IGUAL,
+            delegua_1.default.MENOR,
+            delegua_1.default.MENOR_IGUAL,
+            delegua_1.default.IGUAL,
+            delegua_1.default.IGUAL_IGUAL,
+            delegua_1.default.DIFERENTE,
+        ].includes(this.operador.tipo)) {
+            return 'lógico';
+        }
         if (['logico', 'lógico'].includes(this.esquerda.tipo) ||
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
@@ -1866,7 +1881,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],24:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":78}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bote = void 0;

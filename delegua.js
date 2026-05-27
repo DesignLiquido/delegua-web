@@ -3752,9 +3752,7 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
     }
     async visitarExpressaoDeChamada(expressao) {
         for (const argumento of expressao.argumentos) {
-            if (argumento instanceof construtos_1.Variavel) {
-                this.gerenciadorEscopos.marcarComoUsada(argumento.simbolo.lexema);
-            }
+            this.marcarVariaveisUsadasEmExpressao(argumento);
         }
         switch (expressao.entidadeChamada.constructor) {
             case construtos_1.AcessoMetodo:
@@ -5815,7 +5813,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 this.avancarEDevolverAnterior();
                 valores = [];
                 if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.COLCHETE_DIREITO)) {
-                    return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), [], 'qualquer[]');
+                    return new construtos_1.Vetor(this.hashArquivo, simboloAtual.linha, [], 'qualquer[]');
                 }
                 if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.PARENTESE_ESQUERDO)) {
                     return this.construtoTupla();
@@ -5850,21 +5848,34 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                 const valoresSemComentarios = valores.filter((v) => v.constructor !== construtos_1.ComentarioComoConstruto);
                 let elementoSeparador = false; // O primeiro elemento não pode ser separador.
                 for (const elemento of valoresSemComentarios) {
+                    const simboloErro = elemento.simbolo || simboloAtual;
                     if (elementoSeparador) {
                         if (elemento.constructor !== construtos_1.Separador) {
-                            throw this.erro(elemento.simbolo, 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.');
+                            throw this.erro(simboloErro, 'Os itens dos vetores devem ser separados através de uma vírgula.');
                         }
                         elementoSeparador = false;
                     }
                     else {
                         if (elemento.constructor === construtos_1.Separador) {
-                            throw this.erro(elemento.simbolo, 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.');
+                            throw this.erro(simboloErro, 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.');
                         }
                         elementoSeparador = true;
                     }
                 }
                 const valoresSemSeparadores = valoresSemComentarios.filter((v) => v.constructor !== construtos_1.Separador);
-                const tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresSemSeparadores);
+                let tipoVetor;
+                if (valoresSemSeparadores.length === 0) {
+                    tipoVetor = 'qualquer[]';
+                }
+                else {
+                    const primeiroElemento = valoresSemSeparadores[0];
+                    if (primeiroElemento instanceof construtos_1.Vetor) {
+                        tipoVetor = primeiroElemento.tipo + '[]';
+                    }
+                    else {
+                        tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresSemSeparadores);
+                    }
+                }
                 return new construtos_1.Vetor(this.hashArquivo, Number(simboloAtual.linha), valores, tipoVetor);
             case delegua_2.default.ENQUANTO:
                 this.avancarEDevolverAnterior();
@@ -7281,17 +7292,28 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         switch (inicializador.constructor) {
             case construtos_1.AcessoIndiceVariavel:
-                const entidadeChamadaAcessoIndiceVariavel = inicializador
-                    .entidadeChamada;
-                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor === construtos_1.AcessoIndiceVariavel) {
-                    return this.logicaComumInferenciaTiposVariaveisEConstantes(entidadeChamadaAcessoIndiceVariavel, tipo);
+                const acessoAtual = inicializador;
+                let entidade = acessoAtual.entidadeChamada;
+                let numeroIndices = 1;
+                // Percorre a cadeia de acessos aninhados para contar quantos índices existem
+                // Cada índice consome um nível de vetor, então removemos um '[]' por acesso.
+                while (entidade.constructor === construtos_1.AcessoIndiceVariavel) {
+                    numeroIndices++;
+                    entidade = entidade
+                        .entidadeChamada;
                 }
-                const tipoEntidadeChamadaAcessoIndiceVariavel = entidadeChamadaAcessoIndiceVariavel.tipo;
-                if (tipoEntidadeChamadaAcessoIndiceVariavel.endsWith('[]')) {
-                    return tipoEntidadeChamadaAcessoIndiceVariavel.slice(0, -2);
+                const tipoBase = entidade.tipo;
+                if (tipoBase.endsWith('[]')) {
+                    let tipoResultante = tipoBase;
+                    for (let i = 0; i < numeroIndices; i++) {
+                        if (tipoResultante.endsWith('[]')) {
+                            tipoResultante = tipoResultante.slice(0, -2);
+                        }
+                        else
+                            break;
+                    }
+                    return tipoResultante;
                 }
-                // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
                 return 'qualquer';
             case construtos_1.Chamada:
                 const entidadeChamadaChamada = inicializador.entidadeChamada;
@@ -9414,14 +9436,27 @@ class AvaliadorSintaticoPitugues {
             return tipoPrevio;
         switch (inicializador.constructor) {
             case construtos_1.AcessoIndiceVariavel:
-                const entidadeChamadaAcessoIndiceVariavel = inicializador
-                    .entidadeChamada;
-                // Este condicional ocorre com chamadas aninhadas. Por exemplo, `vetor[1][2]`.
-                if (entidadeChamadaAcessoIndiceVariavel.constructor === construtos_1.AcessoIndiceVariavel) {
-                    return this.logicaComumInferenciaTiposVariaveisEConstantes(entidadeChamadaAcessoIndiceVariavel, tipoPrevio);
+                const acessoAtual = inicializador;
+                let entidade = acessoAtual.entidadeChamada;
+                let numeroIndices = 1;
+                // Percorre acessos aninhados como `vetor[1][2]` contando quantos índices foram aplicados.
+                // Cada índice consome um nível de vetor, então removemos um '[]' por acesso.
+                while (entidade.constructor === construtos_1.AcessoIndiceVariavel) {
+                    numeroIndices++;
+                    entidade = entidade
+                        .entidadeChamada;
                 }
-                if (entidadeChamadaAcessoIndiceVariavel.tipo.endsWith('[]')) {
-                    return entidadeChamadaAcessoIndiceVariavel.tipo.slice(0, -2);
+                const tipoBase = entidade.tipo;
+                if (tipoBase.endsWith('[]')) {
+                    let tipoResultante = tipoBase;
+                    for (let i = 0; i < numeroIndices; i++) {
+                        if (tipoResultante.endsWith('[]')) {
+                            tipoResultante = tipoResultante.slice(0, -2);
+                        }
+                        else
+                            break;
+                    }
+                    return tipoResultante;
                 }
                 // Normalmente, `entidadeChamadaAcessoIndiceVariavel.tipo` aqui será 'vetor'.
                 return 'qualquer';
@@ -9847,6 +9882,9 @@ class AvaliadorSintaticoPitugues {
                 if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.COLCHETE_DIREITO)) {
                     return new construtos_1.Vetor(this.hashArquivo, simboloAtual.linha, [], 'qualquer[]');
                 }
+                if (this.verificarTipoSimboloAtual(pitugues_2.default.VIRGULA)) {
+                    throw this.erro(this.simboloAtual(), 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.');
+                }
                 // Ao resolver a expressão aqui, identificadores dentro da expressão de compreensão
                 // de lista serão tratados como 'qualquer', para evitar erros de tipo.
                 this.intuirTipoQualquerParaIdentificadores = true;
@@ -9857,13 +9895,35 @@ class AvaliadorSintaticoPitugues {
                 }
                 // Aqui já sabemos que não é uma compreensão de lista.
                 const valoresVetor = [retornoExpressaoOuPrimeiroValor];
+                this.ignorarComentarios();
                 while (!this.verificarSeSimboloAtualEIgualA(pitugues_2.default.COLCHETE_DIREITO)) {
-                    this.consumir(pitugues_2.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
-                    this.ignorarComentarios();
-                    valoresVetor.push(await this.atribuir());
-                    this.ignorarComentarios();
+                    if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VIRGULA)) {
+                        this.ignorarComentarios();
+                        if (this.verificarTipoSimboloAtual(pitugues_2.default.VIRGULA)) {
+                            throw this.erro(this.simboloAtual(), 'Não podem haver duas vírgulas seguidas em uma definição de vetor, ou definição de vetor começando em vírgula.');
+                        }
+                    }
+                    else {
+                        throw this.erro(this.simboloAtual() || simboloAtual, 'Os itens dos vetores devem ser separados através de uma vírgula.');
+                    }
+                    if (!this.verificarTipoSimboloAtual(pitugues_2.default.COLCHETE_DIREITO)) {
+                        valoresVetor.push(await this.atribuir());
+                        this.ignorarComentarios();
+                    }
                 }
-                const tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresVetor);
+                let tipoVetor;
+                if (valoresVetor.length === 0) {
+                    tipoVetor = 'qualquer[]';
+                }
+                else {
+                    const primeiroElemento = valoresVetor[0];
+                    if (primeiroElemento instanceof construtos_1.Vetor) {
+                        tipoVetor = primeiroElemento.tipo + '[]';
+                    }
+                    else {
+                        tipoVetor = (0, inferenciador_1.inferirTipoVariavel)(valoresVetor);
+                    }
+                }
                 return new construtos_1.Vetor(this.hashArquivo, simboloAtual.linha, valoresVetor, tipoVetor);
             case pitugues_2.default.COMENTARIO:
                 const simboloComentario = this.avancarEDevolverAnterior();
@@ -10820,10 +10880,10 @@ class AvaliadorSintaticoPitugues {
         this.tiposDefinidosEmCodigo[definicaoClasse.simbolo.lexema] = definicaoClasse;
         return definicaoClasse;
     }
-    declaracaoFalhar() {
+    async declaracaoFalhar() {
         const simboloFalha = this.simbolos[this.atual - 1];
-        const textoFalha = this.consumir(pitugues_2.default.TEXTO, 'Esperado texto para explicar falha.');
-        return new declaracoes_1.Falhar(simboloFalha, textoFalha.literal);
+        const explicacao = await this.atribuir();
+        return new declaracoes_1.Falhar(simboloFalha, explicacao);
     }
     /**
      * Verifica se há pontos e vírgula no final de sentenças.
@@ -10933,7 +10993,7 @@ class AvaliadorSintaticoPitugues {
                 return this.declaracaoEscreva(simboloEscrevaOuImprima);
             case pitugues_2.default.FALHAR:
                 this.avancarEDevolverAnterior();
-                return this.declaracaoFalhar();
+                return await this.declaracaoFalhar();
             case pitugues_2.default.FAZER:
                 this.avancarEDevolverAnterior();
                 return this.declaracaoFazer();
@@ -17381,8 +17441,12 @@ exports.Atribuir = Atribuir;
 
 },{"./variavel":129}],84:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Binario = void 0;
+const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * Binário é uma estrutura com um operador e dois operandos: esquerda e direita.
  * Implementa as seguintes operações para Delégua e todos os dialetos:
@@ -17420,6 +17484,17 @@ class Binario {
      * @returns O tipo deduzido.
      */
     deduzirTipo() {
+        if ([
+            delegua_1.default.MAIOR,
+            delegua_1.default.MAIOR_IGUAL,
+            delegua_1.default.MENOR,
+            delegua_1.default.MENOR_IGUAL,
+            delegua_1.default.IGUAL,
+            delegua_1.default.IGUAL_IGUAL,
+            delegua_1.default.DIFERENTE,
+        ].includes(this.operador.tipo)) {
+            return 'lógico';
+        }
         if (['logico', 'lógico'].includes(this.esquerda.tipo) ||
             ['logico', 'lógico'].includes(this.direita.tipo)) {
             return 'lógico';
@@ -17451,7 +17526,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{}],85:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":287}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bote = void 0;
@@ -23549,7 +23624,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
         }
         return argumentosResolvidos;
     }
-    resolverAmbiente(argumentos) {
+    async resolverAmbiente(visitante, argumentos) {
         const ambiente = new espaco_memoria_1.EspacoMemoria();
         const parametros = this.declaracao.parametros || [];
         for (let i = 0; i < parametros.length; i++) {
@@ -23565,15 +23640,28 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
                 };
             }
             else {
-                let argumento = argumentos[i];
-                if (argumento.valor === null) {
-                    argumentos[i].valor = parametro.valorPadrao ? parametro.valorPadrao : null;
+                let valorFinal;
+                const argumento = argumentos[i];
+                const valorExtraido = (argumento && argumento.hasOwnProperty('valor'))
+                    ? argumento.valor
+                    : argumento;
+                if (i < argumentos.length &&
+                    valorExtraido !== undefined &&
+                    valorExtraido !== null) {
+                    valorFinal = valorExtraido;
                 }
-                ambiente.valores[nome] =
-                    argumento && argumento.hasOwnProperty('valor') ? argumento.valor : argumento;
+                else if (parametro.valorPadrao) {
+                    valorFinal = await visitante.avaliar(parametro.valorPadrao);
+                }
+                else {
+                    valorFinal = null;
+                }
+                ambiente.valores[nome] = valorFinal;
                 // Se o argumento é `DeleguaFuncao`, para habilitar o recurso de _currying_,
                 // copiamos seu valor para o escopo atual. Nem sempre podemos contar com a tipagem explícita aqui.
-                if (argumento.valor && ['funcao', 'função'].includes(argumento.valor.tipo)) {
+                if (valorFinal &&
+                    typeof valorFinal === 'object' &&
+                    ['funcao', 'função'].includes(valorFinal.tipo)) {
                     parametro.referencia = true;
                 }
             }
@@ -23581,7 +23669,7 @@ class DeleguaFuncao extends chamavel_1.Chamavel {
         return ambiente;
     }
     async chamar(visitante, argumentos) {
-        const ambiente = this.resolverAmbiente(argumentos);
+        const ambiente = await this.resolverAmbiente(visitante, argumentos);
         if (this.instancia !== undefined) {
             ambiente.valores['isto'] = {
                 valor: this.instancia,
@@ -24964,7 +25052,28 @@ class InterpretadorBase {
         throw new Error('Método não implementado.');
     }
     async visitarExpressaoFalhar(expressao) {
-        const textoFalha = expressao.explicacao.valor ?? (await this.avaliar(expressao.explicacao)).valor;
+        let valorAvaliado = expressao.explicacao;
+        // Se for um construto (ex.: Variavel), avalia para obter seu valor real
+        if (expressao.explicacao &&
+            typeof expressao.explicacao.aceitar === 'function') {
+            valorAvaliado = await this.avaliar(expressao.explicacao);
+        }
+        let textoFalha;
+        if (valorAvaliado === null || valorAvaliado === undefined) {
+            textoFalha = 'nulo';
+        }
+        else if (typeof valorAvaliado === 'string') {
+            textoFalha = valorAvaliado;
+        }
+        else if (typeof valorAvaliado === 'object' &&
+            'valor' in valorAvaliado) {
+            // Objetos tipados como { valor: 'mensagem', tipo: 'texto' }
+            textoFalha = String(valorAvaliado.valor);
+        }
+        else {
+            // Caso incomum: usa a representação textual padrão
+            textoFalha = this.paraTexto(valorAvaliado);
+        }
         throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, textoFalha, expressao.linha);
     }
     async visitarExpressaoFimPara(_) {
@@ -25970,35 +26079,46 @@ class InterpretadorBase {
             this.eVerdadeiro(await this.avaliar(declaracao.condicaoEnquanto)));
     }
     /**
+     * Unifica a execução do bloco 'pegue', tratando tanto o caso de
+     * declarações simples quanto o caso de função com parâmetro de erro.
+     */
+    async executarBlocoPegue(pegue, erro) {
+        if (Array.isArray(pegue)) {
+            return await this.executarBloco(pegue);
+        }
+        // Caso seja FuncaoConstruto (pegue com parâmetro de erro)
+        const literalErro = new construtos_1.Literal(pegue.hashArquivo, pegue.linha, erro.mensagem || erro.message || erro);
+        const chamadaPegue = new construtos_1.Chamada(pegue.hashArquivo, pegue, [literalErro]);
+        return await chamadaPegue.aceitar(this);
+    }
+    /**
      * Interpretação de uma declaração `tente`.
      * @param declaracao O objeto da declaração.
      */
     async visitarDeclaracaoTente(declaracao) {
         let valorRetorno;
+        let sucessoNoTente = false;
         try {
             this.emDeclaracaoTente = true;
             try {
                 valorRetorno = await this.executarBloco(declaracao.caminhoTente);
+                sucessoNoTente = true;
             }
             catch (erro) {
                 if (declaracao.caminhoPegue !== null) {
-                    // `caminhoPegue` aqui pode ser um construto de função (se `pegue` tem parâmetros)
-                    // ou um vetor de `Declaracao` (`pegue` sem parâmetros).
-                    // As execuções, portanto, são diferentes.
-                    if (Array.isArray(declaracao.caminhoPegue)) {
-                        valorRetorno = await this.executarBloco(declaracao.caminhoPegue);
-                    }
-                    else {
-                        const literalErro = new construtos_1.Literal(declaracao.hashArquivo, Number(declaracao.linha), erro.mensagem);
-                        const chamadaPegue = new construtos_1.Chamada(declaracao.caminhoPegue.hashArquivo, declaracao.caminhoPegue, [literalErro]);
-                        valorRetorno = await chamadaPegue.aceitar(this);
-                    }
+                    valorRetorno = await this.executarBlocoPegue(declaracao.caminhoPegue, erro);
                 }
+                else
+                    throw erro;
+            }
+            if (sucessoNoTente && declaracao.caminhoSenao) {
+                valorRetorno = await this.executarBloco(declaracao.caminhoSenao);
             }
         }
         finally {
-            if (declaracao.caminhoFinalmente)
+            if (declaracao.caminhoFinalmente) {
                 valorRetorno = await this.executarBloco(declaracao.caminhoFinalmente);
+            }
             this.emDeclaracaoTente = false;
         }
         return valorRetorno;
@@ -26456,6 +26576,13 @@ class InterpretadorBase {
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(variavelObjeto);
+        }
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.simbolo.lexema in primitivas_vetor_1.default) {
+                const metodo = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
+                return new metodo_primitiva_1.MetodoPrimitiva(nomeObjeto, objeto, metodo, expressao.simbolo.lexema, tipoObjeto);
+            }
         }
         // Caso 3: Vetor simples do JavaScript.
         if (Array.isArray(objeto)) {
@@ -27724,6 +27851,23 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(objeto);
         }
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.nomeMetodo in primitivas_vetor_1.default) {
+                const metodo = primitivas_vetor_1.default[expressao.nomeMetodo].implementacao;
+                return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodo, expressao.nomeMetodo, tipoObjeto);
+            }
+            else {
+                const funcaoExt = this.encontrarMetodoExtensao(['vetor', 'objeto'], expressao.nomeMetodo, this.hashArquivoDeclaracaoAtual);
+                if (funcaoExt)
+                    return funcaoExt.funcaoPorExtensao(objeto);
+                throw new excecoes_1.ErroEmTempoDeExecucao({
+                    hashArquivo: this.hashArquivoDeclaracaoAtual,
+                    linha: this.linhaDeclaracaoAtual,
+                    lexema: expressao.nomeMetodo
+                }, `Método de primitiva '${expressao.nomeMetodo}' não existe para o tipo ${tipoObjeto}.`, expressao.linha);
+            }
+        }
         // Como internamente um dicionário de Delégua é simplesmente um objeto de
         // JavaScript, as primitivas de dicionário, especificamente, são tratadas
         // mais acima.
@@ -27898,6 +28042,19 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         let tipoObjeto = variavelObjeto.tipo;
         if (tipoObjeto === null || tipoObjeto === undefined) {
             tipoObjeto = (0, inferenciador_1.inferirTipoVariavel)(objeto);
+        }
+        // Trata qualquer tipo terminado em '[]' como vetor
+        if (tipoObjeto && tipoObjeto.endsWith('[]')) {
+            if (expressao.simbolo.lexema in primitivas_vetor_1.default) {
+                const metodo = primitivas_vetor_1.default[expressao.simbolo.lexema].implementacao;
+                return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodo, expressao.simbolo.lexema, tipoObjeto);
+            }
+            else {
+                const funcaoExt = this.encontrarMetodoExtensao(['vetor', 'objeto'], expressao.simbolo.lexema, this.hashArquivoDeclaracaoAtual);
+                if (funcaoExt)
+                    return funcaoExt.funcaoPorExtensao(objeto);
+                throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método de primitiva '${expressao.simbolo.lexema}' não existe para o tipo ${tipoObjeto}.`, expressao.linha);
+            }
         }
         // Como internamente um dicionário de Delégua é simplesmente um objeto de
         // JavaScript, as primitivas de dicionário, especificamente, são tratadas
