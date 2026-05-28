@@ -5285,14 +5285,25 @@ class AvaliadorSintaticoBase {
     declaracaoDeVariaveis() {
         throw new Error('Método não implementado.');
     }
-    async comparar() {
-        let expressao = await this.adicaoOuSubtracao();
+    validacaoComparacao(operador, esquerda, direita) { }
+    criarConstrutoComparacao(esquerda, operador, direita) {
+        return new construtos_1.Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+    async logicaComumComparacao(metodoProximoNivel) {
+        let expressao = await metodoProximoNivel();
         while (this.verificarSeSimboloAtualEIgualA(comum_1.default.MAIOR, comum_1.default.MAIOR_IGUAL, comum_1.default.MENOR, comum_1.default.MENOR_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const direito = await this.adicaoOuSubtracao();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
+            const operador = this.simboloAnterior
+                ? this.simboloAnterior()
+                : this.simbolos[this.atual - 1];
+            const esquerda = expressao;
+            const direita = await metodoProximoNivel();
+            this.validacaoComparacao(operador, esquerda, direita);
+            expressao = this.criarConstrutoComparacao(esquerda, operador, direita);
         }
         return expressao;
+    }
+    async comparar() {
+        return await this.logicaComumComparacao(() => this.adicaoOuSubtracao());
     }
     async comparacaoIgualdade() {
         let expressao = await this.comparar();
@@ -6560,16 +6571,14 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         return expressao;
     }
+    validacaoComparacao(operador, esquerda, direita) {
+        this.verificarOperandosComparacao(operador, esquerda, direita);
+    }
+    criarConstrutoComparacao(esquerda, operador, direita) {
+        return new construtos_1.Binario(this.hashArquivo, esquerda, operador, direita);
+    }
     async comparar() {
-        let expressao = await this.bitOu();
-        while (this.verificarSeSimboloAtualEIgualA(delegua_2.default.MAIOR, delegua_2.default.MAIOR_IGUAL, delegua_2.default.MENOR, delegua_2.default.MENOR_IGUAL)) {
-            const operador = this.simbolos[this.atual - 1];
-            const esquerda = expressao;
-            const direito = await this.bitOu();
-            this.verificarOperandosComparacao(operador, esquerda, direito);
-            expressao = new construtos_1.Binario(this.hashArquivo, esquerda, operador, direito);
-        }
-        return expressao;
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
     async comparacaoIgualdade() {
         let expressao = await this.comparar();
@@ -9374,6 +9383,7 @@ const primitivas_numero_1 = __importDefault(require("../../bibliotecas/primitiva
 const primitivas_texto_1 = __importDefault(require("../../bibliotecas/primitivas-texto"));
 const primitivas_vetor_1 = __importDefault(require("../../bibliotecas/primitivas-vetor"));
 const primitivas_tupla_1 = __importDefault(require("../../bibliotecas/dialetos/pitugues/primitivas-tupla"));
+const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 /**
  * O avaliador sintático (_Parser_) é responsável por transformar os símbolos do Lexador em estruturas de alto nível.
  * Essas estruturas de alto nível são as partes que executam lógica de programação de fato.
@@ -9382,8 +9392,9 @@ const primitivas_tupla_1 = __importDefault(require("../../bibliotecas/dialetos/p
  * A grande diferença entre este avaliador e os demais é a forma como são entendidos os blocos de escopo.
  * Este avaliador espera uma estrutura de pragmas, que explica quantos espaços há na frente de cada linha.
  */
-class AvaliadorSintaticoPitugues {
+class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
     constructor(performance = false) {
+        super();
         this.atual = 0;
         this.blocos = 0;
         this.performance = performance;
@@ -10148,14 +10159,42 @@ class AvaliadorSintaticoPitugues {
         }
         return expressao;
     }
-    async comparar() {
-        let expressao = await this.bitOu();
-        while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.MAIOR, pitugues_2.default.MAIOR_IGUAL, pitugues_2.default.MENOR, pitugues_2.default.MENOR_IGUAL)) {
-            const operador = this.simboloAnterior();
-            const direito = await this.bitOu();
-            expressao = new construtos_1.Binario(this.hashArquivo, expressao, operador, direito);
+    eOperadorDeComparacao(tipo) {
+        return [
+            pitugues_2.default.MAIOR,
+            pitugues_2.default.MAIOR_IGUAL,
+            pitugues_2.default.MENOR,
+            pitugues_2.default.MENOR_IGUAL
+        ].includes(tipo);
+    }
+    criarConstrutoComparacao(esquerda, operador, direita) {
+        let operandoCentral = null;
+        // Lógica de desugaring para comparações encadeadas (ex: 1 < x < 10)
+        if (esquerda instanceof construtos_1.Binario &&
+            this.eOperadorDeComparacao(esquerda.operador.tipo)) {
+            operandoCentral = esquerda.direita;
         }
-        return expressao;
+        else if (esquerda instanceof construtos_1.Logico &&
+            esquerda.direita instanceof construtos_1.Binario &&
+            this.eOperadorDeComparacao(esquerda.direita.operador.tipo)) {
+            operandoCentral = esquerda.direita.direita;
+        }
+        if (operandoCentral !== null) {
+            const operadorE = {
+                tipo: pitugues_2.default.E,
+                lexema: 'e',
+                literal: null,
+                linha: operador.linha,
+                hashArquivo: this.hashArquivo
+            };
+            const novaComparacaoDireita = new construtos_1.Binario(this.hashArquivo, operandoCentral, operador, direita);
+            return new construtos_1.Logico(this.hashArquivo, esquerda, operadorE, novaComparacaoDireita);
+        }
+        // Se não for encadeada, cria o Binário normal
+        return new construtos_1.Binario(this.hashArquivo, esquerda, operador, direita);
+    }
+    async comparar() {
+        return await this.logicaComumComparacao(() => this.bitOu());
     }
     async comparacaoIgualdade() {
         let expressao = await this.comparar();
@@ -10298,7 +10337,10 @@ class AvaliadorSintaticoPitugues {
         }
         return expressao;
     }
-    async declaracaoEscreva(simboloEscreva) {
+    async declaracaoEscreva() {
+        const simboloEscreva = this.simboloAnterior
+            ? this.simboloAnterior()
+            : this.simbolos[this.atual - 1];
         this.consumir(pitugues_2.default.PARENTESE_ESQUERDO, "Esperado '(' antes dos valores em escreva.");
         const argumentos = [];
         do {
@@ -10989,8 +11031,8 @@ class AvaliadorSintaticoPitugues {
                 return this.declaracaoEscolha();
             case pitugues_2.default.IMPRIMA:
             case pitugues_2.default.ESCREVA:
-                const simboloEscrevaOuImprima = this.avancarEDevolverAnterior();
-                return this.declaracaoEscreva(simboloEscrevaOuImprima);
+                this.avancarEDevolverAnterior();
+                return this.declaracaoEscreva();
             case pitugues_2.default.FALHAR:
                 this.avancarEDevolverAnterior();
                 return await this.declaracaoFalhar();
@@ -11208,7 +11250,7 @@ class AvaliadorSintaticoPitugues {
 }
 exports.AvaliadorSintaticoPitugues = AvaliadorSintaticoPitugues;
 
-},{"../../bibliotecas/dialetos/pitugues/primitivas-tupla":64,"../../bibliotecas/primitivas-dicionario":65,"../../bibliotecas/primitivas-numero":66,"../../bibliotecas/primitivas-texto":67,"../../bibliotecas/primitivas-vetor":68,"../../construtos":101,"../../declaracoes":150,"../../inferenciador":180,"../../informacao-elemento-sintatico":181,"../../lexador":272,"../../lexador/micro-lexador-pitugues":277,"../../tipos-de-dados/dialetos/pitugues":283,"../../tipos-de-simbolos/pitugues":291,"../comum":46,"../erro-avaliador-sintatico":55,"../informacao-escopo":57,"../pilha-escopos":61,"./micro-avaliador-sintatico-pitugues":53,"browser-process-hrtime":497}],49:[function(require,module,exports){
+},{"../../bibliotecas/dialetos/pitugues/primitivas-tupla":64,"../../bibliotecas/primitivas-dicionario":65,"../../bibliotecas/primitivas-numero":66,"../../bibliotecas/primitivas-texto":67,"../../bibliotecas/primitivas-vetor":68,"../../construtos":101,"../../declaracoes":150,"../../inferenciador":180,"../../informacao-elemento-sintatico":181,"../../lexador":272,"../../lexador/micro-lexador-pitugues":277,"../../tipos-de-dados/dialetos/pitugues":283,"../../tipos-de-simbolos/pitugues":291,"../avaliador-sintatico-base":44,"../comum":46,"../erro-avaliador-sintatico":55,"../informacao-escopo":57,"../pilha-escopos":61,"./micro-avaliador-sintatico-pitugues":53,"browser-process-hrtime":497}],49:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -25330,7 +25372,7 @@ class InterpretadorBase {
      * @param esquerda O operando esquerdo.
      * @returns Se ambos os operandos são números ou não.
      */
-    verificarOperandosNumeros(operador, direita, esquerda) {
+    verificarOperandosNumeros(operador, esquerda, direita) {
         const tipoDireita = direita.tipo
             ? direita.tipo
             : typeof direita === primitivos_1.default.NUMERO
@@ -25408,23 +25450,33 @@ class InterpretadorBase {
                 const resultadoExponenciacao = Math.pow(valorEsquerdo, valorDireito);
                 return resultadoExponenciacao;
             case delegua_1.default.MAIOR:
-                if (this.tiposNumericos.includes(tipoEsquerdo) &&
-                    this.tiposNumericos.includes(tipoDireito)) {
+                if (typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string') {
                     return valorEsquerdo > valorDireito;
                 }
-                return String(valorEsquerdo) > String(valorDireito);
-            case delegua_1.default.MAIOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return valorEsquerdo >= valorDireito;
+                return Number(valorEsquerdo) > Number(valorDireito);
+            case delegua_1.default.MAIOR_IGUAL:
+                if (typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string') {
+                    return valorEsquerdo >= valorDireito;
+                }
+                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                return Number(valorEsquerdo) >= Number(valorDireito);
             case delegua_1.default.MENOR:
-                if (this.tiposNumericos.includes(tipoEsquerdo) &&
-                    this.tiposNumericos.includes(tipoDireito)) {
+                if (typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string') {
                     return valorEsquerdo < valorDireito;
                 }
-                return String(valorEsquerdo) < String(valorDireito);
-            case delegua_1.default.MENOR_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
-                return valorEsquerdo <= valorDireito;
+                return Number(valorEsquerdo) < Number(valorDireito);
+            case delegua_1.default.MENOR_IGUAL:
+                if (typeof valorEsquerdo === 'string' &&
+                    typeof valorDireito === 'string') {
+                    return valorEsquerdo <= valorDireito;
+                }
+                this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
+                return Number(valorEsquerdo) <= Number(valorDireito);
             case delegua_1.default.SUBTRACAO:
             case delegua_1.default.MENOS_IGUAL:
                 this.verificarOperandosNumeros(expressao.operador, esquerda, direita);
@@ -25754,13 +25806,29 @@ class InterpretadorBase {
             });
         }
     }
+    /** Gancho para linguagens definirem lógica de escopo (Pituguês LEGB) ou de memória (Delégua) */
+    atribuirVariavel(alvoVariavel, valorResolvido, indice) {
+        this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+    }
+    /** Gancho para linguagens definirem como acessar propriedades de objetos */
+    async definirPropriedadeObjeto(objeto, simbolo, valor) {
+        if (objeto instanceof estruturas_1.ObjetoDeleguaClasse) {
+            await objeto.definir(simbolo, valor, this);
+        }
+        else if (objeto !== null && objeto !== undefined) {
+            objeto[simbolo.lexema] = valor;
+        }
+    }
     /**
      * Execução de uma expressão de atribuição.
      * @param expressao A expressão.
      * @returns O valor atribuído.
      */
     async visitarExpressaoDeAtribuicao(expressao) {
-        const valor = await this.avaliar(expressao.valor);
+        let valor = await this.avaliar(expressao.valor);
+        if (valor && valor.hasOwnProperty('valorRetornado')) {
+            valor = valor.valorRetornado;
+        }
         const valorResolvido = this.resolverValor(valor);
         let indice = null;
         if (expressao.indice) {
@@ -25768,22 +25836,18 @@ class InterpretadorBase {
         }
         switch (expressao.alvo.constructor) {
             case construtos_1.AcessoMetodoOuPropriedade:
-                // Nunca será método aqui: apenas propriedade.
                 const alvoPropriedade = expressao.alvo;
                 const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
                 const objeto = this.resolverValor(variavelObjeto);
-                const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
-                    const objetoDeleguaClasse = objeto;
-                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
-                }
+                const valorProp = await this.avaliar(expressao.valor);
+                await this.definirPropriedadeObjeto(objeto, alvoPropriedade.simbolo, valorProp);
                 break;
             case construtos_1.Variavel:
                 const alvoVariavel = expressao.alvo;
-                this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
+                this.atribuirVariavel(alvoVariavel, valorResolvido, indice);
                 break;
             default:
-                throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloOperador, `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`);
+                throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloOperador, "Alvo da atribuição inválido. O lado esquerdo de uma atribuição deve ser uma variável, propriedade ou índice.");
         }
         return valorResolvido;
     }
@@ -27077,6 +27141,17 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
     pontoInicializacaoBibliotecasGlobais() {
         (0, comum_1.carregarBibliotecasGlobais)(this.pilhaEscoposExecucao);
     }
+    atribuirVariavel(alvoVariavel, valorResolvido, indice) {
+        const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
+        if (variavelResolvida.valor instanceof estruturas_1.ReferenciaMontao) {
+            const referenciaMontao = this.montao.obterReferencia(this.hashArquivoDeclaracaoAtual, this.linhaDeclaracaoAtual, variavelResolvida.valor.endereco);
+            referenciaMontao[indice] = valorResolvido;
+        }
+        else {
+            // Se não for montão, usa o comportamento padrão da Pilha
+            super.atribuirVariavel(alvoVariavel, valorResolvido, indice);
+        }
+    }
     async avaliarArgumentosEscreva(argumentos) {
         if (this.constructor !== Interpretador) {
             return await super.avaliarArgumentosEscreva(argumentos);
@@ -28254,53 +28329,6 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
      */
     async visitarExpressaoComentario(expressao) {
         return Promise.resolve();
-    }
-    /**
-     * Execução de uma expressão de atribuição.
-     * @param expressao A expressão.
-     * @returns O valor atribuído.
-     */
-    async visitarExpressaoDeAtribuicao(expressao) {
-        let valor = await this.avaliar(expressao.valor);
-        if (valor && valor.hasOwnProperty('valorRetornado')) {
-            valor = valor.valorRetornado;
-        }
-        const valorResolvido = this.resolverValor(valor);
-        let indice = null;
-        if (expressao.indice) {
-            indice = this.resolverValor(await this.avaliar(expressao.indice));
-        }
-        switch (expressao.alvo.constructor) {
-            case construtos_1.Variavel:
-                const alvoVariavel = expressao.alvo;
-                const variavelResolvida = this.pilhaEscoposExecucao.obterValorVariavel(alvoVariavel.simbolo);
-                if (variavelResolvida.valor instanceof estruturas_1.ReferenciaMontao) {
-                    const referenciaMontao = this.montao.obterReferencia(this.hashArquivoDeclaracaoAtual, this.linhaDeclaracaoAtual, variavelResolvida.valor.endereco);
-                    referenciaMontao[indice] = valorResolvido;
-                }
-                else {
-                    this.pilhaEscoposExecucao.atribuirVariavel(alvoVariavel.simbolo, valorResolvido, indice);
-                }
-                break;
-            case construtos_1.AcessoMetodoOuPropriedade:
-                // Nunca será método aqui: apenas propriedade.
-                const alvoPropriedade = expressao.alvo;
-                const variavelObjeto = await this.avaliar(alvoPropriedade.objeto);
-                const objeto = this.resolverValor(variavelObjeto);
-                const valor = await this.avaliar(expressao.valor);
-                if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
-                    const objetoDeleguaClasse = objeto;
-                    await objetoDeleguaClasse.definir(alvoPropriedade.simbolo, valor, this);
-                }
-                else {
-                    // Se cair aqui, provavelmente `objeto.constructor.name` é 'Object'.
-                    objeto[alvoPropriedade.simbolo.lexema] = valor;
-                }
-                break;
-            default:
-                throw new excecoes_1.ErroEmTempoDeExecucao(undefined, `Atribuição com caso faltante: ${JSON.stringify(expressao)}.`);
-        }
-        return valorResolvido;
     }
     async visitarExpressaoDefinirValor(expressao) {
         const variavelObjeto = await this.avaliar(expressao.objeto);
@@ -31995,11 +32023,11 @@ const simbolo_1 = require("./simbolo");
 const palavras_reservadas_1 = require("./palavras-reservadas");
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
- * O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
- * Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
- * Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
- * estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
- */
+* O Lexador é responsável por transformar o código em uma coleção de tokens de linguagem.
+* Cada token de linguagem é representado por um tipo, um lexema e informações da linha de código em que foi expresso.
+* Também é responsável por mapear as palavras reservadas da linguagem, que não podem ser usadas por outras
+* estruturas, tais como nomes de variáveis, funções, literais, classes e assim por diante.
+*/
 class Lexador {
     constructor(performance = false) {
         this.codigo = [];
@@ -32067,10 +32095,10 @@ class Lexador {
         return this.atual >= this.codigo[this.linha].length;
     }
     /**
-     * Indica se o código está na última linha.
-     * @returns Verdadeiro se contador de linhas está na última linha.
-     *          Falso caso contrário.
-     */
+    * Indica se o código está na última linha.
+    * @returns Verdadeiro se contador de linhas está na última linha.
+    *          Falso caso contrário.
+    */
     eUltimaLinha() {
         return this.linha >= this.codigo.length - 1;
     }
@@ -32078,7 +32106,9 @@ class Lexador {
         return this.eUltimaLinha() && this.codigo[this.codigo.length - 1].length <= this.atual;
     }
     avancar() {
-        this.atual += 1;
+        const linha = this.codigo[this.linha];
+        const codePoint = linha.codePointAt(this.atual);
+        this.atual += codePoint && codePoint > 0xffff ? 2 : 1;
         if (this.eFinalDaLinha() && !this.eUltimaLinha()) {
             this.linha++;
             this.atual = 0;
@@ -32096,7 +32126,12 @@ class Lexador {
     simboloAtual() {
         if (this.eFinalDaLinha())
             return '\0';
-        return this.codigo[this.linha].charAt(this.atual);
+        const linha = this.codigo[this.linha];
+        const codePoint = linha.codePointAt(this.atual);
+        if (codePoint === undefined) {
+            return '\0';
+        }
+        return String.fromCodePoint(codePoint);
     }
     comentarioMultilinha() {
         let conteudo = '';
@@ -32120,10 +32155,10 @@ class Lexador {
         }
     }
     /**
-     * Lê um comentário documentário (iniciado com `/**`), agregando o conteúdo
-     * em um único token DOCUMENTARIO. Linhas com `*` inicial (convenção JSDoc)
-     * têm o asterisco removido.
-     */
+    * Lê um comentário documentário (iniciado com `/**`), agregando o conteúdo
+    * em um único token DOCUMENTARIO. Linhas com `*` inicial (convenção JSDoc)
+    * têm o asterisco removido.
+    */
     comentarioDocumentario() {
         // Cursor está no primeiro '*' de '/**'. Avança para pular o segundo '*'.
         this.avancar();
@@ -32161,10 +32196,23 @@ class Lexador {
         this.adicionarSimbolo(delegua_1.default.COMENTARIO, conteudo.trim());
     }
     proximoSimbolo() {
-        return this.codigo[this.linha].charAt(this.atual + 1);
+        const linha = this.codigo[this.linha];
+        const atual = this.simboloAtual();
+        const incremento = atual.length;
+        const codePoint = linha.codePointAt(this.atual + incremento);
+        if (codePoint === undefined) {
+            return '\0';
+        }
+        return String.fromCodePoint(codePoint);
     }
     simboloAnterior() {
-        return this.codigo[this.linha].charAt(this.atual - 1);
+        const linha = this.codigo[this.linha];
+        const indiceAnterior = this.atual -
+            (linha.codePointAt(this.atual - 2) > 0xffff ? 2 : 1);
+        const codePoint = linha.codePointAt(indiceAnterior);
+        if (codePoint === undefined) {
+            return '\0';
+        }
     }
     analisarTexto(delimitador = '"') {
         let valor = '';
@@ -32349,6 +32397,19 @@ class Lexador {
             ? palavras_reservadas_1.palavrasReservadasDelegua[codigo]
             : delegua_1.default.IDENTIFICADOR;
         this.adicionarSimbolo(tipo);
+    }
+    eEmoji(caractere) {
+        const emojiRegex = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*/u;
+        return emojiRegex.test(caractere);
+    }
+    analisarEmoji() {
+        const simboloAtual = this.simboloAtual();
+        this.erros.push({
+            linha: this.linha + 1,
+            caractere: simboloAtual,
+            mensagem: 'Emojis devem estar envoltos por aspas.',
+        });
+        this.avancar();
     }
     analisarToken() {
         const caractere = this.simboloAtual();
@@ -32613,6 +32674,8 @@ class Lexador {
             default:
                 if (this.eDigito(caractere))
                     this.analisarNumero();
+                else if (this.eEmoji(caractere))
+                    this.analisarEmoji();
                 else if (this.eAlfabeto(caractere))
                     this.identificarPalavraChave();
                 else {
