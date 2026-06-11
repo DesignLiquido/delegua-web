@@ -594,6 +594,7 @@ function definirLinguagemDelegua() {
             'cada',
             'caso',
             'classe',
+            'decorador',
             'const',
             'constante',
             'construtor',
@@ -754,6 +755,8 @@ function definirLinguagemDelegua() {
         tokenizer: {
             root: [[/[{}]/, 'delimiter.bracket'], { include: 'common' }],
             common: [
+                // decoradores (@identificador)
+                [/@[a-z_âáêéíóôõú][çãâáêéíóôõú\w$]*/, 'annotation'],
                 // identifiers and keywords
                 [
                     /[a-z_âáêéíóôõú$][çãâáêéíóôõú\w$]*/,
