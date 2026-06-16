@@ -7353,8 +7353,14 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
                         const entidadeChamadaAcessoMetodo = entidadeChamadaChamada;
                         const tipoRetornoAcessoMetodoResolvido = entidadeChamadaAcessoMetodo.tipoRetornoMetodo.replace('<T>', entidadeChamadaAcessoMetodo.objeto.tipo);
                         return tipoRetornoAcessoMetodoResolvido;
-                    case construtos_1.AcessoMetodoOuPropriedade:
-                        return this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(entidadeChamadaChamada);
+                    case construtos_1.AcessoMetodoOuPropriedade: {
+                        const tipoMetodo = this.logicaComumInferenciaTiposAcessoMetodoOuPropriedade(entidadeChamadaChamada);
+                        // logicaComumInferenciaTiposAcessoMetodoOuPropriedade retorna o tipo da
+                        // função ('função<X>') para métodos definidos em código. Em contexto de
+                        // Chamada, queremos o tipo de retorno X, não o tipo da função em si.
+                        const correspondencia = tipoMetodo.match(/^função<(.+)>$/);
+                        return correspondencia ? correspondencia[1] : tipoMetodo;
+                    }
                     case construtos_1.AcessoPropriedade:
                         const entidadeChamadaAcessoPropriedade = entidadeChamadaChamada;
                         return entidadeChamadaAcessoPropriedade.tipoRetornoPropriedade;
@@ -7639,10 +7645,11 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         }
         tiposRetornos.delete('qualquer');
         if (tipoRetorno === 'qualquer') {
-            if (tiposRetornos.size > 0) {
-                // Se o tipo de retorno é 'qualquer', seja implícito ou explícito,
+            if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
+                // Se o tipo de retorno é 'qualquer' implícito (não anotado),
                 // este avaliador sintático pode restringir o tipo baseado nos construtos
                 // de retornos encontrados nos blocos internos da função.
+                // Se o tipo foi explicitamente anotado como 'qualquer', respeitamos a anotação.
                 const tipoRetornoDeduzido = tiposRetornos.values().next().value;
                 tipoRetorno = tipoRetornoDeduzido;
             }
@@ -7801,7 +7808,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
             if (tipoRetorno === 'qualquer') {
-                if (tiposRetornos.size > 0) {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
                     tipoRetorno = tiposRetornos.values().next().value;
                 }
                 else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
@@ -8152,7 +8159,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             const retornaChamadoExplicitamente = tiposRetornos.size > 0;
             tiposRetornos.delete('qualquer');
             if (tipoRetorno === 'qualquer') {
-                if (tiposRetornos.size > 0) {
+                if (tiposRetornos.size > 0 && !definicaoExplicitaDeTipo) {
                     tipoRetorno = tiposRetornos.values().next().value;
                 }
                 else if (!retornaChamadoExplicitamente && !definicaoExplicitaDeTipo) {
@@ -10117,7 +10124,7 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
             this.erro(operador, "O símbolo '?' não é um operador válido em Pituguês.");
             return direito;
         }
-        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.NEGACAO, pitugues_2.default.SUBTRACAO, pitugues_2.default.BIT_NOT)) {
+        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.NAO, pitugues_2.default.NEGACAO, pitugues_2.default.SUBTRACAO, pitugues_2.default.BIT_NOT)) {
             const operador = this.simboloAnterior();
             const direito = await this.exponenciacao();
             return new construtos_1.Unario(this.hashArquivo, operador, direito);
@@ -27521,14 +27528,34 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         }
         return Promise.resolve((0, comum_1.pontoEntradaAjuda)(declaracao.funcao, declaracao.elemento));
     }
+    criarSimboloDecorador(lexema, linha, hashArquivo) {
+        return {
+            lexema,
+            tipo: 'IDENTIFICADOR',
+            literal: null,
+            linha,
+            hashArquivo,
+        };
+    }
+    async resolverFuncaoDecoradora(nomeDecorador, linha, hashArquivo) {
+        const partesNome = nomeDecorador.split('.');
+        if (partesNome.length === 1) {
+            const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
+            return variavelDecoradora.valor;
+        }
+        let expressaoDecoradora = new construtos_1.Variavel(hashArquivo, this.criarSimboloDecorador(partesNome[0], linha, hashArquivo));
+        for (const parteNome of partesNome.slice(1)) {
+            expressaoDecoradora = new construtos_1.AcessoMetodoOuPropriedade(hashArquivo, expressaoDecoradora, this.criarSimboloDecorador(parteNome, linha, hashArquivo));
+        }
+        return this.resolverValor(await this.avaliar(expressaoDecoradora), true);
+    }
     async visitarDeclaracaoDefinicaoFuncao(declaracao) {
         let funcao = new estruturas_1.DeleguaFuncao(declaracao.simbolo.lexema, declaracao.funcao);
         funcao.documentacao = declaracao.documentacao;
         if (declaracao.decoradores && declaracao.decoradores.length > 0) {
             for (const decorador of [...declaracao.decoradores].reverse()) {
                 const nomeDecorador = decorador.nome.slice(1);
-                const variavelDecoradora = this.pilhaEscoposExecucao.obterVariavelPorNome(nomeDecorador);
-                const funcaoDecoradora = variavelDecoradora.valor;
+                const funcaoDecoradora = await this.resolverFuncaoDecoradora(nomeDecorador, decorador.linha, decorador.hashArquivo);
                 const argumentosDecorador = [
                     { nome: '', valor: funcao }
                 ];
