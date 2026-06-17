@@ -432,10 +432,13 @@ const compartilharCodigo = function () {
         const modelo = Monaco.editor.getModels()[0];
         const codigo = modelo.getValue();
 
-        const codigoBase64 = btoa(codigo);
+        const bytes = new TextEncoder().encode(codigo);
+        let binario = '';
+        bytes.forEach(b => binario += String.fromCharCode(b));
+        const codigoBase64 = btoa(binario);
 
         const baseUrl = window.location.origin + window.location.pathname;
-        const linkCompartilhamento = `${baseUrl}?codigo=${codigoBase64}`;
+        const linkCompartilhamento = `${baseUrl}?codigo=${encodeURIComponent(codigoBase64)}`;
 
         navigator.clipboard.writeText(linkCompartilhamento).then(() => {
             mostrarToastNotificacao("✓ Link copiado para área de transferência!", true);
@@ -1902,7 +1905,8 @@ window.addEventListener("load", () => {
     const editor = Monaco.editor.getEditors()[0];
     const modelo = editor.getModel();
     if (codigo) {
-        const codigoDecodificado = atob(codigo);
+        const binary = atob(codigo.replace(/ /g, '+'));
+        const codigoDecodificado = new TextDecoder().decode(Uint8Array.from(binary, c => c.charCodeAt(0)));
         modelo.setValue(codigoDecodificado);
     }
     else if (exemploId) {
