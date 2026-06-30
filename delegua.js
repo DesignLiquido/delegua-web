@@ -6792,6 +6792,11 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             let caminhoPadrao = null;
             while (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.CHAVE_DIREITA) &&
                 !this.estaNoFinal()) {
+                if (this.simbolos[this.atual].tipo === delegua_2.default.COMENTARIO ||
+                    this.simbolos[this.atual].tipo === delegua_2.default.LINHA_COMENTARIO) {
+                    this.avancarEDevolverAnterior();
+                    continue;
+                }
                 if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.CASO)) {
                     const caminhoCondicoes = [await this.expressao()];
                     this.consumir(delegua_2.default.DOIS_PONTOS, "Esperado ':' após o 'caso'.");
