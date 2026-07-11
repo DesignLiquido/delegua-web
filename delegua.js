@@ -6187,10 +6187,40 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
             case delegua_2.default.COLCHETE_ESQUERDO:
                 const tipoAcesso = this.resolverTipoAcessoIndiceVariavel(expressaoAnterior);
                 this.avancarEDevolverAnterior();
-                const indice = await this.expressao();
-                const simboloFechamento = this.consumir(delegua_2.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
-                const acessoVariavel = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressaoAnterior, indice, simboloFechamento, tipoAcesso);
-                return await this.resolverCadeiaChamadas(acessoVariavel);
+                // Determina se é intervalo ([:]), índice único ([indice]) ou
+                // intervalo com passo ([inicio:fim:passo]).
+                let indiceInicio = null;
+                let indiceFim = null;
+                let indicePasso = null;
+                // Se começar com ':', não há início explícito (ex.: `[:fim]`).
+                if (this.simbolos[this.atual].tipo !== delegua_2.default.DOIS_PONTOS) {
+                    indiceInicio = await this.expressao();
+                }
+                if (this.simbolos[this.atual].tipo === delegua_2.default.DOIS_PONTOS) {
+                    // É um intervalo: [inicio:fim] ou [inicio:fim:passo].
+                    this.avancarEDevolverAnterior(); // Pula ':'.
+                    if (this.simbolos[this.atual].tipo !== delegua_2.default.COLCHETE_DIREITO &&
+                        this.simbolos[this.atual].tipo !== delegua_2.default.DOIS_PONTOS) {
+                        indiceFim = await this.expressao();
+                    }
+                    if (this.simbolos[this.atual].tipo === delegua_2.default.DOIS_PONTOS) {
+                        this.avancarEDevolverAnterior(); // Pula segundo ':'.
+                        if (this.simbolos[this.atual].tipo !== delegua_2.default.COLCHETE_DIREITO) {
+                            indicePasso = await this.expressao();
+                        }
+                    }
+                    const simboloFechamento = this.consumir(delegua_2.default.COLCHETE_DIREITO, "Esperado ']' após intervalo.");
+                    // Fatiamento sempre retorna uma coleção do mesmo tipo de elemento.
+                    const tipoIntervalo = tipoAcesso + '[]';
+                    const acessoIntervalo = new construtos_1.AcessoIntervaloVariavel(this.hashArquivo, expressaoAnterior, indiceInicio, indiceFim, indicePasso, simboloFechamento, tipoIntervalo);
+                    return await this.resolverCadeiaChamadas(acessoIntervalo);
+                }
+                else {
+                    // É um índice único
+                    const simboloFechamento = this.consumir(delegua_2.default.COLCHETE_DIREITO, "Esperado ']' após escrita do indice.");
+                    const acessoVariavel = new construtos_1.AcessoIndiceVariavel(this.hashArquivo, expressaoAnterior, indiceInicio, simboloFechamento, tipoAcesso);
+                    return await this.resolverCadeiaChamadas(acessoVariavel);
+                }
             default:
                 return expressaoAnterior;
         }
@@ -23017,6 +23047,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.visitarExpressaoAcessoIntervaloVariavel = visitarExpressaoAcessoIntervaloVariavel;
 exports.carregarBibliotecasGlobais = carregarBibliotecasGlobais;
 exports.pontoEntradaAjuda = pontoEntradaAjuda;
 exports.obterTopicoAjuda = obterTopicoAjuda;
@@ -23025,7 +23056,70 @@ const delegua_funcao_1 = require("./estruturas/delegua-funcao");
 const descritor_tipo_classe_1 = require("./estruturas/descritor-tipo-classe");
 const objeto_delegua_classe_1 = require("./estruturas/objeto-delegua-classe");
 const construtos_1 = require("../construtos");
+const excecoes_1 = require("../excecoes");
 const bibliotecaGlobal = __importStar(require("../bibliotecas/biblioteca-global"));
+async function visitarExpressaoAcessoIntervaloVariavel(interpretador, expressao) {
+    const resultadoEntidade = await interpretador.avaliar(expressao.entidadeChamada);
+    const objeto = interpretador.resolverValor(resultadoEntidade);
+    let tamanho = 0;
+    let itens;
+    const ehTexto = typeof objeto === 'string';
+    if (objeto instanceof construtos_1.TuplaN) {
+        itens = objeto.elementos;
+        tamanho = objeto.elementos.length;
+    }
+    else if (Array.isArray(objeto) || ehTexto) {
+        itens = objeto;
+        tamanho = objeto.length;
+    }
+    else {
+        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Acesso por intervalo só é suportado em vetores, textos e tuplas.', expressao.linha);
+    }
+    let passo = 1;
+    if (expressao.indicePasso) {
+        const resPasso = await interpretador.avaliar(expressao.indicePasso);
+        passo = interpretador.resolverValor(resPasso);
+    }
+    if (passo === 0) {
+        throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'O passo do fatiamento não pode ser zero.', expressao.linha);
+    }
+    let inicio = passo > 0 ? 0 : tamanho - 1;
+    if (expressao.indiceInicio) {
+        const resInicio = await interpretador.avaliar(expressao.indiceInicio);
+        inicio = interpretador.resolverValor(resInicio);
+        if (inicio < 0)
+            inicio = tamanho + inicio;
+    }
+    let fim = passo > 0 ? tamanho : -1;
+    if (expressao.indiceFim) {
+        const resFim = await interpretador.avaliar(expressao.indiceFim);
+        fim = interpretador.resolverValor(resFim);
+        if (fim < 0)
+            fim = tamanho + fim;
+    }
+    // Lógica de fatiamento para suportar "passo", pois o TypeScript não suporta nativamente
+    const resultadoFatiado = [];
+    if (passo > 0) {
+        for (let i = inicio; i < fim; i += passo) {
+            if (i >= 0 && i < tamanho) {
+                resultadoFatiado.push(itens[i]);
+            }
+        }
+    }
+    else {
+        for (let i = inicio; i > fim; i += passo) {
+            if (i >= 0 && i < tamanho) {
+                resultadoFatiado.push(itens[i]);
+            }
+        }
+    }
+    if (objeto instanceof construtos_1.TuplaN) {
+        return new construtos_1.TuplaN(objeto.hashArquivo, objeto.linha, resultadoFatiado);
+    }
+    if (ehTexto)
+        return resultadoFatiado.join('');
+    return resultadoFatiado;
+}
 function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
     pilhaEscoposExecucao.definirVariavel('aleatorio', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
     pilhaEscoposExecucao.definirVariavel('aleatório', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
@@ -23596,7 +23690,7 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
     }
 }
 
-},{"../bibliotecas/biblioteca-global":63,"../construtos":101,"./estruturas/delegua-funcao":244,"./estruturas/descritor-tipo-classe":245,"./estruturas/funcao-padrao":247,"./estruturas/objeto-delegua-classe":253}],239:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":63,"../construtos":101,"../excecoes":175,"./estruturas/delegua-funcao":244,"./estruturas/descritor-tipo-classe":245,"./estruturas/funcao-padrao":247,"./estruturas/objeto-delegua-classe":253}],239:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoMemoria = void 0;
@@ -26636,7 +26730,7 @@ class InterpretadorBase {
             }
             return objeto[valorIndice];
         }
-        if (objeto instanceof construtos_1.TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof construtos_1.TuplaN || objeto.constructor === construtos_1.TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar uma tupla.', expressao.linha));
             }
@@ -26647,7 +26741,7 @@ class InterpretadorBase {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice da tupla fora de intervalo.', expressao.linha));
             }
             const elemento = objeto.elementos[valorIndice];
-            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+            if (elemento instanceof construtos_1.Literal) {
                 return elemento.valor;
             }
             return elemento;
@@ -26667,9 +26761,7 @@ class InterpretadorBase {
             objeto instanceof estruturas_1.DeleguaFuncao ||
             objeto instanceof estruturas_1.DescritorTipoClasse ||
             objeto instanceof estruturas_1.DeleguaModulo) {
-            if (objeto[valorIndice] === 0)
-                return 0;
-            return objeto[valorIndice] || null;
+            return objeto[valorIndice];
         }
         if (typeof objeto === primitivos_1.default.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
@@ -26870,7 +26962,7 @@ class InterpretadorBase {
         // Outro caso que `instanceof` simplesmente não funciona para casos em Liquido,
         // então testamos também o nome do construtor.
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
-            objeto.constructor.name === 'ObjetoDeleguaClasse') {
+            objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
             const valor = await objeto.obter(expressao.simbolo, this);
             if (valor === 0)
                 return 0;
@@ -27949,7 +28041,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             }
             return objeto[valorIndice];
         }
-        if (objeto instanceof construtos_1.TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof construtos_1.TuplaN || objeto.constructor === construtos_1.TuplaN) {
             if (!Number.isInteger(valorIndice)) {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Somente inteiros podem ser usados para indexar uma tupla.', expressao.linha));
             }
@@ -27960,7 +28052,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 return Promise.reject(new excecoes_1.ErroEmTempoDeExecucao(expressao.simboloFechamento, 'Índice da tupla fora de intervalo.', expressao.linha));
             }
             const elemento = objeto.elementos[valorIndice];
-            if (elemento && elemento.constructor && elemento.constructor.name === 'Literal') {
+            if (elemento instanceof construtos_1.Literal) {
                 return elemento.valor;
             }
             return elemento;
@@ -27973,9 +28065,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             objeto instanceof estruturas_1.DeleguaFuncao ||
             objeto instanceof estruturas_1.DescritorTipoClasse ||
             objeto instanceof estruturas_1.DeleguaModulo) {
-            if (objeto[valorIndice] === 0)
-                return 0;
-            return objeto[valorIndice] || null;
+            return objeto[valorIndice];
         }
         if (typeof objeto === primitivos_1.default.TEXTO) {
             if (!Number.isInteger(valorIndice)) {
@@ -27993,6 +28083,9 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             hashArquivo: this.hashArquivoDeclaracaoAtual,
             linha: this.linhaDeclaracaoAtual,
         }, 'Somente listas, dicionários, classes e objetos podem ter seus valores indexados.', expressao.linha));
+    }
+    async visitarExpressaoAcessoIntervaloVariavel(expressao) {
+        return (0, comum_1.visitarExpressaoAcessoIntervaloVariavel)(this, expressao);
     }
     logicaPropriedadesEMetodosDeClasse(declaracao, superClassesResolvidas, mesclaResolvidas) {
         const metodos = {};
@@ -28185,7 +28278,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 throw e;
             }
         }
-        if (objeto instanceof construtos_1.TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof construtos_1.TuplaN || objeto.constructor === construtos_1.TuplaN) {
             const metodoDePrimitivaTupla = primitivas_tupla_1.default[expressao.nomeMetodo];
             if (metodoDePrimitivaTupla) {
                 return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTupla.implementacao, expressao.nomeMetodo, 'tupla');
@@ -28382,7 +28475,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
                 throw new excecoes_1.ErroEmTempoDeExecucao(expressao.simbolo, `Método ou propriedade '${expressao.simbolo.lexema}' não encontrado em '${nomeClasse}'.`, expressao.linha);
             }
         }
-        if (objeto instanceof construtos_1.TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof construtos_1.TuplaN || objeto.constructor === construtos_1.TuplaN) {
             const metodoDePrimitivaTupla = primitivas_tupla_1.default[expressao.simbolo.lexema];
             if (metodoDePrimitivaTupla) {
                 return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoDePrimitivaTupla.implementacao, expressao.simbolo.lexema, 'tupla');
@@ -28521,7 +28614,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
         if (objeto.constructor === estruturas_1.ObjetoDeleguaClasse) {
             return objeto.obterMetodo(expressao.nomePropriedade) || null;
         }
-        if (objeto instanceof construtos_1.TuplaN || objeto.constructor.name === 'TuplaN') {
+        if (objeto instanceof construtos_1.TuplaN || objeto.constructor === construtos_1.TuplaN) {
             const metodoPrimitivaTupla = primitivas_tupla_1.default[expressao.nomePropriedade];
             if (metodoPrimitivaTupla) {
                 return new estruturas_1.MetodoPrimitiva(nomeObjeto, objeto, metodoPrimitivaTupla.implementacao, expressao.nomePropriedade, 'tupla');
@@ -49851,7 +49944,7 @@ class TradutorAssemblyScript {
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'for (';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0]) + ' ';
         }
@@ -49933,7 +50026,7 @@ class TradutorAssemblyScript {
         if (!corpo)
             return null;
         for (const declaracao of corpo) {
-            if (declaracao.constructor.name === 'Retorna') {
+            if (declaracao instanceof declaracoes_1.Retorna) {
                 const retorna = declaracao;
                 if (retorna.tipo && retorna.tipo !== 'vazio') {
                     return retorna.tipo;
@@ -50276,7 +50369,7 @@ class TradutorAssemblyScript {
             return `Math.pow(${esquerda}, ${direita})`;
         }
         let resultado = '';
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof construtos_1.Agrupamento)
             resultado +=
                 '(' +
                     this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda) +
@@ -50285,7 +50378,7 @@ class TradutorAssemblyScript {
             resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof construtos_1.Agrupamento)
             resultado +=
                 '(' +
                     this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
@@ -50431,6 +50524,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorElixir = void 0;
+const construtos_1 = require("../construtos");
+const declaracoes_1 = require("../declaracoes");
 const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 /**
  * Tradutor que converte código Delégua para Elixir.
@@ -50642,27 +50737,27 @@ class TradutorElixir {
      */
     extrairCamposDeDeclaracao(declaracao, campos) {
         // Se é uma expressão de atribuição com isto.campo
-        if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
+        if (declaracao instanceof declaracoes_1.Expressao && declaracao.expressao) {
             const expressao = declaracao.expressao;
             // DefinirValor: usado para isto.campo = valor
-            if (expressao.constructor.name === 'DefinirValor') {
-                if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+            if (expressao instanceof construtos_1.DefinirValor) {
+                if (expressao.objeto && expressao.objeto.constructor === construtos_1.Isto) {
                     campos.add(expressao.nome.lexema);
                 }
             }
             // Atribuir: pode ser usado para isto.campo = valor
-            if (expressao.constructor.name === 'Atribuir') {
+            if (expressao instanceof construtos_1.Atribuir) {
                 // Verificar se o alvo é um acesso a propriedade de isto
-                if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
+                if (expressao.alvo instanceof construtos_1.AcessoPropriedade) {
                     const acesso = expressao.alvo;
-                    if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                    if (acesso.objeto && acesso.objeto.constructor === construtos_1.Isto) {
                         campos.add(acesso.nomePropriedade);
                     }
                 }
             }
         }
         // Se é um bloco, processar declarações internas
-        if (declaracao.constructor.name === 'Bloco') {
+        if (declaracao.constructor === declaracoes_1.Bloco) {
             for (const decl of declaracao.declaracoes) {
                 this.extrairCamposDeDeclaracao(decl, campos);
             }
@@ -50719,21 +50814,21 @@ class TradutorElixir {
     async extrairInicializacoesStruct(corpo, nomeModulo) {
         const inicializacoes = [];
         for (const declaracao of corpo) {
-            if (declaracao.constructor.name === 'Expressao' && declaracao.expressao) {
+            if (declaracao instanceof declaracoes_1.Expressao && declaracao.expressao) {
                 const expressao = declaracao.expressao;
                 // DefinirValor: isto.campo = valor
-                if (expressao.constructor.name === 'DefinirValor') {
-                    if (expressao.objeto && expressao.objeto.constructor.name === 'Isto') {
+                if (expressao instanceof construtos_1.DefinirValor) {
+                    if (expressao.objeto && expressao.objeto.constructor === construtos_1.Isto) {
                         const campo = this.converterIdentificador(expressao.nome.lexema);
                         const valor = await expressao.valor.aceitar(this);
                         inicializacoes.push(`${campo}: ${valor}`);
                     }
                 }
                 // Atribuir: pode ser isto.campo = valor (se alvo é AcessoPropriedade)
-                if (expressao.constructor.name === 'Atribuir') {
-                    if (expressao.alvo && expressao.alvo.constructor.name === 'AcessoPropriedade') {
+                if (expressao instanceof construtos_1.Atribuir) {
+                    if (expressao.alvo instanceof construtos_1.AcessoPropriedade) {
                         const acesso = expressao.alvo;
-                        if (acesso.objeto && acesso.objeto.constructor.name === 'Isto') {
+                        if (acesso.objeto && acesso.objeto.constructor === construtos_1.Isto) {
                             const campo = this.converterIdentificador(acesso.nomePropriedade);
                             const valor = await expressao.valor.aceitar(this);
                             inicializacoes.push(`${campo}: ${valor}`);
@@ -50928,7 +51023,7 @@ class TradutorElixir {
             const init = Array.isArray(declaracao.inicializador)
                 ? declaracao.inicializador[0]
                 : declaracao.inicializador;
-            if (init.constructor.name === 'Var') {
+            if (init.constructor === declaracoes_1.Var) {
                 nomeVar = this.converterIdentificador(init.simbolo.lexema);
                 if (init.inicializador) {
                     valorInicial = await init.inicializador.aceitar(this);
@@ -51161,7 +51256,7 @@ class TradutorElixir {
             }
         }
         // Verificar se é instanciação de módulo (classe)
-        if (expressao.entidadeChamada.constructor.name === 'Variavel') {
+        if (expressao.entidadeChamada.constructor === construtos_1.Variavel) {
             const nomeEntidade = expressao.entidadeChamada.simbolo.lexema;
             if (this.modulosConhecidos.has(this.converterNomeModulo(nomeEntidade))) {
                 // Chamada de construtor de módulo
@@ -51169,7 +51264,7 @@ class TradutorElixir {
             }
         }
         // Verificar se é chamada de método (AcessoMetodo ou AcessoMetodoOuPropriedade)
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodo') {
+        if (expressao.entidadeChamada.constructor === construtos_1.AcessoMetodo) {
             const acessoMetodo = expressao.entidadeChamada;
             const objeto = await acessoMetodo.objeto.aceitar(this);
             const metodo = this.converterIdentificador(acessoMetodo.nomeMetodo);
@@ -51181,7 +51276,7 @@ class TradutorElixir {
             // Método de módulo/struct - passar o struct como primeiro argumento
             return Promise.resolve(`${this.obterNomeModulo(objeto)}.${metodo}(${objeto}${argumentos.length > 0 ? ', ' + argumentos.join(', ') : ''})`);
         }
-        if (expressao.entidadeChamada.constructor.name === 'AcessoMetodoOuPropriedade') {
+        if (expressao.entidadeChamada.constructor === construtos_1.AcessoMetodoOuPropriedade) {
             const acesso = expressao.entidadeChamada;
             const objeto = await acesso.objeto.aceitar(this);
             const simbolo = this.converterIdentificador(acesso.simbolo.lexema);
@@ -51385,7 +51480,7 @@ class TradutorElixir {
 }
 exports.TradutorElixir = TradutorElixir;
 
-},{"../tipos-de-simbolos/delegua":292}],314:[function(require,module,exports){
+},{"../construtos":101,"../declaracoes":151,"../tipos-de-simbolos/delegua":292}],314:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -51578,11 +51673,13 @@ class TradutorJavaScript {
             resultado += this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita.constructor === construtos_1.Agrupamento) {
+            const agrupamentoDireita = binario.direita;
             resultado +=
                 '(' +
-                    this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita) +
+                    this.dicionarioConstrutos[agrupamentoDireita.constructor.name](binario.direita) +
                     ')';
+        }
         else
             resultado += this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
         return resultado;
@@ -51839,7 +51936,7 @@ class TradutorJavaScript {
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'for (';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0], false) + '; ';
         }
@@ -53572,7 +53669,7 @@ class TradutorPython {
         if (funcao.corpo.length > 0) {
             const primeiraDeclaracao = funcao.corpo[0];
             // Se for uma declaração de retorno, extraímos a expressão
-            if (primeiraDeclaracao.constructor.name === 'Retorna') {
+            if (primeiraDeclaracao instanceof declaracoes_1.Retorna) {
                 const retorna = primeiraDeclaracao;
                 if (retorna.valor) {
                     expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
@@ -53685,14 +53782,14 @@ class TradutorPython {
     traduzirConstrutoBinario(binario) {
         let resultado = '';
         const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof construtos_1.Agrupamento)
             resultado += '(' + valorEsquerdo + ')';
         else
             resultado += valorEsquerdo;
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
         const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof construtos_1.Agrupamento)
             resultado += '(' + valorDireito + ')';
         else
             resultado += valorDireito;
@@ -54441,6 +54538,7 @@ class TradutorReversoJavaScript {
             LogicalExpression: this.traduzirConstrutoLogico.bind(this),
             MemberExpression: this.traduzirExpressao.bind(this),
             NewExpression: this.traduzirNovo.bind(this),
+            ObjectExpression: this.traduzirConstrutoObjeto.bind(this),
             ThisExpression: () => 'isto',
             UpdateExpression: this.traduzirAtualizacaoVariavel.bind(this),
             // Variavel: this.traduzirConstrutoVariavel.bind(this),
@@ -54516,6 +54614,31 @@ class TradutorReversoJavaScript {
     traduzirIdentificador(identificador) {
         return identificador.name;
     }
+    traduzirConstrutoObjeto(objeto) {
+        if (!objeto.properties.length) {
+            return '{}';
+        }
+        let resultado = '{';
+        for (const propriedade of objeto.properties) {
+            if (propriedade.type === 'SpreadElement') {
+                const spread = propriedade;
+                resultado +=
+                    '...' + this.dicionarioConstrutos[spread.argument.type](spread.argument) + ', ';
+                continue;
+            }
+            const propriedadeObjeto = propriedade;
+            const chave = propriedadeObjeto.key.type === 'Identifier'
+                ? `'${propriedadeObjeto.key.name}'`
+                : this.dicionarioConstrutos[propriedadeObjeto.key.type](propriedadeObjeto.key);
+            const valor = this.dicionarioConstrutos[propriedadeObjeto.value.type](propriedadeObjeto.value);
+            resultado += `${chave}: ${valor}, `;
+        }
+        if (objeto.properties.length > 0) {
+            resultado = resultado.slice(0, -2);
+        }
+        resultado += '}';
+        return resultado;
+    }
     traduzirAtualizacaoVariavel(atualizarVariavel) {
         let resultado = '';
         resultado += this.dicionarioConstrutos[atualizarVariavel.argument.constructor.name](atualizarVariavel.argument);
@@ -54572,6 +54695,8 @@ class TradutorReversoJavaScript {
             return 'verdadeiro';
         if (literal.raw === 'false')
             return 'falso';
+        if (literal.value === null || literal.raw === 'null')
+            return 'nulo';
         return `${literal.raw}`;
     }
     traduzirConstrutoBinario(binario) {
@@ -54716,7 +54841,7 @@ class TradutorReversoJavaScript {
         resultado += this.logicaComumBlocoEscopo(declaracao.consequent);
         if (declaracao?.alternate) {
             resultado += 'senao ';
-            if (declaracao.alternate.constructor.name === 'BlockStatement') {
+            if (declaracao.alternate.type === 'BlockStatement') {
                 const bloco = declaracao.alternate;
                 resultado += this.logicaComumBlocoEscopo(bloco);
                 return resultado;
@@ -55816,7 +55941,7 @@ class TradutorReversoTenda {
     }
     traduzirDeclaracaoPara(declaracaoPara) {
         let resultado = 'para ';
-        if (declaracaoPara.inicializador.constructor.name === 'Array') {
+        if (Array.isArray(declaracaoPara.inicializador)) {
             resultado +=
                 this.dicionarioDeclaracoes[declaracaoPara.inicializador[0].constructor.name](declaracaoPara.inicializador[0], false) + '; ';
         }
@@ -56236,7 +56361,7 @@ class TradutorRuby {
         if (funcao.corpo.length > 0) {
             const primeiraDeclaracao = funcao.corpo[0];
             // Se for uma declaração de retorno, extraímos a expressão
-            if (primeiraDeclaracao.constructor.name === 'Retorna') {
+            if (primeiraDeclaracao instanceof declaracoes_1.Retorna) {
                 const retorna = primeiraDeclaracao;
                 if (retorna.valor) {
                     expressao = this.dicionarioConstrutos[retorna.valor.constructor.name](retorna.valor);
@@ -56350,14 +56475,14 @@ class TradutorRuby {
     traduzirConstrutoBinario(binario) {
         let resultado = '';
         const valorEsquerdo = this.dicionarioConstrutos[binario.esquerda.constructor.name](binario.esquerda);
-        if (binario.esquerda.constructor.name === 'Agrupamento')
+        if (binario.esquerda instanceof construtos_1.Agrupamento)
             resultado += '(' + valorEsquerdo + ')';
         else
             resultado += valorEsquerdo;
         let operador = this.traduzirSimboloOperador(binario.operador);
         resultado += ` ${operador} `;
         const valorDireito = this.dicionarioConstrutos[binario.direita.constructor.name](binario.direita);
-        if (binario.direita.constructor.name === 'Agrupamento')
+        if (binario.direita instanceof construtos_1.Agrupamento)
             resultado += '(' + valorDireito + ')';
         else
             resultado += valorDireito;
