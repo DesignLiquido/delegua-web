@@ -30,8 +30,17 @@ export { RegraConvencaoNomenclatura } from "@designliquido/delegua/estilizador/r
 export { RegraParadigmaConsistente } from "@designliquido/delegua/estilizador/regras/regra-paradigma-consistente";
 
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
+import { RegistroTestes, ResultadoTeste } from "@designliquido/delegua/bibliotecas/testes/registro-testes";
 
 import { InterpretadorWeb } from "./interpretador-web";
+
+export {
+    formatarNomeResultadoTeste,
+    iconeStatusResultadoTeste,
+    resumirResultadosTestes,
+    rotuloStatusResultadoTeste,
+} from "./resultados-testes";
+export type { ResumoResultadosTestes } from "./resultados-testes";
 
 interface ConfiguracoesDeleguaWeb {
     limiteIteracoesLaco: number;
@@ -208,10 +217,22 @@ export class DeleguaWeb {
         return moduloDelegua;
     }
 
+    /**
+     * Retorna uma cópia dos resultados de testes da última execução.
+     * A cópia evita que a interface dependa do estado mutável do interpretador.
+     */
+    obterResultadosTestes(): ResultadoTeste[] {
+        return [...this.interpretador.registroTestes.resultados];
+    }
+
     async executar(
         retornoImportador: any,
         manterAmbiente: boolean = false
     ): Promise<RetornoExecucaoInterface> {
+        // Cada execução começa sem resultados anteriores.
+        // Se o código importar "testes", o núcleo recria o registro no import.
+        this.interpretador.registroTestes = new RegistroTestes();
+
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {
                 this.reportar(
