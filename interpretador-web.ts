@@ -40,6 +40,11 @@ export class InterpretadorWeb
     override async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
         // TODO: Resolver isso não considerando que é um Literal.
         const caminhoResolvido = declaracao.caminho as Literal;
+        if (caminhoResolvido.valor === 'testes') {
+            // Reutiliza a implementação nativa do núcleo (registro, módulo e vínculo dos nomes).
+            return super.visitarDeclaracaoImportar(declaracao);
+        }
+
         return this.logicaComumImportar(caminhoResolvido, declaracao.linha);
     }
 

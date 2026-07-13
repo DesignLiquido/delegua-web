@@ -333,4 +333,22 @@ mostrar_fila();
 var valorEntrada = 24;
 enfileirar(valorEntrada);
 mostrar_fila();`,
+  TestesUnitarios: `importar { afirmar, teste, grupo } de "testes"
+
+grupo("Matemática", funcao() {
+    teste("soma dois números", funcao() {
+        afirmar.igual(4, 2 + 2)
+    })
+
+    teste("subtração (exemplo de falha)", funcao() {
+        // Este teste falha de propósito para mostrar o painel de erros.
+        afirmar.igual(2, 5 - 2)
+    })
+
+    teste.pular("ainda não implementado", funcao() {
+        afirmar.igual(1, 1)
+    })
+})
+
+escreva("Testes executados. Veja o painel de resultados.")`,
 }

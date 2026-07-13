@@ -200,10 +200,83 @@ textarea {
     }
 }
 
-#resultadoEditor {
+#painelDireito {
     min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border-right: 1px solid variaveis.$borda;
     border-top: 1px solid variaveis.$borda;
+}
+
+#resultadosTestes {
+    flex: 0 1 auto;
+    max-height: 45%;
+    overflow-y: auto;
+    padding: 8px 10px;
+    border-bottom: 1px solid variaveis.$borda;
+    font-size: 13px;
+
+    &[hidden] {
+        display: none;
+    }
+
+    h2 {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .resumo-testes {
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+
+    .lista-testes {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .item-teste {
+        margin-bottom: 8px;
+        line-height: 1.4;
+        padding-left: 8px;
+        border-left: 3px solid transparent;
+    }
+
+    .item-teste-passou {
+        border-left-color: #2e7d32;
+    }
+
+    .item-teste-falhou {
+        border-left-color: #c62828;
+    }
+
+    .item-teste-pulado {
+        border-left-color: #757575;
+    }
+
+    .item-teste-cabecalho {
+        display: block;
+    }
+
+    .item-teste-erro {
+        display: block;
+        margin-top: 2px;
+        white-space: pre-wrap;
+    }
+
+    .item-teste-tempo {
+        display: block;
+        margin-top: 2px;
+        opacity: 0.8;
+    }
+}
+
+#resultadoEditor {
+    flex: 1;
+    min-height: 0;
     overflow-y: scroll;
 }
 
@@ -289,6 +362,27 @@ body[data-tema="escuro"] {
 
     #editor {
         border-color: #3c3c3c;
+    }
+
+    #painelDireito {
+        border-color: #3c3c3c;
+    }
+
+    #resultadosTestes {
+        border-bottom-color: #3c3c3c;
+        color: #d4d4d4;
+
+        .item-teste-passou {
+            border-left-color: #81c784;
+        }
+
+        .item-teste-falhou {
+            border-left-color: #e57373;
+        }
+
+        .item-teste-pulado {
+            border-left-color: #9e9e9e;
+        }
     }
 
     #resultadoEditor {
