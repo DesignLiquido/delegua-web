@@ -179,10 +179,72 @@ textarea {
     font-size: 11px;
   }
 }
-#resultadoEditor {
+#painelDireito {
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-right: 1px solid #d9d9d9;
   border-top: 1px solid #d9d9d9;
+}
+
+#resultadosTestes {
+  flex: 0 1 auto;
+  max-height: 45%;
+  overflow-y: auto;
+  padding: 8px 10px;
+  border-bottom: 1px solid #d9d9d9;
+  font-size: 13px;
+}
+#resultadosTestes[hidden] {
+  display: none;
+}
+#resultadosTestes h2 {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+#resultadosTestes .resumo-testes {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+#resultadosTestes .lista-testes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#resultadosTestes .item-teste {
+  margin-bottom: 8px;
+  line-height: 1.4;
+  padding-left: 8px;
+  border-left: 3px solid transparent;
+}
+#resultadosTestes .item-teste-passou {
+  border-left-color: #2e7d32;
+}
+#resultadosTestes .item-teste-falhou {
+  border-left-color: #c62828;
+}
+#resultadosTestes .item-teste-pulado {
+  border-left-color: #757575;
+}
+#resultadosTestes .item-teste-cabecalho {
+  display: block;
+}
+#resultadosTestes .item-teste-erro {
+  display: block;
+  margin-top: 2px;
+  white-space: pre-wrap;
+}
+#resultadosTestes .item-teste-tempo {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+#resultadoEditor {
+  flex: 1;
+  min-height: 0;
   overflow-y: scroll;
 }
 
@@ -263,6 +325,22 @@ body[data-tema=escuro] #botaoExecutar {
 }
 body[data-tema=escuro] #editor {
   border-color: #3c3c3c;
+}
+body[data-tema=escuro] #painelDireito {
+  border-color: #3c3c3c;
+}
+body[data-tema=escuro] #resultadosTestes {
+  border-bottom-color: #3c3c3c;
+  color: #d4d4d4;
+}
+body[data-tema=escuro] #resultadosTestes .item-teste-passou {
+  border-left-color: #81c784;
+}
+body[data-tema=escuro] #resultadosTestes .item-teste-falhou {
+  border-left-color: #e57373;
+}
+body[data-tema=escuro] #resultadosTestes .item-teste-pulado {
+  border-left-color: #9e9e9e;
 }
 body[data-tema=escuro] #resultadoEditor {
   background-color: #1e1e1e;

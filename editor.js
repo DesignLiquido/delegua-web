@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const resultadoEditorDiv = document.getElementById("resultadoEditor");
+const resultadosTestesDiv = document.getElementById("resultadosTestes");
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
@@ -177,9 +178,72 @@ const mostrarResultadoExecutar = function (resultadoExecucao) {
     resultadoEditorDiv === null || resultadoEditorDiv === void 0 ? void 0 : resultadoEditorDiv.appendChild(paragrafo);
     resultadoEditorDiv.scrollTop = resultadoEditorDiv.scrollHeight;
 };
+const limparResultadosTestes = function () {
+    if (!resultadosTestesDiv) {
+        return;
+    }
+    resultadosTestesDiv.innerHTML = "";
+    resultadosTestesDiv.hidden = true;
+};
+const mostrarResultadosTestes = function (resultados) {
+    if (!resultadosTestesDiv) {
+        return;
+    }
+    if (!resultados || resultados.length === 0) {
+        limparResultadosTestes();
+        return;
+    }
+    const resumir = Delegua.resumirResultadosTestes;
+    const formatarNome = Delegua.formatarNomeResultadoTeste;
+    const rotuloStatus = Delegua.rotuloStatusResultadoTeste;
+    const iconeStatus = Delegua.iconeStatusResultadoTeste;
+    const resumo = resumir(resultados);
+    const titulo = document.createElement("h2");
+    titulo.textContent = "Resultados dos testes";
+    const resumoEl = document.createElement("div");
+    resumoEl.className = "resumo-testes";
+    resumoEl.innerHTML = [
+        `<p>${resumo.passaram} passaram</p>`,
+        `<p>${resumo.falharam} falharam</p>`,
+        `<p>${resumo.pulados} pulados</p>`,
+        `<p>Tempo total: ${resumo.tempoTotalMs} ms</p>`,
+    ].join("");
+    const lista = document.createElement("ul");
+    lista.className = "lista-testes";
+    for (const resultado of resultados) {
+        const item = document.createElement("li");
+        item.className = `item-teste item-teste-${resultado.status}`;
+        const cabecalho = document.createElement("span");
+        cabecalho.className = "item-teste-cabecalho";
+        const nome = formatarNome(resultado);
+        const statusTexto = rotuloStatus(resultado.status);
+        const icone = iconeStatus(resultado.status);
+        cabecalho.textContent = `${icone} ${nome} — ${statusTexto}`;
+        item.appendChild(cabecalho);
+        if (resultado.status === "falhou" && resultado.mensagemErro) {
+            const erro = document.createElement("span");
+            erro.className = "item-teste-erro";
+            erro.textContent = resultado.mensagemErro;
+            item.appendChild(erro);
+        }
+        if (resultado.status !== "pulado" || resultado.tempoMs > 0) {
+            const tempo = document.createElement("span");
+            tempo.className = "item-teste-tempo";
+            tempo.textContent = `${resultado.tempoMs} ms`;
+            item.appendChild(tempo);
+        }
+        lista.appendChild(item);
+    }
+    resultadosTestesDiv.innerHTML = "";
+    resultadosTestesDiv.appendChild(titulo);
+    resultadosTestesDiv.appendChild(resumoEl);
+    resultadosTestesDiv.appendChild(lista);
+    resultadosTestesDiv.hidden = false;
+};
 const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 const limparResultadoEditor = function () {
     resultadoEditorDiv.innerHTML = "";
+    limparResultadosTestes();
 };
 limparResultadoEditor();
 const mapearErros = function (erros) {
@@ -268,6 +332,7 @@ const executarCodigo = function () {
                 mapearAvisos(errosAnaliseSemantica);
             }
             const respostaInterpretador = yield deleguaWeb.executar({ retornoLexador, retornoAvaliadorSintatico });
+            mostrarResultadosTestes(deleguaWeb.obterResultadosTestes());
             const errosInterpretacao = respostaInterpretador.erros;
             if (errosInterpretacao) {
                 errosInterpretacao.forEach((erro) => {
@@ -279,6 +344,7 @@ const executarCodigo = function () {
             }
         }
         catch (erro) {
+            limparResultadosTestes();
             const erroFormatado = "Erro: " + erro;
             mostrarResultadoExecutar(erroFormatado);
         }

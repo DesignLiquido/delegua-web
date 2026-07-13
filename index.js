@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleguaWeb = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
+exports.DeleguaWeb = exports.rotuloStatusResultadoTeste = exports.resumirResultadosTestes = exports.iconeStatusResultadoTeste = exports.formatarNomeResultadoTeste = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
 const lexador_1 = require("@designliquido/delegua/lexador");
 const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
 const analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
@@ -73,7 +73,13 @@ Object.defineProperty(exports, "RegraConvencaoNomenclatura", { enumerable: true,
 var regra_paradigma_consistente_1 = require("@designliquido/delegua/estilizador/regras/regra-paradigma-consistente");
 Object.defineProperty(exports, "RegraParadigmaConsistente", { enumerable: true, get: function () { return regra_paradigma_consistente_1.RegraParadigmaConsistente; } });
 const delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
+const registro_testes_1 = require("@designliquido/delegua/bibliotecas/testes/registro-testes");
 const interpretador_web_1 = require("./interpretador-web");
+var resultados_testes_1 = require("./resultados-testes");
+Object.defineProperty(exports, "formatarNomeResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.formatarNomeResultadoTeste; } });
+Object.defineProperty(exports, "iconeStatusResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.iconeStatusResultadoTeste; } });
+Object.defineProperty(exports, "resumirResultadosTestes", { enumerable: true, get: function () { return resultados_testes_1.resumirResultadosTestes; } });
+Object.defineProperty(exports, "rotuloStatusResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.rotuloStatusResultadoTeste; } });
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
 const CONFIGURACOES_PADRAO = {
     limiteIteracoesLaco: 1000000,
@@ -211,8 +217,18 @@ class DeleguaWeb {
         }
         return moduloDelegua;
     }
+    /**
+     * Retorna uma cópia dos resultados de testes da última execução.
+     * A cópia evita que a interface dependa do estado mutável do interpretador.
+     */
+    obterResultadosTestes() {
+        return [...this.interpretador.registroTestes.resultados];
+    }
     executar(retornoImportador_1) {
         return __awaiter(this, arguments, void 0, function* (retornoImportador, manterAmbiente = false) {
+            // Cada execução começa sem resultados anteriores.
+            // Se o código importar "testes", o núcleo recria o registro no import.
+            this.interpretador.registroTestes = new registro_testes_1.RegistroTestes();
             if (retornoImportador.retornoLexador.erros.length > 0) {
                 for (const erroLexador of retornoImportador.retornoLexador.erros) {
                     this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);

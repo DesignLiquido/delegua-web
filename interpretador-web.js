@@ -37,9 +37,16 @@ class InterpretadorWeb extends delegua_1.Interpretador {
         });
     }
     visitarDeclaracaoImportar(declaracao) {
+        const _super = Object.create(null, {
+            visitarDeclaracaoImportar: { get: () => super.visitarDeclaracaoImportar }
+        });
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Resolver isso não considerando que é um Literal.
             const caminhoResolvido = declaracao.caminho;
+            if (caminhoResolvido.valor === 'testes') {
+                // Reutiliza a implementação nativa do núcleo (registro, módulo e vínculo dos nomes).
+                return _super.visitarDeclaracaoImportar.call(this, declaracao);
+            }
             return this.logicaComumImportar(caminhoResolvido, declaracao.linha);
         });
     }
