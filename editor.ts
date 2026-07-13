@@ -1,4 +1,5 @@
 import { CorrecaoImplementacaoInterface, MembroInterfaceFaltandoInterface } from "@designliquido/delegua/interfaces";
+import type { ResultadoTeste } from "@designliquido/delegua/bibliotecas/testes/registro-testes";
 import { IPrimitiva } from "./primitivas/primitiva-interface";
 import type { DocumentarioAnalisadoInterface } from '@designliquido/delegua/interfaces/documentario';
 import { MetodoArgumento, MetodoDocumentacao, SugestaoMetodo } from "./interfaces";
@@ -218,7 +219,7 @@ const limparResultadosTestes = function () {
     resultadosTestesDiv.hidden = true;
 };
 
-const mostrarResultadosTestes = function (resultados: any[]) {
+const mostrarResultadosTestes = function (resultados: ResultadoTeste[]) {
     if (!resultadosTestesDiv) {
         return;
     }
