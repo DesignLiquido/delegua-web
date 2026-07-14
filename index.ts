@@ -1,6 +1,5 @@
 import { Lexador } from "@designliquido/delegua/lexador";
 import { AvaliadorSintatico } from "@designliquido/delegua/avaliador-sintatico";
-import { AnalisadorSemantico } from "@designliquido/delegua/analisador-semantico";
 import { Interpretador } from "@designliquido/delegua/interpretador";
 
 import {
@@ -32,6 +31,7 @@ export { RegraParadigmaConsistente } from "@designliquido/delegua/estilizador/re
 import tiposDeSimbolos from "@designliquido/delegua/tipos-de-simbolos/delegua";
 import { RegistroTestes, ResultadoTeste } from "@designliquido/delegua/bibliotecas/testes/registro-testes";
 
+import { AnalisadorSemanticoWeb } from "./analisador-semantico-web";
 import { InterpretadorWeb } from "./interpretador-web";
 
 export {
@@ -80,7 +80,7 @@ export class DeleguaWeb {
     interpretador: Interpretador;
     lexador: LexadorInterface<SimboloInterface>;
     avaliadorSintatico: AvaliadorSintatico;
-    analisadorSemantico: AnalisadorSemantico;
+    analisadorSemantico: AnalisadorSemanticoWeb;
     funcaoDeRetorno: Function;
 
     documentacoesBibliotecas: {[biblioteca: string]: any};
@@ -95,7 +95,7 @@ export class DeleguaWeb {
 
         this.lexador = new Lexador();
         this.avaliadorSintatico = new AvaliadorSintatico();
-        this.analisadorSemantico = new AnalisadorSemantico();
+        this.analisadorSemantico = new AnalisadorSemanticoWeb();
         this.interpretador = new InterpretadorWeb(
             "",
             false,
