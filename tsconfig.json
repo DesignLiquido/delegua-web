@@ -13,7 +13,8 @@
     "outDir": "dist",
     "esModuleInterop": true,
     "allowJs": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "jest"]
   },
   "exclude": [
     "babel.config.js",

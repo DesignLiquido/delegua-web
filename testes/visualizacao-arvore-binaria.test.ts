@@ -241,4 +241,4 @@ function executarTestes(): void {
     console.log('Todos os testes de visualização de árvore binária passaram.');
 }
 
-executarTestes();
+test('visualização de árvore binária', executarTestes);

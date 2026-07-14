@@ -10,17 +10,20 @@
         "publicar": "yarn empacotar && yarn gh-pages -d dist",
         "servir": "yarn http-server -o ./dist -c-1",
         "testar": "yarn empacotar && yarn servir",
-        "testar-logica": "yarn tsc && node dist/testes/visualizacao-arvore-binaria.test.js"
+        "testes-unitarios": "jest"
     },
     "devDependencies": {
         "@types/estree": "^1.0.8",
+        "@types/jest": "^30.0.0",
         "@types/node": "^22.10.1",
         "browserify": "latest",
         "copy-files-from-to": "^3.12.0",
         "del-cli": "^6.0.0",
         "gh-pages": "^6.3.0",
         "http-server": "^14.1.1",
+        "jest": "^30.4.2",
         "sass": "^1.89.2",
+        "ts-jest": "^29.4.11",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3"
     },
