@@ -22,6 +22,7 @@ export class InterpretadorWeb
             case 'json':
             case 'matematica':
             case 'tempo':
+            case 'visualizacao':
                 const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminho.valor);
                 const moduloResolvido = variavelDoModulo.valor as DeleguaModulo;
                 return Promise.resolve(moduloResolvido);
@@ -37,6 +38,20 @@ export class InterpretadorWeb
         }
     }
 
+    private vincularElementosImportacao(declaracao: Importar, modulo: DeleguaModulo): void {
+        if (declaracao.simboloTudo !== null) {
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simboloTudo.lexema, modulo);
+            return;
+        }
+
+        for (const elemento of declaracao.elementosImportacao) {
+            const componente = modulo.componentes[elemento.lexema];
+            if (componente !== undefined) {
+                this.pilhaEscoposExecucao.definirVariavel(elemento.lexema, componente);
+            }
+        }
+    }
+
     override async visitarDeclaracaoImportar(declaracao: Importar): Promise<DeleguaModulo> {
         // TODO: Resolver isso não considerando que é um Literal.
         const caminhoResolvido = declaracao.caminho as Literal;
@@ -45,7 +60,9 @@ export class InterpretadorWeb
             return super.visitarDeclaracaoImportar(declaracao);
         }
 
-        return this.logicaComumImportar(caminhoResolvido, declaracao.linha);
+        const modulo = await this.logicaComumImportar(caminhoResolvido, declaracao.linha);
+        this.vincularElementosImportacao(declaracao, modulo);
+        return modulo;
     }
 
     override async visitarExpressaoImportar(expressao: ImportarComoConstruto): Promise<DeleguaModulo> {

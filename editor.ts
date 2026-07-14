@@ -6,6 +6,7 @@ import { MetodoArgumento, MetodoDocumentacao, SugestaoMetodo } from "./interface
 
 const resultadoEditorDiv: HTMLElement = document.getElementById("resultadoEditor") as HTMLElement;
 const resultadosTestesDiv: HTMLElement = document.getElementById("resultadosTestes") as HTMLElement;
+const visualizacaoArvoreBinariaDiv: HTMLElement = document.getElementById("visualizacaoArvoreBinaria") as HTMLElement;
 const botaoTraduzir = document.getElementById("botaoTraduzir");
 const botaoCompartilhar = document.getElementById("botaoCompartilhar");
 const botaoExecutar = document.getElementById("botaoExecutar");
@@ -219,6 +220,23 @@ const limparResultadosTestes = function () {
     resultadosTestesDiv.hidden = true;
 };
 
+const limparVisualizacaoArvoreBinaria = function () {
+    if (!visualizacaoArvoreBinariaDiv) {
+        return;
+    }
+    visualizacaoArvoreBinariaDiv.innerHTML = "";
+    visualizacaoArvoreBinariaDiv.hidden = true;
+};
+
+const mostrarVisualizacaoArvoreBinaria = function () {
+    if (!visualizacaoArvoreBinariaDiv) {
+        return;
+    }
+
+    const estado = deleguaWeb.obterArvoreBinariaParaVisualizacao();
+    Delegua.renderizarVisualizacaoArvoreBinaria(visualizacaoArvoreBinariaDiv, estado);
+};
+
 const mostrarResultadosTestes = function (resultados: ResultadoTeste[]) {
     if (!resultadosTestesDiv) {
         return;
@@ -291,6 +309,7 @@ const deleguaWeb = new Delegua.DeleguaWeb("", mostrarResultadoExecutar);
 const limparResultadoEditor = function () {
     resultadoEditorDiv.innerHTML = "";
     limparResultadosTestes();
+    limparVisualizacaoArvoreBinaria();
 };
 
 limparResultadoEditor();
@@ -396,6 +415,7 @@ const executarCodigo = async function () {
 
         const respostaInterpretador = await deleguaWeb.executar({ retornoLexador, retornoAvaliadorSintatico });
         mostrarResultadosTestes(deleguaWeb.obterResultadosTestes());
+        mostrarVisualizacaoArvoreBinaria();
         const errosInterpretacao = respostaInterpretador.erros;
         if (errosInterpretacao) {
             errosInterpretacao.forEach((erro: any) => {
@@ -407,6 +427,7 @@ const executarCodigo = async function () {
         }
     } catch (erro) {
         limparResultadosTestes();
+        limparVisualizacaoArvoreBinaria();
         const erroFormatado = "Erro: " + erro
         mostrarResultadoExecutar(erroFormatado)
     }

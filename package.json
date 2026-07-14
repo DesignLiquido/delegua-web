@@ -9,7 +9,8 @@
         "gerar-web": "yarn tsc && yarn browserify dist/index.js --s Delegua -o dist/delegua.js && yarn browserify dist/primitivas/index.js --s PrimitivasDelegua -o dist/primitivas.js",
         "publicar": "yarn empacotar && yarn gh-pages -d dist",
         "servir": "yarn http-server -o ./dist -c-1",
-        "testar": "yarn empacotar && yarn servir"
+        "testar": "yarn empacotar && yarn servir",
+        "testar-logica": "yarn tsc && node dist/testes/visualizacao-arvore-binaria.test.js"
     },
     "devDependencies": {
         "@types/estree": "^1.0.8",
