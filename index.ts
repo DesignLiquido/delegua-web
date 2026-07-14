@@ -34,6 +34,10 @@ import { RegistroTestes, ResultadoTeste } from "@designliquido/delegua/bibliotec
 import { AnalisadorSemanticoWeb } from "./analisador-semantico-web";
 import { InterpretadorWeb } from "./interpretador-web";
 import { DocumentacaoModuloAfirmar, DocumentacaoModuloGrupo, DocumentacaoModuloTeste } from "./documentacao-testes";
+import {
+    EstadoVisualizacaoArvoreBinaria,
+    normalizarArvoreBinaria,
+} from "./visualizacao-arvore-binaria";
 
 export {
     formatarNomeResultadoTeste,
@@ -42,6 +46,20 @@ export {
     rotuloStatusResultadoTeste,
 } from "./resultados-testes";
 export type { ResumoResultadosTestes } from "./resultados-testes";
+
+export {
+    calcularLayoutArvoreBinaria,
+    formatarOrdemPorNivel,
+    normalizarArvoreBinaria,
+    renderizarVisualizacaoArvoreBinaria,
+    serializarOrdemPorNivel,
+} from "./visualizacao-arvore-binaria";
+export type {
+    EstadoVisualizacaoArvoreBinaria,
+    LayoutArvoreBinaria,
+    NoArvoreBinariaVisual,
+    ResultadoNormalizacaoArvoreBinaria,
+} from "./visualizacao-arvore-binaria";
 
 interface ConfiguracoesDeleguaWeb {
     limiteIteracoesLaco: number;
@@ -85,6 +103,12 @@ export class DeleguaWeb {
     funcaoDeRetorno: Function;
 
     documentacoesBibliotecas: {[biblioteca: string]: any};
+
+    /**
+     * Estado da visualização de árvore binária da última execução.
+     * Não guarda referências vivas a objetos do interpretador.
+     */
+    private estadoVisualizacaoArvoreBinaria: EstadoVisualizacaoArvoreBinaria = { solicitada: false };
 
     tradutorJavascript = new TradutorJavaScript();
     tradutorPython = new TradutorPython();
@@ -184,6 +208,51 @@ export class DeleguaWeb {
         this.registrarModuloComPrimitivas("json", json);
         this.registrarModuloComPrimitivas("matematica", matematica);
         this.registrarModuloComPrimitivas("tempo", tempo, {'ObjetoData': ObjetoData});
+        this.registrarModuloVisualizacao();
+    }
+
+    private registrarModuloVisualizacao(): void {
+        const deleguaWeb = this;
+        this.registrarModuloComPrimitivas("visualizacao", {
+            visualizarArvoreBinaria(_interpretador: Interpretador, raizBruta: unknown) {
+                deleguaWeb.definirArvoreBinariaParaVisualizacao(_interpretador, raizBruta);
+            },
+        });
+    }
+
+    private limparEstadoVisualizacaoArvoreBinaria(): void {
+        this.estadoVisualizacaoArvoreBinaria = { solicitada: false };
+    }
+
+    private definirArvoreBinariaParaVisualizacao(
+        interpretador: Interpretador,
+        raizBruta: unknown
+    ): void {
+        const resolverValor = (valor: unknown) => interpretador.resolverValor(valor);
+        const resultado = normalizarArvoreBinaria(raizBruta, resolverValor);
+
+        if (!resultado.ok) {
+            this.estadoVisualizacaoArvoreBinaria = {
+                solicitada: true,
+                tipo: 'erro',
+                mensagem: resultado.mensagem,
+            };
+            return;
+        }
+
+        if (!resultado.arvore) {
+            this.estadoVisualizacaoArvoreBinaria = {
+                solicitada: true,
+                tipo: 'vazia',
+            };
+            return;
+        }
+
+        this.estadoVisualizacaoArvoreBinaria = {
+            solicitada: true,
+            tipo: 'pronta',
+            arvore: resultado.arvore,
+        };
     }
 
     registrarModuloComPrimitivas(nomeModulo: string, ...modulosNode: any[]): void {
@@ -229,6 +298,13 @@ export class DeleguaWeb {
         return [...this.interpretador.registroTestes.resultados];
     }
 
+    /**
+     * Retorna o estado normalizado da árvore binária solicitada na última execução.
+     */
+    obterArvoreBinariaParaVisualizacao(): EstadoVisualizacaoArvoreBinaria {
+        return this.estadoVisualizacaoArvoreBinaria;
+    }
+
     async executar(
         retornoImportador: any,
         manterAmbiente: boolean = false
@@ -236,6 +312,7 @@ export class DeleguaWeb {
         // Cada execução começa sem resultados anteriores.
         // Se o código importar "testes", o núcleo recria o registro no import.
         this.interpretador.registroTestes = new RegistroTestes();
+        this.limparEstadoVisualizacaoArvoreBinaria();
 
         if (retornoImportador.retornoLexador.erros.length > 0) {
             for (const erroLexador of retornoImportador.retornoLexador.erros) {

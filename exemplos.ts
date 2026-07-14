@@ -351,4 +351,27 @@ grupo("Matemática", funcao() {
 })
 
 escreva("Testes executados. Veja o painel de resultados.")`,
+  ArvoreBinaria: `importar { visualizarArvoreBinaria } de "visualizacao"
+
+funcao criarNo(dado) {
+    retorna {
+        "dado": dado,
+        "esquerda": nulo,
+        "direita": nulo
+    }
+}
+
+var raiz = criarNo(4)
+
+raiz.esquerda = criarNo(2)
+raiz.direita = criarNo(7)
+
+raiz.esquerda.esquerda = criarNo(1)
+raiz.esquerda.direita = criarNo(3)
+
+raiz.direita.esquerda = criarNo(6)
+raiz.direita.direita = criarNo(9)
+
+visualizarArvoreBinaria(raiz)
+escreva("Árvore montada. Veja o diagrama ao lado.")`,
 }
