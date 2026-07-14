@@ -59,11 +59,33 @@ function eObjetoComPropriedades(valor: unknown): valor is ObjetoComPropriedades 
         && (valor as ObjetoComPropriedades).propriedades !== null;
 }
 
-function eNoPlano(valor: unknown): valor is { valor: unknown; esquerda?: unknown; direita?: unknown } {
-    return !!valor
-        && typeof valor === 'object'
-        && 'valor' in (valor as object)
-        && !eObjetoComPropriedades(valor);
+function extrairValorDeclarado(campos: Record<string, unknown>): { encontrado: boolean; valor: unknown } {
+    if (Object.prototype.hasOwnProperty.call(campos, 'valor')) {
+        return { encontrado: true, valor: campos.valor };
+    }
+    if (Object.prototype.hasOwnProperty.call(campos, 'dado')) {
+        return { encontrado: true, valor: campos.dado };
+    }
+    if (Object.prototype.hasOwnProperty.call(campos, 'conteudo')) {
+        return { encontrado: true, valor: campos.conteudo };
+    }
+    return { encontrado: false, valor: undefined };
+}
+
+/**
+ * Dicionários/objetos literais com esquerda/direita.
+ * Aceita valor, dado ou conteudo como carga do nó.
+ * Evitamos chamar resolverValor no objeto inteiro quando ele já parece um nó,
+ * porque o núcleo desembrulha objetos que possuem a chave "valor".
+ */
+function eNoEstrutural(valor: unknown): valor is Record<string, unknown> {
+    if (!valor || typeof valor !== 'object' || eObjetoComPropriedades(valor)) {
+        return false;
+    }
+
+    const campos = valor as Record<string, unknown>;
+    return extrairValorDeclarado(campos).encontrado
+        && ('esquerda' in campos || 'direita' in campos);
 }
 
 function resolverValorSeguro(
@@ -80,10 +102,35 @@ function resolverValorSeguro(
     }
 }
 
+function montarCamposDeRegistro(campos: Record<string, unknown>): { valor: unknown; esquerda: unknown; direita: unknown } | null {
+    const valorDeclarado = extrairValorDeclarado(campos);
+    if (!valorDeclarado.encontrado) {
+        return null;
+    }
+
+    return {
+        valor: valorDeclarado.valor,
+        esquerda: Object.prototype.hasOwnProperty.call(campos, 'esquerda') ? campos.esquerda : null,
+        direita: Object.prototype.hasOwnProperty.call(campos, 'direita') ? campos.direita : null,
+    };
+}
+
 function obterCamposNo(
     valor: unknown,
     resolverValor?: (valor: unknown) => unknown
 ): { valor: unknown; esquerda: unknown; direita: unknown } | null {
+    if (valor === null || valor === undefined) {
+        return null;
+    }
+
+    if (eObjetoComPropriedades(valor)) {
+        return montarCamposDeRegistro(valor.propriedades);
+    }
+
+    if (eNoEstrutural(valor)) {
+        return montarCamposDeRegistro(valor);
+    }
+
     const resolvido = resolverValorSeguro(valor, resolverValor);
 
     if (resolvido === null || resolvido === undefined) {
@@ -91,19 +138,11 @@ function obterCamposNo(
     }
 
     if (eObjetoComPropriedades(resolvido)) {
-        return {
-            valor: resolverValorSeguro(resolvido.propriedades.valor, resolverValor),
-            esquerda: resolvido.propriedades.esquerda,
-            direita: resolvido.propriedades.direita,
-        };
+        return montarCamposDeRegistro(resolvido.propriedades);
     }
 
-    if (eNoPlano(resolvido)) {
-        return {
-            valor: resolvido.valor,
-            esquerda: resolvido.esquerda ?? null,
-            direita: resolvido.direita ?? null,
-        };
+    if (eNoEstrutural(resolvido)) {
+        return montarCamposDeRegistro(resolvido);
     }
 
     return null;
@@ -122,20 +161,31 @@ export function normalizarArvoreBinaria(
     let totalNos = 0;
 
     const caminhar = (valorAtual: unknown, profundidade: number): ResultadoNormalizacaoArvoreBinaria => {
-        const resolvido = resolverValorSeguro(valorAtual, resolverValor);
-
-        if (resolvido === null || resolvido === undefined) {
+        if (valorAtual === null || valorAtual === undefined) {
             return { ok: true, arvore: null };
         }
 
-        if (typeof resolvido !== 'object') {
-            return {
-                ok: false,
-                mensagem: 'A raiz informada não é um nó de árvore. Informe um objeto com as propriedades valor, esquerda e direita.',
-            };
+        let identidadeNo: object;
+        if (eObjetoComPropriedades(valorAtual) || eNoEstrutural(valorAtual)) {
+            identidadeNo = valorAtual as object;
+        } else {
+            const resolvido = resolverValorSeguro(valorAtual, resolverValor);
+
+            if (resolvido === null || resolvido === undefined) {
+                return { ok: true, arvore: null };
+            }
+
+            if (typeof resolvido !== 'object') {
+                return {
+                    ok: false,
+                    mensagem: 'A raiz informada não é um nó de árvore. Informe um dicionário ou objeto com as propriedades dado (ou valor), esquerda e direita.',
+                };
+            }
+
+            identidadeNo = resolvido as object;
         }
 
-        if (visitados.has(resolvido as object)) {
+        if (visitados.has(identidadeNo)) {
             return {
                 ok: false,
                 mensagem: 'A árvore contém referências cíclicas e não pode ser visualizada.',
@@ -149,11 +199,11 @@ export function normalizarArvoreBinaria(
             };
         }
 
-        const campos = obterCamposNo(resolvido, resolverValor);
+        const campos = obterCamposNo(valorAtual, resolverValor);
         if (!campos) {
             return {
                 ok: false,
-                mensagem: 'Não foi possível ler o nó da árvore. Declare as propriedades valor, esquerda e direita na classe.',
+                mensagem: 'Não foi possível ler o nó da árvore. Use um dicionário com dado/valor, esquerda e direita, ou uma classe com essas propriedades.',
             };
         }
 
@@ -165,7 +215,7 @@ export function normalizarArvoreBinaria(
             };
         }
 
-        visitados.add(resolvido as object);
+        visitados.add(identidadeNo);
 
         const esquerda = caminhar(campos.esquerda, profundidade + 1);
         if (!esquerda.ok) {

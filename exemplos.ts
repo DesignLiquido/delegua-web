@@ -353,28 +353,24 @@ grupo("Matemática", funcao() {
 escreva("Testes executados. Veja o painel de resultados.")`,
   ArvoreBinaria: `importar { visualizarArvoreBinaria } de "visualizacao"
 
-classe NoArvore {
-    valor: qualquer
-    esquerda: qualquer
-    direita: qualquer
-
-    construtor(valor) {
-        isto.valor = valor
-        isto.esquerda = nulo
-        isto.direita = nulo
+funcao criarNo(dado) {
+    retorna {
+        "dado": dado,
+        "esquerda": nulo,
+        "direita": nulo
     }
 }
 
-var raiz = NoArvore(4)
+var raiz = criarNo(4)
 
-raiz.esquerda = NoArvore(2)
-raiz.direita = NoArvore(7)
+raiz.esquerda = criarNo(2)
+raiz.direita = criarNo(7)
 
-raiz.esquerda.esquerda = NoArvore(1)
-raiz.esquerda.direita = NoArvore(3)
+raiz.esquerda.esquerda = criarNo(1)
+raiz.esquerda.direita = criarNo(3)
 
-raiz.direita.esquerda = NoArvore(6)
-raiz.direita.direita = NoArvore(9)
+raiz.direita.esquerda = criarNo(6)
+raiz.direita.direita = criarNo(9)
 
 visualizarArvoreBinaria(raiz)
 escreva("Árvore montada. Veja o diagrama ao lado.")`,

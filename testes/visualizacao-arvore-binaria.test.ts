@@ -56,6 +56,22 @@ function criarArvoreCompleta() {
     );
 }
 
+function criarArvoreComDado() {
+    return {
+        dado: 4,
+        esquerda: {
+            dado: 2,
+            esquerda: { dado: 1, esquerda: null, direita: null },
+            direita: { dado: 3, esquerda: null, direita: null },
+        },
+        direita: {
+            dado: 7,
+            esquerda: { dado: 6, esquerda: null, direita: null },
+            direita: { dado: 9, esquerda: null, direita: null },
+        },
+    };
+}
+
 function executarTestes(): void {
     // 1. Árvore com um único nó
     {
@@ -210,6 +226,16 @@ function executarTestes(): void {
     {
         const resultado = normalizarArvoreBinaria(123);
         assertStrictEqual(resultado.ok, false);
+    }
+
+    // Nó via dicionário com "dado" (padrão recomendado no playground)
+    {
+        const resultado = normalizarArvoreBinaria(criarArvoreComDado());
+        assertStrictEqual(resultado.ok, true);
+        if (!resultado.ok || !resultado.arvore) {
+            throw new Error('Esperava árvore com propriedade dado');
+        }
+        assertDeepStrictEqual(serializarOrdemPorNivel(resultado.arvore), [4, 2, 7, 1, 3, 6, 9]);
     }
 
     console.log('Todos os testes de visualização de árvore binária passaram.');
