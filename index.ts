@@ -33,6 +33,7 @@ import { RegistroTestes, ResultadoTeste } from "@designliquido/delegua/bibliotec
 
 import { AnalisadorSemanticoWeb } from "./analisador-semantico-web";
 import { InterpretadorWeb } from "./interpretador-web";
+import { DocumentacaoModuloAfirmar, DocumentacaoModuloGrupo, DocumentacaoModuloTeste } from "./documentacao-testes";
 
 export {
     formatarNomeResultadoTeste,
@@ -175,6 +176,9 @@ export class DeleguaWeb {
 
         this.registrarModuloComPrimitivas("criptografia", criptografia);
         this.documentacoesBibliotecas["criptografia"] = DeleguaModuloCriptografia;
+        this.documentacoesBibliotecas["afirmar"] = DocumentacaoModuloAfirmar;
+        this.documentacoesBibliotecas["teste"] = DocumentacaoModuloTeste;
+        this.documentacoesBibliotecas["grupo"] = DocumentacaoModuloGrupo;
         this.registrarModuloComPrimitivas("estatistica", estatistica);
         this.registrarModuloComPrimitivas("fisica", fisica);
         this.registrarModuloComPrimitivas("json", json);

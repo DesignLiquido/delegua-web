@@ -4,6 +4,7 @@ import { primitivasDicionario } from "./primitivas-dicionario";
 import { primitivasNumero } from "./primitivas-numero";
 import { primitivasTexto } from "./primitivas-texto";
 import { primitivasVetor } from "./primitivas-vetor";
+import { primitivasTestes } from "./primitivas-testes";
 
 const ordenarPrimitivaPorNome = (a: IPrimitiva, b: IPrimitiva) => {
     const nome1 = a.nome.toUpperCase();
@@ -16,10 +17,11 @@ const ordenarPrimitivaPorNome = (a: IPrimitiva, b: IPrimitiva) => {
 
 const primitivas = [
     ...primitivasDicionario,
-    ...primitivasNumero, 
-    ...primitivasTexto, 
+    ...primitivasNumero,
+    ...primitivasTexto,
     ...primitivasVetor,
-    ...metodosBibliotecaGlobal
+    ...metodosBibliotecaGlobal,
+    ...primitivasTestes
 ].sort(ordenarPrimitivaPorNome);
 
 // Registro global
