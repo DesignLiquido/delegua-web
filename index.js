@@ -48,7 +48,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaWeb = exports.rotuloStatusResultadoTeste = exports.resumirResultadosTestes = exports.iconeStatusResultadoTeste = exports.formatarNomeResultadoTeste = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
 const lexador_1 = require("@designliquido/delegua/lexador");
 const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
-const analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 const tradutores_1 = require("@designliquido/delegua/tradutores");
 const informacao_elemento_sintatico_1 = require("@designliquido/delegua/informacao-elemento-sintatico");
@@ -74,7 +73,9 @@ var regra_paradigma_consistente_1 = require("@designliquido/delegua/estilizador/
 Object.defineProperty(exports, "RegraParadigmaConsistente", { enumerable: true, get: function () { return regra_paradigma_consistente_1.RegraParadigmaConsistente; } });
 const delegua_1 = __importDefault(require("@designliquido/delegua/tipos-de-simbolos/delegua"));
 const registro_testes_1 = require("@designliquido/delegua/bibliotecas/testes/registro-testes");
+const analisador_semantico_web_1 = require("./analisador-semantico-web");
 const interpretador_web_1 = require("./interpretador-web");
+const documentacao_testes_1 = require("./documentacao-testes");
 var resultados_testes_1 = require("./resultados-testes");
 Object.defineProperty(exports, "formatarNomeResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.formatarNomeResultadoTeste; } });
 Object.defineProperty(exports, "iconeStatusResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.iconeStatusResultadoTeste; } });
@@ -114,7 +115,7 @@ class DeleguaWeb {
         this.funcaoDeRetorno = funcaoDeRetorno || console.log;
         this.lexador = new lexador_1.Lexador();
         this.avaliadorSintatico = new avaliador_sintatico_1.AvaliadorSintatico();
-        this.analisadorSemantico = new analisador_semantico_1.AnalisadorSemantico();
+        this.analisadorSemantico = new analisador_semantico_web_1.AnalisadorSemanticoWeb();
         this.interpretador = new interpretador_web_1.InterpretadorWeb("", false, this.funcaoDeRetorno, this.funcaoDeRetorno);
         this.interpretador.interfaceEntradaSaida = {
             question: (mensagem, callback) => {
@@ -183,6 +184,9 @@ class DeleguaWeb {
         this.documentacoesBibliotecas = {};
         this.registrarModuloComPrimitivas("criptografia", criptografia);
         this.documentacoesBibliotecas["criptografia"] = delegua_modulo_1.DeleguaModuloCriptografia;
+        this.documentacoesBibliotecas["afirmar"] = documentacao_testes_1.DocumentacaoModuloAfirmar;
+        this.documentacoesBibliotecas["teste"] = documentacao_testes_1.DocumentacaoModuloTeste;
+        this.documentacoesBibliotecas["grupo"] = documentacao_testes_1.DocumentacaoModuloGrupo;
         this.registrarModuloComPrimitivas("estatistica", estatistica);
         this.registrarModuloComPrimitivas("fisica", fisica);
         this.registrarModuloComPrimitivas("json", json);

@@ -5,6 +5,7 @@ const primitivas_dicionario_1 = require("./primitivas-dicionario");
 const primitivas_numero_1 = require("./primitivas-numero");
 const primitivas_texto_1 = require("./primitivas-texto");
 const primitivas_vetor_1 = require("./primitivas-vetor");
+const primitivas_testes_1 = require("./primitivas-testes");
 const ordenarPrimitivaPorNome = (a, b) => {
     const nome1 = a.nome.toUpperCase();
     const nome2 = b.nome.toUpperCase();
@@ -19,7 +20,8 @@ const primitivas = [
     ...primitivas_numero_1.primitivasNumero,
     ...primitivas_texto_1.primitivasTexto,
     ...primitivas_vetor_1.primitivasVetor,
-    ...metodos_biblioteca_global_1.metodosBibliotecaGlobal
+    ...metodos_biblioteca_global_1.metodosBibliotecaGlobal,
+    ...primitivas_testes_1.primitivasTestes
 ].sort(ordenarPrimitivaPorNome);
 // Registro global
 globalThis.primitivas = primitivas;

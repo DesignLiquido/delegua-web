@@ -1079,6 +1079,16 @@ const informacoesModulos = {
         descricao: 'Módulo para manipulação de dados JSON.',
         repositorio: null,
         metodosDestaque: []
+    },
+    'testes': {
+        descricao: 'Módulo embutido para escrita de testes automatizados: agrupamento com `grupo`, declaração de casos com `teste` e verificação de valores com `afirmar`. Também oferece os hooks de ciclo de vida `antesDeCada`, `antesDeTodos`, `depoisDeCada` e `depoisDeTodos`.',
+        repositorio: null,
+        metodosDestaque: ['teste', 'grupo', 'afirmar']
+    },
+    'afirmar': {
+        descricao: 'Objeto de assertivas do módulo `testes`, usado para verificar valores dentro de blocos `teste` ou `grupo`. Uma assertiva que falha lança um erro que marca o teste atual como falho.',
+        repositorio: null,
+        metodosDestaque: ['igual', 'diferente', 'verdadeiro', 'falso', 'nulo', 'erro']
     }
 };
 const configurarLinguagemDelegua = function () {
