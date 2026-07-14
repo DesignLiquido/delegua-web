@@ -25,6 +25,7 @@ class InterpretadorWeb extends delegua_1.Interpretador {
                 case 'json':
                 case 'matematica':
                 case 'tempo':
+                case 'visualizacao':
                     const variavelDoModulo = this.pilhaEscoposExecucao.obterVariavelPorNome(caminho.valor);
                     const moduloResolvido = variavelDoModulo.valor;
                     return Promise.resolve(moduloResolvido);
@@ -35,6 +36,18 @@ class InterpretadorWeb extends delegua_1.Interpretador {
                     }, `Biblioteca ${caminho.valor} não está disponível neste módulo Web. Para suporte a mais bibliotecas, por favor verifique a solução completa, em https://github.com/DesignLiquido/delegua-completo.`, linha);
             }
         });
+    }
+    vincularElementosImportacao(declaracao, modulo) {
+        if (declaracao.simboloTudo !== null) {
+            this.pilhaEscoposExecucao.definirVariavel(declaracao.simboloTudo.lexema, modulo);
+            return;
+        }
+        for (const elemento of declaracao.elementosImportacao) {
+            const componente = modulo.componentes[elemento.lexema];
+            if (componente !== undefined) {
+                this.pilhaEscoposExecucao.definirVariavel(elemento.lexema, componente);
+            }
+        }
     }
     visitarDeclaracaoImportar(declaracao) {
         const _super = Object.create(null, {
@@ -47,7 +60,9 @@ class InterpretadorWeb extends delegua_1.Interpretador {
                 // Reutiliza a implementação nativa do núcleo (registro, módulo e vínculo dos nomes).
                 return _super.visitarDeclaracaoImportar.call(this, declaracao);
             }
-            return this.logicaComumImportar(caminhoResolvido, declaracao.linha);
+            const modulo = yield this.logicaComumImportar(caminhoResolvido, declaracao.linha);
+            this.vincularElementosImportacao(declaracao, modulo);
+            return modulo;
         });
     }
     visitarExpressaoImportar(expressao) {

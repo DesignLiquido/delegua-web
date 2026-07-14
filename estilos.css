@@ -248,6 +248,60 @@ textarea {
   overflow-y: scroll;
 }
 
+#visualizacaoArvoreBinaria {
+  flex: 0 1 auto;
+  max-height: 50%;
+  overflow: auto;
+  padding: 8px 10px;
+  border-bottom: 1px solid #d9d9d9;
+  font-size: 13px;
+}
+#visualizacaoArvoreBinaria[hidden] {
+  display: none;
+}
+#visualizacaoArvoreBinaria h2 {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-ordem {
+  margin-bottom: 8px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-mensagem {
+  line-height: 1.4;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-erro {
+  color: #c62828;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-svg-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-svg {
+  display: block;
+  min-width: 220px;
+  max-width: none;
+  height: auto;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-aresta {
+  stroke: #5e5e5e;
+  stroke-width: 2;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-circulo {
+  fill: #f5f5f5;
+  stroke: #171717;
+  stroke-width: 2;
+}
+#visualizacaoArvoreBinaria .visualizacao-arvore-rotulo {
+  fill: #171717;
+  font-size: 12px;
+  font-family: "Roboto Mono", monospace;
+  pointer-events: none;
+}
+
 .resultadoEditor {
   margin: 1px 10px;
   padding-top: 0;
@@ -341,6 +395,23 @@ body[data-tema=escuro] #resultadosTestes .item-teste-falhou {
 }
 body[data-tema=escuro] #resultadosTestes .item-teste-pulado {
   border-left-color: #9e9e9e;
+}
+body[data-tema=escuro] #visualizacaoArvoreBinaria {
+  border-bottom-color: #3c3c3c;
+  color: #d4d4d4;
+}
+body[data-tema=escuro] #visualizacaoArvoreBinaria .visualizacao-arvore-erro {
+  color: #e57373;
+}
+body[data-tema=escuro] #visualizacaoArvoreBinaria .visualizacao-arvore-aresta {
+  stroke: #9e9e9e;
+}
+body[data-tema=escuro] #visualizacaoArvoreBinaria .visualizacao-arvore-circulo {
+  fill: #2d2d2d;
+  stroke: #d4d4d4;
+}
+body[data-tema=escuro] #visualizacaoArvoreBinaria .visualizacao-arvore-rotulo {
+  fill: #d4d4d4;
 }
 body[data-tema=escuro] #resultadoEditor {
   background-color: #1e1e1e;

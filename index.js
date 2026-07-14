@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleguaWeb = exports.rotuloStatusResultadoTeste = exports.resumirResultadosTestes = exports.iconeStatusResultadoTeste = exports.formatarNomeResultadoTeste = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
+exports.DeleguaWeb = exports.serializarOrdemPorNivel = exports.renderizarVisualizacaoArvoreBinaria = exports.normalizarArvoreBinaria = exports.formatarOrdemPorNivel = exports.calcularLayoutArvoreBinaria = exports.rotuloStatusResultadoTeste = exports.resumirResultadosTestes = exports.iconeStatusResultadoTeste = exports.formatarNomeResultadoTeste = exports.RegraParadigmaConsistente = exports.RegraConvencaoNomenclatura = exports.RegraFortalecerTipos = exports.QuebradorDeLinha = exports.EstilizadorDelegua = exports.FormatadorDelegua = void 0;
 const lexador_1 = require("@designliquido/delegua/lexador");
 const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatico");
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
@@ -76,11 +76,18 @@ const registro_testes_1 = require("@designliquido/delegua/bibliotecas/testes/reg
 const analisador_semantico_web_1 = require("./analisador-semantico-web");
 const interpretador_web_1 = require("./interpretador-web");
 const documentacao_testes_1 = require("./documentacao-testes");
+const visualizacao_arvore_binaria_1 = require("./visualizacao-arvore-binaria");
 var resultados_testes_1 = require("./resultados-testes");
 Object.defineProperty(exports, "formatarNomeResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.formatarNomeResultadoTeste; } });
 Object.defineProperty(exports, "iconeStatusResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.iconeStatusResultadoTeste; } });
 Object.defineProperty(exports, "resumirResultadosTestes", { enumerable: true, get: function () { return resultados_testes_1.resumirResultadosTestes; } });
 Object.defineProperty(exports, "rotuloStatusResultadoTeste", { enumerable: true, get: function () { return resultados_testes_1.rotuloStatusResultadoTeste; } });
+var visualizacao_arvore_binaria_2 = require("./visualizacao-arvore-binaria");
+Object.defineProperty(exports, "calcularLayoutArvoreBinaria", { enumerable: true, get: function () { return visualizacao_arvore_binaria_2.calcularLayoutArvoreBinaria; } });
+Object.defineProperty(exports, "formatarOrdemPorNivel", { enumerable: true, get: function () { return visualizacao_arvore_binaria_2.formatarOrdemPorNivel; } });
+Object.defineProperty(exports, "normalizarArvoreBinaria", { enumerable: true, get: function () { return visualizacao_arvore_binaria_2.normalizarArvoreBinaria; } });
+Object.defineProperty(exports, "renderizarVisualizacaoArvoreBinaria", { enumerable: true, get: function () { return visualizacao_arvore_binaria_2.renderizarVisualizacaoArvoreBinaria; } });
+Object.defineProperty(exports, "serializarOrdemPorNivel", { enumerable: true, get: function () { return visualizacao_arvore_binaria_2.serializarOrdemPorNivel; } });
 const CHAVE_CONFIGURACOES_LOCAL_STORAGE = 'delegua-web:configuracoes';
 const CONFIGURACOES_PADRAO = {
     limiteIteracoesLaco: 1000000,
@@ -108,6 +115,11 @@ class DeleguaWeb {
         this.teveErro = false;
         this.teveErroEmTempoDeExecucao = false;
         this.dialeto = "delegua";
+        /**
+         * Estado da visualização de árvore binária da última execução.
+         * Não guarda referências vivas a objetos do interpretador.
+         */
+        this.estadoVisualizacaoArvoreBinaria = { solicitada: false };
         this.tradutorJavascript = new tradutores_1.TradutorJavaScript();
         this.tradutorPython = new tradutores_1.TradutorPython();
         this.tradutorAssemblyScript = new tradutores_1.TradutorAssemblyScript();
@@ -192,6 +204,42 @@ class DeleguaWeb {
         this.registrarModuloComPrimitivas("json", json);
         this.registrarModuloComPrimitivas("matematica", matematica);
         this.registrarModuloComPrimitivas("tempo", tempo, { 'ObjetoData': objeto_data_1.ObjetoData });
+        this.registrarModuloVisualizacao();
+    }
+    registrarModuloVisualizacao() {
+        const deleguaWeb = this;
+        this.registrarModuloComPrimitivas("visualizacao", {
+            visualizarArvoreBinaria(_interpretador, raizBruta) {
+                deleguaWeb.definirArvoreBinariaParaVisualizacao(_interpretador, raizBruta);
+            },
+        });
+    }
+    limparEstadoVisualizacaoArvoreBinaria() {
+        this.estadoVisualizacaoArvoreBinaria = { solicitada: false };
+    }
+    definirArvoreBinariaParaVisualizacao(interpretador, raizBruta) {
+        const resolverValor = (valor) => interpretador.resolverValor(valor);
+        const resultado = (0, visualizacao_arvore_binaria_1.normalizarArvoreBinaria)(raizBruta, resolverValor);
+        if (!resultado.ok) {
+            this.estadoVisualizacaoArvoreBinaria = {
+                solicitada: true,
+                tipo: 'erro',
+                mensagem: resultado.mensagem,
+            };
+            return;
+        }
+        if (!resultado.arvore) {
+            this.estadoVisualizacaoArvoreBinaria = {
+                solicitada: true,
+                tipo: 'vazia',
+            };
+            return;
+        }
+        this.estadoVisualizacaoArvoreBinaria = {
+            solicitada: true,
+            tipo: 'pronta',
+            arvore: resultado.arvore,
+        };
     }
     registrarModuloComPrimitivas(nomeModulo, ...modulosNode) {
         const modulo = new estruturas_1.DeleguaModulo(nomeModulo);
@@ -228,11 +276,18 @@ class DeleguaWeb {
     obterResultadosTestes() {
         return [...this.interpretador.registroTestes.resultados];
     }
+    /**
+     * Retorna o estado normalizado da árvore binária solicitada na última execução.
+     */
+    obterArvoreBinariaParaVisualizacao() {
+        return this.estadoVisualizacaoArvoreBinaria;
+    }
     executar(retornoImportador_1) {
         return __awaiter(this, arguments, void 0, function* (retornoImportador, manterAmbiente = false) {
             // Cada execução começa sem resultados anteriores.
             // Se o código importar "testes", o núcleo recria o registro no import.
             this.interpretador.registroTestes = new registro_testes_1.RegistroTestes();
+            this.limparEstadoVisualizacaoArvoreBinaria();
             if (retornoImportador.retornoLexador.erros.length > 0) {
                 for (const erroLexador of retornoImportador.retornoLexador.erros) {
                     this.reportar(erroLexador.linha, ` no '${erroLexador.caractere}'`, erroLexador.mensagem);
