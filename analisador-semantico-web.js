@@ -11,38 +11,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemanticoWeb = void 0;
 const analisador_semantico_1 = require("@designliquido/delegua/analisador-semantico");
+// Bibliotecas exclusivas do delegua-web cujas funções são chamadas sem
+// qualificação de objeto (ex: `teste(...)`, `visualizarArvoreBinaria(...)`).
+// O analisador semântico do núcleo do Delégua não rastreia símbolos trazidos
+// por `importar`, então essas funções precisam ser conhecidas aqui.
+const FUNCOES_POR_BIBLIOTECA_WEB = {
+    testes: ["teste", "grupo"],
+    visualizacao: ["visualizarArvoreBinaria"],
+};
 class AnalisadorSemanticoWeb extends analisador_semantico_1.AnalisadorSemantico {
     constructor() {
         super();
-        this.funcoesImportadasDeTestes = new Set();
+        this.funcoesImportadasDeBibliotecasWeb = new Set();
     }
-    registrarFuncoesImportadasDeTestes(declaracao) {
+    registrarFuncoesImportadasDeBibliotecasWeb(declaracao) {
         const caminho = declaracao.caminho;
-        if ((caminho === null || caminho === void 0 ? void 0 : caminho.valor) !== "testes") {
+        const funcoesDoModulo = FUNCOES_POR_BIBLIOTECA_WEB[caminho === null || caminho === void 0 ? void 0 : caminho.valor];
+        if (!funcoesDoModulo) {
             return;
         }
-        const funcoesDoModulo = ["teste", "grupo"];
         if (declaracao.simboloTudo) {
             for (const nome of funcoesDoModulo) {
-                this.funcoesImportadasDeTestes.add(nome);
+                this.funcoesImportadasDeBibliotecasWeb.add(nome);
             }
             return;
         }
         for (const simboloImportado of declaracao.elementosImportacao || []) {
             if (funcoesDoModulo.includes(simboloImportado.lexema)) {
-                this.funcoesImportadasDeTestes.add(simboloImportado.lexema);
+                this.funcoesImportadasDeBibliotecasWeb.add(simboloImportado.lexema);
             }
         }
     }
     visitarDeclaracaoImportar(declaracao) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.registrarFuncoesImportadasDeTestes(declaracao);
+            this.registrarFuncoesImportadasDeBibliotecasWeb(declaracao);
             return Promise.resolve();
         });
     }
     visitarChamadaPorVariavel(entidadeChamadaVariavel, argumentos) {
         const nomeFuncao = entidadeChamadaVariavel.simbolo.lexema;
-        if (this.funcoesImportadasDeTestes.has(nomeFuncao)) {
+        if (this.funcoesImportadasDeBibliotecasWeb.has(nomeFuncao)) {
             return Promise.resolve();
         }
         return super.visitarChamadaPorVariavel(entidadeChamadaVariavel, argumentos);
@@ -52,7 +60,7 @@ class AnalisadorSemanticoWeb extends analisador_semantico_1.AnalisadorSemantico 
             analisar: { get: () => super.analisar }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            this.funcoesImportadasDeTestes = new Set();
+            this.funcoesImportadasDeBibliotecasWeb = new Set();
             return _super.analisar.call(this, declaracoes);
         });
     }

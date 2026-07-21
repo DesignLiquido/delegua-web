@@ -641,7 +641,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":41,"../informacao-elemento-sintatico":76}],9:[function(require,module,exports){
+},{"../construtos":41,"../informacao-elemento-sintatico":77}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -726,7 +726,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":76}],10:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":77}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implementacaoParticao = void 0;
@@ -1125,7 +1125,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":41,"../excecoes":73,"../informacao-elemento-sintatico":76}],11:[function(require,module,exports){
+},{"../construtos":41,"../excecoes":73,"../informacao-elemento-sintatico":77}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -1536,7 +1536,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":41,"../excecoes":73,"../inferenciador":75,"../informacao-elemento-sintatico":76}],12:[function(require,module,exports){
+},{"../construtos":41,"../excecoes":73,"../inferenciador":76,"../informacao-elemento-sintatico":77}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -1994,7 +1994,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{"../tipos-de-simbolos/delegua":79}],25:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":80}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bote = void 0;
@@ -2049,7 +2049,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":74}],27:[function(require,module,exports){
+},{"../geracao-identificadores":75}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -2557,7 +2557,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":74}],44:[function(require,module,exports){
+},{"../geracao-identificadores":75}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -3405,8 +3405,41 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./erro-de-assertiva"), exports);
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
+__exportStar(require("./mensagem-erro"), exports);
 
-},{"./erro-de-assertiva":71,"./erro-em-tempo-de-execucao":72}],74:[function(require,module,exports){
+},{"./erro-de-assertiva":71,"./erro-em-tempo-de-execucao":72,"./mensagem-erro":74}],74:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.obterMensagemErro = obterMensagemErro;
+/**
+ * Obtém a mensagem de erro de forma padronizada, independentemente do tipo de erro.
+ *
+ * Apenas erros do ecossistema Delégua (que possuem a propriedade `mensagem`)
+ * têm sua mensagem extraída diretamente. Demais erros e valores são convertidos
+ * para string via `String()`, que para erros nativos do JavaScript produz o
+ * formato "NomeDoErro: mensagem" (ex: "Error: algo deu errado").
+ *
+ * O uso de `unknown` como tipo do parâmetro garante que a função seja segura
+ * para qualquer valor que venha de `catch` blocks ou da propriedade `erroInterno`
+ * (tipada como `any`), sem perder informações por type narrowing excessivo.
+ *
+ * @param erro O valor a ser convertido em mensagem (qualquer tipo)
+ * @returns A mensagem de erro como string
+ */
+function obterMensagemErro(erro) {
+    if (typeof erro === 'object'
+        && erro !== null
+        && 'mensagem' in erro) {
+        const mensagem = erro.mensagem;
+        if (typeof mensagem === 'string'
+            && mensagem) {
+            return mensagem;
+        }
+    }
+    return String(erro);
+}
+
+},{}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
@@ -3450,7 +3483,7 @@ function uuidv4() {
     });
 }
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -3578,7 +3611,7 @@ function inferirTipoVariavel(variavel) {
     }
 }
 
-},{"./tipos-de-dados/delegua":77,"./tipos-de-dados/primitivos":78,"./tipos-de-simbolos/delegua":79}],76:[function(require,module,exports){
+},{"./tipos-de-dados/delegua":78,"./tipos-de-dados/primitivos":79,"./tipos-de-simbolos/delegua":80}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
@@ -3597,7 +3630,7 @@ class InformacaoElementoSintatico {
 }
 exports.InformacaoElementoSintatico = InformacaoElementoSintatico;
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -3631,7 +3664,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -3650,7 +3683,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
