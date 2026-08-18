@@ -5984,6 +5984,22 @@ class AvaliadorSintaticoBase {
         }
         return false;
     }
+    /**
+     * Avança o cursor por quaisquer símbolos de comentário (de linha ou
+     * multilinha) consecutivos, descartando-os. Usado em construtos onde
+     * comentários podem aparecer entre elementos, mas não fazem sentido
+     * como parte da árvore sintática resultante (ex.: dicionários).
+     */
+    pularComentarios() {
+        // Os tipos de símbolo de comentário não fazem parte do conjunto reduzido
+        // de `tiposDeSimbolos` importado nesta classe base, por isso são usados
+        // aqui como literais de texto (seus valores são idênticos às chaves do
+        // conjunto completo, definido em `tipos-de-simbolos/delegua.ts`).
+        while (this.simbolos[this.atual].tipo === 'COMENTARIO' ||
+            this.simbolos[this.atual].tipo === 'LINHA_COMENTARIO') {
+            this.avancarEDevolverAnterior();
+        }
+    }
     async declaracaoBloco() {
         const simboloInicioBloco = this.consumir(comum_1.default.CHAVE_ESQUERDA, "Esperado '{' para abertura de bloco.");
         return new declaracoes_1.Bloco(simboloInicioBloco.hashArquivo, Number(simboloInicioBloco.linha), await this.blocoEscopo());
@@ -6461,18 +6477,22 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
+        this.pularComentarios();
         if (this.verificarSeSimboloAtualEIgualA(delegua_2.default.CHAVE_DIREITA)) {
             return new construtos_1.Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), [], []);
         }
         while (!this.verificarSeSimboloAtualEIgualA(delegua_2.default.CHAVE_DIREITA)) {
             const chave = await this.obterChaveDicionario();
             this.consumir(delegua_2.default.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+            this.pularComentarios();
             const valor = await this.atribuir();
             chaves.push(chave);
             valores.push(valor);
+            this.pularComentarios();
             if (this.simbolos[this.atual].tipo !== delegua_2.default.CHAVE_DIREITA) {
                 this.consumir(delegua_2.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
             }
+            this.pularComentarios();
         }
         return new construtos_1.Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), chaves, valores);
     }
@@ -13817,18 +13837,22 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
         this.avancarEDevolverAnterior();
         const chaves = [];
         const valores = [];
+        this.pularComentarios();
         if (this.verificarSeSimboloAtualEIgualA(tenda_1.default.CHAVE_DIREITA)) {
             return new construtos_1.Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), [], []);
         }
         while (!this.verificarSeSimboloAtualEIgualA(tenda_1.default.CHAVE_DIREITA)) {
             const chave = await this.obterChaveDicionario();
             this.consumir(tenda_1.default.DOIS_PONTOS, "Esperado ':' entre chave e valor.");
+            this.pularComentarios();
             const valor = await this.atribuir();
             chaves.push(chave);
             valores.push(valor);
+            this.pularComentarios();
             if (this.simbolos[this.atual].tipo !== tenda_1.default.CHAVE_DIREITA) {
                 this.consumir(tenda_1.default.VIRGULA, 'Esperado vírgula antes da próxima expressão.');
             }
+            this.pularComentarios();
         }
         return new construtos_1.Dicionario(this.hashArquivo, Number(simboloChaveEsquerda.linha), chaves, valores);
     }
