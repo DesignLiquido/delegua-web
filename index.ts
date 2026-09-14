@@ -11,6 +11,9 @@ import { DeleguaModulo, FuncaoPadrao } from "@designliquido/delegua/interpretado
 import { TradutorJavaScript, TradutorPython, TradutorAssemblyScript } from "@designliquido/delegua/tradutores";
 import { InformacaoElementoSintatico } from "@designliquido/delegua/informacao-elemento-sintatico";
 
+import * as brasil from "@designliquido/delegua-brasil";
+import { DeleguaModuloBrasil } from "@designliquido/delegua-brasil/delegua-modulo";
+
 import * as criptografia from "@designliquido/delegua-criptografia";
 import { DeleguaModuloCriptografia } from "@designliquido/delegua-criptografia/delegua-modulo";
 
@@ -198,6 +201,8 @@ export class DeleguaWeb {
 
         this.documentacoesBibliotecas = {};
 
+        this.registrarModuloComPrimitivas("brasil", brasil);
+        this.documentacoesBibliotecas["brasil"] = DeleguaModuloBrasil;
         this.registrarModuloComPrimitivas("criptografia", criptografia);
         this.documentacoesBibliotecas["criptografia"] = DeleguaModuloCriptografia;
         this.documentacoesBibliotecas["afirmar"] = DocumentacaoModuloAfirmar;

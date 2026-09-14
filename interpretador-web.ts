@@ -16,6 +16,7 @@ export class InterpretadorWeb
 
     protected async logicaComumImportar(caminho: Literal, linha: number): Promise<DeleguaModulo> {
         switch (caminho.valor) {
+            case 'brasil':
             case 'criptografia':
             case 'estatistica':
             case 'fisica':

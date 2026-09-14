@@ -374,4 +374,38 @@ raiz.direita.direita = criarNo(9)
 
 visualizarArvoreBinaria(raiz)
 escreva("Árvore montada. Veja o diagrama ao lado.")`,
+  BrasilDocumentos: `// Exemplo de uso do módulo "brasil" (pacote @designliquido/delegua-brasil) para CPF e CNPJ.
+var brasil = importar("brasil")
+
+var cpf = "111.444.777-35"
+
+escreva("CPF válido? " + brasil.cpfValido(cpf))
+escreva("CPF limpo: " + brasil.limparCpf(cpf))
+escreva("CPF formatado: " + brasil.formatarCpf(brasil.limparCpf(cpf)))
+
+var cpfGerado = brasil.gerarCpf()
+escreva("CPF gerado: " + brasil.formatarCpf(cpfGerado))
+escreva("CPF gerado é válido? " + brasil.cpfValido(cpfGerado))
+
+var cnpj = "11.222.333/0001-81"
+
+escreva("CNPJ válido? " + brasil.cnpjValido(cnpj))
+escreva("CNPJ limpo: " + brasil.limparCnpj(cnpj))
+escreva("CNPJ formatado: " + brasil.formatarCnpj(brasil.limparCnpj(cnpj)))`,
+  BrasilCep: `// Exemplo de uso do módulo "brasil" para CEP.
+// As funções "obterEnderecoPorCep" e "obterCepPorEndereco" consultam um serviço externo (ViaCEP) pela rede.
+var brasil = importar("brasil")
+
+var cep = "01310-100"
+
+escreva("CEP válido? " + brasil.cepValido(cep))
+escreva("CEP limpo: " + brasil.limparCep(cep))
+escreva("CEP formatado: " + brasil.formatarCep(brasil.limparCep(cep)))
+escreva("CEP gerado: " + brasil.formatarCep(brasil.gerarCep()))
+
+var endereco = brasil.obterEnderecoPorCep(cep)
+escreva("Endereço encontrado: " + endereco["street"] + ", " + endereco["neighborhood"] + " - " + endereco["city"] + "/" + endereco["state"])
+
+var ceps = brasil.obterCepPorEndereco("SP", "São Paulo", "Avenida Paulista")
+escreva("Quantidade de CEPs encontrados: " + tamanho(ceps))`,
 }
