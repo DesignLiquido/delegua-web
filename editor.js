@@ -1068,6 +1068,11 @@ const configurarAtualizacaoAutomatica = function () {
 };
 // Informações sobre os módulos disponíveis
 const informacoesModulos = {
+    'brasil': {
+        descricao: 'Módulo com utilidades brasileiras: validação, formatação e geração de CPF, CNPJ, CNH, PIS, CEP, telefone, placas de veículo, entre outros documentos e dados nacionais.',
+        repositorio: 'https://github.com/DesignLiquido/delegua-brasil',
+        metodosDestaque: ['cpfValido', 'formatarCpf', 'cnpjValido', 'formatarCnpj', 'cepValido', 'obterEnderecoPorCep']
+    },
     'criptografia': {
         descricao: 'Módulo para operações criptográficas, incluindo hashing, criptografia simétrica e assimétrica, codificação Base64 e geração de chaves.',
         repositorio: 'https://github.com/DesignLiquido/delegua-criptografia',

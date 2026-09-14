@@ -68,7 +68,7 @@ class AnalisadorSemanticoWeb extends analisador_semantico_1.AnalisadorSemantico 
 }
 exports.AnalisadorSemanticoWeb = AnalisadorSemanticoWeb;
 
-},{"@designliquido/delegua/analisador-semantico":44}],2:[function(require,module,exports){
+},{"@designliquido/delegua/analisador-semantico":46}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentacaoModuloGrupo = exports.DocumentacaoModuloTeste = exports.DocumentacaoModuloAfirmar = void 0;
@@ -265,8 +265,10 @@ const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatic
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 const tradutores_1 = require("@designliquido/delegua/tradutores");
 const informacao_elemento_sintatico_1 = require("@designliquido/delegua/informacao-elemento-sintatico");
+const brasil = __importStar(require("@designliquido/delegua-brasil"));
+const delegua_modulo_1 = require("@designliquido/delegua-brasil/delegua-modulo");
 const criptografia = __importStar(require("@designliquido/delegua-criptografia"));
-const delegua_modulo_1 = require("@designliquido/delegua-criptografia/delegua-modulo");
+const delegua_modulo_2 = require("@designliquido/delegua-criptografia/delegua-modulo");
 const estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 const fisica = __importStar(require("@designliquido/delegua-fisica"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
@@ -408,8 +410,10 @@ class DeleguaWeb {
             }
         });
         this.documentacoesBibliotecas = {};
+        this.registrarModuloComPrimitivas("brasil", brasil);
+        this.documentacoesBibliotecas["brasil"] = delegua_modulo_1.DeleguaModuloBrasil;
         this.registrarModuloComPrimitivas("criptografia", criptografia);
-        this.documentacoesBibliotecas["criptografia"] = delegua_modulo_1.DeleguaModuloCriptografia;
+        this.documentacoesBibliotecas["criptografia"] = delegua_modulo_2.DeleguaModuloCriptografia;
         this.documentacoesBibliotecas["afirmar"] = documentacao_testes_1.DocumentacaoModuloAfirmar;
         this.documentacoesBibliotecas["teste"] = documentacao_testes_1.DocumentacaoModuloTeste;
         this.documentacoesBibliotecas["grupo"] = documentacao_testes_1.DocumentacaoModuloGrupo;
@@ -569,7 +573,7 @@ class DeleguaWeb {
 }
 exports.DeleguaWeb = DeleguaWeb;
 
-},{"./analisador-semantico-web":1,"./documentacao-testes":2,"./interpretador-web":4,"./resultados-testes":5,"./visualizacao-arvore-binaria":6,"@designliquido/delegua-criptografia":14,"@designliquido/delegua-criptografia/delegua-modulo":11,"@designliquido/delegua-estatistica":21,"@designliquido/delegua-fisica":23,"@designliquido/delegua-json":24,"@designliquido/delegua-matematica":32,"@designliquido/delegua-tempo":37,"@designliquido/delegua-tempo/objeto-data":38,"@designliquido/delegua/avaliador-sintatico":60,"@designliquido/delegua/bibliotecas/testes/registro-testes":75,"@designliquido/delegua/estilizador/estilizador-delegua":169,"@designliquido/delegua/estilizador/quebrador-linha":171,"@designliquido/delegua/estilizador/regras/regra-convencao-nomenclatura":173,"@designliquido/delegua/estilizador/regras/regra-fortalecer-tipos":175,"@designliquido/delegua/estilizador/regras/regra-paradigma-consistente":176,"@designliquido/delegua/formatadores/formatador-delegua":184,"@designliquido/delegua/informacao-elemento-sintatico":190,"@designliquido/delegua/interpretador/estruturas":254,"@designliquido/delegua/lexador":283,"@designliquido/delegua/tipos-de-simbolos/delegua":298,"@designliquido/delegua/tradutores":306}],4:[function(require,module,exports){
+},{"./analisador-semantico-web":1,"./documentacao-testes":2,"./interpretador-web":4,"./resultados-testes":5,"./visualizacao-arvore-binaria":6,"@designliquido/delegua-brasil":8,"@designliquido/delegua-brasil/delegua-modulo":7,"@designliquido/delegua-criptografia":16,"@designliquido/delegua-criptografia/delegua-modulo":13,"@designliquido/delegua-estatistica":23,"@designliquido/delegua-fisica":25,"@designliquido/delegua-json":26,"@designliquido/delegua-matematica":34,"@designliquido/delegua-tempo":39,"@designliquido/delegua-tempo/objeto-data":40,"@designliquido/delegua/avaliador-sintatico":62,"@designliquido/delegua/bibliotecas/testes/registro-testes":77,"@designliquido/delegua/estilizador/estilizador-delegua":171,"@designliquido/delegua/estilizador/quebrador-linha":173,"@designliquido/delegua/estilizador/regras/regra-convencao-nomenclatura":175,"@designliquido/delegua/estilizador/regras/regra-fortalecer-tipos":177,"@designliquido/delegua/estilizador/regras/regra-paradigma-consistente":178,"@designliquido/delegua/formatadores/formatador-delegua":186,"@designliquido/delegua/informacao-elemento-sintatico":192,"@designliquido/delegua/interpretador/estruturas":256,"@designliquido/delegua/lexador":285,"@designliquido/delegua/tipos-de-simbolos/delegua":300,"@designliquido/delegua/tradutores":308}],4:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -591,6 +595,7 @@ class InterpretadorWeb extends delegua_1.Interpretador {
     logicaComumImportar(caminho, linha) {
         return __awaiter(this, void 0, void 0, function* () {
             switch (caminho.valor) {
+                case 'brasil':
                 case 'criptografia':
                 case 'estatistica':
                 case 'fisica':
@@ -647,7 +652,7 @@ class InterpretadorWeb extends delegua_1.Interpretador {
 }
 exports.InterpretadorWeb = InterpretadorWeb;
 
-},{"@designliquido/delegua":188,"@designliquido/delegua/excecoes":179}],5:[function(require,module,exports){
+},{"@designliquido/delegua":190,"@designliquido/delegua/excecoes":181}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resumirResultadosTestes = resumirResultadosTestes;
@@ -1065,6 +1070,5842 @@ function renderizarVisualizacaoArvoreBinaria(container, estado) {
 }
 
 },{}],7:[function(require,module,exports){
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// fontes/delegua-modulo.ts
+var delegua_modulo_exports = {};
+__export(delegua_modulo_exports, {
+  DeleguaModuloBrasil: () => DeleguaModuloBrasil
+});
+module.exports = __toCommonJS(delegua_modulo_exports);
+
+// node_modules/@brazilian-utils/brazilian-utils/dist/brazilian-utils.js
+var e = [
+  "cia",
+  "cnpj",
+  "cpf",
+  "ltda",
+  "me",
+  "rg"
+];
+var t = [
+  "a",
+  "com",
+  "da",
+  "das",
+  "de",
+  "do",
+  "dos",
+  "e",
+  "em",
+  "na",
+  "nas",
+  "no",
+  "nos",
+  "o",
+  "por",
+  "sem"
+];
+var n = (n2, { lowerCaseWords: r2 = t, upperCaseWords: i2 = e } = {}) => {
+  let a2 = new Set(r2), o2 = new Set(i2), s2 = n2.split(" "), c2 = [];
+  for (let e2 = 0, t2 = s2.length; e2 < t2; e2++) {
+    let t3 = s2[e2];
+    if (!t3)
+      continue;
+    let n3 = t3.toLocaleLowerCase();
+    if (e2 > 0 && a2.has(n3)) {
+      c2.push(n3);
+      continue;
+    }
+    let r3 = t3.toLocaleUpperCase();
+    if (o2.has(r3)) {
+      c2.push(r3);
+      continue;
+    }
+    c2.push(r3.charAt(0) + n3.slice(1));
+  }
+  return c2.join(" ");
+};
+var r = ({ pad: e2, value: t2, pattern: n2 }) => {
+  let r2 = "", i2 = 0;
+  if (e2) {
+    let e3 = n2.replace(/0/g, "").length;
+    t2 = t2.padStart(n2.length - e3, "0");
+  }
+  for (let e3 of n2)
+    if (e3 === "0") {
+      if (i2 >= t2.length)
+        break;
+      r2 += t2[i2++];
+    } else
+      i2 < t2.length && (r2 += e3);
+  return r2;
+};
+var i = (e2) => e2.toString().replace(/\D/g, "");
+var a = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "00000.00000 00000.000000 00000.000000 0 00000000000000"
+});
+var o = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "00000-000"
+});
+var s = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000000000-00"
+});
+var c = (e2) => e2.toString().replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+var l = (e2, t2) => t2 === 2 ? c(e2) : i(e2);
+var u = (e2, t2) => r({
+  pad: t2?.pad,
+  value: l(e2, t2?.version),
+  pattern: "00.000.000/0000-00"
+});
+var d = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000.000.000-00"
+});
+var f = (e2, t2) => {
+  let n2 = typeof e2 == "string" ? Number.parseFloat(i(e2) || "0") : e2;
+  return new Intl.NumberFormat("pt-BR", {
+    style: t2?.symbol ? "currency" : "decimal",
+    currency: "BRL",
+    currencyDisplay: t2?.symbol ? "symbol" : void 0,
+    maximumFractionDigits: t2?.precision ?? 2,
+    minimumFractionDigits: t2?.precision ?? 2
+  }).format(n2).replace("\xA0", " ");
+};
+var p = (e2) => r({
+  value: i(e2),
+  pattern: "000-0"
+});
+var m = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 7);
+var ee = /^[A-Z]{3}[0-9]{4}$/;
+var te = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+var ne = /^[A-Z]{3}[0-9]{2}[A-Z][0-9]$/;
+var h = (e2) => {
+  let t2 = m(e2);
+  return ee.test(t2) ? "LLLNNNN" : te.test(t2) ? "LLLNLNN" : ne.test(t2) ? "LLLNNLN" : null;
+};
+var re = (e2) => {
+  let t2 = m(e2);
+  if (!t2)
+    return "";
+  let n2 = h(t2);
+  if (n2 === "LLLNNNN")
+    return `${t2.slice(0, 3)}-${t2.slice(3)}`;
+  if (n2)
+    return t2;
+  if (!/^[A-Z]{1,3}$/.test(t2.slice(0, Math.min(t2.length, 3))))
+    return "";
+  if (t2.length <= 3)
+    return t2;
+  let r2 = t2.slice(3);
+  return /^\d{1,4}$/.test(r2) ? `${t2.slice(0, 3)}-${r2}` : /^\d[A-Z]\d{0,2}$/.test(r2) || /^\d{2}[A-Z]\d?$/.test(r2) ? t2 : "";
+};
+var ie = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 8);
+var ae = {
+  sn: 9,
+  nanp: 11
+};
+var oe = {
+  sn: "00000-0000",
+  nanp: "(00) 00000-0000"
+};
+var se = (e2, t2) => {
+  let n2 = t2?.mask ?? "sn", a2 = i(e2);
+  return n2 === "auto" && (n2 = a2.length > ae.sn ? "nanp" : "sn"), r({
+    value: a2,
+    pattern: oe[n2]
+  });
+};
+var ce = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000.00000.00-0"
+});
+var le = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "0000000-00.0000.000.0000"
+});
+var ue = (e2) => r({
+  value: i(e2),
+  pattern: "0000 0000 00 00"
+});
+var g = (e2) => {
+  let t2 = "";
+  for (let n2 = 0; n2 < e2; n2++)
+    t2 += Math.floor(Math.random() * 10).toString();
+  return t2;
+};
+var _ = (e2) => {
+  let t2 = 0, n2 = e2.length;
+  for (let r3 = n2 - 1; r3 >= 0; r3--) {
+    let i2 = (e2.charCodeAt(r3) - 48) * (n2 - 1 - r3 & 1 ? 1 : 2);
+    t2 += i2 > 9 ? i2 - 9 : i2;
+  }
+  let r2 = t2 % 10;
+  return r2 > 0 ? 10 - r2 : 0;
+};
+var v = (e2) => {
+  let t2 = 2, n2 = 0;
+  for (let r3 = e2.length - 1; r3 >= 0; r3--) {
+    let i2 = e2.charCodeAt(r3) - 48;
+    n2 += i2 * t2, t2 = t2 < 9 ? t2 + 1 : 2;
+  }
+  let r2 = n2 % 11;
+  return r2 === 0 || r2 === 1 ? 1 : 11 - r2;
+};
+var de = () => {
+  let e2 = Array.from({ length: 47 }), t2 = g(9);
+  for (let n3 = 0; n3 < 9; n3++)
+    e2[n3] = t2[n3];
+  e2[9] = _(t2).toString();
+  let n2 = g(10);
+  for (let t3 = 0; t3 < 10; t3++)
+    e2[10 + t3] = n2[t3];
+  e2[20] = _(n2).toString();
+  let r2 = g(10);
+  for (let t3 = 0; t3 < 10; t3++)
+    e2[21 + t3] = r2[t3];
+  e2[31] = _(r2).toString();
+  let i2 = g(15);
+  for (let t3 = 0; t3 < 15; t3++)
+    e2[32 + t3] = i2[t3];
+  return e2[32] = v(e2.slice(0, 4).join("") + e2.slice(33, 47).join("") + e2.slice(4, 9).join("") + e2.slice(10, 20).join("") + e2.slice(21, 31).join("")).toString(), e2.join("");
+};
+var fe = () => g(8);
+var pe = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 9; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (9 - n3);
+  let n2 = t2 % 11;
+  return n2 >= 10 ? {
+    firstVerifier: 0,
+    decrement: 2
+  } : {
+    firstVerifier: n2,
+    decrement: 0
+  };
+};
+var me = ({ base: e2, decrement: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 9; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 1);
+  let r2 = n2 % 11 - t2;
+  return r2 < 0 && (r2 += 11), r2 >= 10 && (r2 = 0), r2;
+};
+var he = () => {
+  let e2 = g(9);
+  for (; /^(\d)\1+$/.test(e2); )
+    e2 = g(9);
+  let { firstVerifier: t2, decrement: n2 } = pe(e2), r2 = me({
+    base: e2,
+    decrement: n2
+  });
+  return `${e2}${t2}${r2}`;
+};
+function y({ base: e2, weight: t2 }) {
+  let n2 = i(e2), r2 = 0, a2 = n2.length;
+  if (typeof t2 == "number") {
+    let e3 = t2;
+    for (let t3 = 0; t3 < a2; t3++, e3--) {
+      let i2 = n2.charCodeAt(t3) - 48;
+      r2 += i2 * e3;
+    }
+  } else
+    for (let e3 = 0; e3 < a2; e3++) {
+      let i2 = n2.charCodeAt(e3) - 48;
+      r2 += i2 * t2[e3];
+    }
+  return r2;
+}
+var b = 12;
+var x = [
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var S = [6, ...x];
+var ge = "0123456789ABCDFGHIJKLMNPQRSVWXYZ";
+var _e = () => ge[Math.floor(Math.random() * 32)];
+var ve = () => {
+  let e2 = "";
+  for (let t2 = 0; t2 < b; t2++)
+    e2 += _e();
+  return e2;
+};
+var ye = (e2) => e2.charCodeAt(0) - 48;
+var be = (e2, t2) => {
+  let n2 = 0;
+  for (let r2 = 0; r2 < e2.length; r2++)
+    n2 += ye(e2[r2]) * t2[r2];
+  return n2;
+};
+var xe = (e2, t2) => {
+  let n2 = y({
+    base: e2,
+    weight: t2
+  }) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var Se = (e2, t2) => {
+  let n2 = be(e2, t2) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var Ce = () => {
+  let e2 = g(b), t2 = xe(e2, x), n2 = xe(e2 + t2, S);
+  return e2 + t2 + n2;
+};
+var we = () => {
+  let e2 = ve(), t2 = Se(e2, x), n2 = Se(e2 + t2, S);
+  return e2 + t2 + n2;
+};
+var Te = (e2) => (e2 ?? 1) === 1 ? Ce() : we();
+var C = {
+  AC: "2",
+  AL: "4",
+  AP: "2",
+  AM: "2",
+  BA: "5",
+  CE: "3",
+  DF: "1",
+  ES: "7",
+  GO: "1",
+  MA: "3",
+  MT: "5",
+  MS: "5",
+  MG: "6",
+  PR: "9",
+  PB: "4",
+  PA: "2",
+  PE: "4",
+  PI: "3",
+  RN: "4",
+  RS: "0",
+  RJ: "7",
+  RO: "2",
+  RR: "2",
+  SC: "9",
+  SE: "5",
+  SP: "8",
+  TO: "1"
+};
+var Ee = new Set(Object.keys(C));
+var De = (e2) => e2 && Ee.has(e2) ? C[e2] : g(1);
+var w = (e2, t2) => {
+  let n2 = y({
+    base: e2,
+    weight: t2
+  }) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var T = (e2) => {
+  let t2 = g(8) + De(e2), n2 = w(t2, 10), r2 = w(t2 + n2, 11);
+  return t2 + n2 + r2;
+};
+var E = {
+  1015: "Orgao Publico do Poder Executivo Federal",
+  1023: "Orgao Publico do Poder Executivo Estadual ou do Distrito Federal",
+  1031: "Orgao Publico do Poder Executivo Municipal",
+  1040: "Orgao Publico do Poder Legislativo Federal",
+  1058: "Orgao Publico do Poder Legislativo Estadual ou do Distrito Federal",
+  1066: "Orgao Publico do Poder Legislativo Municipal",
+  1074: "Orgao Publico do Poder Judiciario Federal",
+  1082: "Orgao Publico do Poder Judiciario Estadual",
+  1104: "Autarquia Federal",
+  1112: "Autarquia Estadual ou do Distrito Federal",
+  1120: "Autarquia Municipal",
+  1139: "Fundacao Federal",
+  1147: "Fundacao Estadual ou do Distrito Federal",
+  1155: "Fundacao Municipal",
+  1163: "Orgao Publico Autonomo da Uniao",
+  1171: "Orgao Publico Autonomo Estadual ou do Distrito Federal",
+  1180: "Orgao Publico Autonomo Municipal",
+  2011: "Empresa Publica",
+  2038: "Sociedade de Economia Mista",
+  2046: "Sociedade Anonima Aberta",
+  2054: "Sociedade Anonima Fechada",
+  2062: "Sociedade Empresaria Limitada",
+  2076: "Sociedade Empresaria em Nome Coletivo",
+  2089: "Sociedade Empresaria em Comandita Simples",
+  2097: "Sociedade Empresaria em Comandita por Acoes",
+  2100: "Sociedade Mercantil de Capital e Industria (extinta pelo NCC/2002)",
+  2127: "Sociedade Empresaria em Conta de Participacao",
+  2135: "Empresario (Individual)",
+  2143: "Cooperativa",
+  2151: "Consorcio de Sociedades",
+  2160: "Grupo de Sociedades",
+  2178: "Estabelecimento, no Brasil, de Sociedade Estrangeira",
+  2194: "Estabelecimento, no Brasil, de Empresa Binacional Argentino-Brasileira",
+  2208: "Entidade Binacional Itaipu",
+  2216: "Empresa Domiciliada no Exterior",
+  2224: "Clube/Fundo de Investimento",
+  2232: "Sociedade Simples Pura",
+  2240: "Sociedade Simples Limitada",
+  2259: "Sociedade em Nome Coletivo",
+  2267: "Sociedade em Comandita Simples",
+  2275: "Sociedade Simples em Conta de Participacao",
+  2305: "Empresa Individual de Responsabilidade Limitada",
+  3034: "Servico Notarial e Registral (Cartorio)",
+  3042: "Organizacao Social",
+  3050: "Organizacao da Sociedade Civil de Interesse Publico (Oscip)",
+  3069: "Outras Formas de Fundacoes Mantidas com Recursos Privados",
+  3077: "Servico Social Autonomo",
+  3085: "Condominio Edilicios",
+  3093: "Unidade Executora (Programa Dinheiro Direto na Escola)",
+  3107: "Comissao de Conciliacao Previa",
+  3115: "Entidade de Mediacao e Arbitragem",
+  3123: "Partido Politico",
+  3131: "Entidade Sindical",
+  3204: "Estabelecimento, no Brasil, de Fundacao ou Associacao Estrangeiras",
+  3212: "Fundacao ou Associacao Domiciliada no Exterior",
+  3999: "Outras Formas de Associacao",
+  4014: "Empresa Individual Imobiliaria",
+  4022: "Segurado Especial",
+  4081: "Contribuinte individual",
+  5002: "Organizacao Internacional e Outras Instituicoes Extraterritoriais"
+};
+var D = Object.keys(E);
+var Oe = () => D[Math.floor(Math.random() * D.length)];
+var ke = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var Ae = () => ke[Math.floor(Math.random() * 26)];
+var je = () => Math.floor(Math.random() * 10).toString();
+var Me = (e2 = "LLLNLNN") => e2.split("").map((e3) => e3 === "L" ? Ae() : je()).join("");
+var Ne = () => `${Array.from({ length: 2 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("")}${g(6)}`;
+var O = [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  21,
+  22,
+  24,
+  27,
+  28,
+  31,
+  32,
+  33,
+  34,
+  35,
+  37,
+  38,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  51,
+  53,
+  54,
+  55,
+  61,
+  62,
+  64,
+  63,
+  65,
+  66,
+  67,
+  68,
+  69,
+  71,
+  73,
+  74,
+  75,
+  77,
+  79,
+  81,
+  87,
+  82,
+  83,
+  84,
+  85,
+  88,
+  86,
+  89,
+  91,
+  93,
+  94,
+  92,
+  97,
+  95,
+  96,
+  98,
+  99
+];
+var Pe = () => O[Math.floor(Math.random() * O.length)].toString();
+var k = (e2) => {
+  let t2 = Pe();
+  return e2 === "landline" ? `${t2}${2 + Math.floor(Math.random() * 4)}${g(7)}` : e2 === "mobile" ? `${t2}9${g(8)}` : k(Math.random() >= 0.5 ? "mobile" : "landline");
+};
+var Fe = [
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var Ie = (e2) => {
+  let t2 = 11 - e2.split("").reduce((e3, t3, n2) => e3 + Number(t3) * Fe[n2], 0) % 11;
+  return t2 >= 10 ? "0" : t2.toString();
+};
+var Le = () => {
+  let e2 = g(10);
+  return `${e2}${Ie(e2)}`;
+};
+var Re = (e2) => (98n - BigInt(e2) * 100n % 97n).toString().padStart(2, "0");
+var ze = (e2 = {}) => {
+  let { year: t2 = (/* @__PURE__ */ new Date()).getFullYear(), court: n2 = Math.floor(Math.random() * 9) + 1 } = e2, r2 = (/* @__PURE__ */ new Date()).getFullYear();
+  if (!Number.isInteger(t2) || t2 < r2 || !Number.isInteger(n2) || n2 < 1 || n2 > 9)
+    return null;
+  let i2 = g(7), a2 = g(2), o2 = g(4);
+  return `${i2}${Re(`${i2}${t2}${n2}${a2}${o2}`)}${t2}${n2}${a2}${o2}`;
+};
+var Be = {
+  SP: "01",
+  MG: "02",
+  RJ: "03",
+  RS: "04",
+  BA: "05",
+  PR: "06",
+  CE: "07",
+  PE: "08",
+  SC: "09",
+  GO: "10",
+  MA: "11",
+  PB: "12",
+  PA: "13",
+  ES: "14",
+  PI: "15",
+  RN: "16",
+  AL: "17",
+  MT: "18",
+  MS: "19",
+  DF: "20",
+  SE: "21",
+  AM: "22",
+  RO: "23",
+  AC: "24",
+  AP: "25",
+  RR: "26",
+  TO: "27",
+  ZZ: "28"
+};
+var Ve = ({ sequentialNumber: e2, federativeUnion: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 8; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 2);
+  let r2 = n2 % 11;
+  return r2 === 0 && (t2 === "01" || t2 === "02") ? 1 : r2 === 10 ? 0 : r2;
+};
+var He = ({ federativeUnion: e2, firstDigit: t2 }) => {
+  let n2 = ((e2.charCodeAt(0) - 48) * 7 + (e2.charCodeAt(1) - 48) * 8 + t2 * 9) % 11;
+  return (e2 === "01" || e2 === "02") && n2 === 0 ? 1 : n2 === 10 ? 0 : n2;
+};
+var Ue = (e2 = "ZZ") => {
+  let t2 = Be[e2], n2 = g(8), r2 = Ve({
+    sequentialNumber: n2,
+    federativeUnion: t2
+  });
+  return `${n2}${t2}${r2}${He({
+    federativeUnion: t2,
+    firstDigit: r2
+  })}`;
+};
+var A = (e2) => !e2 || typeof e2 != "string" ? false : i(e2).length === 8;
+var j = class extends Error {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepError";
+  }
+};
+var M = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepValidationError";
+  }
+};
+var N = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepNotFoundError";
+  }
+};
+var P = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepServiceError";
+  }
+};
+var F = {
+  viacep: async (e2) => {
+    let t2 = await fetch(`https://viacep.com.br/ws/${e2}/json/`);
+    if (!t2.ok)
+      throw Error(`ViaCEP request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.erro || !n2.cep)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.cep.replace(/\D/g, ""),
+      state: n2.uf || "",
+      city: n2.localidade || "",
+      neighborhood: n2.bairro || "",
+      street: n2.logradouro || ""
+    };
+  },
+  widenet: async (e2) => {
+    let t2 = await fetch(`https://apps.widenet.com.br/busca-cep/api/cep/${e2}.json`);
+    if (!t2.ok)
+      throw Error(`Widenet request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.status !== 200 || !n2.ok || !n2.code)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.code.replace(/\D/g, ""),
+      state: n2.state || "",
+      city: n2.city || "",
+      neighborhood: n2.district || "",
+      street: n2.address || ""
+    };
+  },
+  brasilapi: async (e2) => {
+    let t2 = await fetch(`https://brasilapi.com.br/api/cep/v1/${e2}`);
+    if (!t2.ok)
+      throw Error(`BrasilAPI request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.errors || !n2.cep)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.cep.replace(/\D/g, ""),
+      state: n2.state || "",
+      city: n2.city || "",
+      neighborhood: n2.neighborhood || "",
+      street: n2.street || ""
+    };
+  }
+};
+var We = async (e2, t2) => {
+  let n2 = i(e2);
+  if (typeof e2 == "number" && n2.length < 8 && (n2 = n2.padStart(8, "0")), !A(n2))
+    throw new M("CEP inv\xE1lido");
+  let r2;
+  if (t2?.providers !== void 0) {
+    if (t2.providers.length === 0 || (r2 = t2.providers.filter((e3) => e3 in F), r2.length === 0))
+      throw new M("Nenhum provedor v\xE1lido especificado");
+  } else
+    r2 = [
+      "viacep",
+      "widenet",
+      "brasilapi"
+    ];
+  let a2 = r2.map((e3) => F[e3](n2).catch((t3) => Promise.reject({
+    provider: e3,
+    error: t3
+  })));
+  try {
+    return await Promise.any(a2);
+  } catch {
+    let e3 = (await Promise.allSettled(a2)).filter((e4) => e4.status === "rejected"), t3 = e3.filter((e4) => (e4.reason?.error || e4.reason) instanceof N), n3 = e3.filter((e4) => !((e4.reason?.error || e4.reason) instanceof N));
+    throw t3.length === e3.length ? new N("CEP n\xE3o encontrado em nenhum servi\xE7o") : n3.length === e3.length ? new P("Todos os servi\xE7os est\xE3o fora de servi\xE7o ou indispon\xEDveis") : t3.length > 0 ? new N("CEP n\xE3o encontrado em nenhum servi\xE7o") : new P("Erro ao consultar os servi\xE7os de CEP");
+  }
+};
+var Ge = [
+  {
+    start: 0,
+    end: 9,
+    checkIdx: 9
+  },
+  {
+    start: 10,
+    end: 20,
+    checkIdx: 20
+  },
+  {
+    start: 21,
+    end: 31,
+    checkIdx: 31
+  }
+];
+var Ke = [
+  [0, 4],
+  [32, 47],
+  [4, 9],
+  [10, 20],
+  [21, 31]
+];
+var qe = (e2) => {
+  for (let { start: t2, end: n2, checkIdx: r2 } of Ge) {
+    let i2 = _(e2.substring(t2, n2));
+    if (e2.charCodeAt(r2) - 48 !== i2)
+      return false;
+  }
+  return true;
+};
+var Je = (e2) => {
+  let t2 = "";
+  for (let [n2, r2] of Ke)
+    t2 += e2.substring(n2, r2);
+  return t2;
+};
+var Ye = (e2) => {
+  let t2 = v(e2.substring(0, 4) + e2.substring(5));
+  return e2.charCodeAt(4) - 48 === t2;
+};
+var I = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 47 || !qe(t2) ? false : Ye(Je(t2));
+};
+var Xe = new Date(1997, 9, 7);
+var Ze = (e2) => {
+  if (!e2 || !I(e2))
+    return;
+  let t2 = i(e2), n2 = t2.slice(0, 3), r2 = t2.slice(33, 37), a2 = Number(r2), o2 = null;
+  if (a2 && a2 > 0) {
+    let e3 = new Date(Xe);
+    e3.setDate(e3.getDate() + a2), o2 = e3;
+  }
+  return {
+    amount: Number(t2.slice(37, 47)) || 0,
+    expirationDate: o2,
+    bankCode: n2
+  };
+};
+var L = {
+  AC: [
+    "Acrel\xE2ndia",
+    "Assis Brasil",
+    "Brasil\xE9ia",
+    "Bujari",
+    "Capixaba",
+    "Cruzeiro do Sul",
+    "Epitaciol\xE2ndia",
+    "Feij\xF3",
+    "Jord\xE3o",
+    "M\xE2ncio Lima",
+    "Manoel Urbano",
+    "Marechal Thaumaturgo",
+    "Pl\xE1cido de Castro",
+    "Porto Acre",
+    "Porto Walter",
+    "Rio Branco",
+    "Rodrigues Alves",
+    "Santa Rosa do Purus",
+    "Sena Madureira",
+    "Senador Guiomard",
+    "Tarauac\xE1",
+    "Xapuri"
+  ],
+  AL: /* @__PURE__ */ "\xC1gua Branca.Anadia.Arapiraca.Atalaia.Barra de Santo Ant\xF4nio.Barra de S\xE3o Miguel.Batalha.Bel\xE9m.Belo Monte.Boca da Mata.Branquinha.Cacimbinhas.Cajueiro.Campestre.Campo Alegre.Campo Grande.Canapi.Capela.Carneiros.Ch\xE3 Preta.Coit\xE9 do N\xF3ia.Col\xF4nia Leopoldina.Coqueiro Seco.Coruripe.Cra\xEDbas.Delmiro Gouveia.Dois Riachos.Estrela de Alagoas.Feira Grande.Feliz Deserto.Flexeiras.Girau do Ponciano.Ibateguara.Igaci.Igreja Nova.Inhapi.Jacar\xE9 dos Homens.Jacu\xEDpe.Japaratinga.Jaramataia.Jequi\xE1 da Praia.Joaquim Gomes.Jundi\xE1.Junqueiro.Lagoa da Canoa.Limoeiro de Anadia.Macei\xF3.Major Isidoro.Mar Vermelho.Maragogi.Maravilha.Marechal Deodoro.Maribondo.Mata Grande.Matriz de Camaragibe.Messias.Minador do Negr\xE3o.Monteir\xF3polis.Murici.Novo Lino.Olho d'\xC1gua das Flores.Olho d'\xC1gua do Casado.Olho d'\xC1gua Grande.Oliven\xE7a.Ouro Branco.Palestina.Palmeira dos \xCDndios.P\xE3o de A\xE7\xFAcar.Pariconha.Paripueira.Passo de Camaragibe.Paulo Jacinto.Penedo.Pia\xE7abu\xE7u.Pilar.Pindoba.Piranhas.Po\xE7o das Trincheiras.Porto Calvo.Porto de Pedras.Porto Real do Col\xE9gio.Quebrangulo.Rio Largo.Roteiro.Santa Luzia do Norte.Santana do Ipanema.Santana do Munda\xFA.S\xE3o Br\xE1s.S\xE3o Jos\xE9 da Laje.S\xE3o Jos\xE9 da Tapera.S\xE3o Lu\xEDs do Quitunde.S\xE3o Miguel dos Campos.S\xE3o Miguel dos Milagres.S\xE3o Sebasti\xE3o.Satuba.Senador Rui Palmeira.Tanque d'Arca.Taquarana.Teot\xF4nio Vilela.Traipu.Uni\xE3o dos Palmares.Vi\xE7osa".split("."),
+  AM: /* @__PURE__ */ "Alvar\xE3es.Amatur\xE1.Anam\xE3.Anori.Apu\xED.Atalaia do Norte.Autazes.Barcelos.Barreirinha.Benjamin Constant.Beruri.Boa Vista do Ramos.Boca do Acre.Borba.Caapiranga.Canutama.Carauari.Careiro.Careiro da V\xE1rzea.Coari.Codaj\xE1s.Eirunep\xE9.Envira.Fonte Boa.Guajar\xE1.Humait\xE1.Ipixuna.Iranduba.Itacoatiara.Itamarati.Itapiranga.Japur\xE1.Juru\xE1.Juta\xED.L\xE1brea.Manacapuru.Manaquiri.Manaus.Manicor\xE9.Mara\xE3.Mau\xE9s.Nhamund\xE1.Nova Olinda do Norte.Novo Air\xE3o.Novo Aripuan\xE3.Parintins.Pauini.Presidente Figueiredo.Rio Preto da Eva.Santa Isabel do Rio Negro.Santo Ant\xF4nio do I\xE7\xE1.S\xE3o Gabriel da Cachoeira.S\xE3o Paulo de Oliven\xE7a.S\xE3o Sebasti\xE3o do Uatum\xE3.Silves.Tabatinga.Tapau\xE1.Tef\xE9.Tonantins.Uarini.Urucar\xE1.Urucurituba".split("."),
+  AP: [
+    "Amap\xE1",
+    "Cal\xE7oene",
+    "Cutias",
+    "Ferreira Gomes",
+    "Itaubal",
+    "Laranjal do Jari",
+    "Macap\xE1",
+    "Mazag\xE3o",
+    "Oiapoque",
+    "Pedra Branca do Amapari",
+    "Porto Grande",
+    "Pracu\xFAba",
+    "Santana",
+    "Serra do Navio",
+    "Tartarugalzinho",
+    "Vit\xF3ria do Jari"
+  ],
+  BA: /* @__PURE__ */ "Aba\xEDra.Abar\xE9.Acajutiba.Adustina.\xC1gua Fria.Aiquara.Alagoinhas.Alcoba\xE7a.Almadina.Amargosa.Am\xE9lia Rodrigues.Am\xE9rica Dourada.Anag\xE9.Andara\xED.Andorinha.Angical.Anguera.Antas.Ant\xF4nio Cardoso.Ant\xF4nio Gon\xE7alves.Apor\xE1.Apuarema.Ara\xE7\xE1s.Aracatu.Araci.Aramari.Arataca.Aratu\xEDpe.Aurelino Leal.Baian\xF3polis.Baixa Grande.Banza\xEA.Barra.Barra da Estiva.Barra do Cho\xE7a.Barra do Mendes.Barra do Rocha.Barreiras.Barro Alto.Barro Preto.Barrocas.Belmonte.Belo Campo.Biritinga.Boa Nova.Boa Vista do Tupim.Bom Jesus da Lapa.Bom Jesus da Serra.Boninal.Bonito.Boquira.Botupor\xE3.Brej\xF5es.Brejol\xE2ndia.Brotas de Maca\xFAbas.Brumado.Buerarema.Buritirama.Caatiba.Cabaceiras do Paragua\xE7u.Cachoeira.Cacul\xE9.Ca\xE9m.Caetanos.Caetit\xE9.Cafarnaum.Cairu.Caldeir\xE3o Grande.Camacan.Cama\xE7ari.Camamu.Campo Alegre de Lourdes.Campo Formoso.Can\xE1polis.Canarana.Canavieiras.Candeal.Candeias.Candiba.C\xE2ndido Sales.Cansan\xE7\xE3o.Canudos.Capela do Alto Alegre.Capim Grosso.Cara\xEDbas.Caravelas.Cardeal da Silva.Carinhanha.Casa Nova.Castro Alves.Catol\xE2ndia.Catu.Caturama.Central.Chorroch\xF3.C\xEDcero Dantas.Cip\xF3.Coaraci.Cocos.Concei\xE7\xE3o da Feira.Concei\xE7\xE3o do Almeida.Concei\xE7\xE3o do Coit\xE9.Concei\xE7\xE3o do Jacu\xEDpe.Conde.Conde\xFAba.Contendas do Sincor\xE1.Cora\xE7\xE3o de Maria.Cordeiros.Coribe.Coronel Jo\xE3o S\xE1.Correntina.Cotegipe.Cravol\xE2ndia.Cris\xF3polis.Crist\xF3polis.Cruz das Almas.Cura\xE7\xE1.D\xE1rio Meira.Dias d'\xC1vila.Dom Bas\xEDlio.Dom Macedo Costa.El\xEDsio Medrado.Encruzilhada.Entre Rios.\xC9rico Cardoso.Esplanada.Euclides da Cunha.Eun\xE1polis.F\xE1tima.Feira da Mata.Feira de Santana.Filad\xE9lfia.Firmino Alves.Floresta Azul.Formosa do Rio Preto.Gandu.Gavi\xE3o.Gentio do Ouro.Gl\xF3ria.Gongogi.Governador Mangabeira.Guajeru.Guanambi.Guaratinga.Heli\xF3polis.Ia\xE7u.Ibiassuc\xEA.Ibicara\xED.Ibicoara.Ibicu\xED.Ibipeba.Ibipitanga.Ibiquera.Ibirapitanga.Ibirapu\xE3.Ibirataia.Ibitiara.Ibitit\xE1.Ibotirama.Ichu.Igapor\xE3.Igrapi\xFAna.Igua\xED.Ilh\xE9us.Inhambupe.Ipecaet\xE1.Ipia\xFA.Ipir\xE1.Ipupiara.Irajuba.Iramaia.Iraquara.Irar\xE1.Irec\xEA.Itabela.Itaberaba.Itabuna.Itacar\xE9.Itaet\xE9.Itagi.Itagib\xE1.Itagimirim.Itagua\xE7u da Bahia.Itaju do Col\xF4nia.Itaju\xEDpe.Itamaraju.Itamari.Itamb\xE9.Itanagra.Itanh\xE9m.Itaparica.Itap\xE9.Itapebi.Itapetinga.Itapicuru.Itapitanga.Itaquara.Itarantim.Itatim.Itiru\xE7u.Iti\xFAba.Itoror\xF3.Itua\xE7u.Ituber\xE1.Iuiu.Jaborandi.Jacaraci.Jacobina.Jaguaquara.Jaguarari.Jaguaripe.Janda\xEDra.Jequi\xE9.Jeremoabo.Jiquiri\xE7\xE1.Jita\xFAna.Jo\xE3o Dourado.Juazeiro.Jucuru\xE7u.Jussara.Jussari.Jussiape.Lafaiete Coutinho.Lagoa Real.Laje.Lajed\xE3o.Lajedinho.Lajedo do Tabocal.Lamar\xE3o.Lap\xE3o.Lauro de Freitas.Len\xE7\xF3is.Lic\xEDnio de Almeida.Livramento de Nossa Senhora.Lu\xEDs Eduardo Magalh\xE3es.Macajuba.Macarani.Maca\xFAbas.Macurur\xE9.Madre de Deus.Maetinga.Maiquinique.Mairi.Malhada.Malhada de Pedras.Manoel Vitorino.Mansid\xE3o.Marac\xE1s.Maragogipe.Mara\xFA.Marcion\xEDlio Souza.Mascote.Mata de S\xE3o Jo\xE3o.Matina.Medeiros Neto.Miguel Calmon.Milagres.Mirangaba.Mirante.Monte Santo.Morpar\xE1.Morro do Chap\xE9u.Mortugaba.Mucug\xEA.Mucuri.Mulungu do Morro.Mundo Novo.Muniz Ferreira.Muqu\xE9m do S\xE3o Francisco.Muritiba.Mutu\xEDpe.Nazar\xE9.Nilo Pe\xE7anha.Nordestina.Nova Cana\xE3.Nova F\xE1tima.Nova Ibi\xE1.Nova Itarana.Nova Reden\xE7\xE3o.Nova Soure.Nova Vi\xE7osa.Novo Horizonte.Novo Triunfo.Olindina.Oliveira dos Brejinhos.Ouri\xE7angas.Ourol\xE2ndia.Palmas de Monte Alto.Palmeiras.Paramirim.Paratinga.Paripiranga.Pau Brasil.Paulo Afonso.P\xE9 de Serra.Pedr\xE3o.Pedro Alexandre.Piat\xE3.Pil\xE3o Arcado.Pinda\xED.Pindoba\xE7u.Pintadas.Pira\xED do Norte.Pirip\xE1.Piritiba.Planaltino.Planalto.Po\xE7\xF5es.Pojuca.Ponto Novo.Porto Seguro.Potiragu\xE1.Prado.Presidente Dutra.Presidente J\xE2nio Quadros.Presidente Tancredo Neves.Queimadas.Quijingue.Quixabeira.Rafael Jambeiro.Remanso.Retirol\xE2ndia.Riach\xE3o das Neves.Riach\xE3o do Jacu\xEDpe.Riacho de Santana.Ribeira do Amparo.Ribeira do Pombal.Ribeir\xE3o do Largo.Rio de Contas.Rio do Ant\xF4nio.Rio do Pires.Rio Real.Rodelas.Ruy Barbosa.Salinas da Margarida.Salvador.Santa B\xE1rbara.Santa Br\xEDgida.Santa Cruz Cabr\xE1lia.Santa Cruz da Vit\xF3ria.Santa In\xEAs.Santa Luzia.Santa Maria da Vit\xF3ria.Santa Rita de C\xE1ssia.Santa Terezinha.Santaluz.Santana.Santan\xF3polis.Santo Amaro.Santo Ant\xF4nio de Jesus.Santo Est\xEAv\xE3o.S\xE3o Desid\xE9rio.S\xE3o Domingos.S\xE3o Felipe.S\xE3o F\xE9lix.S\xE3o F\xE9lix do Coribe.S\xE3o Francisco do Conde.S\xE3o Gabriel.S\xE3o Gon\xE7alo dos Campos.S\xE3o Jos\xE9 da Vit\xF3ria.S\xE3o Jos\xE9 do Jacu\xEDpe.S\xE3o Miguel das Matas.S\xE3o Sebasti\xE3o do Pass\xE9.Sapea\xE7u.S\xE1tiro Dias.Saubara.Sa\xFAde.Seabra.Sebasti\xE3o Laranjeiras.Senhor do Bonfim.Sento S\xE9.Serra do Ramalho.Serra Dourada.Serra Preta.Serrinha.Serrol\xE2ndia.Sim\xF5es Filho.S\xEDtio do Mato.S\xEDtio do Quinto.Sobradinho.Souto Soares.Tabocas do Brejo Velho.Tanha\xE7u.Tanque Novo.Tanquinho.Tapero\xE1.Tapiramut\xE1.Teixeira de Freitas.Teodoro Sampaio.Teofil\xE2ndia.Teol\xE2ndia.Terra Nova.Tremedal.Tucano.Uau\xE1.Uba\xEDra.Ubaitaba.Ubat\xE3.Uiba\xED.Umburanas.Una.Urandi.Uru\xE7uca.Utinga.Valen\xE7a.Valente.V\xE1rzea da Ro\xE7a.V\xE1rzea do Po\xE7o.V\xE1rzea Nova.Varzedo.Vera Cruz.Vereda.Vit\xF3ria da Conquista.Wagner.Wanderley.Wenceslau Guimar\xE3es.Xique-Xique".split("."),
+  CE: /* @__PURE__ */ "Abaiara.Acarape.Acara\xFA.Acopiara.Aiuaba.Alc\xE2ntaras.Altaneira.Alto Santo.Amontada.Antonina do Norte.Apuiar\xE9s.Aquiraz.Aracati.Aracoiaba.Ararend\xE1.Araripe.Aratuba.Arneiroz.Assar\xE9.Aurora.Baixio.Banabui\xFA.Barbalha.Barreira.Barro.Barroquinha.Baturit\xE9.Beberibe.Bela Cruz.Boa Viagem.Brejo Santo.Camocim.Campos Sales.Canind\xE9.Capistrano.Caridade.Carir\xE9.Cariria\xE7u.Cari\xFAs.Carnaubal.Cascavel.Catarina.Catunda.Caucaia.Cedro.Chaval.Chor\xF3.Chorozinho.Corea\xFA.Crate\xFAs.Crato.Croat\xE1.Cruz.Deputado Irapuan Pinheiro.Erer\xE9.Eus\xE9bio.Farias Brito.Forquilha.Fortaleza.Fortim.Frecheirinha.General Sampaio.Gra\xE7a.Granja.Granjeiro.Groa\xEDras.Guai\xFAba.Guaraciaba do Norte.Guaramiranga.Hidrol\xE2ndia.Horizonte.Ibaretama.Ibiapina.Ibicuitinga.Icapu\xED.Ic\xF3.Iguatu.Independ\xEAncia.Ipaporanga.Ipaumirim.Ipu.Ipueiras.Iracema.Irau\xE7uba.Itai\xE7aba.Itaitinga.Itapaj\xE9.Itapipoca.Itapi\xFAna.Itarema.Itatira.Jaguaretama.Jaguaribara.Jaguaribe.Jaguaruana.Jardim.Jati.Jijoca de Jericoacoara.Juazeiro do Norte.Juc\xE1s.Lavras da Mangabeira.Limoeiro do Norte.Madalena.Maracana\xFA.Maranguape.Marco.Martin\xF3pole.Massap\xEA.Mauriti.Meruoca.Milagres.Milh\xE3.Mira\xEDma.Miss\xE3o Velha.Momba\xE7a.Monsenhor Tabosa.Morada Nova.Mora\xFAjo.Morrinhos.Mucambo.Mulungu.Nova Olinda.Nova Russas.Novo Oriente.Ocara.Or\xF3s.Pacajus.Pacatuba.Pacoti.Pacuj\xE1.Palhano.Palm\xE1cia.Paracuru.Paraipaba.Parambu.Paramoti.Pedra Branca.Penaforte.Pentecoste.Pereiro.Pindoretama.Piquet Carneiro.Pires Ferreira.Poranga.Porteiras.Potengi.Potiretama.Quiterian\xF3polis.Quixad\xE1.Quixel\xF4.Quixeramobim.Quixer\xE9.Reden\xE7\xE3o.Reriutaba.Russas.Saboeiro.Salitre.Santa Quit\xE9ria.Santana do Acara\xFA.Santana do Cariri.S\xE3o Benedito.S\xE3o Gon\xE7alo do Amarante.S\xE3o Jo\xE3o do Jaguaribe.S\xE3o Lu\xEDs do Curu.Senador Pompeu.Senador S\xE1.Sobral.Solon\xF3pole.Tabuleiro do Norte.Tamboril.Tarrafas.Tau\xE1.Teju\xE7uoca.Tiangu\xE1.Trairi.Tururu.Ubajara.Umari.Umirim.Uruburetama.Uruoca.Varjota.V\xE1rzea Alegre.Vi\xE7osa do Cear\xE1".split("."),
+  DF: ["Bras\xEDlia"],
+  ES: /* @__PURE__ */ "Afonso Cl\xE1udio.\xC1gua Doce do Norte.\xC1guia Branca.Alegre.Alfredo Chaves.Alto Rio Novo.Anchieta.Apiac\xE1.Aracruz.At\xEDlio Viv\xE1cqua.Baixo Guandu.Barra de S\xE3o Francisco.Boa Esperan\xE7a.Bom Jesus do Norte.Brejetuba.Cachoeiro de Itapemirim.Cariacica.Castelo.Colatina.Concei\xE7\xE3o da Barra.Concei\xE7\xE3o do Castelo.Divino de S\xE3o Louren\xE7o.Domingos Martins.Dores do Rio Preto.Ecoporanga.Fund\xE3o.Governador Lindenberg.Gua\xE7u\xED.Guarapari.Ibatiba.Ibira\xE7u.Ibitirama.Iconha.Irupi.Itagua\xE7u.Itapemirim.Itarana.I\xFAna.Jaguar\xE9.Jer\xF4nimo Monteiro.Jo\xE3o Neiva.Laranja da Terra.Linhares.Manten\xF3polis.Marata\xEDzes.Marechal Floriano.Maril\xE2ndia.Mimoso do Sul.Montanha.Mucurici.Muniz Freire.Muqui.Nova Ven\xE9cia.Pancas.Pedro Can\xE1rio.Pinheiros.Pi\xFAma.Ponto Belo.Presidente Kennedy.Rio Bananal.Rio Novo do Sul.Santa Leopoldina.Santa Maria de Jetib\xE1.Santa Teresa.S\xE3o Domingos do Norte.S\xE3o Gabriel da Palha.S\xE3o Jos\xE9 do Cal\xE7ado.S\xE3o Mateus.S\xE3o Roque do Cana\xE3.Serra.Sooretama.Vargem Alta.Venda Nova do Imigrante.Viana.Vila Pav\xE3o.Vila Val\xE9rio.Vila Velha.Vit\xF3ria".split("."),
+  GO: /* @__PURE__ */ "Abadia de Goi\xE1s.Abadi\xE2nia.Acre\xFAna.Adel\xE2ndia.\xC1gua Fria de Goi\xE1s.\xC1gua Limpa.\xC1guas Lindas de Goi\xE1s.Alex\xE2nia.Alo\xE2ndia.Alto Horizonte.Alto Para\xEDso de Goi\xE1s.Alvorada do Norte.Amaralina.Americano do Brasil.Amorin\xF3polis.An\xE1polis.Anhanguera.Anicuns.Aparecida de Goi\xE2nia.Aparecida do Rio Doce.Apor\xE9.Ara\xE7u.Aragar\xE7as.Aragoi\xE2nia.Araguapaz.Aren\xF3polis.Aruan\xE3.Auril\xE2ndia.Avelin\xF3polis.Baliza.Barro Alto.Bela Vista de Goi\xE1s.Bom Jardim de Goi\xE1s.Bom Jesus de Goi\xE1s.Bonfin\xF3polis.Bon\xF3polis.Brazabrantes.Brit\xE2nia.Buriti Alegre.Buriti de Goi\xE1s.Buritin\xF3polis.Cabeceiras.Cachoeira Alta.Cachoeira de Goi\xE1s.Cachoeira Dourada.Ca\xE7u.Caiap\xF4nia.Caldas Novas.Caldazinha.Campestre de Goi\xE1s.Campina\xE7u.Campinorte.Campo Alegre de Goi\xE1s.Campo Limpo de Goi\xE1s.Campos Belos.Campos Verdes.Carmo do Rio Verde.Castel\xE2ndia.Catal\xE3o.Catura\xED.Cavalcante.Ceres.Cezarina.Chapad\xE3o do C\xE9u.Cidade Ocidental.Cocalzinho de Goi\xE1s.Colinas do Sul.C\xF3rrego do Ouro.Corumb\xE1 de Goi\xE1s.Corumba\xEDba.Cristalina.Cristian\xF3polis.Crix\xE1s.Crom\xEDnia.Cumari.Damian\xF3polis.Damol\xE2ndia.Davin\xF3polis.Diorama.Divin\xF3polis de Goi\xE1s.Doverl\xE2ndia.Edealina.Ed\xE9ia.Estrela do Norte.Faina.Fazenda Nova.Firmin\xF3polis.Flores de Goi\xE1s.Formosa.Formoso.Gameleira de Goi\xE1s.Goian\xE1polis.Goiandira.Goian\xE9sia.Goi\xE2nia.Goianira.Goi\xE1s.Goiatuba.Gouvel\xE2ndia.Guap\xF3.Guara\xEDta.Guarani de Goi\xE1s.Guarinos.Heitora\xED.Hidrol\xE2ndia.Hidrolina.Iaciara.Inaciol\xE2ndia.Indiara.Inhumas.Ipameri.Ipiranga de Goi\xE1s.Ipor\xE1.Israel\xE2ndia.Itabera\xED.Itaguari.Itaguaru.Itaj\xE1.Itapaci.Itapirapu\xE3.Itapuranga.Itarum\xE3.Itau\xE7u.Itumbiara.Ivol\xE2ndia.Jandaia.Jaragu\xE1.Jata\xED.Jaupaci.Jes\xFApolis.Jovi\xE2nia.Jussara.Lagoa Santa.Leopoldo de Bulh\xF5es.Luzi\xE2nia.Mairipotaba.Mamba\xED.Mara Rosa.Marzag\xE3o.Matrinch\xE3.Mauril\xE2ndia.Mimoso de Goi\xE1s.Mina\xE7u.Mineiros.Moipor\xE1.Monte Alegre de Goi\xE1s.Montes Claros de Goi\xE1s.Montividiu.Montividiu do Norte.Morrinhos.Morro Agudo de Goi\xE1s.Moss\xE2medes.Mozarl\xE2ndia.Mundo Novo.Mutun\xF3polis.Naz\xE1rio.Ner\xF3polis.Niquel\xE2ndia.Nova Am\xE9rica.Nova Aurora.Nova Crix\xE1s.Nova Gl\xF3ria.Nova Igua\xE7u de Goi\xE1s.Nova Roma.Nova Veneza.Novo Brasil.Novo Gama.Novo Planalto.Orizona.Ouro Verde de Goi\xE1s.Ouvidor.Padre Bernardo.Palestina de Goi\xE1s.Palmeiras de Goi\xE1s.Palmelo.Palmin\xF3polis.Panam\xE1.Paranaiguara.Para\xFAna.Perol\xE2ndia.Petrolina de Goi\xE1s.Pilar de Goi\xE1s.Piracanjuba.Piranhas.Piren\xF3polis.Pires do Rio.Planaltina.Pontalina.Porangatu.Porteir\xE3o.Portel\xE2ndia.Posse.Professor Jamil.Quirin\xF3polis.Rialma.Rian\xE1polis.Rio Quente.Rio Verde.Rubiataba.Sanclerl\xE2ndia.Santa B\xE1rbara de Goi\xE1s.Santa Cruz de Goi\xE1s.Santa F\xE9 de Goi\xE1s.Santa Helena de Goi\xE1s.Santa Isabel.Santa Rita do Araguaia.Santa Rita do Novo Destino.Santa Rosa de Goi\xE1s.Santa Tereza de Goi\xE1s.Santa Terezinha de Goi\xE1s.Santo Ant\xF4nio da Barra.Santo Ant\xF4nio de Goi\xE1s.Santo Ant\xF4nio do Descoberto.S\xE3o Domingos.S\xE3o Francisco de Goi\xE1s.S\xE3o Jo\xE3o d'Alian\xE7a.S\xE3o Jo\xE3o da Para\xFAna.S\xE3o Lu\xEDs de Montes Belos.S\xE3o Luiz do Norte.S\xE3o Miguel do Araguaia.S\xE3o Miguel do Passa Quatro.S\xE3o Patr\xEDcio.S\xE3o Sim\xE3o.Senador Canedo.Serran\xF3polis.Silv\xE2nia.Simol\xE2ndia.S\xEDtio d'Abadia.Taquaral de Goi\xE1s.Teresina de Goi\xE1s.Terez\xF3polis de Goi\xE1s.Tr\xEAs Ranchos.Trindade.Trombas.Turv\xE2nia.Turvel\xE2ndia.Uirapuru.Urua\xE7u.Uruana.Uruta\xED.Valpara\xEDso de Goi\xE1s.Varj\xE3o.Vian\xF3polis.Vicentin\xF3polis.Vila Boa.Vila Prop\xEDcio".split("."),
+  MA: /* @__PURE__ */ "A\xE7ail\xE2ndia.Afonso Cunha.\xC1gua Doce do Maranh\xE3o.Alc\xE2ntara.Aldeias Altas.Altamira do Maranh\xE3o.Alto Alegre do Maranh\xE3o.Alto Alegre do Pindar\xE9.Alto Parna\xEDba.Amap\xE1 do Maranh\xE3o.Amarante do Maranh\xE3o.Anajatuba.Anapurus.Apicum-A\xE7u.Araguan\xE3.Araioses.Arame.Arari.Axix\xE1.Bacabal.Bacabeira.Bacuri.Bacurituba.Balsas.Bar\xE3o de Graja\xFA.Barra do Corda.Barreirinhas.Bela Vista do Maranh\xE3o.Bel\xE1gua.Benedito Leite.Bequim\xE3o.Bernardo do Mearim.Boa Vista do Gurupi.Bom Jardim.Bom Jesus das Selvas.Bom Lugar.Brejo.Brejo de Areia.Buriti.Buriti Bravo.Buriticupu.Buritirana.Cachoeira Grande.Cajapi\xF3.Cajari.Campestre do Maranh\xE3o.C\xE2ndido Mendes.Cantanhede.Capinzal do Norte.Carolina.Carutapera.Caxias.Cedral.Central do Maranh\xE3o.Centro do Guilherme.Centro Novo do Maranh\xE3o.Chapadinha.Cidel\xE2ndia.Cod\xF3.Coelho Neto.Colinas.Concei\xE7\xE3o do Lago-A\xE7u.Coroat\xE1.Cururupu.Davin\xF3polis.Dom Pedro.Duque Bacelar.Esperantin\xF3polis.Estreito.Feira Nova do Maranh\xE3o.Fernando Falc\xE3o.Formosa da Serra Negra.Fortaleza dos Nogueiras.Fortuna.Godofredo Viana.Gon\xE7alves Dias.Governador Archer.Governador Edison Lob\xE3o.Governador Eug\xEAnio Barros.Governador Luiz Rocha.Governador Newton Bello.Governador Nunes Freire.Gra\xE7a Aranha.Graja\xFA.Guimar\xE3es.Humberto de Campos.Icatu.Igarap\xE9 do Meio.Igarap\xE9 Grande.Imperatriz.Itaipava do Graja\xFA.Itapecuru Mirim.Itinga do Maranh\xE3o.Jatob\xE1.Jenipapo dos Vieiras.Jo\xE3o Lisboa.Josel\xE2ndia.Junco do Maranh\xE3o.Lago da Pedra.Lago do Junco.Lago dos Rodrigues.Lago Verde.Lagoa do Mato.Lagoa Grande do Maranh\xE3o.Lajeado Novo.Lima Campos.Loreto.Lu\xEDs Domingues.Magalh\xE3es de Almeida.Maraca\xE7um\xE9.Maraj\xE1 do Sena.Maranh\xE3ozinho.Mata Roma.Matinha.Mat\xF5es.Mat\xF5es do Norte.Milagres do Maranh\xE3o.Mirador.Miranda do Norte.Mirinzal.Mon\xE7\xE3o.Montes Altos.Morros.Nina Rodrigues.Nova Colinas.Nova Iorque.Nova Olinda do Maranh\xE3o.Olho d'\xC1gua das Cunh\xE3s.Olinda Nova do Maranh\xE3o.Pa\xE7o do Lumiar.Palmeir\xE2ndia.Paraibano.Parnarama.Passagem Franca.Pastos Bons.Paulino Neves.Paulo Ramos.Pedreiras.Pedro do Ros\xE1rio.Penalva.Peri Mirim.Peritor\xF3.Pindar\xE9-Mirim.Pinheiro.Pio XII.Pirapemas.Po\xE7\xE3o de Pedras.Porto Franco.Porto Rico do Maranh\xE3o.Presidente Dutra.Presidente Juscelino.Presidente M\xE9dici.Presidente Sarney.Presidente Vargas.Primeira Cruz.Raposa.Riach\xE3o.Ribamar Fiquene.Ros\xE1rio.Samba\xEDba.Santa Filomena do Maranh\xE3o.Santa Helena.Santa In\xEAs.Santa Luzia.Santa Luzia do Paru\xE1.Santa Quit\xE9ria do Maranh\xE3o.Santa Rita.Santana do Maranh\xE3o.Santo Amaro do Maranh\xE3o.Santo Ant\xF4nio dos Lopes.S\xE3o Benedito do Rio Preto.S\xE3o Bento.S\xE3o Bernardo.S\xE3o Domingos do Azeit\xE3o.S\xE3o Domingos do Maranh\xE3o.S\xE3o F\xE9lix de Balsas.S\xE3o Francisco do Brej\xE3o.S\xE3o Francisco do Maranh\xE3o.S\xE3o Jo\xE3o Batista.S\xE3o Jo\xE3o do Car\xFA.S\xE3o Jo\xE3o do Para\xEDso.S\xE3o Jo\xE3o do Soter.S\xE3o Jo\xE3o dos Patos.S\xE3o Jos\xE9 de Ribamar.S\xE3o Jos\xE9 dos Bas\xEDlios.S\xE3o Lu\xEDs.S\xE3o Lu\xEDs Gonzaga do Maranh\xE3o.S\xE3o Mateus do Maranh\xE3o.S\xE3o Pedro da \xC1gua Branca.S\xE3o Pedro dos Crentes.S\xE3o Raimundo das Mangabeiras.S\xE3o Raimundo do Doca Bezerra.S\xE3o Roberto.S\xE3o Vicente Ferrer.Satubinha.Senador Alexandre Costa.Senador La Rocque.Serrano do Maranh\xE3o.S\xEDtio Novo.Sucupira do Norte.Sucupira do Riach\xE3o.Tasso Fragoso.Timbiras.Timon.Trizidela do Vale.Tufil\xE2ndia.Tuntum.Turia\xE7u.Turil\xE2ndia.Tut\xF3ia.Urbano Santos.Vargem Grande.Viana.Vila Nova dos Mart\xEDrios.Vit\xF3ria do Mearim.Vitorino Freire.Z\xE9 Doca".split("."),
+  MG: /* @__PURE__ */ "Abadia dos Dourados.Abaet\xE9.Abre Campo.Acaiaca.A\xE7ucena.\xC1gua Boa.\xC1gua Comprida.Aguanil.\xC1guas Formosas.\xC1guas Vermelhas.Aimor\xE9s.Aiuruoca.Alagoa.Albertina.Al\xE9m Para\xEDba.Alfenas.Alfredo Vasconcelos.Almenara.Alpercata.Alpin\xF3polis.Alterosa.Alto Capara\xF3.Alto Jequitib\xE1.Alto Rio Doce.Alvarenga.Alvin\xF3polis.Alvorada de Minas.Amparo do Serra.Andradas.Andrel\xE2ndia.Angel\xE2ndia.Ant\xF4nio Carlos.Ant\xF4nio Dias.Ant\xF4nio Prado de Minas.Ara\xE7a\xED.Aracitaba.Ara\xE7ua\xED.Araguari.Arantina.Araponga.Arapor\xE3.Arapu\xE1.Ara\xFAjos.Arax\xE1.Arceburgo.Arcos.Areado.Argirita.Aricanduva.Arinos.Astolfo Dutra.Atal\xE9ia.Augusto de Lima.Baependi.Baldim.Bambu\xED.Bandeira.Bandeira do Sul.Bar\xE3o de Cocais.Bar\xE3o do Monte Alto.Barbacena.Barra Longa.Barroso.Bela Vista de Minas.Belmiro Braga.Belo Horizonte.Belo Oriente.Belo Vale.Berilo.Berizal.Bert\xF3polis.Betim.Bias Fortes.Bicas.Biquinhas.Boa Esperan\xE7a.Bocaina de Minas.Bocai\xFAva.Bom Despacho.Bom Jardim de Minas.Bom Jesus da Penha.Bom Jesus do Amparo.Bom Jesus do Galho.Bom Repouso.Bom Sucesso.Bonfim.Bonfin\xF3polis de Minas.Bonito de Minas.Borda da Mata.Botelhos.Botumirim.Br\xE1s Pires.Brasil\xE2ndia de Minas.Bras\xEDlia de Minas.Bra\xFAnas.Braz\xF3polis.Brumadinho.Bueno Brand\xE3o.Buen\xF3polis.Bugre.Buritis.Buritizeiro.Cabeceira Grande.Cabo Verde.Cachoeira da Prata.Cachoeira de Minas.Cachoeira de Paje\xFA.Cachoeira Dourada.Caetan\xF3polis.Caet\xE9.Caiana.Cajuri.Caldas.Camacho.Camanducaia.Cambu\xED.Cambuquira.Campan\xE1rio.Campanha.Campestre.Campina Verde.Campo Azul.Campo Belo.Campo do Meio.Campo Florido.Campos Altos.Campos Gerais.Cana Verde.Cana\xE3.Can\xE1polis.Candeias.Cantagalo.Capara\xF3.Capela Nova.Capelinha.Capetinga.Capim Branco.Capin\xF3polis.Capit\xE3o Andrade.Capit\xE3o En\xE9as.Capit\xF3lio.Caputira.Cara\xED.Carana\xEDba.Caranda\xED.Carangola.Caratinga.Carbonita.Carea\xE7u.Carlos Chagas.Carm\xE9sia.Carmo da Cachoeira.Carmo da Mata.Carmo de Minas.Carmo do Cajuru.Carmo do Parana\xEDba.Carmo do Rio Claro.Carm\xF3polis de Minas.Carneirinho.Carrancas.Carvalh\xF3polis.Carvalhos.Casa Grande.Cascalho Rico.C\xE1ssia.Cataguases.Catas Altas.Catas Altas da Noruega.Catuji.Catuti.Caxambu.Cedro do Abaet\xE9.Central de Minas.Centralina.Ch\xE1cara.Chal\xE9.Chapada do Norte.Chapada Ga\xFAcha.Chiador.Cipot\xE2nea.Claraval.Claro dos Po\xE7\xF5es.Cl\xE1udio.Coimbra.Coluna.Comendador Gomes.Comercinho.Concei\xE7\xE3o da Aparecida.Concei\xE7\xE3o da Barra de Minas.Concei\xE7\xE3o das Alagoas.Concei\xE7\xE3o das Pedras.Concei\xE7\xE3o de Ipanema.Concei\xE7\xE3o do Mato Dentro.Concei\xE7\xE3o do Par\xE1.Concei\xE7\xE3o do Rio Verde.Concei\xE7\xE3o dos Ouros.C\xF4nego Marinho.Confins.Congonhal.Congonhas.Congonhas do Norte.Conquista.Conselheiro Lafaiete.Conselheiro Pena.Consola\xE7\xE3o.Contagem.Coqueiral.Cora\xE7\xE3o de Jesus.Cordisburgo.Cordisl\xE2ndia.Corinto.Coroaci.Coromandel.Coronel Fabriciano.Coronel Murta.Coronel Pacheco.Coronel Xavier Chaves.C\xF3rrego Danta.C\xF3rrego do Bom Jesus.C\xF3rrego Fundo.C\xF3rrego Novo.Couto de Magalh\xE3es de Minas.Cris\xF3lita.Cristais.Crist\xE1lia.Cristiano Otoni.Cristina.Crucil\xE2ndia.Cruzeiro da Fortaleza.Cruz\xEDlia.Cuparaque.Curral de Dentro.Curvelo.Datas.Delfim Moreira.Delfin\xF3polis.Delta.Descoberto.Desterro de Entre Rios.Desterro do Melo.Diamantina.Diogo de Vasconcelos.Dion\xEDsio.Divin\xE9sia.Divino.Divino das Laranjeiras.Divinol\xE2ndia de Minas.Divin\xF3polis.Divisa Alegre.Divisa Nova.Divis\xF3polis.Dom Bosco.Dom Cavati.Dom Joaquim.Dom Silv\xE9rio.Dom Vi\xE7oso.Dona Euz\xE9bia.Dores de Campos.Dores de Guanh\xE3es.Dores do Indai\xE1.Dores do Turvo.Dores\xF3polis.Douradoquara.Durand\xE9.El\xF3i Mendes.Engenheiro Caldas.Engenheiro Navarro.Entre Folhas.Entre Rios de Minas.Erv\xE1lia.Esmeraldas.Espera Feliz.Espinosa.Esp\xEDrito Santo do Dourado.Estiva.Estrela Dalva.Estrela do Indai\xE1.Estrela do Sul.Eugen\xF3polis.Ewbank da C\xE2mara.Extrema.Fama.Faria Lemos.Fel\xEDcio dos Santos.Felisburgo.Felixl\xE2ndia.Fernandes Tourinho.Ferros.Fervedouro.Florestal.Formiga.Formoso.Fortaleza de Minas.Fortuna de Minas.Francisco Badar\xF3.Francisco Dumont.Francisco S\xE1.Francisc\xF3polis.Frei Gaspar.Frei Inoc\xEAncio.Frei Lagonegro.Fronteira.Fronteira dos Vales.Fruta de Leite.Frutal.Funil\xE2ndia.Galil\xE9ia.Gameleiras.Glaucil\xE2ndia.Goiabeira.Goian\xE1.Gon\xE7alves.Gonzaga.Gouveia.Governador Valadares.Gr\xE3o Mogol.Grupiara.Guanh\xE3es.Guap\xE9.Guaraciaba.Guaraciama.Guaran\xE9sia.Guarani.Guarar\xE1.Guarda-Mor.Guaxup\xE9.Guidoval.Guimar\xE2nia.Guiricema.Gurinhat\xE3.Heliodora.Iapu.Ibertioga.Ibi\xE1.Ibia\xED.Ibiracatu.Ibiraci.Ibirit\xE9.Ibiti\xFAra de Minas.Ibituruna.Icara\xED de Minas.Igarap\xE9.Igaratinga.Iguatama.Ijaci.Ilic\xEDnea.Imb\xE9 de Minas.Inconfidentes.Indaiabira.Indian\xF3polis.Inga\xED.Inhapim.Inha\xFAma.Inimutaba.Ipaba.Ipanema.Ipatinga.Ipia\xE7u.Ipui\xFAna.Ira\xED de Minas.Itabira.Itabirinha.Itabirito.Itacambira.Itacarambi.Itaguara.Itaip\xE9.Itajub\xE1.Itamarandiba.Itamarati de Minas.Itambacuri.Itamb\xE9 do Mato Dentro.Itamogi.Itamonte.Itanhandu.Itanhomi.Itaobim.Itapagipe.Itapecerica.Itapeva.Itatiaiu\xE7u.Ita\xFA de Minas.Ita\xFAna.Itaverava.Itinga.Itueta.Ituiutaba.Itumirim.Iturama.Itutinga.Jaboticatubas.Jacinto.Jacu\xED.Jacutinga.Jaguara\xE7u.Ja\xEDba.Jampruca.Jana\xFAba.Janu\xE1ria.Japara\xEDba.Japonvar.Jeceaba.Jenipapo de Minas.Jequeri.Jequita\xED.Jequitib\xE1.Jequitinhonha.Jesu\xE2nia.Joa\xEDma.Joan\xE9sia.Jo\xE3o Monlevade.Jo\xE3o Pinheiro.Joaquim Fel\xEDcio.Jord\xE2nia.Jos\xE9 Gon\xE7alves de Minas.Jos\xE9 Raydan.Josen\xF3polis.Juatuba.Juiz de Fora.Juramento.Juruaia.Juven\xEDlia.Ladainha.Lagamar.Lagoa da Prata.Lagoa dos Patos.Lagoa Dourada.Lagoa Formosa.Lagoa Grande.Lagoa Santa.Lajinha.Lambari.Lamim.Laranjal.Lassance.Lavras.Leandro Ferreira.Leme do Prado.Leopoldina.Liberdade.Lima Duarte.Limeira do Oeste.Lontra.Luisburgo.Luisl\xE2ndia.Lumin\xE1rias.Luz.Machacalis.Machado.Madre de Deus de Minas.Malacacheta.Mamonas.Manga.Manhua\xE7u.Manhumirim.Mantena.Mar de Espanha.Maravilhas.Maria da F\xE9.Mariana.Marilac.M\xE1rio Campos.Marip\xE1 de Minas.Marli\xE9ria.Marmel\xF3polis.Martinho Campos.Martins Soares.Mata Verde.Materl\xE2ndia.Mateus Leme.Mathias Lobato.Matias Barbosa.Matias Cardoso.Matip\xF3.Mato Verde.Matozinhos.Matutina.Medeiros.Medina.Mendes Pimentel.Merc\xEAs.Mesquita.Minas Novas.Minduri.Mirabela.Miradouro.Mira\xED.Mirav\xE2nia.Moeda.Moema.Monjolos.Monsenhor Paulo.Montalv\xE2nia.Monte Alegre de Minas.Monte Azul.Monte Belo.Monte Carmelo.Monte Formoso.Monte Santo de Minas.Monte Si\xE3o.Montes Claros.Montezuma.Morada Nova de Minas.Morro da Gar\xE7a.Morro do Pilar.Munhoz.Muria\xE9.Mutum.Muzambinho.Nacip Raydan.Nanuque.Naque.Natal\xE2ndia.Nat\xE9rcia.Nazareno.Nepomuceno.Ninheira.Nova Bel\xE9m.Nova Era.Nova Lima.Nova M\xF3dica.Nova Ponte.Nova Porteirinha.Nova Resende.Nova Serrana.Nova Uni\xE3o.Novo Cruzeiro.Novo Oriente de Minas.Novorizonte.Olaria.Olhos-d'\xC1gua.Ol\xEDmpio Noronha.Oliveira.Oliveira Fortes.On\xE7a de Pitangui.Orat\xF3rios.Oriz\xE2nia.Ouro Branco.Ouro Fino.Ouro Preto.Ouro Verde de Minas.Padre Carvalho.Padre Para\xEDso.Pai Pedro.Paineiras.Pains.Paiva.Palma.Palm\xF3polis.Papagaios.Par\xE1 de Minas.Paracatu.Paragua\xE7u.Parais\xF3polis.Paraopeba.Passa Quatro.Passa Tempo.Passa Vinte.Passab\xE9m.Passos.Patis.Patos de Minas.Patroc\xEDnio.Patroc\xEDnio do Muria\xE9.Paula C\xE2ndido.Paulistas.Pav\xE3o.Pe\xE7anha.Pedra Azul.Pedra Bonita.Pedra do Anta.Pedra do Indai\xE1.Pedra Dourada.Pedralva.Pedras de Maria da Cruz.Pedrin\xF3polis.Pedro Leopoldo.Pedro Teixeira.Pequeri.Pequi.Perdig\xE3o.Perdizes.Perd\xF5es.Periquito.Pescador.Piau.Piedade de Caratinga.Piedade de Ponte Nova.Piedade do Rio Grande.Piedade dos Gerais.Pimenta.Pingo-d'\xC1gua.Pint\xF3polis.Piracema.Pirajuba.Piranga.Pirangu\xE7u.Piranguinho.Pirapetinga.Pirapora.Pira\xFAba.Pitangui.Piumhi.Planura.Po\xE7o Fundo.Po\xE7os de Caldas.Pocrane.Pomp\xE9u.Ponte Nova.Ponto Chique.Ponto dos Volantes.Porteirinha.Porto Firme.Pot\xE9.Pouso Alegre.Pouso Alto.Prados.Prata.Prat\xE1polis.Pratinha.Presidente Bernardes.Presidente Juscelino.Presidente Kubitschek.Presidente Oleg\xE1rio.Prudente de Morais.Quartel Geral.Queluzito.Raposos.Raul Soares.Recreio.Reduto.Resende Costa.Resplendor.Ressaquinha.Riachinho.Riacho dos Machados.Ribeir\xE3o das Neves.Ribeir\xE3o Vermelho.Rio Acima.Rio Casca.Rio do Prado.Rio Doce.Rio Espera.Rio Manso.Rio Novo.Rio Parana\xEDba.Rio Pardo de Minas.Rio Piracicaba.Rio Pomba.Rio Preto.Rio Vermelho.Rit\xE1polis.Rochedo de Minas.Rodeiro.Romaria.Ros\xE1rio da Limeira.Rubelita.Rubim.Sabar\xE1.Sabin\xF3polis.Sacramento.Salinas.Salto da Divisa.Santa B\xE1rbara.Santa B\xE1rbara do Leste.Santa B\xE1rbara do Monte Verde.Santa B\xE1rbara do Tug\xFArio.Santa Cruz de Minas.Santa Cruz de Salinas.Santa Cruz do Escalvado.Santa Efig\xEAnia de Minas.Santa F\xE9 de Minas.Santa Helena de Minas.Santa Juliana.Santa Luzia.Santa Margarida.Santa Maria de Itabira.Santa Maria do Salto.Santa Maria do Sua\xE7u\xED.Santa Rita de Caldas.Santa Rita de Ibitipoca.Santa Rita de Jacutinga.Santa Rita de Minas.Santa Rita do Itueto.Santa Rita do Sapuca\xED.Santa Rosa da Serra.Santa Vit\xF3ria.Santana da Vargem.Santana de Cataguases.Santana de Pirapama.Santana do Deserto.Santana do Garamb\xE9u.Santana do Jacar\xE9.Santana do Manhua\xE7u.Santana do Para\xEDso.Santana do Riacho.Santana dos Montes.Santo Ant\xF4nio do Amparo.Santo Ant\xF4nio do Aventureiro.Santo Ant\xF4nio do Grama.Santo Ant\xF4nio do Itamb\xE9.Santo Ant\xF4nio do Jacinto.Santo Ant\xF4nio do Monte.Santo Ant\xF4nio do Retiro.Santo Ant\xF4nio do Rio Abaixo.Santo Hip\xF3lito.Santos Dumont.S\xE3o Bento Abade.S\xE3o Br\xE1s do Sua\xE7u\xED.S\xE3o Domingos das Dores.S\xE3o Domingos do Prata.S\xE3o F\xE9lix de Minas.S\xE3o Francisco.S\xE3o Francisco de Paula.S\xE3o Francisco de Sales.S\xE3o Francisco do Gl\xF3ria.S\xE3o Geraldo.S\xE3o Geraldo da Piedade.S\xE3o Geraldo do Baixio.S\xE3o Gon\xE7alo do Abaet\xE9.S\xE3o Gon\xE7alo do Par\xE1.S\xE3o Gon\xE7alo do Rio Abaixo.S\xE3o Gon\xE7alo do Rio Preto.S\xE3o Gon\xE7alo do Sapuca\xED.S\xE3o Gotardo.S\xE3o Jo\xE3o Batista do Gl\xF3ria.S\xE3o Jo\xE3o da Lagoa.S\xE3o Jo\xE3o da Mata.S\xE3o Jo\xE3o da Ponte.S\xE3o Jo\xE3o das Miss\xF5es.S\xE3o Jo\xE3o del Rei.S\xE3o Jo\xE3o do Manhua\xE7u.S\xE3o Jo\xE3o do Manteninha.S\xE3o Jo\xE3o do Oriente.S\xE3o Jo\xE3o do Pacu\xED.S\xE3o Jo\xE3o do Para\xEDso.S\xE3o Jo\xE3o Evangelista.S\xE3o Jo\xE3o Nepomuceno.S\xE3o Joaquim de Bicas.S\xE3o Jos\xE9 da Barra.S\xE3o Jos\xE9 da Lapa.S\xE3o Jos\xE9 da Safira.S\xE3o Jos\xE9 da Varginha.S\xE3o Jos\xE9 do Alegre.S\xE3o Jos\xE9 do Divino.S\xE3o Jos\xE9 do Goiabal.S\xE3o Jos\xE9 do Jacuri.S\xE3o Jos\xE9 do Mantimento.S\xE3o Louren\xE7o.S\xE3o Miguel do Anta.S\xE3o Pedro da Uni\xE3o.S\xE3o Pedro do Sua\xE7u\xED.S\xE3o Pedro dos Ferros.S\xE3o Rom\xE3o.S\xE3o Roque de Minas.S\xE3o Sebasti\xE3o da Bela Vista.S\xE3o Sebasti\xE3o da Vargem Alegre.S\xE3o Sebasti\xE3o do Anta.S\xE3o Sebasti\xE3o do Maranh\xE3o.S\xE3o Sebasti\xE3o do Oeste.S\xE3o Sebasti\xE3o do Para\xEDso.S\xE3o Sebasti\xE3o do Rio Preto.S\xE3o Sebasti\xE3o do Rio Verde.S\xE3o Tiago.S\xE3o Tom\xE1s de Aquino.S\xE3o Tom\xE9 das Letras.S\xE3o Vicente de Minas.Sapuca\xED-Mirim.Sardo\xE1.Sarzedo.Sem-Peixe.Senador Amaral.Senador Cortes.Senador Firmino.Senador Jos\xE9 Bento.Senador Modestino Gon\xE7alves.Senhora de Oliveira.Senhora do Porto.Senhora dos Rem\xE9dios.Sericita.Seritinga.Serra Azul de Minas.Serra da Saudade.Serra do Salitre.Serra dos Aimor\xE9s.Serrania.Serran\xF3polis de Minas.Serranos.Serro.Sete Lagoas.Setubinha.Silveir\xE2nia.Silvian\xF3polis.Sim\xE3o Pereira.Simon\xE9sia.Sobr\xE1lia.Soledade de Minas.Tabuleiro.Taiobeiras.Taparuba.Tapira.Tapira\xED.Taquara\xE7u de Minas.Tarumirim.Teixeiras.Te\xF3filo Otoni.Tim\xF3teo.Tiradentes.Tiros.Tocantins.Tocos do Moji.Toledo.Tombos.Tr\xEAs Cora\xE7\xF5es.Tr\xEAs Marias.Tr\xEAs Pontas.Tumiritinga.Tupaciguara.Turmalina.Turvol\xE2ndia.Ub\xE1.Uba\xED.Ubaporanga.Uberaba.Uberl\xE2ndia.Umburatiba.Una\xED.Uni\xE3o de Minas.Uruana de Minas.Uruc\xE2nia.Urucuia.Vargem Alegre.Vargem Bonita.Vargem Grande do Rio Pardo.Varginha.Varj\xE3o de Minas.V\xE1rzea da Palma.Varzel\xE2ndia.Vazante.Verdel\xE2ndia.Veredinha.Ver\xEDssimo.Vermelho Novo.Vespasiano.Vi\xE7osa.Vieiras.Virgem da Lapa.Virg\xEDnia.Virgin\xF3polis.Virgol\xE2ndia.Visconde do Rio Branco.Volta Grande.Wenceslau Braz".split("."),
+  MS: /* @__PURE__ */ "\xC1gua Clara.Alcin\xF3polis.Amambai.Anast\xE1cio.Anauril\xE2ndia.Ang\xE9lica.Ant\xF4nio Jo\xE3o.Aparecida do Taboado.Aquidauana.Aral Moreira.Bandeirantes.Bataguassu.Bataypor\xE3.Bela Vista.Bodoquena.Bonito.Brasil\xE2ndia.Caarap\xF3.Camapu\xE3.Campo Grande.Caracol.Cassil\xE2ndia.Chapad\xE3o do Sul.Corguinho.Coronel Sapucaia.Corumb\xE1.Costa Rica.Coxim.Deod\xE1polis.Dois Irm\xE3os do Buriti.Douradina.Dourados.Eldorado.F\xE1tima do Sul.Figueir\xE3o.Gl\xF3ria de Dourados.Guia Lopes da Laguna.Iguatemi.Inoc\xEAncia.Itapor\xE3.Itaquira\xED.Ivinhema.Japor\xE3.Jaraguari.Jardim.Jate\xED.Juti.Lad\xE1rio.Laguna Carap\xE3.Maracaju.Miranda.Mundo Novo.Navira\xED.Nioaque.Nova Alvorada do Sul.Nova Andradina.Novo Horizonte do Sul.Para\xEDso das \xC1guas.Parana\xEDba.Paranhos.Pedro Gomes.Ponta Por\xE3.Porto Murtinho.Ribas do Rio Pardo.Rio Brilhante.Rio Negro.Rio Verde de Mato Grosso.Rochedo.Santa Rita do Pardo.S\xE3o Gabriel do Oeste.Selv\xEDria.Sete Quedas.Sidrol\xE2ndia.Sonora.Tacuru.Taquarussu.Terenos.Tr\xEAs Lagoas.Vicentina".split("."),
+  MT: /* @__PURE__ */ "Acorizal.\xC1gua Boa.Alta Floresta.Alto Araguaia.Alto Boa Vista.Alto Gar\xE7as.Alto Paraguai.Alto Taquari.Apiac\xE1s.Araguaiana.Araguainha.Araputanga.Aren\xE1polis.Aripuan\xE3.Bar\xE3o de Melga\xE7o.Barra do Bugres.Barra do Gar\xE7as.Bom Jesus do Araguaia.Brasnorte.C\xE1ceres.Campin\xE1polis.Campo Novo do Parecis.Campo Verde.Campos de J\xFAlio.Canabrava do Norte.Canarana.Carlinda.Castanheira.Chapada dos Guimar\xE3es.Cl\xE1udia.Cocalinho.Col\xEDder.Colniza.Comodoro.Confresa.Conquista D'Oeste.Cotrigua\xE7u.Cuiab\xE1.Curvel\xE2ndia.Denise.Diamantino.Dom Aquino.Feliz Natal.Figueir\xF3polis D'Oeste.Ga\xFAcha do Norte.General Carneiro.Gl\xF3ria D'Oeste.Guarant\xE3 do Norte.Guiratinga.Indiava\xED.Ipiranga do Norte.Itanhang\xE1.Ita\xFAba.Itiquira.Jaciara.Jangada.Jauru.Juara.Ju\xEDna.Juruena.Juscimeira.Lambari D'Oeste.Lucas do Rio Verde.Luciara.Marcel\xE2ndia.Matup\xE1.Mirassol d'Oeste.Nobres.Nortel\xE2ndia.Nossa Senhora do Livramento.Nova Bandeirantes.Nova Brasil\xE2ndia.Nova Cana\xE3 do Norte.Nova Guarita.Nova Lacerda.Nova Maril\xE2ndia.Nova Maring\xE1.Nova Monte Verde.Nova Mutum.Nova Nazar\xE9.Nova Ol\xEDmpia.Nova Santa Helena.Nova Ubirat\xE3.Nova Xavantina.Novo Horizonte do Norte.Novo Mundo.Novo Santo Ant\xF4nio.Novo S\xE3o Joaquim.Parana\xEDta.Paranatinga.Pedra Preta.Peixoto de Azevedo.Planalto da Serra.Pocon\xE9.Pontal do Araguaia.Ponte Branca.Pontes e Lacerda.Porto Alegre do Norte.Porto dos Ga\xFAchos.Porto Esperidi\xE3o.Porto Estrela.Poxor\xE9u.Primavera do Leste.Quer\xEAncia.Reserva do Caba\xE7al.Ribeir\xE3o Cascalheira.Ribeir\xE3ozinho.Rio Branco.Rondol\xE2ndia.Rondon\xF3polis.Ros\xE1rio Oeste.Salto do C\xE9u.Santa Carmem.Santa Cruz do Xingu.Santa Rita do Trivelato.Santa Terezinha.Santo Afonso.Santo Ant\xF4nio de Leverger.Santo Ant\xF4nio do Leste.S\xE3o F\xE9lix do Araguaia.S\xE3o Jos\xE9 do Povo.S\xE3o Jos\xE9 do Rio Claro.S\xE3o Jos\xE9 do Xingu.S\xE3o Jos\xE9 dos Quatro Marcos.S\xE3o Pedro da Cipa.Sapezal.Serra Nova Dourada.Sinop.Sorriso.Tabapor\xE3.Tangar\xE1 da Serra.Tapurah.Terra Nova do Norte.Tesouro.Torixor\xE9u.Uni\xE3o do Sul.Vale de S\xE3o Domingos.V\xE1rzea Grande.Vera.Vila Bela da Sant\xEDssima Trindade.Vila Rica".split("."),
+  PA: /* @__PURE__ */ "Abaetetuba.Abel Figueiredo.Acar\xE1.Afu\xE1.\xC1gua Azul do Norte.Alenquer.Almeirim.Altamira.Anaj\xE1s.Ananindeua.Anapu.Augusto Corr\xEAa.Aurora do Par\xE1.Aveiro.Bagre.Bai\xE3o.Bannach.Barcarena.Bel\xE9m.Belterra.Benevides.Bom Jesus do Tocantins.Bonito.Bragan\xE7a.Brasil Novo.Brejo Grande do Araguaia.Breu Branco.Breves.Bujaru.Cachoeira do Arari.Cachoeira do Piri\xE1.Camet\xE1.Cana\xE3 dos Caraj\xE1s.Capanema.Capit\xE3o Po\xE7o.Castanhal.Chaves.Colares.Concei\xE7\xE3o do Araguaia.Conc\xF3rdia do Par\xE1.Cumaru do Norte.Curion\xF3polis.Curralinho.Curu\xE1.Curu\xE7\xE1.Dom Eliseu.Eldorado do Caraj\xE1s.Faro.Floresta do Araguaia.Garraf\xE3o do Norte.Goian\xE9sia do Par\xE1.Gurup\xE1.Igarap\xE9-A\xE7u.Igarap\xE9-Miri.Inhangapi.Ipixuna do Par\xE1.Irituia.Itaituba.Itupiranga.Jacareacanga.Jacund\xE1.Juruti.Limoeiro do Ajuru.M\xE3e do Rio.Magalh\xE3es Barata.Marab\xE1.Maracan\xE3.Marapanim.Marituba.Medicil\xE2ndia.Melga\xE7o.Mocajuba.Moju.Moju\xED dos Campos.Monte Alegre.Muan\xE1.Nova Esperan\xE7a do Piri\xE1.Nova Ipixuna.Nova Timboteua.Novo Progresso.Novo Repartimento.\xD3bidos.Oeiras do Par\xE1.Oriximin\xE1.Our\xE9m.Ouril\xE2ndia do Norte.Pacaj\xE1.Palestina do Par\xE1.Paragominas.Parauapebas.Pau D'Arco.Peixe-Boi.Pi\xE7arra.Placas.Ponta de Pedras.Portel.Porto de Moz.Prainha.Primavera.Quatipuru.Reden\xE7\xE3o.Rio Maria.Rondon do Par\xE1.Rur\xF3polis.Salin\xF3polis.Salvaterra.Santa B\xE1rbara do Par\xE1.Santa Cruz do Arari.Santa Izabel do Par\xE1.Santa Luzia do Par\xE1.Santa Maria das Barreiras.Santa Maria do Par\xE1.Santana do Araguaia.Santar\xE9m.Santar\xE9m Novo.Santo Ant\xF4nio do Tau\xE1.S\xE3o Caetano de Odivelas.S\xE3o Domingos do Araguaia.S\xE3o Domingos do Capim.S\xE3o F\xE9lix do Xingu.S\xE3o Francisco do Par\xE1.S\xE3o Geraldo do Araguaia.S\xE3o Jo\xE3o da Ponta.S\xE3o Jo\xE3o de Pirabas.S\xE3o Jo\xE3o do Araguaia.S\xE3o Miguel do Guam\xE1.S\xE3o Sebasti\xE3o da Boa Vista.Sapucaia.Senador Jos\xE9 Porf\xEDrio.Soure.Tail\xE2ndia.Terra Alta.Terra Santa.Tom\xE9-A\xE7u.Tracuateua.Trair\xE3o.Tucum\xE3.Tucuru\xED.Ulian\xF3polis.Uruar\xE1.Vigia.Viseu.Vit\xF3ria do Xingu.Xinguara".split("."),
+  PB: /* @__PURE__ */ "\xC1gua Branca.Aguiar.Alagoa Grande.Alagoa Nova.Alagoinha.Alcantil.Algod\xE3o de Janda\xEDra.Alhandra.Amparo.Aparecida.Ara\xE7agi.Arara.Araruna.Areia.Areia de Bara\xFAnas.Areial.Aroeiras.Assun\xE7\xE3o.Ba\xEDa da Trai\xE7\xE3o.Bananeiras.Bara\xFAna.Barra de Santa Rosa.Barra de Santana.Barra de S\xE3o Miguel.Bayeux.Bel\xE9m.Bel\xE9m do Brejo do Cruz.Bernardino Batista.Boa Ventura.Boa Vista.Bom Jesus.Bom Sucesso.Bonito de Santa F\xE9.Boqueir\xE3o.Borborema.Brejo do Cruz.Brejo dos Santos.Caapor\xE3.Cabaceiras.Cabedelo.Cachoeira dos \xCDndios.Cacimba de Areia.Cacimba de Dentro.Cacimbas.Cai\xE7ara.Cajazeiras.Cajazeirinhas.Caldas Brand\xE3o.Camala\xFA.Campina Grande.Capim.Cara\xFAbas.Carrapateira.Casserengue.Catingueira.Catol\xE9 do Rocha.Caturit\xE9.Concei\xE7\xE3o.Condado.Conde.Congo.Coremas.Coxixola.Cruz do Esp\xEDrito Santo.Cubati.Cuit\xE9.Cuit\xE9 de Mamanguape.Cuitegi.Curral de Cima.Curral Velho.Dami\xE3o.Desterro.Diamante.Dona In\xEAs.Duas Estradas.Emas.Esperan\xE7a.Fagundes.Frei Martinho.Gado Bravo.Guarabira.Gurinh\xE9m.Gurj\xE3o.Ibiara.Igaracy.Imaculada.Ing\xE1.Itabaiana.Itaporanga.Itapororoca.Itatuba.Jacara\xFA.Jeric\xF3.Jo\xE3o Pessoa.Joca Claudino.Juarez T\xE1vora.Juazeirinho.Junco do Serid\xF3.Juripiranga.Juru.Lagoa.Lagoa de Dentro.Lagoa Seca.Lastro.Livramento.Logradouro.Lucena.M\xE3e d'\xC1gua.Malta.Mamanguape.Mana\xEDra.Marca\xE7\xE3o.Mari.Mariz\xF3polis.Massaranduba.Mataraca.Matinhas.Mato Grosso.Matur\xE9ia.Mogeiro.Montadas.Monte Horebe.Monteiro.Mulungu.Natuba.Nazarezinho.Nova Floresta.Nova Olinda.Nova Palmeira.Olho d'\xC1gua.Olivedos.Ouro Velho.Parari.Passagem.Patos.Paulista.Pedra Branca.Pedra Lavrada.Pedras de Fogo.Pedro R\xE9gis.Pianc\xF3.Picu\xED.Pilar.Pil\xF5es.Pil\xF5ezinhos.Pirpirituba.Pitimbu.Pocinhos.Po\xE7o Dantas.Po\xE7o de Jos\xE9 de Moura.Pombal.Prata.Princesa Isabel.Puxinan\xE3.Queimadas.Quixaba.Rem\xEDgio.Riach\xE3o.Riach\xE3o do Bacamarte.Riach\xE3o do Po\xE7o.Riacho de Santo Ant\xF4nio.Riacho dos Cavalos.Rio Tinto.Salgadinho.Salgado de S\xE3o F\xE9lix.Santa Cec\xEDlia.Santa Cruz.Santa Helena.Santa In\xEAs.Santa Luzia.Santa Rita.Santa Teresinha.Santana de Mangueira.Santana dos Garrotes.Santo Andr\xE9.S\xE3o Bentinho.S\xE3o Bento.S\xE3o Domingos.S\xE3o Domingos do Cariri.S\xE3o Francisco.S\xE3o Jo\xE3o do Cariri.S\xE3o Jo\xE3o do Rio do Peixe.S\xE3o Jo\xE3o do Tigre.S\xE3o Jos\xE9 da Lagoa Tapada.S\xE3o Jos\xE9 de Caiana.S\xE3o Jos\xE9 de Espinharas.S\xE3o Jos\xE9 de Piranhas.S\xE3o Jos\xE9 de Princesa.S\xE3o Jos\xE9 do Bonfim.S\xE3o Jos\xE9 do Brejo do Cruz.S\xE3o Jos\xE9 do Sabugi.S\xE3o Jos\xE9 dos Cordeiros.S\xE3o Jos\xE9 dos Ramos.S\xE3o Mamede.S\xE3o Miguel de Taipu.S\xE3o Sebasti\xE3o de Lagoa de Ro\xE7a.S\xE3o Sebasti\xE3o do Umbuzeiro.S\xE3o Vicente do Serid\xF3.Sap\xE9.Serra Branca.Serra da Raiz.Serra Grande.Serra Redonda.Serraria.Sert\xE3ozinho.Sobrado.Sol\xE2nea.Soledade.Soss\xEAgo.Sousa.Sum\xE9.Tacima.Tapero\xE1.Tavares.Teixeira.Ten\xF3rio.Triunfo.Uira\xFAna.Umbuzeiro.V\xE1rzea.Vieir\xF3polis.Vista Serrana.Zabel\xEA".split("."),
+  PE: /* @__PURE__ */ "Abreu e Lima.Afogados da Ingazeira.Afr\xE2nio.Agrestina.\xC1gua Preta.\xC1guas Belas.Alagoinha.Alian\xE7a.Altinho.Amaraji.Angelim.Ara\xE7oiaba.Araripina.Arcoverde.Barra de Guabiraba.Barreiros.Bel\xE9m de Maria.Bel\xE9m do S\xE3o Francisco.Belo Jardim.Bet\xE2nia.Bezerros.Bodoc\xF3.Bom Conselho.Bom Jardim.Bonito.Brej\xE3o.Brejinho.Brejo da Madre de Deus.Buenos Aires.Bu\xEDque.Cabo de Santo Agostinho.Cabrob\xF3.Cachoeirinha.Caet\xE9s.Cal\xE7ado.Calumbi.Camaragibe.Camocim de S\xE3o F\xE9lix.Camutanga.Canhotinho.Capoeiras.Carna\xEDba.Carnaubeira da Penha.Carpina.Caruaru.Casinhas.Catende.Cedro.Ch\xE3 de Alegria.Ch\xE3 Grande.Condado.Correntes.Cort\xEAs.Cumaru.Cupira.Cust\xF3dia.Dormentes.Escada.Exu.Feira Nova.Fernando de Noronha.Ferreiros.Flores.Floresta.Frei Miguelinho.Gameleira.Garanhuns.Gl\xF3ria do Goit\xE1.Goiana.Granito.Gravat\xE1.Iati.Ibimirim.Ibirajuba.Igarassu.Iguaracy.Ilha de Itamarac\xE1.Inaj\xE1.Ingazeira.Ipojuca.Ipubi.Itacuruba.Ita\xEDba.Itamb\xE9.Itapetim.Itapissuma.Itaquitinga.Jaboat\xE3o dos Guararapes.Jaqueira.Jata\xFAba.Jatob\xE1.Jo\xE3o Alfredo.Joaquim Nabuco.Jucati.Jupi.Jurema.Lagoa de Itaenga.Lagoa do Carro.Lagoa do Ouro.Lagoa dos Gatos.Lagoa Grande.Lajedo.Limoeiro.Macaparana.Machados.Manari.Maraial.Mirandiba.Moreil\xE2ndia.Moreno.Nazar\xE9 da Mata.Olinda.Orob\xF3.Oroc\xF3.Ouricuri.Palmares.Palmeirina.Panelas.Paranatama.Parnamirim.Passira.Paudalho.Paulista.Pedra.Pesqueira.Petrol\xE2ndia.Petrolina.Po\xE7\xE3o.Pombos.Primavera.Quipap\xE1.Quixaba.Recife.Riacho das Almas.Ribeir\xE3o.Rio Formoso.Sair\xE9.Salgadinho.Salgueiro.Salo\xE1.Sanhar\xF3.Santa Cruz.Santa Cruz da Baixa Verde.Santa Cruz do Capibaribe.Santa Filomena.Santa Maria da Boa Vista.Santa Maria do Cambuc\xE1.Santa Terezinha.S\xE3o Benedito do Sul.S\xE3o Bento do Una.S\xE3o Caitano.S\xE3o Jo\xE3o.S\xE3o Joaquim do Monte.S\xE3o Jos\xE9 da Coroa Grande.S\xE3o Jos\xE9 do Belmonte.S\xE3o Jos\xE9 do Egito.S\xE3o Louren\xE7o da Mata.S\xE3o Vicente F\xE9rrer.Serra Talhada.Serrita.Sert\xE2nia.Sirinha\xE9m.Solid\xE3o.Surubim.Tabira.Tacaimb\xF3.Tacaratu.Tamandar\xE9.Taquaritinga do Norte.Terezinha.Terra Nova.Timba\xFAba.Toritama.Tracunha\xE9m.Trindade.Triunfo.Tupanatinga.Tuparetama.Venturosa.Verdejante.Vertente do L\xE9rio.Vertentes.Vic\xEAncia.Vit\xF3ria de Santo Ant\xE3o.Xex\xE9u".split("."),
+  PI: /* @__PURE__ */ "Acau\xE3.Agricol\xE2ndia.\xC1gua Branca.Alagoinha do Piau\xED.Alegrete do Piau\xED.Alto Long\xE1.Altos.Alvorada do Gurgu\xE9ia.Amarante.Angical do Piau\xED.An\xEDsio de Abreu.Ant\xF4nio Almeida.Aroazes.Aroeiras do Itaim.Arraial.Assun\xE7\xE3o do Piau\xED.Avelino Lopes.Baixa Grande do Ribeiro.Barra D'Alc\xE2ntara.Barras.Barreiras do Piau\xED.Barro Duro.Batalha.Bela Vista do Piau\xED.Bel\xE9m do Piau\xED.Beneditinos.Bertol\xEDnia.Bet\xE2nia do Piau\xED.Boa Hora.Bocaina.Bom Jesus.Bom Princ\xEDpio do Piau\xED.Bonfim do Piau\xED.Boqueir\xE3o do Piau\xED.Brasileira.Brejo do Piau\xED.Buriti dos Lopes.Buriti dos Montes.Cabeceiras do Piau\xED.Cajazeiras do Piau\xED.Cajueiro da Praia.Caldeir\xE3o Grande do Piau\xED.Campinas do Piau\xED.Campo Alegre do Fidalgo.Campo Grande do Piau\xED.Campo Largo do Piau\xED.Campo Maior.Canavieira.Canto do Buriti.Capit\xE3o de Campos.Capit\xE3o Gerv\xE1sio Oliveira.Caracol.Cara\xFAbas do Piau\xED.Caridade do Piau\xED.Castelo do Piau\xED.Caxing\xF3.Cocal.Cocal de Telha.Cocal dos Alves.Coivaras.Col\xF4nia do Gurgu\xE9ia.Col\xF4nia do Piau\xED.Concei\xE7\xE3o do Canind\xE9.Coronel Jos\xE9 Dias.Corrente.Cristal\xE2ndia do Piau\xED.Cristino Castro.Curimat\xE1.Currais.Curral Novo do Piau\xED.Curralinhos.Demerval Lob\xE3o.Dirceu Arcoverde.Dom Expedito Lopes.Dom Inoc\xEAncio.Domingos Mour\xE3o.Elesb\xE3o Veloso.Eliseu Martins.Esperantina.Fartura do Piau\xED.Flores do Piau\xED.Floresta do Piau\xED.Floriano.Francin\xF3polis.Francisco Ayres.Francisco Macedo.Francisco Santos.Fronteiras.Geminiano.Gilbu\xE9s.Guadalupe.Guaribas.Hugo Napole\xE3o.Ilha Grande.Inhuma.Ipiranga do Piau\xED.Isa\xEDas Coelho.Itain\xF3polis.Itaueira.Jacobina do Piau\xED.Jaic\xF3s.Jardim do Mulato.Jatob\xE1 do Piau\xED.Jerumenha.Jo\xE3o Costa.Joaquim Pires.Joca Marques.Jos\xE9 de Freitas.Juazeiro do Piau\xED.J\xFAlio Borges.Jurema.Lagoa Alegre.Lagoa de S\xE3o Francisco.Lagoa do Barro do Piau\xED.Lagoa do Piau\xED.Lagoa do S\xEDtio.Lagoinha do Piau\xED.Landri Sales.Lu\xEDs Correia.Luzil\xE2ndia.Madeiro.Manoel Em\xEDdio.Marcol\xE2ndia.Marcos Parente.Massap\xEA do Piau\xED.Matias Ol\xEDmpio.Miguel Alves.Miguel Le\xE3o.Milton Brand\xE3o.Monsenhor Gil.Monsenhor Hip\xF3lito.Monte Alegre do Piau\xED.Morro Cabe\xE7a no Tempo.Morro do Chap\xE9u do Piau\xED.Murici dos Portelas.Nazar\xE9 do Piau\xED.Naz\xE1ria.Nossa Senhora de Nazar\xE9.Nossa Senhora dos Rem\xE9dios.Nova Santa Rita.Novo Oriente do Piau\xED.Novo Santo Ant\xF4nio.Oeiras.Olho D'\xC1gua do Piau\xED.Padre Marcos.Paes Landim.Paje\xFA do Piau\xED.Palmeira do Piau\xED.Palmeirais.Paquet\xE1.Parnagu\xE1.Parna\xEDba.Passagem Franca do Piau\xED.Patos do Piau\xED.Pau D'Arco do Piau\xED.Paulistana.Pavussu.Pedro II.Pedro Laurentino.Picos.Pimenteiras.Pio IX.Piracuruca.Piripiri.Porto.Porto Alegre do Piau\xED.Prata do Piau\xED.Queimada Nova.Reden\xE7\xE3o do Gurgu\xE9ia.Regenera\xE7\xE3o.Riacho Frio.Ribeira do Piau\xED.Ribeiro Gon\xE7alves.Rio Grande do Piau\xED.Santa Cruz do Piau\xED.Santa Cruz dos Milagres.Santa Filomena.Santa Luz.Santa Rosa do Piau\xED.Santana do Piau\xED.Santo Ant\xF4nio de Lisboa.Santo Ant\xF4nio dos Milagres.Santo In\xE1cio do Piau\xED.S\xE3o Braz do Piau\xED.S\xE3o F\xE9lix do Piau\xED.S\xE3o Francisco de Assis do Piau\xED.S\xE3o Francisco do Piau\xED.S\xE3o Gon\xE7alo do Gurgu\xE9ia.S\xE3o Gon\xE7alo do Piau\xED.S\xE3o Jo\xE3o da Canabrava.S\xE3o Jo\xE3o da Fronteira.S\xE3o Jo\xE3o da Serra.S\xE3o Jo\xE3o da Varjota.S\xE3o Jo\xE3o do Arraial.S\xE3o Jo\xE3o do Piau\xED.S\xE3o Jos\xE9 do Divino.S\xE3o Jos\xE9 do Peixe.S\xE3o Jos\xE9 do Piau\xED.S\xE3o Juli\xE3o.S\xE3o Louren\xE7o do Piau\xED.S\xE3o Luis do Piau\xED.S\xE3o Miguel da Baixa Grande.S\xE3o Miguel do Fidalgo.S\xE3o Miguel do Tapuio.S\xE3o Pedro do Piau\xED.S\xE3o Raimundo Nonato.Sebasti\xE3o Barros.Sebasti\xE3o Leal.Sigefredo Pacheco.Sim\xF5es.Simpl\xEDcio Mendes.Socorro do Piau\xED.Sussuapara.Tamboril do Piau\xED.Tanque do Piau\xED.Teresina.Uni\xE3o.Uru\xE7u\xED.Valen\xE7a do Piau\xED.V\xE1rzea Branca.V\xE1rzea Grande.Vera Mendes.Vila Nova do Piau\xED.Wall Ferraz".split("."),
+  PR: /* @__PURE__ */ "Abati\xE1.Adrian\xF3polis.Agudos do Sul.Almirante Tamandar\xE9.Altamira do Paran\xE1.Alto Para\xEDso.Alto Paran\xE1.Alto Piquiri.Alt\xF4nia.Alvorada do Sul.Amapor\xE3.Amp\xE9re.Anahy.Andir\xE1.\xC2ngulo.Antonina.Ant\xF4nio Olinto.Apucarana.Arapongas.Arapoti.Arapu\xE3.Araruna.Arauc\xE1ria.Ariranha do Iva\xED.Assa\xED.Assis Chateaubriand.Astorga.Atalaia.Balsa Nova.Bandeirantes.Barbosa Ferraz.Barra do Jacar\xE9.Barrac\xE3o.Bela Vista da Caroba.Bela Vista do Para\xEDso.Bituruna.Boa Esperan\xE7a.Boa Esperan\xE7a do Igua\xE7u.Boa Ventura de S\xE3o Roque.Boa Vista da Aparecida.Bocai\xFAva do Sul.Bom Jesus do Sul.Bom Sucesso.Bom Sucesso do Sul.Borraz\xF3polis.Braganey.Brasil\xE2ndia do Sul.Cafeara.Cafel\xE2ndia.Cafezal do Sul.Calif\xF3rnia.Cambar\xE1.Camb\xE9.Cambira.Campina da Lagoa.Campina do Sim\xE3o.Campina Grande do Sul.Campo Bonito.Campo do Tenente.Campo Largo.Campo Magro.Campo Mour\xE3o.C\xE2ndido de Abreu.Cand\xF3i.Cantagalo.Capanema.Capit\xE3o Le\xF4nidas Marques.Carambe\xED.Carl\xF3polis.Cascavel.Castro.Catanduvas.Centen\xE1rio do Sul.Cerro Azul.C\xE9u Azul.Chopinzinho.Cianorte.Cidade Ga\xFAcha.Clevel\xE2ndia.Colombo.Colorado.Congonhinhas.Conselheiro Mairinck.Contenda.Corb\xE9lia.Corn\xE9lio Proc\xF3pio.Coronel Domingos Soares.Coronel Vivida.Corumbata\xED do Sul.Cruz Machado.Cruzeiro do Igua\xE7u.Cruzeiro do Oeste.Cruzeiro do Sul.Cruzmaltina.Curitiba.Curi\xFAva.Diamante D'Oeste.Diamante do Norte.Diamante do Sul.Dois Vizinhos.Douradina.Doutor Camargo.Doutor Ulysses.En\xE9as Marques.Engenheiro Beltr\xE3o.Entre Rios do Oeste.Esperan\xE7a Nova.Espig\xE3o Alto do Igua\xE7u.Farol.Faxinal.Fazenda Rio Grande.F\xEAnix.Fernandes Pinheiro.Figueira.Flor da Serra do Sul.Flora\xED.Floresta.Florest\xF3polis.Fl\xF3rida.Formosa do Oeste.Foz do Igua\xE7u.Foz do Jord\xE3o.Francisco Alves.Francisco Beltr\xE3o.General Carneiro.Godoy Moreira.Goioer\xEA.Goioxim.Grandes Rios.Gua\xEDra.Guaira\xE7\xE1.Guamiranga.Guapirama.Guaporema.Guaraci.Guarania\xE7u.Guarapuava.Guaraque\xE7aba.Guaratuba.Hon\xF3rio Serpa.Ibaiti.Ibema.Ibipor\xE3.Icara\xEDma.Iguara\xE7u.Iguatu.Imba\xFA.Imbituva.In\xE1cio Martins.Inaj\xE1.Indian\xF3polis.Ipiranga.Ipor\xE3.Iracema do Oeste.Irati.Iretama.Itaguaj\xE9.Itaipul\xE2ndia.Itambarac\xE1.Itamb\xE9.Itapejara d'Oeste.Itaperu\xE7u.Ita\xFAna do Sul.Iva\xED.Ivaipor\xE3.Ivat\xE9.Ivatuba.Jaboti.Jacarezinho.Jaguapit\xE3.Jaguaria\xEDva.Jandaia do Sul.Jani\xF3polis.Japira.Japur\xE1.Jardim Alegre.Jardim Olinda.Jataizinho.Jesu\xEDtas.Joaquim T\xE1vora.Jundia\xED do Sul.Juranda.Jussara.Kalor\xE9.Lapa.Laranjal.Laranjeiras do Sul.Le\xF3polis.Lidian\xF3polis.Lindoeste.Loanda.Lobato.Londrina.Luiziana.Lunardelli.Lupion\xF3polis.Mallet.Mambor\xEA.Mandagua\xE7u.Mandaguari.Mandirituba.Manfrin\xF3polis.Mangueirinha.Manoel Ribas.Marechal C\xE2ndido Rondon.Maria Helena.Marialva.Maril\xE2ndia do Sul.Marilena.Mariluz.Maring\xE1.Mari\xF3polis.Marip\xE1.Marmeleiro.Marquinho.Marumbi.Matel\xE2ndia.Matinhos.Mato Rico.Mau\xE1 da Serra.Medianeira.Mercedes.Mirador.Miraselva.Missal.Moreira Sales.Morretes.Munhoz de Melo.Nossa Senhora das Gra\xE7as.Nova Alian\xE7a do Iva\xED.Nova Am\xE9rica da Colina.Nova Aurora.Nova Cantu.Nova Esperan\xE7a.Nova Esperan\xE7a do Sudoeste.Nova F\xE1tima.Nova Laranjeiras.Nova Londrina.Nova Ol\xEDmpia.Nova Prata do Igua\xE7u.Nova Santa B\xE1rbara.Nova Santa Rosa.Nova Tebas.Novo Itacolomi.Ortigueira.Ourizona.Ouro Verde do Oeste.Pai\xE7andu.Palmas.Palmeira.Palmital.Palotina.Para\xEDso do Norte.Paranacity.Paranagu\xE1.Paranapoema.Paranava\xED.Pato Bragado.Pato Branco.Paula Freitas.Paulo Frontin.Peabiru.Perobal.P\xE9rola.P\xE9rola d'Oeste.Pi\xEAn.Pinhais.Pinhal de S\xE3o Bento.Pinhal\xE3o.Pinh\xE3o.Pira\xED do Sul.Piraquara.Pitanga.Pitangueiras.Planaltina do Paran\xE1.Planalto.Ponta Grossa.Pontal do Paran\xE1.Porecatu.Porto Amazonas.Porto Barreiro.Porto Rico.Porto Vit\xF3ria.Prado Ferreira.Pranchita.Presidente Castelo Branco.Primeiro de Maio.Prudent\xF3polis.Quarto Centen\xE1rio.Quatigu\xE1.Quatro Barras.Quatro Pontes.Quedas do Igua\xE7u.Quer\xEAncia do Norte.Quinta do Sol.Quitandinha.Ramil\xE2ndia.Rancho Alegre.Rancho Alegre D'Oeste.Realeza.Rebou\xE7as.Renascen\xE7a.Reserva.Reserva do Igua\xE7u.Ribeir\xE3o Claro.Ribeir\xE3o do Pinhal.Rio Azul.Rio Bom.Rio Bonito do Igua\xE7u.Rio Branco do Iva\xED.Rio Branco do Sul.Rio Negro.Rol\xE2ndia.Roncador.Rondon.Ros\xE1rio do Iva\xED.Sab\xE1udia.Salgado Filho.Salto do Itarar\xE9.Salto do Lontra.Santa Am\xE9lia.Santa Cec\xEDlia do Pav\xE3o.Santa Cruz de Monte Castelo.Santa F\xE9.Santa Helena.Santa In\xEAs.Santa Isabel do Iva\xED.Santa Izabel do Oeste.Santa L\xFAcia.Santa Maria do Oeste.Santa Mariana.Santa M\xF4nica.Santa Tereza do Oeste.Santa Terezinha de Itaipu.Santana do Itarar\xE9.Santo Ant\xF4nio da Platina.Santo Ant\xF4nio do Caiu\xE1.Santo Ant\xF4nio do Para\xEDso.Santo Ant\xF4nio do Sudoeste.Santo In\xE1cio.S\xE3o Carlos do Iva\xED.S\xE3o Jer\xF4nimo da Serra.S\xE3o Jo\xE3o.S\xE3o Jo\xE3o do Caiu\xE1.S\xE3o Jo\xE3o do Iva\xED.S\xE3o Jo\xE3o do Triunfo.S\xE3o Jorge d'Oeste.S\xE3o Jorge do Iva\xED.S\xE3o Jorge do Patroc\xEDnio.S\xE3o Jos\xE9 da Boa Vista.S\xE3o Jos\xE9 das Palmeiras.S\xE3o Jos\xE9 dos Pinhais.S\xE3o Manoel do Paran\xE1.S\xE3o Mateus do Sul.S\xE3o Miguel do Igua\xE7u.S\xE3o Pedro do Igua\xE7u.S\xE3o Pedro do Iva\xED.S\xE3o Pedro do Paran\xE1.S\xE3o Sebasti\xE3o da Amoreira.S\xE3o Tom\xE9.Sapopema.Sarandi.Saudade do Igua\xE7u.Seng\xE9s.Serran\xF3polis do Igua\xE7u.Sertaneja.Sertan\xF3polis.Siqueira Campos.Sulina.Tamarana.Tamboara.Tapejara.Tapira.Teixeira Soares.Tel\xEAmaco Borba.Terra Boa.Terra Rica.Terra Roxa.Tibagi.Tijucas do Sul.Toledo.Tomazina.Tr\xEAs Barras do Paran\xE1.Tunas do Paran\xE1.Tuneiras do Oeste.Tup\xE3ssi.Turvo.Ubirat\xE3.Umuarama.Uni\xE3o da Vit\xF3ria.Uniflor.Ura\xED.Ventania.Vera Cruz do Oeste.Ver\xEA.Virmond.Vitorino.Wenceslau Braz.Xambr\xEA".split("."),
+  RJ: /* @__PURE__ */ "Angra dos Reis.Aperib\xE9.Araruama.Areal.Arma\xE7\xE3o dos B\xFAzios.Arraial do Cabo.Barra do Pira\xED.Barra Mansa.Belford Roxo.Bom Jardim.Bom Jesus do Itabapoana.Cabo Frio.Cachoeiras de Macacu.Cambuci.Campos dos Goytacazes.Cantagalo.Carapebus.Cardoso Moreira.Carmo.Casimiro de Abreu.Comendador Levy Gasparian.Concei\xE7\xE3o de Macabu.Cordeiro.Duas Barras.Duque de Caxias.Engenheiro Paulo de Frontin.Guapimirim.Iguaba Grande.Itabora\xED.Itagua\xED.Italva.Itaocara.Itaperuna.Itatiaia.Japeri.Laje do Muria\xE9.Maca\xE9.Macuco.Mag\xE9.Mangaratiba.Maric\xE1.Mendes.Mesquita.Miguel Pereira.Miracema.Natividade.Nil\xF3polis.Niter\xF3i.Nova Friburgo.Nova Igua\xE7u.Paracambi.Para\xEDba do Sul.Paraty.Paty do Alferes.Petr\xF3polis.Pinheiral.Pira\xED.Porci\xFAncula.Porto Real.Quatis.Queimados.Quissam\xE3.Resende.Rio Bonito.Rio Claro.Rio das Flores.Rio das Ostras.Rio de Janeiro.Santa Maria Madalena.Santo Ant\xF4nio de P\xE1dua.S\xE3o Fid\xE9lis.S\xE3o Francisco de Itabapoana.S\xE3o Gon\xE7alo.S\xE3o Jo\xE3o da Barra.S\xE3o Jo\xE3o de Meriti.S\xE3o Jos\xE9 de Ub\xE1.S\xE3o Jos\xE9 do Vale do Rio Preto.S\xE3o Pedro da Aldeia.S\xE3o Sebasti\xE3o do Alto.Sapucaia.Saquarema.Serop\xE9dica.Silva Jardim.Sumidouro.Tangu\xE1.Teres\xF3polis.Trajano de Moraes.Tr\xEAs Rios.Valen\xE7a.Varre-Sai.Vassouras.Volta Redonda".split("."),
+  RN: /* @__PURE__ */ "Acari.Afonso Bezerra.\xC1gua Nova.Alexandria.Almino Afonso.Alto do Rodrigues.Angicos.Ant\xF4nio Martins.Apodi.Areia Branca.Arez.Ass\xFA.Ba\xEDa Formosa.Bara\xFAna.Barcelona.Bento Fernandes.Bod\xF3.Bom Jesus.Brejinho.Cai\xE7ara do Norte.Cai\xE7ara do Rio do Vento.Caic\xF3.Campo Grande.Campo Redondo.Canguaretama.Cara\xFAbas.Carna\xFAba dos Dantas.Carnaubais.Cear\xE1-Mirim.Cerro Cor\xE1.Coronel Ezequiel.Coronel Jo\xE3o Pessoa.Cruzeta.Currais Novos.Doutor Severiano.Encanto.Equador.Esp\xEDrito Santo.Extremoz.Felipe Guerra.Fernando Pedroza.Flor\xE2nia.Francisco Dantas.Frutuoso Gomes.Galinhos.Goianinha.Governador Dix-Sept Rosado.Grossos.Guamar\xE9.Ielmo Marinho.Ipangua\xE7u.Ipueira.Itaj\xE1.Ita\xFA.Ja\xE7an\xE3.Janda\xEDra.Jandu\xEDs.Janu\xE1rio Cicco.Japi.Jardim de Angicos.Jardim de Piranhas.Jardim do Serid\xF3.Jo\xE3o C\xE2mara.Jo\xE3o Dias.Jos\xE9 da Penha.Jucurutu.Jundi\xE1.Lagoa d'Anta.Lagoa de Pedras.Lagoa de Velhos.Lagoa Nova.Lagoa Salgada.Lajes.Lajes Pintadas.Lucr\xE9cia.Lu\xEDs Gomes.Maca\xEDba.Macau.Major Sales.Marcelino Vieira.Martins.Maxaranguape.Messias Targino.Montanhas.Monte Alegre.Monte das Gameleiras.Mossor\xF3.Natal.N\xEDsia Floresta.Nova Cruz.Olho d'\xC1gua do Borges.Ouro Branco.Paran\xE1.Para\xFA.Parazinho.Parelhas.Parnamirim.Passa e Fica.Passagem.Patu.Pau dos Ferros.Pedra Grande.Pedra Preta.Pedro Avelino.Pedro Velho.Pend\xEAncias.Pil\xF5es.Po\xE7o Branco.Portalegre.Porto do Mangue.Pureza.Rafael Fernandes.Rafael Godeiro.Riacho da Cruz.Riacho de Santana.Riachuelo.Rio do Fogo.Rodolfo Fernandes.Ruy Barbosa.Santa Cruz.Santa Maria.Santana do Matos.Santana do Serid\xF3.Santo Ant\xF4nio.S\xE3o Bento do Norte.S\xE3o Bento do Trair\xED.S\xE3o Fernando.S\xE3o Francisco do Oeste.S\xE3o Gon\xE7alo do Amarante.S\xE3o Jo\xE3o do Sabugi.S\xE3o Jos\xE9 de Mipibu.S\xE3o Jos\xE9 do Campestre.S\xE3o Jos\xE9 do Serid\xF3.S\xE3o Miguel.S\xE3o Miguel do Gostoso.S\xE3o Paulo do Potengi.S\xE3o Pedro.S\xE3o Rafael.S\xE3o Tom\xE9.S\xE3o Vicente.Senador El\xF3i de Souza.Senador Georgino Avelino.Serra Caiada.Serra de S\xE3o Bento.Serra do Mel.Serra Negra do Norte.Serrinha.Serrinha dos Pintos.Severiano Melo.S\xEDtio Novo.Taboleiro Grande.Taipu.Tangar\xE1.Tenente Ananias.Tenente Laurentino Cruz.Tibau.Tibau do Sul.Timba\xFAba dos Batistas.Touros.Triunfo Potiguar.Umarizal.Upanema.V\xE1rzea.Venha-Ver.Vera Cruz.Vi\xE7osa.Vila Flor".split("."),
+  RO: /* @__PURE__ */ "Alta Floresta D'Oeste.Alto Alegre dos Parecis.Alto Para\xEDso.Alvorada D'Oeste.Ariquemes.Buritis.Cabixi.Cacaul\xE2ndia.Cacoal.Campo Novo de Rond\xF4nia.Candeias do Jamari.Castanheiras.Cerejeiras.Chupinguaia.Colorado do Oeste.Corumbiara.Costa Marques.Cujubim.Espig\xE3o D'Oeste.Governador Jorge Teixeira.Guajar\xE1-Mirim.Itapu\xE3 do Oeste.Jaru.Ji-Paran\xE1.Machadinho D'Oeste.Ministro Andreazza.Mirante da Serra.Monte Negro.Nova Brasil\xE2ndia D'Oeste.Nova Mamor\xE9.Nova Uni\xE3o.Novo Horizonte do Oeste.Ouro Preto do Oeste.Parecis.Pimenta Bueno.Pimenteiras do Oeste.Porto Velho.Presidente M\xE9dici.Primavera de Rond\xF4nia.Rio Crespo.Rolim de Moura.Santa Luzia D'Oeste.S\xE3o Felipe D'Oeste.S\xE3o Francisco do Guapor\xE9.S\xE3o Miguel do Guapor\xE9.Seringueiras.Teixeir\xF3polis.Theobroma.Urup\xE1.Vale do Anari.Vale do Para\xEDso.Vilhena".split("."),
+  RR: [
+    "Alto Alegre",
+    "Amajari",
+    "Boa Vista",
+    "Bonfim",
+    "Cant\xE1",
+    "Caracara\xED",
+    "Caroebe",
+    "Iracema",
+    "Mucaja\xED",
+    "Normandia",
+    "Pacaraima",
+    "Rorain\xF3polis",
+    "S\xE3o Jo\xE3o da Baliza",
+    "S\xE3o Luiz do Anau\xE1",
+    "Uiramut\xE3"
+  ],
+  RS: /* @__PURE__ */ "Acegu\xE1.\xC1gua Santa.Agudo.Ajuricaba.Alecrim.Alegrete.Alegria.Almirante Tamandar\xE9 do Sul.Alpestre.Alto Alegre.Alto Feliz.Alvorada.Amaral Ferrador.Ametista do Sul.Andr\xE9 da Rocha.Anta Gorda.Ant\xF4nio Prado.Arambar\xE9.Araric\xE1.Aratiba.Arroio do Meio.Arroio do Padre.Arroio do Sal.Arroio do Tigre.Arroio dos Ratos.Arroio Grande.Arvorezinha.Augusto Pestana.\xC1urea.Bag\xE9.Balne\xE1rio Pinhal.Bar\xE3o.Bar\xE3o de Cotegipe.Bar\xE3o do Triunfo.Barra do Guarita.Barra do Quara\xED.Barra do Ribeiro.Barra do Rio Azul.Barra Funda.Barrac\xE3o.Barros Cassal.Benjamin Constant do Sul.Bento Gon\xE7alves.Boa Vista das Miss\xF5es.Boa Vista do Buric\xE1.Boa Vista do Cadeado.Boa Vista do Incra.Boa Vista do Sul.Bom Jesus.Bom Princ\xEDpio.Bom Progresso.Bom Retiro do Sul.Boqueir\xE3o do Le\xE3o.Bossoroca.Bozano.Braga.Brochier.Buti\xE1.Ca\xE7apava do Sul.Cacequi.Cachoeira do Sul.Cachoeirinha.Cacique Doble.Caibat\xE9.Cai\xE7ara.Camaqu\xE3.Camargo.Cambar\xE1 do Sul.Campestre da Serra.Campina das Miss\xF5es.Campinas do Sul.Campo Bom.Campo Novo.Campos Borges.Candel\xE1ria.C\xE2ndido God\xF3i.Candiota.Canela.Cangu\xE7u.Canoas.Canudos do Vale.Cap\xE3o Bonito do Sul.Cap\xE3o da Canoa.Cap\xE3o do Cip\xF3.Cap\xE3o do Le\xE3o.Capela de Santana.Capit\xE3o.Capivari do Sul.Cara\xE1.Carazinho.Carlos Barbosa.Carlos Gomes.Casca.Caseiros.Catu\xEDpe.Caxias do Sul.Centen\xE1rio.Cerrito.Cerro Branco.Cerro Grande.Cerro Grande do Sul.Cerro Largo.Chapada.Charqueadas.Charrua.Chiapetta.Chu\xED.Chuvisca.Cidreira.Cir\xEDaco.Colinas.Colorado.Condor.Constantina.Coqueiro Baixo.Coqueiros do Sul.Coronel Barros.Coronel Bicaco.Coronel Pilar.Cotipor\xE3.Coxilha.Crissiumal.Cristal.Cristal do Sul.Cruz Alta.Cruzaltense.Cruzeiro do Sul.David Canabarro.Derrubadas.Dezesseis de Novembro.Dilermando de Aguiar.Dois Irm\xE3os.Dois Irm\xE3os das Miss\xF5es.Dois Lajeados.Dom Feliciano.Dom Pedrito.Dom Pedro de Alc\xE2ntara.Dona Francisca.Doutor Maur\xEDcio Cardoso.Doutor Ricardo.Eldorado do Sul.Encantado.Encruzilhada do Sul.Engenho Velho.Entre Rios do Sul.Entre-Iju\xEDs.Erebango.Erechim.Ernestina.Erval Grande.Erval Seco.Esmeralda.Esperan\xE7a do Sul.Espumoso.Esta\xE7\xE3o.Est\xE2ncia Velha.Esteio.Estrela.Estrela Velha.Eug\xEAnio de Castro.Fagundes Varela.Farroupilha.Faxinal do Soturno.Faxinalzinho.Fazenda Vilanova.Feliz.Flores da Cunha.Floriano Peixoto.Fontoura Xavier.Formigueiro.Forquetinha.Fortaleza dos Valos.Frederico Westphalen.Garibaldi.Garruchos.Gaurama.General C\xE2mara.Gentil.Get\xFAlio Vargas.Giru\xE1.Glorinha.Gramado.Gramado dos Loureiros.Gramado Xavier.Gravata\xED.Guabiju.Gua\xEDba.Guapor\xE9.Guarani das Miss\xF5es.Harmonia.Herval.Herveiras.Horizontina.Hulha Negra.Humait\xE1.Ibarama.Ibia\xE7\xE1.Ibiraiaras.Ibirapuit\xE3.Ibirub\xE1.Igrejinha.Iju\xED.Il\xF3polis.Imb\xE9.Imigrante.Independ\xEAncia.Inhacor\xE1.Ip\xEA.Ipiranga do Sul.Ira\xED.Itaara.Itacurubi.Itapuca.Itaqui.Itati.Itatiba do Sul.Ivor\xE1.Ivoti.Jaboticaba.Jacuizinho.Jacutinga.Jaguar\xE3o.Jaguari.Jaquirana.Jari.J\xF3ia.J\xFAlio de Castilhos.Lagoa Bonita do Sul.Lagoa dos Tr\xEAs Cantos.Lagoa Vermelha.Lago\xE3o.Lajeado.Lajeado do Bugre.Lavras do Sul.Liberato Salzano.Lindolfo Collor.Linha Nova.Ma\xE7ambar\xE1.Machadinho.Mampituba.Manoel Viana.Maquin\xE9.Marat\xE1.Marau.Marcelino Ramos.Mariana Pimentel.Mariano Moro.Marques de Souza.Mata.Mato Castelhano.Mato Leit\xE3o.Mato Queimado.Maximiliano de Almeida.Minas do Le\xE3o.Miragua\xED.Montauri.Monte Alegre dos Campos.Monte Belo do Sul.Montenegro.Morma\xE7o.Morrinhos do Sul.Morro Redondo.Morro Reuter.Mostardas.Mu\xE7um.Muitos Cap\xF5es.Muliterno.N\xE3o-Me-Toque.Nicolau Vergueiro.Nonoai.Nova Alvorada.Nova Ara\xE7\xE1.Nova Bassano.Nova Boa Vista.Nova Br\xE9scia.Nova Candel\xE1ria.Nova Esperan\xE7a do Sul.Nova Hartz.Nova P\xE1dua.Nova Palma.Nova Petr\xF3polis.Nova Prata.Nova Ramada.Nova Roma do Sul.Nova Santa Rita.Novo Barreiro.Novo Cabrais.Novo Hamburgo.Novo Machado.Novo Tiradentes.Novo Xingu.Os\xF3rio.Paim Filho.Palmares do Sul.Palmeira das Miss\xF5es.Palmitinho.Panambi.Pantano Grande.Para\xED.Para\xEDso do Sul.Pareci Novo.Parob\xE9.Passa Sete.Passo do Sobrado.Passo Fundo.Paulo Bento.Paverama.Pedras Altas.Pedro Os\xF3rio.Peju\xE7ara.Pelotas.Picada Caf\xE9.Pinhal.Pinhal da Serra.Pinhal Grande.Pinheirinho do Vale.Pinheiro Machado.Pinto Bandeira.Pirap\xF3.Piratini.Planalto.Po\xE7o das Antas.Pont\xE3o.Ponte Preta.Port\xE3o.Porto Alegre.Porto Lucena.Porto Mau\xE1.Porto Vera Cruz.Porto Xavier.Pouso Novo.Presidente Lucena.Progresso.Prot\xE1sio Alves.Putinga.Quara\xED.Quatro Irm\xE3os.Quevedos.Quinze de Novembro.Redentora.Relvado.Restinga S\xEAca.Rio dos \xCDndios.Rio Grande.Rio Pardo.Riozinho.Roca Sales.Rodeio Bonito.Rolador.Rolante.Ronda Alta.Rondinha.Roque Gonzales.Ros\xE1rio do Sul.Sagrada Fam\xEDlia.Saldanha Marinho.Salto do Jacu\xED.Salvador das Miss\xF5es.Salvador do Sul.Sananduva.Sant'Ana do Livramento.Santa B\xE1rbara do Sul.Santa Cec\xEDlia do Sul.Santa Clara do Sul.Santa Cruz do Sul.Santa Margarida do Sul.Santa Maria.Santa Maria do Herval.Santa Rosa.Santa Tereza.Santa Vit\xF3ria do Palmar.Santana da Boa Vista.Santiago.Santo \xC2ngelo.Santo Ant\xF4nio da Patrulha.Santo Ant\xF4nio das Miss\xF5es.Santo Ant\xF4nio do Palma.Santo Ant\xF4nio do Planalto.Santo Augusto.Santo Cristo.Santo Expedito do Sul.S\xE3o Borja.S\xE3o Domingos do Sul.S\xE3o Francisco de Assis.S\xE3o Francisco de Paula.S\xE3o Gabriel.S\xE3o Jer\xF4nimo.S\xE3o Jo\xE3o da Urtiga.S\xE3o Jo\xE3o do Pol\xEAsine.S\xE3o Jorge.S\xE3o Jos\xE9 das Miss\xF5es.S\xE3o Jos\xE9 do Herval.S\xE3o Jos\xE9 do Hort\xEAncio.S\xE3o Jos\xE9 do Inhacor\xE1.S\xE3o Jos\xE9 do Norte.S\xE3o Jos\xE9 do Ouro.S\xE3o Jos\xE9 do Sul.S\xE3o Jos\xE9 dos Ausentes.S\xE3o Leopoldo.S\xE3o Louren\xE7o do Sul.S\xE3o Luiz Gonzaga.S\xE3o Marcos.S\xE3o Martinho.S\xE3o Martinho da Serra.S\xE3o Miguel das Miss\xF5es.S\xE3o Nicolau.S\xE3o Paulo das Miss\xF5es.S\xE3o Pedro da Serra.S\xE3o Pedro das Miss\xF5es.S\xE3o Pedro do Buti\xE1.S\xE3o Pedro do Sul.S\xE3o Sebasti\xE3o do Ca\xED.S\xE3o Sep\xE9.S\xE3o Valentim.S\xE3o Valentim do Sul.S\xE3o Val\xE9rio do Sul.S\xE3o Vendelino.S\xE3o Vicente do Sul.Sapiranga.Sapucaia do Sul.Sarandi.Seberi.Sede Nova.Segredo.Selbach.Senador Salgado Filho.Sentinela do Sul.Serafina Corr\xEAa.S\xE9rio.Sert\xE3o.Sert\xE3o Santana.Sete de Setembro.Severiano de Almeida.Silveira Martins.Sinimbu.Sobradinho.Soledade.Taba\xED.Tapejara.Tapera.Tapes.Taquara.Taquari.Taquaru\xE7u do Sul.Tavares.Tenente Portela.Terra de Areia.Teut\xF4nia.Tio Hugo.Tiradentes do Sul.Toropi.Torres.Tramanda\xED.Travesseiro.Tr\xEAs Arroios.Tr\xEAs Cachoeiras.Tr\xEAs Coroas.Tr\xEAs de Maio.Tr\xEAs Forquilhas.Tr\xEAs Palmeiras.Tr\xEAs Passos.Trindade do Sul.Triunfo.Tucunduva.Tunas.Tupanci do Sul.Tupanciret\xE3.Tupandi.Tuparendi.Turu\xE7u.Ubiretama.Uni\xE3o da Serra.Unistalda.Uruguaiana.Vacaria.Vale do Sol.Vale Real.Vale Verde.Vanini.Ven\xE2ncio Aires.Vera Cruz.Veran\xF3polis.Vespasiano Corr\xEAa.Viadutos.Viam\xE3o.Vicente Dutra.Victor Graeff.Vila Flores.Vila L\xE2ngaro.Vila Maria.Vila Nova do Sul.Vista Alegre.Vista Alegre do Prata.Vista Ga\xFAcha.Vit\xF3ria das Miss\xF5es.Westf\xE1lia.Xangri-l\xE1".split("."),
+  SC: /* @__PURE__ */ "Abdon Batista.Abelardo Luz.Agrol\xE2ndia.Agron\xF4mica.\xC1gua Doce.\xC1guas de Chapec\xF3.\xC1guas Frias.\xC1guas Mornas.Alfredo Wagner.Alto Bela Vista.Anchieta.Angelina.Anita Garibaldi.Anit\xE1polis.Ant\xF4nio Carlos.Api\xFAna.Arabut\xE3.Araquari.Ararangu\xE1.Armaz\xE9m.Arroio Trinta.Arvoredo.Ascurra.Atalanta.Aurora.Balne\xE1rio Arroio do Silva.Balne\xE1rio Barra do Sul.Balne\xE1rio Cambori\xFA.Balne\xE1rio Gaivota.Balne\xE1rio Pi\xE7arras.Balne\xE1rio Rinc\xE3o.Bandeirante.Barra Bonita.Barra Velha.Bela Vista do Toldo.Belmonte.Benedito Novo.Bigua\xE7u.Blumenau.Bocaina do Sul.Bom Jardim da Serra.Bom Jesus.Bom Jesus do Oeste.Bom Retiro.Bombinhas.Botuver\xE1.Bra\xE7o do Norte.Bra\xE7o do Trombudo.Brun\xF3polis.Brusque.Ca\xE7ador.Caibi.Calmon.Cambori\xFA.Campo Alegre.Campo Belo do Sul.Campo Er\xEA.Campos Novos.Canelinha.Canoinhas.Cap\xE3o Alto.Capinzal.Capivari de Baixo.Catanduvas.Caxambu do Sul.Celso Ramos.Cerro Negro.Chapad\xE3o do Lageado.Chapec\xF3.Cocal do Sul.Conc\xF3rdia.Cordilheira Alta.Coronel Freitas.Coronel Martins.Correia Pinto.Corup\xE1.Crici\xFAma.Cunha Por\xE3.Cunhata\xED.Curitibanos.Descanso.Dion\xEDsio Cerqueira.Dona Emma.Doutor Pedrinho.Entre Rios.Ermo.Erval Velho.Faxinal dos Guedes.Flor do Sert\xE3o.Florian\xF3polis.Formosa do Sul.Forquilhinha.Fraiburgo.Frei Rog\xE9rio.Galv\xE3o.Garopaba.Garuva.Gaspar.Governador Celso Ramos.Gr\xE3o-Par\xE1.Gravatal.Guabiruba.Guaraciaba.Guaramirim.Guaruj\xE1 do Sul.Guatamb\xFA.Herval d'Oeste.Ibiam.Ibicar\xE9.Ibirama.I\xE7ara.Ilhota.Imaru\xED.Imbituba.Imbuia.Indaial.Iomer\xEA.Ipira.Ipor\xE3 do Oeste.Ipua\xE7u.Ipumirim.Iraceminha.Irani.Irati.Irine\xF3polis.It\xE1.Itai\xF3polis.Itaja\xED.Itapema.Itapiranga.Itapo\xE1.Ituporanga.Jabor\xE1.Jacinto Machado.Jaguaruna.Jaragu\xE1 do Sul.Jardin\xF3polis.Joa\xE7aba.Joinville.Jos\xE9 Boiteux.Jupi\xE1.Lacerd\xF3polis.Lages.Laguna.Lajeado Grande.Laurentino.Lauro M\xFCller.Lebon R\xE9gis.Leoberto Leal.Lind\xF3ia do Sul.Lontras.Luiz Alves.Luzerna.Macieira.Mafra.Major Gercino.Major Vieira.Maracaj\xE1.Maravilha.Marema.Massaranduba.Matos Costa.Meleiro.Mirim Doce.Modelo.Monda\xED.Monte Carlo.Monte Castelo.Morro da Fuma\xE7a.Morro Grande.Navegantes.Nova Erechim.Nova Itaberaba.Nova Trento.Nova Veneza.Novo Horizonte.Orleans.Otac\xEDlio Costa.Ouro.Ouro Verde.Paial.Painel.Palho\xE7a.Palma Sola.Palmeira.Palmitos.Papanduva.Para\xEDso.Passo de Torres.Passos Maia.Paulo Lopes.Pedras Grandes.Penha.Peritiba.Pescaria Brava.Petrol\xE2ndia.Pinhalzinho.Pinheiro Preto.Piratuba.Planalto Alegre.Pomerode.Ponte Alta.Ponte Alta do Norte.Ponte Serrada.Porto Belo.Porto Uni\xE3o.Pouso Redondo.Praia Grande.Presidente Castello Branco.Presidente Get\xFAlio.Presidente Nereu.Princesa.Quilombo.Rancho Queimado.Rio das Antas.Rio do Campo.Rio do Oeste.Rio do Sul.Rio dos Cedros.Rio Fortuna.Rio Negrinho.Rio Rufino.Riqueza.Rodeio.Romel\xE2ndia.Salete.Saltinho.Salto Veloso.Sang\xE3o.Santa Cec\xEDlia.Santa Helena.Santa Rosa de Lima.Santa Rosa do Sul.Santa Terezinha.Santa Terezinha do Progresso.Santiago do Sul.Santo Amaro da Imperatriz.S\xE3o Bento do Sul.S\xE3o Bernardino.S\xE3o Bonif\xE1cio.S\xE3o Carlos.S\xE3o Crist\xF3v\xE3o do Sul.S\xE3o Domingos.S\xE3o Francisco do Sul.S\xE3o Jo\xE3o Batista.S\xE3o Jo\xE3o do Itaperi\xFA.S\xE3o Jo\xE3o do Oeste.S\xE3o Jo\xE3o do Sul.S\xE3o Joaquim.S\xE3o Jos\xE9.S\xE3o Jos\xE9 do Cedro.S\xE3o Jos\xE9 do Cerrito.S\xE3o Louren\xE7o do Oeste.S\xE3o Ludgero.S\xE3o Martinho.S\xE3o Miguel da Boa Vista.S\xE3o Miguel do Oeste.S\xE3o Pedro de Alc\xE2ntara.Saudades.Schroeder.Seara.Serra Alta.Sider\xF3polis.Sombrio.Sul Brasil.Tai\xF3.Tangar\xE1.Tigrinhos.Tijucas.Timb\xE9 do Sul.Timb\xF3.Timb\xF3 Grande.Tr\xEAs Barras.Treviso.Treze de Maio.Treze T\xEDlias.Trombudo Central.Tubar\xE3o.Tun\xE1polis.Turvo.Uni\xE3o do Oeste.Urubici.Urupema.Urussanga.Varge\xE3o.Vargem.Vargem Bonita.Vidal Ramos.Videira.Vitor Meireles.Witmarsum.Xanxer\xEA.Xavantina.Xaxim.Zort\xE9a".split("."),
+  SE: /* @__PURE__ */ "Amparo do S\xE3o Francisco.Aquidab\xE3.Aracaju.Arau\xE1.Areia Branca.Barra dos Coqueiros.Boquim.Brejo Grande.Campo do Brito.Canhoba.Canind\xE9 de S\xE3o Francisco.Capela.Carira.Carm\xF3polis.Cedro de S\xE3o Jo\xE3o.Cristin\xE1polis.Cumbe.Divina Pastora.Est\xE2ncia.Feira Nova.Frei Paulo.Gararu.General Maynard.Graccho Cardoso.Ilha das Flores.Indiaroba.Itabaiana.Itabaianinha.Itabi.Itaporanga d'Ajuda.Japaratuba.Japoat\xE3.Lagarto.Laranjeiras.Macambira.Malhada dos Bois.Malhador.Maruim.Moita Bonita.Monte Alegre de Sergipe.Muribeca.Ne\xF3polis.Nossa Senhora Aparecida.Nossa Senhora da Gl\xF3ria.Nossa Senhora das Dores.Nossa Senhora de Lourdes.Nossa Senhora do Socorro.Pacatuba.Pedra Mole.Pedrinhas.Pinh\xE3o.Pirambu.Po\xE7o Redondo.Po\xE7o Verde.Porto da Folha.Propri\xE1.Riach\xE3o do Dantas.Riachuelo.Ribeir\xF3polis.Ros\xE1rio do Catete.Salgado.Santa Luzia do Itanhy.Santa Rosa de Lima.Santana do S\xE3o Francisco.Santo Amaro das Brotas.S\xE3o Crist\xF3v\xE3o.S\xE3o Domingos.S\xE3o Francisco.S\xE3o Miguel do Aleixo.Sim\xE3o Dias.Siriri.Telha.Tobias Barreto.Tomar do Geru.Umba\xFAba".split("."),
+  SP: /* @__PURE__ */ "Adamantina.Adolfo.Agua\xED.\xC1guas da Prata.\xC1guas de Lind\xF3ia.\xC1guas de Santa B\xE1rbara.\xC1guas de S\xE3o Pedro.Agudos.Alambari.Alfredo Marcondes.Altair.Altin\xF3polis.Alto Alegre.Alum\xEDnio.\xC1lvares Florence.\xC1lvares Machado.\xC1lvaro de Carvalho.Alvinl\xE2ndia.Americana.Am\xE9rico Brasiliense.Am\xE9rico de Campos.Amparo.Anal\xE2ndia.Andradina.Angatuba.Anhembi.Anhumas.Aparecida.Aparecida d'Oeste.Apia\xED.Ara\xE7ariguama.Ara\xE7atuba.Ara\xE7oiaba da Serra.Aramina.Arandu.Arape\xED.Araraquara.Araras.Arco-\xCDris.Arealva.Areias.Arei\xF3polis.Ariranha.Artur Nogueira.Aruj\xE1.Asp\xE1sia.Assis.Atibaia.Auriflama.Ava\xED.Avanhandava.Avar\xE9.Bady Bassitt.Balbinos.B\xE1lsamo.Bananal.Bar\xE3o de Antonina.Barbosa.Bariri.Barra Bonita.Barra do Chap\xE9u.Barra do Turvo.Barretos.Barrinha.Barueri.Bastos.Batatais.Bauru.Bebedouro.Bento de Abreu.Bernardino de Campos.Bertioga.Bilac.Birigui.Biritiba Mirim.Boa Esperan\xE7a do Sul.Bocaina.Bofete.Boituva.Bom Jesus dos Perd\xF5es.Bom Sucesso de Itarar\xE9.Bor\xE1.Borac\xE9ia.Borborema.Borebi.Botucatu.Bragan\xE7a Paulista.Bra\xFAna.Brejo Alegre.Brodowski.Brotas.Buri.Buritama.Buritizal.Cabr\xE1lia Paulista.Cabre\xFAva.Ca\xE7apava.Cachoeira Paulista.Caconde.Cafel\xE2ndia.Caiabu.Caieiras.Caiu\xE1.Cajamar.Cajati.Cajobi.Cajuru.Campina do Monte Alegre.Campinas.Campo Limpo Paulista.Campos do Jord\xE3o.Campos Novos Paulista.Canan\xE9ia.Canas.C\xE2ndido Mota.C\xE2ndido Rodrigues.Canitar.Cap\xE3o Bonito.Capela do Alto.Capivari.Caraguatatuba.Carapicu\xEDba.Cardoso.Casa Branca.C\xE1ssia dos Coqueiros.Castilho.Catanduva.Catigu\xE1.Cedral.Cerqueira C\xE9sar.Cerquilho.Ces\xE1rio Lange.Charqueada.Chavantes.Clementina.Colina.Col\xF4mbia.Conchal.Conchas.Cordeir\xF3polis.Coroados.Coronel Macedo.Corumbata\xED.Cosm\xF3polis.Cosmorama.Cotia.Cravinhos.Cristais Paulista.Cruz\xE1lia.Cruzeiro.Cubat\xE3o.Cunha.Descalvado.Diadema.Dirce Reis.Divinol\xE2ndia.Dobrada.Dois C\xF3rregos.Dolcin\xF3polis.Dourado.Dracena.Duartina.Dumont.Echapor\xE3.Eldorado.Elias Fausto.Elisi\xE1rio.Emba\xFAba.Embu das Artes.Embu-Gua\xE7u.Emilian\xF3polis.Engenheiro Coelho.Esp\xEDrito Santo do Pinhal.Esp\xEDrito Santo do Turvo.Estiva Gerbi.Estrela d'Oeste.Estrela do Norte.Euclides da Cunha Paulista.Fartura.Fernando Prestes.Fernand\xF3polis.Fern\xE3o.Ferraz de Vasconcelos.Flora Rica.Floreal.Fl\xF3rida Paulista.Flor\xEDnea.Franca.Francisco Morato.Franco da Rocha.Gabriel Monteiro.G\xE1lia.Gar\xE7a.Gast\xE3o Vidigal.Gavi\xE3o Peixoto.General Salgado.Getulina.Glic\xE9rio.Guai\xE7ara.Guaimb\xEA.Gua\xEDra.Guapia\xE7u.Guapiara.Guar\xE1.Guara\xE7a\xED.Guaraci.Guarani d'Oeste.Guarant\xE3.Guararapes.Guararema.Guaratinguet\xE1.Guare\xED.Guariba.Guaruj\xE1.Guarulhos.Guatapar\xE1.Guzol\xE2ndia.Hercul\xE2ndia.Holambra.Hortol\xE2ndia.Iacanga.Iacri.Iaras.Ibat\xE9.Ibir\xE1.Ibirarema.Ibitinga.Ibi\xFAna.Ic\xE9m.Iep\xEA.Igara\xE7u do Tiet\xEA.Igarapava.Igarat\xE1.Iguape.Ilha Comprida.Ilha Solteira.Ilhabela.Indaiatuba.Indiana.Indiapor\xE3.In\xFAbia Paulista.Ipaussu.Iper\xF3.Ipe\xFAna.Ipigu\xE1.Iporanga.Ipu\xE3.Iracem\xE1polis.Irapu\xE3.Irapuru.Itaber\xE1.Ita\xED.Itajobi.Itaju.Itanha\xE9m.Itaoca.Itapecerica da Serra.Itapetininga.Itapeva.Itapevi.Itapira.Itapirapu\xE3 Paulista.It\xE1polis.Itaporanga.Itapu\xED.Itapura.Itaquaquecetuba.Itarar\xE9.Itariri.Itatiba.Itatinga.Itirapina.Itirapu\xE3.Itobi.Itu.Itupeva.Ituverava.Jaborandi.Jaboticabal.Jacare\xED.Jaci.Jacupiranga.Jaguari\xFAna.Jales.Jambeiro.Jandira.Jardin\xF3polis.Jarinu.Ja\xFA.Jeriquara.Joan\xF3polis.Jo\xE3o Ramalho.Jos\xE9 Bonif\xE1cio.J\xFAlio Mesquita.Jumirim.Jundia\xED.Junqueir\xF3polis.Juqui\xE1.Juquitiba.Lagoinha.Laranjal Paulista.Lav\xEDnia.Lavrinhas.Leme.Len\xE7\xF3is Paulista.Limeira.Lind\xF3ia.Lins.Lorena.Lourdes.Louveira.Luc\xE9lia.Lucian\xF3polis.Lu\xEDs Ant\xF4nio.Luizi\xE2nia.Lup\xE9rcio.Lut\xE9cia.Macatuba.Macaubal.Maced\xF4nia.Magda.Mairinque.Mairipor\xE3.Manduri.Marab\xE1 Paulista.Maraca\xED.Marapoama.Mari\xE1polis.Mar\xEDlia.Marin\xF3polis.Martin\xF3polis.Mat\xE3o.Mau\xE1.Mendon\xE7a.Meridiano.Mes\xF3polis.Miguel\xF3polis.Mineiros do Tiet\xEA.Mira Estrela.Miracatu.Mirand\xF3polis.Mirante do Paranapanema.Mirassol.Mirassol\xE2ndia.Mococa.Mogi das Cruzes.Mogi Gua\xE7u.Mogi Mirim.Mombuca.Mon\xE7\xF5es.Mongagu\xE1.Monte Alegre do Sul.Monte Alto.Monte Apraz\xEDvel.Monte Azul Paulista.Monte Castelo.Monte Mor.Monteiro Lobato.Morro Agudo.Morungaba.Motuca.Murutinga do Sul.Nantes.Narandiba.Natividade da Serra.Nazar\xE9 Paulista.Neves Paulista.Nhandeara.Nipo\xE3.Nova Alian\xE7a.Nova Campina.Nova Cana\xE3 Paulista.Nova Castilho.Nova Europa.Nova Granada.Nova Guataporanga.Nova Independ\xEAncia.Nova Luzit\xE2nia.Nova Odessa.Novais.Novo Horizonte.Nuporanga.Ocau\xE7u.\xD3leo.Ol\xEDmpia.Onda Verde.Oriente.Orindi\xFAva.Orl\xE2ndia.Osasco.Oscar Bressane.Osvaldo Cruz.Ourinhos.Ouro Verde.Ouroeste.Pacaembu.Palestina.Palmares Paulista.Palmeira d'Oeste.Palmital.Panorama.Paragua\xE7u Paulista.Paraibuna.Para\xEDso.Paranapanema.Paranapu\xE3.Parapu\xE3.Pardinho.Pariquera-A\xE7u.Parisi.Patroc\xEDnio Paulista.Paulic\xE9ia.Paul\xEDnia.Paulist\xE2nia.Paulo de Faria.Pederneiras.Pedra Bela.Pedran\xF3polis.Pedregulho.Pedreira.Pedrinhas Paulista.Pedro de Toledo.Pen\xE1polis.Pereira Barreto.Pereiras.Peru\xEDbe.Piacatu.Piedade.Pilar do Sul.Pindamonhangaba.Pindorama.Pinhalzinho.Piquerobi.Piquete.Piracaia.Piracicaba.Piraju.Piraju\xED.Pirangi.Pirapora do Bom Jesus.Pirapozinho.Pirassununga.Piratininga.Pitangueiras.Planalto.Platina.Po\xE1.Poloni.Pomp\xE9ia.Ponga\xED.Pontal.Pontalinda.Pontes Gestal.Populina.Porangaba.Porto Feliz.Porto Ferreira.Potim.Potirendaba.Pracinha.Prad\xF3polis.Praia Grande.Prat\xE2nia.Presidente Alves.Presidente Bernardes.Presidente Epit\xE1cio.Presidente Prudente.Presidente Venceslau.Promiss\xE3o.Quadra.Quat\xE1.Queiroz.Queluz.Quintana.Rafard.Rancharia.Reden\xE7\xE3o da Serra.Regente Feij\xF3.Regin\xF3polis.Registro.Restinga.Ribeira.Ribeir\xE3o Bonito.Ribeir\xE3o Branco.Ribeir\xE3o Corrente.Ribeir\xE3o do Sul.Ribeir\xE3o dos \xCDndios.Ribeir\xE3o Grande.Ribeir\xE3o Pires.Ribeir\xE3o Preto.Rifaina.Rinc\xE3o.Rin\xF3polis.Rio Claro.Rio das Pedras.Rio Grande da Serra.Riol\xE2ndia.Riversul.Rosana.Roseira.Rubi\xE1cea.Rubin\xE9ia.Sabino.Sagres.Sales.Sales Oliveira.Sales\xF3polis.Salmour\xE3o.Saltinho.Salto.Salto de Pirapora.Salto Grande.Sandovalina.Santa Ad\xE9lia.Santa Albertina.Santa B\xE1rbara d'Oeste.Santa Branca.Santa Clara d'Oeste.Santa Cruz da Concei\xE7\xE3o.Santa Cruz da Esperan\xE7a.Santa Cruz das Palmeiras.Santa Cruz do Rio Pardo.Santa Ernestina.Santa F\xE9 do Sul.Santa Gertrudes.Santa Isabel.Santa L\xFAcia.Santa Maria da Serra.Santa Mercedes.Santa Rita d'Oeste.Santa Rita do Passa Quatro.Santa Rosa de Viterbo.Santa Salete.Santana da Ponte Pensa.Santana de Parna\xEDba.Santo Anast\xE1cio.Santo Andr\xE9.Santo Ant\xF4nio da Alegria.Santo Ant\xF4nio de Posse.Santo Ant\xF4nio do Aracangu\xE1.Santo Ant\xF4nio do Jardim.Santo Ant\xF4nio do Pinhal.Santo Expedito.Sant\xF3polis do Aguape\xED.Santos.S\xE3o Bento do Sapuca\xED.S\xE3o Bernardo do Campo.S\xE3o Caetano do Sul.S\xE3o Carlos.S\xE3o Francisco.S\xE3o Jo\xE3o da Boa Vista.S\xE3o Jo\xE3o das Duas Pontes.S\xE3o Jo\xE3o de Iracema.S\xE3o Jo\xE3o do Pau d'Alho.S\xE3o Joaquim da Barra.S\xE3o Jos\xE9 da Bela Vista.S\xE3o Jos\xE9 do Barreiro.S\xE3o Jos\xE9 do Rio Pardo.S\xE3o Jos\xE9 do Rio Preto.S\xE3o Jos\xE9 dos Campos.S\xE3o Louren\xE7o da Serra.S\xE3o Luiz do Paraitinga.S\xE3o Manuel.S\xE3o Miguel Arcanjo.S\xE3o Paulo.S\xE3o Pedro.S\xE3o Pedro do Turvo.S\xE3o Roque.S\xE3o Sebasti\xE3o.S\xE3o Sebasti\xE3o da Grama.S\xE3o Sim\xE3o.S\xE3o Vicente.Sarapu\xED.Sarutai\xE1.Sebastian\xF3polis do Sul.Serra Azul.Serra Negra.Serrana.Sert\xE3ozinho.Sete Barras.Sever\xEDnia.Silveiras.Socorro.Sorocaba.Sud Mennucci.Sumar\xE9.Suzan\xE1polis.Suzano.Tabapu\xE3.Tabatinga.Tabo\xE3o da Serra.Taciba.Tagua\xED.Taia\xE7u.Tai\xFAva.Tamba\xFA.Tanabi.Tapira\xED.Tapiratiba.Taquaral.Taquaritinga.Taquarituba.Taquariva\xED.Tarabai.Tarum\xE3.Tatu\xED.Taubat\xE9.Tejup\xE1.Teodoro Sampaio.Terra Roxa.Tiet\xEA.Timburi.Torre de Pedra.Torrinha.Trabiju.Trememb\xE9.Tr\xEAs Fronteiras.Tuiuti.Tup\xE3.Tupi Paulista.Turi\xFAba.Turmalina.Ubarana.Ubatuba.Ubirajara.Uchoa.Uni\xE3o Paulista.Ur\xE2nia.Uru.Urup\xEAs.Valentim Gentil.Valinhos.Valpara\xEDso.Vargem.Vargem Grande do Sul.Vargem Grande Paulista.V\xE1rzea Paulista.Vera Cruz.Vinhedo.Viradouro.Vista Alegre do Alto.Vit\xF3ria Brasil.Votorantim.Votuporanga.Zacarias".split("."),
+  TO: /* @__PURE__ */ "Abreul\xE2ndia.Aguiarn\xF3polis.Alian\xE7a do Tocantins.Almas.Alvorada.Anan\xE1s.Angico.Aparecida do Rio Negro.Aragominas.Araguacema.Aragua\xE7u.Aragua\xEDna.Araguan\xE3.Araguatins.Arapoema.Arraias.Augustin\xF3polis.Aurora do Tocantins.Axix\xE1 do Tocantins.Baba\xE7ul\xE2ndia.Bandeirantes do Tocantins.Barra do Ouro.Barrol\xE2ndia.Bernardo Say\xE3o.Bom Jesus do Tocantins.Brasil\xE2ndia do Tocantins.Brejinho de Nazar\xE9.Buriti do Tocantins.Cachoeirinha.Campos Lindos.Cariri do Tocantins.Carmol\xE2ndia.Carrasco Bonito.Caseara.Centen\xE1rio.Chapada da Natividade.Chapada de Areia.Colinas do Tocantins.Colm\xE9ia.Combinado.Concei\xE7\xE3o do Tocantins.Couto Magalh\xE3es.Cristal\xE2ndia.Crix\xE1s do Tocantins.Darcin\xF3polis.Dian\xF3polis.Divin\xF3polis do Tocantins.Dois Irm\xE3os do Tocantins.Duer\xE9.Esperantina.F\xE1tima.Figueir\xF3polis.Filad\xE9lfia.Formoso do Araguaia.Goianorte.Goiatins.Guara\xED.Gurupi.Ipueiras.Itacaj\xE1.Itaguatins.Itapiratins.Itapor\xE3 do Tocantins.Ja\xFA do Tocantins.Juarina.Lagoa da Confus\xE3o.Lagoa do Tocantins.Lajeado.Lavandeira.Lizarda.Luzin\xF3polis.Marian\xF3polis do Tocantins.Mateiros.Mauril\xE2ndia do Tocantins.Miracema do Tocantins.Miranorte.Monte do Carmo.Monte Santo do Tocantins.Muricil\xE2ndia.Natividade.Nazar\xE9.Nova Olinda.Nova Rosal\xE2ndia.Novo Acordo.Novo Alegre.Novo Jardim.Oliveira de F\xE1tima.Palmas.Palmeirante.Palmeiras do Tocantins.Palmeir\xF3polis.Para\xEDso do Tocantins.Paran\xE3.Pau D'Arco.Pedro Afonso.Peixe.Pequizeiro.Pindorama do Tocantins.Piraqu\xEA.Pium.Ponte Alta do Bom Jesus.Ponte Alta do Tocantins.Porto Alegre do Tocantins.Porto Nacional.Praia Norte.Presidente Kennedy.Pugmil.Recursol\xE2ndia.Riachinho.Rio da Concei\xE7\xE3o.Rio dos Bois.Rio Sono.Sampaio.Sandol\xE2ndia.Santa F\xE9 do Araguaia.Santa Maria do Tocantins.Santa Rita do Tocantins.Santa Rosa do Tocantins.Santa Tereza do Tocantins.Santa Terezinha do Tocantins.S\xE3o Bento do Tocantins.S\xE3o F\xE9lix do Tocantins.S\xE3o Miguel do Tocantins.S\xE3o Salvador do Tocantins.S\xE3o Sebasti\xE3o do Tocantins.S\xE3o Val\xE9rio.Silvan\xF3polis.S\xEDtio Novo do Tocantins.Sucupira.Taboc\xE3o.Taguatinga.Taipas do Tocantins.Talism\xE3.Tocant\xEDnia.Tocantin\xF3polis.Tupirama.Tupiratins.Wanderl\xE2ndia.Xambio\xE1".split(".")
+};
+var Qe = (e2) => e2 ? e2 in L ? [...L[e2]] : [] : Object.values(L).flat().sort((e3, t2) => e3.localeCompare(t2));
+var R = [
+  {
+    code: "AC",
+    name: "Acre",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "AL",
+    name: "Alagoas",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "AP",
+    name: "Amap\xE1",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "AM",
+    name: "Amazonas",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "BA",
+    name: "Bahia",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "CE",
+    name: "Cear\xE1",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "DF",
+    name: "Distrito Federal",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "ES",
+    name: "Esp\xEDrito Santo",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "GO",
+    name: "Goi\xE1s",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MA",
+    name: "Maranh\xE3o",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "MT",
+    name: "Mato Grosso",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MS",
+    name: "Mato Grosso do Sul",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MG",
+    name: "Minas Gerais",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "PR",
+    name: "Paran\xE1",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "PB",
+    name: "Para\xEDba",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "PA",
+    name: "Par\xE1",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "PE",
+    name: "Pernambuco",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "PI",
+    name: "Piau\xED",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "RN",
+    name: "Rio Grande do Norte",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "RS",
+    name: "Rio Grande do Sul",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "RJ",
+    name: "Rio de Janeiro",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "RO",
+    name: "Rond\xF4nia",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "RR",
+    name: "Roraima",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "SC",
+    name: "Santa Catarina",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "SE",
+    name: "Sergipe",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "SP",
+    name: "S\xE3o Paulo",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "TO",
+    name: "Tocantins",
+    regionCode: "N",
+    regionName: "Norte"
+  }
+];
+var z = class extends Error {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressError";
+  }
+};
+var B = class extends z {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressValidationError";
+  }
+};
+var V = class extends z {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressNotFoundError";
+  }
+};
+var $e = new Set(R.map((e2) => e2.code));
+var et = (e2) => $e.has(e2);
+var H = (e2) => e2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+var tt = async ({ federalUnit: e2, city: t2, street: n2 }) => {
+  let r2 = e2.trim().toUpperCase();
+  if (!et(r2))
+    throw new B(`Invalid UF: ${e2}`);
+  if (!t2 || !n2)
+    throw new B("City and street are required");
+  let i2 = await fetch(`https://viacep.com.br/ws/${r2}/${encodeURIComponent(H(t2))}/${encodeURIComponent(H(n2))}/json/`);
+  if (!i2.ok)
+    throw new z(`ViaCEP request failed with status ${i2.status}`);
+  let a2 = await i2.json();
+  if (!Array.isArray(a2) || a2.length === 0)
+    throw new V(`${r2} - ${t2} - ${n2}`);
+  return a2;
+};
+var nt = {
+  "Ano novo": {
+    day: 1,
+    month: 1
+  },
+  Tiradentes: {
+    day: 21,
+    month: 4
+  },
+  "Dia do trabalhador": {
+    day: 1,
+    month: 5
+  },
+  "Independ\xEAncia do Brasil": {
+    day: 7,
+    month: 9
+  },
+  "Nossa Senhora Aparecida": {
+    day: 12,
+    month: 10
+  },
+  Finados: {
+    day: 2,
+    month: 11
+  },
+  "Proclama\xE7\xE3o da Rep\xFAblica": {
+    day: 15,
+    month: 11
+  },
+  "Dia da Consci\xEAncia Negra": {
+    day: 20,
+    month: 11
+  },
+  Natal: {
+    day: 25,
+    month: 12
+  }
+};
+var rt = {
+  AC: [
+    {
+      name: "Dia do Evang\xE9lico",
+      day: 23,
+      month: 1
+    },
+    {
+      name: "Dia Internacional da Mulher",
+      day: 8,
+      month: 3
+    },
+    {
+      name: "Anivers\xE1rio do Acre",
+      day: 15,
+      month: 6
+    },
+    {
+      name: "Dia da Amaz\xF4nia",
+      day: 5,
+      month: 9
+    },
+    {
+      name: "Assinatura do Tratado de Petr\xF3polis",
+      day: 17,
+      month: 11
+    }
+  ],
+  AL: [
+    {
+      name: "S\xE3o Jo\xE3o",
+      day: 24,
+      month: 6
+    },
+    {
+      name: "S\xE3o Pedro",
+      day: 29,
+      month: 6
+    },
+    {
+      name: "Emancipa\xE7\xE3o Pol\xEDtica de Alagoas",
+      day: 16,
+      month: 9
+    }
+  ],
+  AP: [{
+    name: "Dia de S\xE3o Jos\xE9",
+    day: 19,
+    month: 3
+  }, {
+    name: "Cria\xE7\xE3o do Territ\xF3rio Federal do Amap\xE1",
+    day: 13,
+    month: 9
+  }],
+  AM: [{
+    name: "Eleva\xE7\xE3o do Amazonas \xE0 categoria de Prov\xEDncia",
+    day: 5,
+    month: 9
+  }, {
+    name: "Nossa Senhora da Concei\xE7\xE3o",
+    day: 8,
+    month: 12
+  }],
+  BA: [{
+    name: "Independ\xEAncia da Bahia",
+    day: 2,
+    month: 7
+  }],
+  CE: [{
+    name: "Dia de S\xE3o Jos\xE9",
+    day: 19,
+    month: 3
+  }, {
+    name: "Aboli\xE7\xE3o da Escravid\xE3o no Cear\xE1",
+    day: 25,
+    month: 3
+  }],
+  DF: [{
+    name: "Funda\xE7\xE3o de Bras\xEDlia",
+    day: 21,
+    month: 4
+  }, {
+    name: "Dia do Evang\xE9lico",
+    day: 30,
+    month: 11
+  }],
+  ES: [{
+    name: "Dia do Estado do Esp\xEDrito Santo",
+    day: 23,
+    month: 5
+  }],
+  GO: [{
+    name: "Dia do Estado de Goi\xE1s",
+    day: 5,
+    month: 7
+  }, {
+    name: "Nossa Senhora Sant'Ana",
+    day: 26,
+    month: 7
+  }],
+  MA: [{
+    name: "Ades\xE3o do Maranh\xE3o \xE0 Independ\xEAncia",
+    day: 28,
+    month: 7
+  }],
+  MT: [{
+    name: "Cria\xE7\xE3o do Estado de Mato Grosso",
+    day: 9,
+    month: 5
+  }, {
+    name: "Consci\xEAncia Negra",
+    day: 20,
+    month: 11
+  }],
+  MS: [{
+    name: "Cria\xE7\xE3o do Estado de Mato Grosso do Sul",
+    day: 11,
+    month: 10
+  }],
+  MG: [{
+    name: "Anivers\xE1rio de Minas Gerais",
+    day: 21,
+    month: 7
+  }],
+  PA: [{
+    name: "Ades\xE3o do Par\xE1 \xE0 Independ\xEAncia",
+    day: 15,
+    month: 8
+  }],
+  PB: [{
+    name: "Funda\xE7\xE3o do Estado e Dia de Nossa Senhora das Neves",
+    day: 5,
+    month: 8
+  }],
+  PR: [{
+    name: "Emancipa\xE7\xE3o Pol\xEDtica do Paran\xE1",
+    day: 19,
+    month: 12
+  }],
+  PE: [{
+    name: "Revolu\xE7\xE3o Pernambucana",
+    day: 6,
+    month: 3
+  }],
+  PI: [{
+    name: "Dia do Piau\xED",
+    day: 19,
+    month: 10
+  }],
+  RJ: [
+    {
+      name: "S\xE3o Sebasti\xE3o",
+      day: 20,
+      month: 1
+    },
+    {
+      name: "S\xE3o Jorge",
+      day: 23,
+      month: 4
+    },
+    {
+      name: "Consci\xEAncia Negra",
+      day: 20,
+      month: 11
+    }
+  ],
+  RN: [{
+    name: "M\xE1rtires de Cunha\xFA e Urua\xE7u",
+    day: 3,
+    month: 10
+  }, {
+    name: "Dia do Rio Grande do Norte",
+    day: 7,
+    month: 9
+  }],
+  RS: [{
+    name: "Revolu\xE7\xE3o Farroupilha",
+    day: 20,
+    month: 9
+  }],
+  RO: [{
+    name: "Cria\xE7\xE3o do Estado de Rond\xF4nia",
+    day: 4,
+    month: 1
+  }, {
+    name: "Dia do Evang\xE9lico",
+    day: 18,
+    month: 6
+  }],
+  RR: [{
+    name: "Cria\xE7\xE3o do Estado de Roraima",
+    day: 5,
+    month: 10
+  }],
+  SC: [{
+    name: "Cria\xE7\xE3o da Capitania de Santa Catarina",
+    day: 11,
+    month: 8
+  }, {
+    name: "Dia de Santa Catarina de Alexandria",
+    day: 25,
+    month: 11
+  }],
+  SP: [{
+    name: "Revolu\xE7\xE3o Constitucionalista",
+    day: 9,
+    month: 7
+  }],
+  SE: [{
+    name: "Emancipa\xE7\xE3o Pol\xEDtica de Sergipe",
+    day: 8,
+    month: 7
+  }],
+  TO: [{
+    name: "Padroeira do Estado (Nossa Senhora da Natividade)",
+    day: 8,
+    month: 9
+  }, {
+    name: "Cria\xE7\xE3o do Estado do Tocantins",
+    day: 5,
+    month: 10
+  }]
+};
+function U(e2) {
+  let t2 = e2 % 19, n2 = Math.floor(e2 / 100), r2 = e2 % 100, i2 = Math.floor(n2 / 4), a2 = n2 % 4, o2 = Math.floor((n2 + 8) / 25), s2 = Math.floor((n2 - o2 + 1) / 3), c2 = (19 * t2 + n2 - i2 - s2 + 15) % 30, l2 = Math.floor(r2 / 4), u2 = r2 % 4, d2 = (32 + 2 * a2 + 2 * l2 - c2 - u2) % 7, f2 = Math.floor((t2 + 11 * c2 + 22 * d2) / 451), p2 = Math.floor((c2 + d2 - 7 * f2 + 114) / 31) - 1, m2 = (c2 + d2 - 7 * f2 + 114) % 31 + 1;
+  return new Date(e2, p2, m2);
+}
+function W(e2, t2) {
+  let n2 = U(e2), r2 = new Date(n2);
+  return r2.setDate(n2.getDate() + t2), r2;
+}
+function G(e2) {
+  let t2, n2;
+  if (typeof e2 == "number" ? (t2 = e2, n2 = void 0) : (t2 = e2.year, n2 = e2.stateCode), typeof t2 != "number" || !Number.isInteger(t2) || t2 < 1900 || t2 > 2099)
+    return [];
+  let r2 = [];
+  for (let [e3, { day: n3, month: i3 }] of Object.entries(nt))
+    r2.push({
+      name: e3,
+      date: new Date(t2, i3 - 1, n3)
+    });
+  let i2 = U(t2);
+  if (r2.push({
+    name: "Carnaval (ter\xE7a-feira)",
+    date: W(t2, -47)
+  }), r2.push({
+    name: "Sexta-feira Santa",
+    date: W(t2, -2)
+  }), r2.push({
+    name: "P\xE1scoa",
+    date: i2
+  }), r2.push({
+    name: "Corpus Christi",
+    date: W(t2, 70)
+  }), n2) {
+    let e3 = rt[n2];
+    if (e3)
+      for (let { name: n3, day: i3, month: a2 } of e3)
+        r2.push({
+          name: n3,
+          date: new Date(t2, a2 - 1, i3)
+        });
+  }
+  return r2.sort((e3, t3) => e3.date.getTime() - t3.date.getTime()), r2;
+}
+var it = () => ({ ...E });
+var K = (e2) => e2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+var at = async (e2) => {
+  let t2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${e2}`);
+  if (!t2.ok)
+    return null;
+  let n2 = await t2.json(), r2 = n2.nome, i2 = n2.microrregiao?.mesorregiao?.UF?.sigla;
+  return !r2 || !i2 ? null : [r2, i2];
+};
+var ot = async ({ municipalityName: e2, uf: t2 }) => {
+  if (!e2 || typeof e2 != "string")
+    return null;
+  let n2 = t2.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(n2))
+    return null;
+  let r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${n2}/municipios`);
+  if (!r2.ok)
+    return null;
+  let i2 = await r2.json(), a2 = K(e2);
+  return i2.find((e3) => K(e3.nome ?? "") === a2)?.id?.toString() ?? null;
+};
+var st = async (e2) => "code" in e2 ? at(e2.code) : ot(e2);
+var ct = () => [...R];
+var lt = ({ targetDate: e2, stateCode: t2 }) => !(e2 instanceof Date) || Number.isNaN(e2.getTime()) || t2 !== void 0 && typeof t2 != "string" ? null : G({
+  year: e2.getFullYear(),
+  stateCode: t2
+}).some((t3) => t3.date.getFullYear() === e2.getFullYear() && t3.date.getMonth() === e2.getMonth() && t3.date.getDate() === e2.getDate());
+var ut = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length < 4 || t2.length > 5 || n2.length < 8 || n2.length > 10 || r2.length !== 1)
+    return false;
+  let i2 = n2.replace(/^0+/, "") || "0", a2 = t2.padStart(5, "0") + i2.padStart(8, "0"), o2 = 0, s2 = 2;
+  for (let e3 = a2.length - 1; e3 >= 0; e3--) {
+    let t3 = a2.charCodeAt(e3) - 48;
+    o2 += t3 * s2, s2 = s2 === 9 ? 2 : s2 + 1;
+  }
+  let c2 = o2 % 11, l2 = c2 === 0 || c2 === 1 ? 0 : 11 - c2;
+  return String(l2) === r2;
+};
+var dt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 5 || r2.length !== 1)
+    return false;
+  let i2 = t2 + n2, a2 = 0;
+  for (let e3 = 0; e3 < i2.length; e3++) {
+    let t3 = (i2.charCodeAt(e3) - 48) * (e3 % 2 == 0 ? 2 : 1);
+    t3 > 9 && (t3 = Math.floor(t3 / 10) + t3 % 10), a2 += t3;
+  }
+  let o2 = a2 % 10, s2 = o2 === 0 ? 0 : 10 - o2;
+  return String(s2) === r2;
+};
+var ft = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 7 || r2.length !== 1)
+    return false;
+  let i2 = 0, a2 = 2;
+  for (let e3 = n2.length - 1; e3 >= 0; e3--) {
+    let t3 = n2.charCodeAt(e3) - 48;
+    i2 += t3 * a2, a2 = a2 === 7 ? 2 : a2 + 1;
+  }
+  let o2 = i2 % 11, s2 = o2 === 0 || o2 === 1 ? 0 : 11 - o2;
+  return String(s2) === r2;
+};
+var pt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 8 || r2.length !== 1)
+    return false;
+  let i2 = v(n2);
+  return String(i2 > 9 ? 0 : i2) === r2;
+};
+var mt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 11 || r2.length !== 1)
+    return false;
+  let i2 = v(n2.substring(0, 10));
+  return String(i2 > 9 ? 0 : i2) === r2;
+};
+var ht = (e2) => {
+  let { account: t2, digit: n2 } = e2;
+  if (n2.length < 1 || n2.length > 2)
+    return false;
+  let r2 = v(t2);
+  if (r2 <= 9 && String(r2) === n2)
+    return true;
+  let i2 = _(t2);
+  return String(i2) === n2;
+};
+var q = {
+  "001": ut,
+  341: dt,
+  237: ft,
+  "033": pt,
+  104: mt
+};
+var gt = (e2) => {
+  let { bankCode: t2, agency: n2, account: r2, digit: a2 } = e2;
+  if (!t2 || !n2 || !r2 || !a2 || typeof t2 != "string" || typeof n2 != "string" || typeof r2 != "string" || typeof a2 != "string")
+    return false;
+  let o2 = i(t2), s2 = i(n2), c2 = i(r2), l2 = i(a2);
+  return o2.length !== 3 || s2.length === 0 || s2.length > 5 || c2.length === 0 || c2.length > 13 || l2.length === 0 || l2.length > 2 ? false : (o2 in q ? q[o2] : ht)({
+    bankCode: o2,
+    agency: s2,
+    account: c2,
+    digit: l2
+  });
+};
+var _t = (e2) => e2 === e2[0].repeat(e2.length);
+var vt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 11 || _t(t2))
+    return false;
+  let n2 = 0;
+  for (let e3 = 0; e3 < 9; e3++)
+    n2 += (t2.charCodeAt(e3) - 48) * (9 - e3);
+  let r2 = n2 % 11, a2 = 0;
+  if (r2 >= 10 && (r2 = 0, a2 = 2), r2 !== t2.charCodeAt(9) - 48)
+    return false;
+  let o2 = 0;
+  for (let e3 = 0; e3 < 9; e3++)
+    o2 += (t2.charCodeAt(e3) - 48) * (e3 + 1);
+  let s2 = o2 % 11 - a2;
+  return s2 < 0 && (s2 += 11), s2 >= 10 && (s2 = 0), s2 === t2.charCodeAt(10) - 48;
+};
+var yt = /* @__PURE__ */ new Set([
+  "00000000000000",
+  "11111111111111",
+  "22222222222222",
+  "33333333333333",
+  "44444444444444",
+  "55555555555555",
+  "66666666666666",
+  "77777777777777",
+  "88888888888888",
+  "99999999999999"
+]);
+var bt = [
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var xt = [
+  6,
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var St = /^[0-9A-Z]{2}\.?[0-9A-Z]{3}\.?[0-9A-Z]{3}\/?[0-9A-Z]{4}-?[0-9]{2}$/;
+var Ct = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/;
+var wt = (e2) => {
+  let t2 = "";
+  for (let n2 = 0; n2 < e2.length; n2++) {
+    let r2 = e2[n2];
+    (r2 >= "0" && r2 <= "9" || r2 >= "A" && r2 <= "Z" || r2 >= "a" && r2 <= "z") && (t2 += r2 >= "a" && r2 <= "z" ? String.fromCharCode(r2.charCodeAt(0) - 32) : r2);
+  }
+  return t2;
+};
+var J = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 12; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * bt[n3];
+  let n2 = t2 % 11, r2 = n2 < 2 ? 48 : 59 - n2;
+  if (e2.charCodeAt(12) !== r2)
+    return false;
+  t2 = 0;
+  for (let n3 = 0; n3 < 13; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * xt[n3];
+  n2 = t2 % 11;
+  let i2 = n2 < 2 ? 48 : 59 - n2;
+  return e2.charCodeAt(13) === i2;
+};
+var Y = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = wt(e2);
+  if (n2.length !== 14)
+    return false;
+  let r2 = t2?.version ?? 1, a2 = true, o2 = false;
+  if (r2 !== 1)
+    for (let e3 = 0; e3 < 14; e3++) {
+      let t3 = n2.charCodeAt(e3);
+      (t3 < 48 || t3 > 57) && (a2 = false, t3 >= 65 && t3 <= 90 && (o2 = true));
+    }
+  if (a2) {
+    let t3 = i(e2);
+    return Ct.test(e2) && !yt.has(t3) && J(t3);
+  }
+  return o2 && St.test(e2) && J(n2);
+};
+var Tt = /* @__PURE__ */ new Set([
+  "00000000000",
+  "11111111111",
+  "22222222222",
+  "33333333333",
+  "44444444444",
+  "55555555555",
+  "66666666666",
+  "77777777777",
+  "88888888888",
+  "99999999999"
+]);
+var Et = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+var Dt = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 9; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (10 - n3);
+  let n2 = t2 % 11, r2 = n2 < 2 ? 48 : 59 - n2;
+  if (e2.charCodeAt(9) !== r2)
+    return false;
+  t2 = 0;
+  for (let n3 = 0; n3 < 10; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (11 - n3);
+  n2 = t2 % 11;
+  let i2 = n2 < 2 ? 48 : 59 - n2;
+  return e2.charCodeAt(10) === i2;
+};
+var X = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 11 || !Et.test(e2) || Tt.has(t2) ? false : Dt(t2);
+};
+var Ot = /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9-]*\.)+[a-z]{2,}$/i;
+var kt = (e2) => !e2 || typeof e2 != "string" ? false : Ot.test(e2);
+var Z = (e2, t2) => typeof t2 == "number" ? e2.length === t2 : t2.includes(e2.length);
+var Q = (e2, t2) => e2.substring(0, t2.length) === t2;
+var $ = ({ body: e2, startWeight: t2, minWeight: n2, mod: r2 = 11 }) => {
+  let i2 = t2, a2 = 0;
+  for (let t3 = 0; t3 < e2.length; t3++) {
+    let r3 = e2.charCodeAt(t3) - 48;
+    a2 += r3 * i2, i2--, i2 < n2 && (i2 = n2 === 1 ? 9 : 11);
+  }
+  let o2 = r2 - a2 % r2;
+  return o2 >= 10 ? 0 : o2;
+};
+var At = (e2) => {
+  if (!Z(e2, 13) || !Q(e2, "01"))
+    return false;
+  let t2 = e2.substring(0, 11), n2 = t2.length - 7, r2 = 0;
+  for (let i3 = 0; i3 < t2.length; i3++) {
+    let t3 = e2.charCodeAt(i3) - 48;
+    r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+  }
+  let i2 = 11 - r2 % 11;
+  i2 >= 10 && (i2 = 0);
+  let a2 = t2 + i2;
+  n2 = a2.length - 7, r2 = 0;
+  for (let o3 = 0; o3 < a2.length; o3++) {
+    let a3 = o3 < t2.length ? e2.charCodeAt(o3) - 48 : i2;
+    r2 += a3 * n2, n2--, n2 === 1 && (n2 = 9);
+  }
+  let o2 = 11 - r2 % 11;
+  return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(11), 10) === i2 && Number.parseInt(e2.charAt(12), 10) === o2;
+};
+var jt = (e2) => {
+  if (!Z(e2, 9) || !Q(e2, "24"))
+    return false;
+  let t2 = 9, n2 = 0;
+  for (let r3 = 0; r3 < 8; r3++) {
+    let i3 = e2.charCodeAt(r3) - 48;
+    n2 += i3 * t2, t2--;
+  }
+  let r2 = n2 * 10, i2 = r2 - Math.floor(r2 / 11) * 11;
+  return i2 >= 10 && (i2 = 0), i2 === Number.parseInt(e2.charAt(8), 10);
+};
+var Mt = (e2) => {
+  if (!Z(e2, 9) || !Q(e2, "03"))
+    return false;
+  let t2 = e2.length, n2 = t2 - 1, r2 = t2, i2 = e2.substring(0, n2), a2 = Number.parseInt(i2, 10), o2 = 0, s2 = 0;
+  a2 >= 3000001 && a2 <= 3017e3 ? (o2 = 5, s2 = 0) : a2 >= 3017001 && a2 <= 3019022 && (o2 = 9, s2 = 1);
+  let c2 = o2;
+  for (let t3 = 0; t3 < i2.length; t3++) {
+    let n3 = e2.charCodeAt(t3) - 48;
+    c2 += n3 * r2, r2--;
+  }
+  let l2 = 11 - c2 % 11;
+  return l2 === 10 && (l2 = 0), l2 === 11 && (l2 = s2), l2 === Number.parseInt(e2.charAt(n2), 10);
+};
+var Nt = (e2) => {
+  if (!Z(e2, 9))
+    return false;
+  let t2 = e2.substring(0, 8), n2 = $({
+    body: t2,
+    startWeight: t2.length + 1,
+    minWeight: 1
+  });
+  return Number.parseInt(e2.charAt(8), 10) === n2;
+};
+var Pt = (e2) => {
+  if (!Z(e2, [8, 9]))
+    return false;
+  let t2 = +(e2.length === 9), n2 = Number.parseInt(e2.substring(t2, t2 + 1), 10), r2 = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    8
+  ].includes(n2) ? 10 : 11, i2 = e2.substring(0, e2.length - 2), a2 = i2.length + 1, o2 = 0;
+  for (let t3 = 0; t3 < i2.length; t3++) {
+    let n3 = e2.charCodeAt(t3) - 48;
+    o2 += n3 * a2, a2--;
+  }
+  let s2 = o2 % r2, c2 = r2 - s2;
+  c2 >= 10 && (c2 = 0);
+  let l2 = i2 + c2;
+  a2 = l2.length + 1, o2 = 0;
+  for (let t3 = 0; t3 < l2.length; t3++) {
+    let n3 = t3 < i2.length ? e2.charCodeAt(t3) - 48 : c2;
+    o2 += n3 * a2, a2--;
+  }
+  s2 = o2 % r2;
+  let u2 = r2 - s2;
+  return u2 >= 10 && (u2 = 0), Number.parseInt(e2.charAt(e2.length - 2), 10) === u2 && Number.parseInt(e2.charAt(e2.length - 1), 10) === c2;
+};
+var Ft = (e2) => {
+  if (!Z(e2, 9))
+    return false;
+  let t2 = e2.substring(0, 8), n2 = $({
+    body: t2,
+    startWeight: t2.length + 1,
+    minWeight: 1
+  });
+  return Number.parseInt(e2.charAt(8), 10) === n2;
+};
+var It = (e2) => {
+  if (!Z(e2, 13) || !Q(e2, "07"))
+    return false;
+  let t2 = e2.length, n2 = e2.substring(0, t2 - 2), r2 = Lt(n2), i2 = Lt(n2 + r2);
+  return Number.parseInt(e2.charAt(t2 - 2), 10) === r2 && Number.parseInt(e2.charAt(t2 - 1), 10) === i2;
+};
+var Lt = (e2) => {
+  let t2 = e2.length - 7, n2 = 0;
+  for (let r3 = 0; r3 < e2.length; r3++) {
+    let i2 = Number.parseInt(e2.charAt(r3), 10);
+    n2 += i2 * t2, t2--, t2 === 1 && (t2 = 9);
+  }
+  let r2 = 11 - n2 % 11;
+  return r2 >= 10 && (r2 = 0), r2;
+};
+var Rt = {
+  AC: At,
+  AL: jt,
+  AP: Mt,
+  AM: Nt,
+  BA: Pt,
+  CE: Ft,
+  DF: It,
+  ES: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  GO: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = [
+      "10",
+      "11",
+      "12",
+      "20"
+    ], n2 = e2.substring(0, 2);
+    if (!t2.includes(n2))
+      return false;
+    let r2 = e2.substring(0, 8), i2 = Number.parseInt(r2, 10), a2 = 9, o2 = 0;
+    for (let t3 = 0; t3 < r2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      o2 += n3 * a2, a2--;
+    }
+    let s2 = 11 - o2 % 11;
+    return s2 >= 10 && (s2 = +(s2 === 11 && i2 >= 10103105 && i2 <= 10119997)), Number.parseInt(e2.charAt(8), 10) === s2;
+  },
+  MA: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "12"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  MG: (e2) => {
+    if (!Z(e2, 13))
+      return false;
+    let t2 = e2.substring(0, 11), n2 = `${t2.substring(0, 3)}0${t2.substring(3)}`, r2 = "";
+    for (let e3 = 0; e3 < n2.length; e3++) {
+      let t3 = n2.charCodeAt(e3) - 48, i3 = (e3 + 3) % 2 == 0 ? 2 : 1;
+      r2 += String(t3 * i3);
+    }
+    let i2 = 0;
+    for (let e3 = 0; e3 < r2.length; e3++)
+      i2 += r2.charCodeAt(e3) - 48;
+    let a2 = String(i2), o2 = a2.charAt(a2.length - 1), s2 = Number.parseInt(o2, 10), c2 = s2 === 0 ? 0 : 10 - s2, l2 = 3, u2 = 0, d2 = t2 + c2;
+    for (let e3 = 0; e3 < d2.length; e3++) {
+      let t3 = d2.charCodeAt(e3) - 48;
+      u2 += t3 * l2, l2--, l2 === 1 && (l2 = 11);
+    }
+    let f2 = 11 - u2 % 11;
+    return f2 >= 10 && (f2 = 0), Number.parseInt(e2.charAt(11), 10) === c2 && Number.parseInt(e2.charAt(12), 10) === f2;
+  },
+  MT: (e2) => {
+    if (!Z(e2, 11))
+      return false;
+    let t2 = e2.substring(0, 10), n2 = 3, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(10), 10) === i2;
+  },
+  MS: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "28"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PA: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "15"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PB: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PE: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 7), n2 = t2.length + 1, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--;
+    }
+    let i2 = 11 - r2 % 11;
+    i2 >= 10 && (i2 = 0);
+    let a2 = t2 + i2;
+    n2 = a2.length + 1, r2 = 0;
+    for (let o3 = 0; o3 < a2.length; o3++) {
+      let a3 = o3 < t2.length ? e2.charCodeAt(o3) - 48 : i2;
+      r2 += a3 * n2, n2--;
+    }
+    let o2 = 11 - r2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(7), 10) === i2 && Number.parseInt(e2.charAt(8), 10) === o2;
+  },
+  PI: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PR: (e2) => {
+    if (!Z(e2, 10))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = t2.length - 5, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let i2 = 11 - r2 % 11;
+    i2 >= 10 && (i2 = 0);
+    let a2 = t2 + i2;
+    n2 = a2.length - 5, r2 = 0;
+    for (let e3 = 0; e3 < a2.length; e3++) {
+      let t3 = Number.parseInt(a2.charAt(e3), 10);
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let o2 = 11 - r2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(8), 10) === i2 && Number.parseInt(e2.charAt(9), 10) === o2;
+  },
+  RJ: (e2) => {
+    if (!Z(e2, 8))
+      return false;
+    let t2 = e2.substring(0, 7), n2 = 2, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = Number.parseInt(e2.charAt(i3), 10);
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(7), 10) === i2;
+  },
+  RN: (e2) => {
+    if (!Z(e2, [9, 10]) || !Q(e2, "20"))
+      return false;
+    let t2 = e2.length, n2 = t2 - 1, r2 = t2, i2 = e2.substring(0, n2), a2 = 0;
+    for (let t3 = 0; t3 < i2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      a2 += n3 * r2, r2--;
+    }
+    let o2 = 11 - a2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(n2), 10) === o2;
+  },
+  RO: (e2) => {
+    if (!Z(e2, 14))
+      return false;
+    let t2 = e2.length - 1, n2 = 6, r2 = e2.substring(0, t2), i2 = 0;
+    for (let t3 = 0; t3 < r2.length; t3++) {
+      let r3 = Number.parseInt(e2.charAt(t3), 10);
+      i2 += r3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let a2 = 11 - i2 % 11;
+    return a2 >= 10 && (a2 -= 10), a2 === Number.parseInt(e2.charAt(t2), 10);
+  },
+  RR: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "24"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = 1, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2++;
+    }
+    let i2 = r2 % 9;
+    return Number.parseInt(e2.charAt(8), 10) === i2;
+  },
+  RS: (e2) => {
+    if (!Z(e2, 10))
+      return false;
+    let t2 = e2.substring(0, 9), n2 = 2, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(9), 10) === i2;
+  },
+  SC: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  SE: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  SP: (e2) => {
+    if (!Z(e2, 12))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = [
+      1,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10
+    ], r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2[i3];
+    }
+    let i2 = r2 % 11, a2 = String(i2), o2 = Number.parseInt(a2.charAt(a2.length - 1), 10), s2 = e2.substring(0, 11), c2 = 3, l2 = 0;
+    for (let t3 = 0; t3 < s2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      l2 += n3 * c2, c2--, c2 === 1 && (c2 = 10);
+    }
+    let u2 = l2 % 11, d2 = String(u2), f2 = Number.parseInt(d2.charAt(d2.length - 1), 10);
+    return Number.parseInt(e2.charAt(8), 10) === o2 && Number.parseInt(e2.charAt(11), 10) === f2;
+  },
+  TO: (e2) => {
+    if (!Z(e2, [9, 11]))
+      return false;
+    if (e2.length === 11) {
+      let t3 = e2.substring(2, 4);
+      if ([
+        "01",
+        "02",
+        "03",
+        "99"
+      ].includes(t3)) {
+        let t4 = e2.substring(0, 2) + e2.substring(4, 10), n3 = 9, r3 = 0;
+        for (let e3 = 0; e3 < t4.length; e3++) {
+          let i4 = Number.parseInt(t4.charAt(e3), 10);
+          r3 += i4 * n3, n3--;
+        }
+        let i3 = r3 % 11, a3 = 11 - i3;
+        return i3 < 2 && (a3 = 0), Number.parseInt(e2.charAt(10), 10) === a3;
+      }
+    }
+    let t2 = e2.substring(0, 8), n2 = 9, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--;
+    }
+    let i2 = r2 % 11, a2 = 11 - i2;
+    return i2 < 2 && (a2 = 0), Number.parseInt(e2.charAt(8), 10) === a2;
+  }
+};
+var zt = (e2, t2) => {
+  if (!e2 || !t2 || typeof t2 != "string")
+    return false;
+  let n2 = i(t2);
+  if (!n2)
+    return false;
+  let r2 = Rt[e2];
+  return r2 ? r2(n2) : false;
+};
+var Bt = [
+  2,
+  3,
+  4,
+  5
+];
+var Vt = new Set(O);
+var Ht = (e2) => {
+  let t2 = (e2.charCodeAt(0) - 48) * 10 + (e2.charCodeAt(1) - 48);
+  return Vt.has(t2);
+};
+var Ut = (e2) => {
+  let t2 = e2.charCodeAt(2) - 48;
+  return Bt.includes(t2);
+};
+var Wt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 10 || !Ht(t2) ? false : Ut(t2);
+};
+var Gt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length === 4 && t2 in E;
+};
+var Kt = /^[a-z]{3}[0-9]{1}[a-z]{1}[0-9]{2}$|^[a-z]{3}[0-9]{2}[a-z]{1}[0-9]{1}$/i;
+var qt = /^[a-z]{3}-?[0-9]{4}$/i;
+var Jt = (e2) => !e2 || typeof e2 != "string" ? false : Kt.test(e2) || qt.test(e2);
+var Yt = [
+  6,
+  7,
+  8,
+  9
+];
+var Xt = [9];
+var Zt = new Set(O);
+var Qt = (e2) => {
+  let t2 = (e2.charCodeAt(0) - 48) * 10 + (e2.charCodeAt(1) - 48);
+  return Zt.has(t2);
+};
+var $t = (e2, t2) => {
+  let n2 = e2.charCodeAt(2) - 48;
+  return !t2 || t2 === 1 ? Yt.includes(n2) : Xt.includes(n2);
+};
+var en = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = i(e2);
+  return n2.length !== 11 || !Qt(n2) ? false : $t(n2, t2?.version);
+};
+var tn = /^[A-Z]{2}[0-9]{6}$/;
+var nn = (e2) => e2 == null ? false : tn.test(String(e2));
+var rn = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = i(e2);
+  return n2.length === 10 ? Wt(e2) : n2.length === 11 ? en(e2, t2) : false;
+};
+var an = /* @__PURE__ */ new Set([
+  "00000000000",
+  "11111111111",
+  "22222222222",
+  "33333333333",
+  "44444444444",
+  "55555555555",
+  "66666666666",
+  "77777777777",
+  "88888888888",
+  "99999999999"
+]);
+var on = [
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var sn = (e2) => {
+  if (!e2 || typeof e2 != "string" || /[^0-9 ().,*-]/.test(e2))
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 11 || an.has(t2))
+    return false;
+  let n2 = t2.substring(0, 10), r2 = t2.charCodeAt(10) - 48, a2 = 11 - y({
+    base: n2,
+    weight: on
+  }) % 11;
+  return r2 === (a2 >= 10 ? 0 : a2);
+};
+var cn = (e2) => {
+  let t2 = Number.parseInt(e2.substring(7, 9), 10), n2 = e2.substring(0, 7) + e2.substring(9), r2 = 0;
+  for (let e3 = 0; e3 < 11; e3++)
+    r2 += (n2.charCodeAt(e3) - 48) * 10 ** (10 - e3);
+  let i2 = r2 % 97, a2 = 0;
+  for (let e3 = 11; e3 < 18; e3++)
+    a2 += (n2.charCodeAt(e3) - 48) * 10 ** (6 - (e3 - 11));
+  return 98 - (i2 * 1e9 + a2 * 100) % 97 === t2;
+};
+var ln = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length === 20 ? cn(t2) : false;
+};
+var un = 11;
+var dn = (e2, t2) => {
+  let n2 = e2.length;
+  return n2 >= t2 ? e2 : "0".repeat(t2 - n2) + e2;
+};
+var fn = (e2) => {
+  if (!e2)
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 9 && t2.length !== 11)
+    return false;
+  let n2 = dn(t2, un);
+  if (!/^\d{11}$/.test(n2))
+    return false;
+  let r2 = n2.substring(0, 10).split("").reverse().join(""), a2 = 0, o2 = 2;
+  for (let e3 = 0; e3 < 10; e3++)
+    a2 += Number.parseInt(r2[e3] ?? "0", 10) * o2, o2 >= 9 ? o2 = 2 : o2++;
+  let s2 = 11 - a2 % 11;
+  return s2 >= 10 && (s2 = 0), s2 === Number.parseInt(n2[10] ?? "0", 10);
+};
+var pn = (e2) => {
+  if (e2.length === 12)
+    return true;
+  let t2 = e2.slice(-4, -2);
+  return e2.length === 13 && (t2 === "01" || t2 === "02");
+};
+var mn = ({ sequentialNumber: e2, federativeUnion: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 8; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 2);
+  let r2 = n2 % 11;
+  return r2 === 0 && (t2 === "01" || t2 === "02") ? 1 : r2 === 10 ? 0 : r2;
+};
+var hn = ({ federativeUnion: e2, firstDigit: t2 }) => {
+  let n2 = ((e2.charCodeAt(0) - 48) * 7 + (e2.charCodeAt(1) - 48) * 8 + t2 * 9) % 11;
+  return (e2 === "01" || e2 === "02") && n2 === 0 ? 1 : n2 === 10 ? 0 : n2;
+};
+var gn = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  if (!pn(t2))
+    return false;
+  let n2 = t2.slice(0, 8), r2 = t2.slice(-4, -2), a2 = t2.slice(-2), o2 = Number(r2);
+  if (!Number.isInteger(o2) || o2 < 1 || o2 > 28)
+    return false;
+  let s2 = mn({
+    sequentialNumber: n2,
+    federativeUnion: r2
+  });
+  return a2 === `${s2}${hn({
+    federativeUnion: r2,
+    firstDigit: s2
+  })}`;
+};
+var _n = (e2) => i(e2).slice(0, 47);
+var vn = (e2) => i(e2).slice(0, 8);
+var yn = (e2) => i(e2).slice(0, 11);
+var bn = (e2, t2) => t2 === 2 ? c(e2) : i(e2);
+var xn = (e2, t2) => bn(e2, t2?.version).slice(0, 14);
+var Sn = (e2) => i(e2).slice(0, 11);
+var Cn = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return 0;
+  let t2 = i(e2) || "0";
+  return Number.parseInt(t2, 10) / 100;
+};
+var wn = (e2) => i(e2).slice(0, 4);
+var Tn = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 8);
+var En = (e2) => i(e2).slice(0, 11);
+var Dn = (e2) => i(e2).slice(0, 11);
+var On = (e2) => i(e2).slice(0, 20);
+var kn = (e2) => i(e2).slice(0, 12);
+
+// fontes/cpf.ts
+function cpfValido(_2, cpf) {
+  return X(cpf);
+}
+function formatarCpf(_2, cpf, opcoes) {
+  return d(cpf, { pad: opcoes?.completar });
+}
+function limparCpf(_2, cpf) {
+  return Sn(cpf);
+}
+function gerarCpf(_2) {
+  return T();
+}
+
+// fontes/cnpj.ts
+function cnpjValido(_2, cnpj) {
+  return Y(cnpj);
+}
+function formatarCnpj(_2, cnpj, opcoes) {
+  return u(cnpj, { pad: opcoes?.completar, version: opcoes?.versao });
+}
+function limparCnpj(_2, cnpj, opcoes) {
+  return xn(cnpj, { version: opcoes?.versao });
+}
+function gerarCnpj(_2) {
+  return Te();
+}
+
+// fontes/cnh.ts
+function cnhValida(_2, cnh) {
+  return vt(cnh);
+}
+function formatarCnh(_2, cnh, opcoes) {
+  return s(cnh, { pad: opcoes?.completar });
+}
+function limparCnh(_2, cnh) {
+  return yn(cnh);
+}
+function gerarCnh(_2) {
+  return he();
+}
+
+// fontes/pis.ts
+function pisValido(_2, pis) {
+  return sn(pis);
+}
+function formatarPis(_2, pis, opcoes) {
+  return ce(pis, { pad: opcoes?.completar });
+}
+function limparPis(_2, pis) {
+  return Dn(pis);
+}
+function gerarPis(_2) {
+  return Le();
+}
+
+// fontes/passaporte.ts
+function passaporteValido(_2, passaporte) {
+  return nn(passaporte);
+}
+function formatarPassaporte(_2, passaporte) {
+  return ie(passaporte);
+}
+function limparPassaporte(_2, passaporte) {
+  return Tn(passaporte);
+}
+function gerarPassaporte(_2) {
+  return Ne();
+}
+
+// fontes/placa-veiculo.ts
+function placaVeiculoValida(_2, placa) {
+  return Jt(placa);
+}
+function formatarPlacaVeiculo(_2, placa) {
+  return re(placa);
+}
+function limparPlacaVeiculo(_2, placa) {
+  return m(placa);
+}
+function gerarPlacaVeiculo(_2, formato) {
+  return Me(formato);
+}
+function obterFormatoPlacaVeiculo(_2, placa) {
+  return h(placa);
+}
+
+// fontes/renavam.ts
+function renavamValido(_2, renavam) {
+  return fn(renavam);
+}
+
+// fontes/inscricao-estadual.ts
+function inscricaoEstadualValida(_2, uf, inscricao) {
+  return zt(uf, inscricao);
+}
+
+// fontes/conta-bancaria.ts
+function contaBancariaValida(_2, conta) {
+  return gt({
+    bankCode: conta.banco ?? "",
+    agency: conta.agencia ?? "",
+    account: conta.conta ?? "",
+    digit: conta.digito ?? ""
+  });
+}
+
+// fontes/processo-juridico.ts
+function processoJuridicoValido(_2, processo) {
+  return ln(processo);
+}
+function formatarProcessoJuridico(_2, processo) {
+  return le(processo);
+}
+function limparProcessoJuridico(_2, processo) {
+  return On(processo);
+}
+function gerarProcessoJuridico(_2, opcoes) {
+  return ze({ year: opcoes?.ano, court: opcoes?.tribunal });
+}
+
+// fontes/natureza-juridica.ts
+function naturezaJuridicaValida(_2, codigo) {
+  return Gt(codigo);
+}
+function formatarNaturezaJuridica(_2, codigo) {
+  return p(codigo);
+}
+function limparNaturezaJuridica(_2, codigo) {
+  return wn(codigo);
+}
+function gerarNaturezaJuridica(_2) {
+  return Oe();
+}
+function obterNaturezasJuridicas(_2) {
+  return it();
+}
+
+// fontes/cep.ts
+function cepValido(_2, cep) {
+  return A(cep);
+}
+function formatarCep(_2, cep) {
+  return o(cep);
+}
+function limparCep(_2, cep) {
+  return vn(cep);
+}
+function gerarCep(_2) {
+  return fe();
+}
+async function obterEnderecoPorCep(_2, cep) {
+  return We(cep);
+}
+async function obterCepPorEndereco(_2, unidadeFederativa, cidade, logradouro) {
+  return tt({
+    federalUnit: unidadeFederativa,
+    city: cidade,
+    street: logradouro
+  });
+}
+
+// fontes/boleto.ts
+function boletoValido(_2, boleto) {
+  return I(boleto);
+}
+function formatarBoleto(_2, boleto, opcoes) {
+  return a(boleto, { pad: opcoes?.completar });
+}
+function limparBoleto(_2, boleto) {
+  return _n(boleto);
+}
+function gerarBoleto(_2) {
+  return de();
+}
+function obterInfoBoleto(_2, boleto) {
+  const info = Ze(boleto);
+  return {
+    valorBoleto: info.amount,
+    dataVencimento: info.expirationDate,
+    codigoBanco: info.bankCode
+  };
+}
+
+// fontes/moeda.ts
+function formatarMoeda(_2, valor, opcoes) {
+  return f(valor, { precision: opcoes?.precisao });
+}
+function analisarMoeda(_2, moeda) {
+  return Cn(moeda);
+}
+
+// fontes/telefone.ts
+function telefoneValido(_2, telefone) {
+  return rn(telefone);
+}
+function formatarTelefone(_2, telefone, opcoes) {
+  return se(telefone, { mask: opcoes?.mascara });
+}
+function limparTelefone(_2, telefone) {
+  return En(telefone);
+}
+function celularValido(_2, telefone) {
+  return en(telefone);
+}
+function telefoneFixoValido(_2, telefone) {
+  return Wt(telefone);
+}
+function gerarTelefone(_2, tipo) {
+  const tipoIngles = tipo === "celular" ? "mobile" : tipo === "fixo" ? "landline" : void 0;
+  return k(tipoIngles);
+}
+
+// fontes/email.ts
+function emailValido(_2, email) {
+  return kt(email);
+}
+
+// fontes/titulo-eleitor.ts
+function tituloEleitorValido(_2, titulo) {
+  return gn(titulo);
+}
+function formatarTituloEleitor(_2, titulo) {
+  return ue(titulo);
+}
+function limparTituloEleitor(_2, titulo) {
+  return kn(titulo);
+}
+function gerarTituloEleitor(_2, codigoEstado) {
+  return Ue(codigoEstado);
+}
+
+// fontes/estados.ts
+function obterEstados(_2) {
+  return ct().map((estado) => ({
+    codigo: estado.code,
+    nome: estado.name
+  }));
+}
+function obterCidades(_2, codigoEstado) {
+  return Qe(codigoEstado);
+}
+
+// fontes/municipios.ts
+async function obterMunicipioPorCodigo(_2, codigo) {
+  return st({ code: codigo });
+}
+async function obterMunicipioPorNome(_2, nomeMunicipio, uf) {
+  return st({ municipalityName: nomeMunicipio, uf });
+}
+
+// fontes/feriados.ts
+function obterFeriados(_2, ano, codigoEstado) {
+  const feriados = codigoEstado ? G({ year: ano, stateCode: codigoEstado }) : G(ano);
+  return feriados.map((feriado) => ({
+    nome: feriado.name,
+    data: feriado.date
+  }));
+}
+function ehFeriado(_2, data, codigoEstado) {
+  return lt({ targetDate: data, stateCode: codigoEstado });
+}
+
+// fontes/texto.ts
+function capitalizar(_2, texto, opcoes) {
+  return n(texto, {
+    lowerCaseWords: opcoes?.palavrasMinusculas,
+    upperCaseWords: opcoes?.palavrasMaiusculas
+  });
+}
+
+// fontes/delegua-modulo.ts
+var DeleguaModuloBrasil = {
+  // CPF
+  cpfValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cpfValido,
+    argumentos: [{ nome: "cpf", tipo: "texto" }]
+  },
+  formatarCpf: {
+    tipoRetorno: "texto",
+    funcao: formatarCpf,
+    argumentos: [
+      { nome: "cpf", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCpf: {
+    tipoRetorno: "texto",
+    funcao: limparCpf,
+    argumentos: [{ nome: "cpf", tipo: "texto" }]
+  },
+  gerarCpf: {
+    tipoRetorno: "texto",
+    funcao: gerarCpf,
+    argumentos: []
+  },
+  // CNPJ
+  cnpjValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cnpjValido,
+    argumentos: [{ nome: "cnpj", tipo: "texto" }]
+  },
+  formatarCnpj: {
+    tipoRetorno: "texto",
+    funcao: formatarCnpj,
+    argumentos: [
+      { nome: "cnpj", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCnpj: {
+    tipoRetorno: "texto",
+    funcao: limparCnpj,
+    argumentos: [
+      { nome: "cnpj", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  gerarCnpj: {
+    tipoRetorno: "texto",
+    funcao: gerarCnpj,
+    argumentos: []
+  },
+  // CNH
+  cnhValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cnhValida,
+    argumentos: [{ nome: "cnh", tipo: "texto" }]
+  },
+  formatarCnh: {
+    tipoRetorno: "texto",
+    funcao: formatarCnh,
+    argumentos: [
+      { nome: "cnh", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCnh: {
+    tipoRetorno: "texto",
+    funcao: limparCnh,
+    argumentos: [{ nome: "cnh", tipo: "texto" }]
+  },
+  gerarCnh: {
+    tipoRetorno: "texto",
+    funcao: gerarCnh,
+    argumentos: []
+  },
+  // PIS
+  pisValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: pisValido,
+    argumentos: [{ nome: "pis", tipo: "texto" }]
+  },
+  formatarPis: {
+    tipoRetorno: "texto",
+    funcao: formatarPis,
+    argumentos: [
+      { nome: "pis", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparPis: {
+    tipoRetorno: "texto",
+    funcao: limparPis,
+    argumentos: [{ nome: "pis", tipo: "texto" }]
+  },
+  gerarPis: {
+    tipoRetorno: "texto",
+    funcao: gerarPis,
+    argumentos: []
+  },
+  // Passaporte
+  passaporteValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: passaporteValido,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  formatarPassaporte: {
+    tipoRetorno: "texto",
+    funcao: formatarPassaporte,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  limparPassaporte: {
+    tipoRetorno: "texto",
+    funcao: limparPassaporte,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  gerarPassaporte: {
+    tipoRetorno: "texto",
+    funcao: gerarPassaporte,
+    argumentos: []
+  },
+  // Placa de Veículo
+  placaVeiculoValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: placaVeiculoValida,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  formatarPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: formatarPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  limparPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: limparPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  gerarPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: gerarPlacaVeiculo,
+    argumentos: [{ nome: "formato", tipo: "texto", opcional: true }]
+  },
+  obterFormatoPlacaVeiculo: {
+    tipoRetorno: "qualquer",
+    funcao: obterFormatoPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  // RENAVAM
+  renavamValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: renavamValido,
+    argumentos: [{ nome: "renavam", tipo: "texto" }]
+  },
+  // Inscrição Estadual
+  inscricaoEstadualValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: inscricaoEstadualValida,
+    argumentos: [
+      { nome: "uf", tipo: "texto" },
+      { nome: "inscricao", tipo: "texto" }
+    ]
+  },
+  // Conta Bancária
+  contaBancariaValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: contaBancariaValida,
+    argumentos: [{ nome: "conta", tipo: "dicion\xE1rio" }]
+  },
+  // Processo Jurídico
+  processoJuridicoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: processoJuridicoValido,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  formatarProcessoJuridico: {
+    tipoRetorno: "texto",
+    funcao: formatarProcessoJuridico,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  limparProcessoJuridico: {
+    tipoRetorno: "texto",
+    funcao: limparProcessoJuridico,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  gerarProcessoJuridico: {
+    tipoRetorno: "qualquer",
+    funcao: gerarProcessoJuridico,
+    argumentos: [{ nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }]
+  },
+  // Natureza Jurídica
+  naturezaJuridicaValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: naturezaJuridicaValida,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  formatarNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: formatarNaturezaJuridica,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  limparNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: limparNaturezaJuridica,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  gerarNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: gerarNaturezaJuridica,
+    argumentos: []
+  },
+  obterNaturezasJuridicas: {
+    tipoRetorno: "dicion\xE1rio",
+    funcao: obterNaturezasJuridicas,
+    argumentos: []
+  },
+  // CEP
+  cepValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cepValido,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  formatarCep: {
+    tipoRetorno: "texto",
+    funcao: formatarCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  limparCep: {
+    tipoRetorno: "texto",
+    funcao: limparCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  gerarCep: {
+    tipoRetorno: "texto",
+    funcao: gerarCep,
+    argumentos: []
+  },
+  obterEnderecoPorCep: {
+    tipoRetorno: "qualquer",
+    funcao: obterEnderecoPorCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  obterCepPorEndereco: {
+    tipoRetorno: "vetor",
+    funcao: obterCepPorEndereco,
+    argumentos: [
+      { nome: "unidadeFederativa", tipo: "texto" },
+      { nome: "cidade", tipo: "texto" },
+      { nome: "logradouro", tipo: "texto" }
+    ]
+  },
+  // Boleto
+  boletoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: boletoValido,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  formatarBoleto: {
+    tipoRetorno: "texto",
+    funcao: formatarBoleto,
+    argumentos: [
+      { nome: "boleto", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparBoleto: {
+    tipoRetorno: "texto",
+    funcao: limparBoleto,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  gerarBoleto: {
+    tipoRetorno: "texto",
+    funcao: gerarBoleto,
+    argumentos: []
+  },
+  obterInfoBoleto: {
+    tipoRetorno: "dicion\xE1rio",
+    funcao: obterInfoBoleto,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  // Moeda
+  formatarMoeda: {
+    tipoRetorno: "texto",
+    funcao: formatarMoeda,
+    argumentos: [
+      { nome: "valor", tipo: "n\xFAmero" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  analisarMoeda: {
+    tipoRetorno: "n\xFAmero",
+    funcao: analisarMoeda,
+    argumentos: [{ nome: "moeda", tipo: "texto" }]
+  },
+  // Telefone
+  telefoneValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: telefoneValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  formatarTelefone: {
+    tipoRetorno: "texto",
+    funcao: formatarTelefone,
+    argumentos: [
+      { nome: "telefone", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparTelefone: {
+    tipoRetorno: "texto",
+    funcao: limparTelefone,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  celularValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: celularValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  telefoneFixoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: telefoneFixoValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  gerarTelefone: {
+    tipoRetorno: "texto",
+    funcao: gerarTelefone,
+    argumentos: [{ nome: "tipo", tipo: "texto", opcional: true }]
+  },
+  // E-mail
+  emailValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: emailValido,
+    argumentos: [{ nome: "email", tipo: "texto" }]
+  },
+  // Título de Eleitor
+  tituloEleitorValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: tituloEleitorValido,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  formatarTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: formatarTituloEleitor,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  limparTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: limparTituloEleitor,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  gerarTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: gerarTituloEleitor,
+    argumentos: [{ nome: "codigoEstado", tipo: "texto", opcional: true }]
+  },
+  // Estados e Cidades
+  obterEstados: {
+    tipoRetorno: "vetor",
+    funcao: obterEstados,
+    argumentos: []
+  },
+  obterCidades: {
+    tipoRetorno: "vetor",
+    funcao: obterCidades,
+    argumentos: [{ nome: "codigoEstado", tipo: "texto", opcional: true }]
+  },
+  // Municípios
+  obterMunicipioPorCodigo: {
+    tipoRetorno: "texto",
+    funcao: obterMunicipioPorCodigo,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  obterMunicipioPorNome: {
+    tipoRetorno: "vetor",
+    funcao: obterMunicipioPorNome,
+    argumentos: [
+      { nome: "nomeMunicipio", tipo: "texto" },
+      { nome: "uf", tipo: "texto" }
+    ]
+  },
+  // Feriados
+  obterFeriados: {
+    tipoRetorno: "vetor",
+    funcao: obterFeriados,
+    argumentos: [
+      { nome: "ano", tipo: "n\xFAmero" },
+      { nome: "codigoEstado", tipo: "texto", opcional: true }
+    ]
+  },
+  ehFeriado: {
+    tipoRetorno: "l\xF3gico",
+    funcao: ehFeriado,
+    argumentos: [
+      { nome: "data", tipo: "qualquer" },
+      { nome: "codigoEstado", tipo: "texto", opcional: true }
+    ]
+  },
+  // Texto
+  capitalizar: {
+    tipoRetorno: "texto",
+    funcao: capitalizar,
+    argumentos: [
+      { nome: "texto", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  }
+};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  DeleguaModuloBrasil
+});
+
+
+},{}],8:[function(require,module,exports){
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// fontes/index.ts
+var fontes_exports = {};
+__export(fontes_exports, {
+  DeleguaModuloBrasil: () => DeleguaModuloBrasil,
+  analisarMoeda: () => analisarMoeda,
+  boletoValido: () => boletoValido,
+  capitalizar: () => capitalizar,
+  celularValido: () => celularValido,
+  cepValido: () => cepValido,
+  cnhValida: () => cnhValida,
+  cnpjValido: () => cnpjValido,
+  contaBancariaValida: () => contaBancariaValida,
+  cpfValido: () => cpfValido,
+  ehFeriado: () => ehFeriado,
+  emailValido: () => emailValido,
+  formatarBoleto: () => formatarBoleto,
+  formatarCep: () => formatarCep,
+  formatarCnh: () => formatarCnh,
+  formatarCnpj: () => formatarCnpj,
+  formatarCpf: () => formatarCpf,
+  formatarMoeda: () => formatarMoeda,
+  formatarNaturezaJuridica: () => formatarNaturezaJuridica,
+  formatarPassaporte: () => formatarPassaporte,
+  formatarPis: () => formatarPis,
+  formatarPlacaVeiculo: () => formatarPlacaVeiculo,
+  formatarProcessoJuridico: () => formatarProcessoJuridico,
+  formatarTelefone: () => formatarTelefone,
+  formatarTituloEleitor: () => formatarTituloEleitor,
+  gerarBoleto: () => gerarBoleto,
+  gerarCep: () => gerarCep,
+  gerarCnh: () => gerarCnh,
+  gerarCnpj: () => gerarCnpj,
+  gerarCpf: () => gerarCpf,
+  gerarNaturezaJuridica: () => gerarNaturezaJuridica,
+  gerarPassaporte: () => gerarPassaporte,
+  gerarPis: () => gerarPis,
+  gerarPlacaVeiculo: () => gerarPlacaVeiculo,
+  gerarProcessoJuridico: () => gerarProcessoJuridico,
+  gerarTelefone: () => gerarTelefone,
+  gerarTituloEleitor: () => gerarTituloEleitor,
+  inscricaoEstadualValida: () => inscricaoEstadualValida,
+  limparBoleto: () => limparBoleto,
+  limparCep: () => limparCep,
+  limparCnh: () => limparCnh,
+  limparCnpj: () => limparCnpj,
+  limparCpf: () => limparCpf,
+  limparNaturezaJuridica: () => limparNaturezaJuridica,
+  limparPassaporte: () => limparPassaporte,
+  limparPis: () => limparPis,
+  limparPlacaVeiculo: () => limparPlacaVeiculo,
+  limparProcessoJuridico: () => limparProcessoJuridico,
+  limparTelefone: () => limparTelefone,
+  limparTituloEleitor: () => limparTituloEleitor,
+  naturezaJuridicaValida: () => naturezaJuridicaValida,
+  obterCepPorEndereco: () => obterCepPorEndereco,
+  obterCidades: () => obterCidades,
+  obterEnderecoPorCep: () => obterEnderecoPorCep,
+  obterEstados: () => obterEstados,
+  obterFeriados: () => obterFeriados,
+  obterFormatoPlacaVeiculo: () => obterFormatoPlacaVeiculo,
+  obterInfoBoleto: () => obterInfoBoleto,
+  obterMunicipioPorCodigo: () => obterMunicipioPorCodigo,
+  obterMunicipioPorNome: () => obterMunicipioPorNome,
+  obterNaturezasJuridicas: () => obterNaturezasJuridicas,
+  passaporteValido: () => passaporteValido,
+  pisValido: () => pisValido,
+  placaVeiculoValida: () => placaVeiculoValida,
+  processoJuridicoValido: () => processoJuridicoValido,
+  renavamValido: () => renavamValido,
+  telefoneFixoValido: () => telefoneFixoValido,
+  telefoneValido: () => telefoneValido,
+  tituloEleitorValido: () => tituloEleitorValido
+});
+module.exports = __toCommonJS(fontes_exports);
+
+// node_modules/@brazilian-utils/brazilian-utils/dist/brazilian-utils.js
+var e = [
+  "cia",
+  "cnpj",
+  "cpf",
+  "ltda",
+  "me",
+  "rg"
+];
+var t = [
+  "a",
+  "com",
+  "da",
+  "das",
+  "de",
+  "do",
+  "dos",
+  "e",
+  "em",
+  "na",
+  "nas",
+  "no",
+  "nos",
+  "o",
+  "por",
+  "sem"
+];
+var n = (n2, { lowerCaseWords: r2 = t, upperCaseWords: i2 = e } = {}) => {
+  let a2 = new Set(r2), o2 = new Set(i2), s2 = n2.split(" "), c2 = [];
+  for (let e2 = 0, t2 = s2.length; e2 < t2; e2++) {
+    let t3 = s2[e2];
+    if (!t3)
+      continue;
+    let n3 = t3.toLocaleLowerCase();
+    if (e2 > 0 && a2.has(n3)) {
+      c2.push(n3);
+      continue;
+    }
+    let r3 = t3.toLocaleUpperCase();
+    if (o2.has(r3)) {
+      c2.push(r3);
+      continue;
+    }
+    c2.push(r3.charAt(0) + n3.slice(1));
+  }
+  return c2.join(" ");
+};
+var r = ({ pad: e2, value: t2, pattern: n2 }) => {
+  let r2 = "", i2 = 0;
+  if (e2) {
+    let e3 = n2.replace(/0/g, "").length;
+    t2 = t2.padStart(n2.length - e3, "0");
+  }
+  for (let e3 of n2)
+    if (e3 === "0") {
+      if (i2 >= t2.length)
+        break;
+      r2 += t2[i2++];
+    } else
+      i2 < t2.length && (r2 += e3);
+  return r2;
+};
+var i = (e2) => e2.toString().replace(/\D/g, "");
+var a = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "00000.00000 00000.000000 00000.000000 0 00000000000000"
+});
+var o = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "00000-000"
+});
+var s = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000000000-00"
+});
+var c = (e2) => e2.toString().replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+var l = (e2, t2) => t2 === 2 ? c(e2) : i(e2);
+var u = (e2, t2) => r({
+  pad: t2?.pad,
+  value: l(e2, t2?.version),
+  pattern: "00.000.000/0000-00"
+});
+var d = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000.000.000-00"
+});
+var f = (e2, t2) => {
+  let n2 = typeof e2 == "string" ? Number.parseFloat(i(e2) || "0") : e2;
+  return new Intl.NumberFormat("pt-BR", {
+    style: t2?.symbol ? "currency" : "decimal",
+    currency: "BRL",
+    currencyDisplay: t2?.symbol ? "symbol" : void 0,
+    maximumFractionDigits: t2?.precision ?? 2,
+    minimumFractionDigits: t2?.precision ?? 2
+  }).format(n2).replace("\xA0", " ");
+};
+var p = (e2) => r({
+  value: i(e2),
+  pattern: "000-0"
+});
+var m = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 7);
+var ee = /^[A-Z]{3}[0-9]{4}$/;
+var te = /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/;
+var ne = /^[A-Z]{3}[0-9]{2}[A-Z][0-9]$/;
+var h = (e2) => {
+  let t2 = m(e2);
+  return ee.test(t2) ? "LLLNNNN" : te.test(t2) ? "LLLNLNN" : ne.test(t2) ? "LLLNNLN" : null;
+};
+var re = (e2) => {
+  let t2 = m(e2);
+  if (!t2)
+    return "";
+  let n2 = h(t2);
+  if (n2 === "LLLNNNN")
+    return `${t2.slice(0, 3)}-${t2.slice(3)}`;
+  if (n2)
+    return t2;
+  if (!/^[A-Z]{1,3}$/.test(t2.slice(0, Math.min(t2.length, 3))))
+    return "";
+  if (t2.length <= 3)
+    return t2;
+  let r2 = t2.slice(3);
+  return /^\d{1,4}$/.test(r2) ? `${t2.slice(0, 3)}-${r2}` : /^\d[A-Z]\d{0,2}$/.test(r2) || /^\d{2}[A-Z]\d?$/.test(r2) ? t2 : "";
+};
+var ie = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 8);
+var ae = {
+  sn: 9,
+  nanp: 11
+};
+var oe = {
+  sn: "00000-0000",
+  nanp: "(00) 00000-0000"
+};
+var se = (e2, t2) => {
+  let n2 = t2?.mask ?? "sn", a2 = i(e2);
+  return n2 === "auto" && (n2 = a2.length > ae.sn ? "nanp" : "sn"), r({
+    value: a2,
+    pattern: oe[n2]
+  });
+};
+var ce = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "000.00000.00-0"
+});
+var le = (e2, t2) => r({
+  pad: t2?.pad,
+  value: i(e2),
+  pattern: "0000000-00.0000.000.0000"
+});
+var ue = (e2) => r({
+  value: i(e2),
+  pattern: "0000 0000 00 00"
+});
+var g = (e2) => {
+  let t2 = "";
+  for (let n2 = 0; n2 < e2; n2++)
+    t2 += Math.floor(Math.random() * 10).toString();
+  return t2;
+};
+var _ = (e2) => {
+  let t2 = 0, n2 = e2.length;
+  for (let r3 = n2 - 1; r3 >= 0; r3--) {
+    let i2 = (e2.charCodeAt(r3) - 48) * (n2 - 1 - r3 & 1 ? 1 : 2);
+    t2 += i2 > 9 ? i2 - 9 : i2;
+  }
+  let r2 = t2 % 10;
+  return r2 > 0 ? 10 - r2 : 0;
+};
+var v = (e2) => {
+  let t2 = 2, n2 = 0;
+  for (let r3 = e2.length - 1; r3 >= 0; r3--) {
+    let i2 = e2.charCodeAt(r3) - 48;
+    n2 += i2 * t2, t2 = t2 < 9 ? t2 + 1 : 2;
+  }
+  let r2 = n2 % 11;
+  return r2 === 0 || r2 === 1 ? 1 : 11 - r2;
+};
+var de = () => {
+  let e2 = Array.from({ length: 47 }), t2 = g(9);
+  for (let n3 = 0; n3 < 9; n3++)
+    e2[n3] = t2[n3];
+  e2[9] = _(t2).toString();
+  let n2 = g(10);
+  for (let t3 = 0; t3 < 10; t3++)
+    e2[10 + t3] = n2[t3];
+  e2[20] = _(n2).toString();
+  let r2 = g(10);
+  for (let t3 = 0; t3 < 10; t3++)
+    e2[21 + t3] = r2[t3];
+  e2[31] = _(r2).toString();
+  let i2 = g(15);
+  for (let t3 = 0; t3 < 15; t3++)
+    e2[32 + t3] = i2[t3];
+  return e2[32] = v(e2.slice(0, 4).join("") + e2.slice(33, 47).join("") + e2.slice(4, 9).join("") + e2.slice(10, 20).join("") + e2.slice(21, 31).join("")).toString(), e2.join("");
+};
+var fe = () => g(8);
+var pe = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 9; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (9 - n3);
+  let n2 = t2 % 11;
+  return n2 >= 10 ? {
+    firstVerifier: 0,
+    decrement: 2
+  } : {
+    firstVerifier: n2,
+    decrement: 0
+  };
+};
+var me = ({ base: e2, decrement: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 9; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 1);
+  let r2 = n2 % 11 - t2;
+  return r2 < 0 && (r2 += 11), r2 >= 10 && (r2 = 0), r2;
+};
+var he = () => {
+  let e2 = g(9);
+  for (; /^(\d)\1+$/.test(e2); )
+    e2 = g(9);
+  let { firstVerifier: t2, decrement: n2 } = pe(e2), r2 = me({
+    base: e2,
+    decrement: n2
+  });
+  return `${e2}${t2}${r2}`;
+};
+function y({ base: e2, weight: t2 }) {
+  let n2 = i(e2), r2 = 0, a2 = n2.length;
+  if (typeof t2 == "number") {
+    let e3 = t2;
+    for (let t3 = 0; t3 < a2; t3++, e3--) {
+      let i2 = n2.charCodeAt(t3) - 48;
+      r2 += i2 * e3;
+    }
+  } else
+    for (let e3 = 0; e3 < a2; e3++) {
+      let i2 = n2.charCodeAt(e3) - 48;
+      r2 += i2 * t2[e3];
+    }
+  return r2;
+}
+var b = 12;
+var x = [
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var S = [6, ...x];
+var ge = "0123456789ABCDFGHIJKLMNPQRSVWXYZ";
+var _e = () => ge[Math.floor(Math.random() * 32)];
+var ve = () => {
+  let e2 = "";
+  for (let t2 = 0; t2 < b; t2++)
+    e2 += _e();
+  return e2;
+};
+var ye = (e2) => e2.charCodeAt(0) - 48;
+var be = (e2, t2) => {
+  let n2 = 0;
+  for (let r2 = 0; r2 < e2.length; r2++)
+    n2 += ye(e2[r2]) * t2[r2];
+  return n2;
+};
+var xe = (e2, t2) => {
+  let n2 = y({
+    base: e2,
+    weight: t2
+  }) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var Se = (e2, t2) => {
+  let n2 = be(e2, t2) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var Ce = () => {
+  let e2 = g(b), t2 = xe(e2, x), n2 = xe(e2 + t2, S);
+  return e2 + t2 + n2;
+};
+var we = () => {
+  let e2 = ve(), t2 = Se(e2, x), n2 = Se(e2 + t2, S);
+  return e2 + t2 + n2;
+};
+var Te = (e2) => (e2 ?? 1) === 1 ? Ce() : we();
+var C = {
+  AC: "2",
+  AL: "4",
+  AP: "2",
+  AM: "2",
+  BA: "5",
+  CE: "3",
+  DF: "1",
+  ES: "7",
+  GO: "1",
+  MA: "3",
+  MT: "5",
+  MS: "5",
+  MG: "6",
+  PR: "9",
+  PB: "4",
+  PA: "2",
+  PE: "4",
+  PI: "3",
+  RN: "4",
+  RS: "0",
+  RJ: "7",
+  RO: "2",
+  RR: "2",
+  SC: "9",
+  SE: "5",
+  SP: "8",
+  TO: "1"
+};
+var Ee = new Set(Object.keys(C));
+var De = (e2) => e2 && Ee.has(e2) ? C[e2] : g(1);
+var w = (e2, t2) => {
+  let n2 = y({
+    base: e2,
+    weight: t2
+  }) % 11;
+  return (n2 < 2 ? 0 : 11 - n2).toString();
+};
+var T = (e2) => {
+  let t2 = g(8) + De(e2), n2 = w(t2, 10), r2 = w(t2 + n2, 11);
+  return t2 + n2 + r2;
+};
+var E = {
+  1015: "Orgao Publico do Poder Executivo Federal",
+  1023: "Orgao Publico do Poder Executivo Estadual ou do Distrito Federal",
+  1031: "Orgao Publico do Poder Executivo Municipal",
+  1040: "Orgao Publico do Poder Legislativo Federal",
+  1058: "Orgao Publico do Poder Legislativo Estadual ou do Distrito Federal",
+  1066: "Orgao Publico do Poder Legislativo Municipal",
+  1074: "Orgao Publico do Poder Judiciario Federal",
+  1082: "Orgao Publico do Poder Judiciario Estadual",
+  1104: "Autarquia Federal",
+  1112: "Autarquia Estadual ou do Distrito Federal",
+  1120: "Autarquia Municipal",
+  1139: "Fundacao Federal",
+  1147: "Fundacao Estadual ou do Distrito Federal",
+  1155: "Fundacao Municipal",
+  1163: "Orgao Publico Autonomo da Uniao",
+  1171: "Orgao Publico Autonomo Estadual ou do Distrito Federal",
+  1180: "Orgao Publico Autonomo Municipal",
+  2011: "Empresa Publica",
+  2038: "Sociedade de Economia Mista",
+  2046: "Sociedade Anonima Aberta",
+  2054: "Sociedade Anonima Fechada",
+  2062: "Sociedade Empresaria Limitada",
+  2076: "Sociedade Empresaria em Nome Coletivo",
+  2089: "Sociedade Empresaria em Comandita Simples",
+  2097: "Sociedade Empresaria em Comandita por Acoes",
+  2100: "Sociedade Mercantil de Capital e Industria (extinta pelo NCC/2002)",
+  2127: "Sociedade Empresaria em Conta de Participacao",
+  2135: "Empresario (Individual)",
+  2143: "Cooperativa",
+  2151: "Consorcio de Sociedades",
+  2160: "Grupo de Sociedades",
+  2178: "Estabelecimento, no Brasil, de Sociedade Estrangeira",
+  2194: "Estabelecimento, no Brasil, de Empresa Binacional Argentino-Brasileira",
+  2208: "Entidade Binacional Itaipu",
+  2216: "Empresa Domiciliada no Exterior",
+  2224: "Clube/Fundo de Investimento",
+  2232: "Sociedade Simples Pura",
+  2240: "Sociedade Simples Limitada",
+  2259: "Sociedade em Nome Coletivo",
+  2267: "Sociedade em Comandita Simples",
+  2275: "Sociedade Simples em Conta de Participacao",
+  2305: "Empresa Individual de Responsabilidade Limitada",
+  3034: "Servico Notarial e Registral (Cartorio)",
+  3042: "Organizacao Social",
+  3050: "Organizacao da Sociedade Civil de Interesse Publico (Oscip)",
+  3069: "Outras Formas de Fundacoes Mantidas com Recursos Privados",
+  3077: "Servico Social Autonomo",
+  3085: "Condominio Edilicios",
+  3093: "Unidade Executora (Programa Dinheiro Direto na Escola)",
+  3107: "Comissao de Conciliacao Previa",
+  3115: "Entidade de Mediacao e Arbitragem",
+  3123: "Partido Politico",
+  3131: "Entidade Sindical",
+  3204: "Estabelecimento, no Brasil, de Fundacao ou Associacao Estrangeiras",
+  3212: "Fundacao ou Associacao Domiciliada no Exterior",
+  3999: "Outras Formas de Associacao",
+  4014: "Empresa Individual Imobiliaria",
+  4022: "Segurado Especial",
+  4081: "Contribuinte individual",
+  5002: "Organizacao Internacional e Outras Instituicoes Extraterritoriais"
+};
+var D = Object.keys(E);
+var Oe = () => D[Math.floor(Math.random() * D.length)];
+var ke = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var Ae = () => ke[Math.floor(Math.random() * 26)];
+var je = () => Math.floor(Math.random() * 10).toString();
+var Me = (e2 = "LLLNLNN") => e2.split("").map((e3) => e3 === "L" ? Ae() : je()).join("");
+var Ne = () => `${Array.from({ length: 2 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join("")}${g(6)}`;
+var O = [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  21,
+  22,
+  24,
+  27,
+  28,
+  31,
+  32,
+  33,
+  34,
+  35,
+  37,
+  38,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  51,
+  53,
+  54,
+  55,
+  61,
+  62,
+  64,
+  63,
+  65,
+  66,
+  67,
+  68,
+  69,
+  71,
+  73,
+  74,
+  75,
+  77,
+  79,
+  81,
+  87,
+  82,
+  83,
+  84,
+  85,
+  88,
+  86,
+  89,
+  91,
+  93,
+  94,
+  92,
+  97,
+  95,
+  96,
+  98,
+  99
+];
+var Pe = () => O[Math.floor(Math.random() * O.length)].toString();
+var k = (e2) => {
+  let t2 = Pe();
+  return e2 === "landline" ? `${t2}${2 + Math.floor(Math.random() * 4)}${g(7)}` : e2 === "mobile" ? `${t2}9${g(8)}` : k(Math.random() >= 0.5 ? "mobile" : "landline");
+};
+var Fe = [
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var Ie = (e2) => {
+  let t2 = 11 - e2.split("").reduce((e3, t3, n2) => e3 + Number(t3) * Fe[n2], 0) % 11;
+  return t2 >= 10 ? "0" : t2.toString();
+};
+var Le = () => {
+  let e2 = g(10);
+  return `${e2}${Ie(e2)}`;
+};
+var Re = (e2) => (98n - BigInt(e2) * 100n % 97n).toString().padStart(2, "0");
+var ze = (e2 = {}) => {
+  let { year: t2 = (/* @__PURE__ */ new Date()).getFullYear(), court: n2 = Math.floor(Math.random() * 9) + 1 } = e2, r2 = (/* @__PURE__ */ new Date()).getFullYear();
+  if (!Number.isInteger(t2) || t2 < r2 || !Number.isInteger(n2) || n2 < 1 || n2 > 9)
+    return null;
+  let i2 = g(7), a2 = g(2), o2 = g(4);
+  return `${i2}${Re(`${i2}${t2}${n2}${a2}${o2}`)}${t2}${n2}${a2}${o2}`;
+};
+var Be = {
+  SP: "01",
+  MG: "02",
+  RJ: "03",
+  RS: "04",
+  BA: "05",
+  PR: "06",
+  CE: "07",
+  PE: "08",
+  SC: "09",
+  GO: "10",
+  MA: "11",
+  PB: "12",
+  PA: "13",
+  ES: "14",
+  PI: "15",
+  RN: "16",
+  AL: "17",
+  MT: "18",
+  MS: "19",
+  DF: "20",
+  SE: "21",
+  AM: "22",
+  RO: "23",
+  AC: "24",
+  AP: "25",
+  RR: "26",
+  TO: "27",
+  ZZ: "28"
+};
+var Ve = ({ sequentialNumber: e2, federativeUnion: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 8; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 2);
+  let r2 = n2 % 11;
+  return r2 === 0 && (t2 === "01" || t2 === "02") ? 1 : r2 === 10 ? 0 : r2;
+};
+var He = ({ federativeUnion: e2, firstDigit: t2 }) => {
+  let n2 = ((e2.charCodeAt(0) - 48) * 7 + (e2.charCodeAt(1) - 48) * 8 + t2 * 9) % 11;
+  return (e2 === "01" || e2 === "02") && n2 === 0 ? 1 : n2 === 10 ? 0 : n2;
+};
+var Ue = (e2 = "ZZ") => {
+  let t2 = Be[e2], n2 = g(8), r2 = Ve({
+    sequentialNumber: n2,
+    federativeUnion: t2
+  });
+  return `${n2}${t2}${r2}${He({
+    federativeUnion: t2,
+    firstDigit: r2
+  })}`;
+};
+var A = (e2) => !e2 || typeof e2 != "string" ? false : i(e2).length === 8;
+var j = class extends Error {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepError";
+  }
+};
+var M = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepValidationError";
+  }
+};
+var N = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepNotFoundError";
+  }
+};
+var P = class extends j {
+  constructor(e2) {
+    super(e2), this.name = "GetAddressInfoByCepServiceError";
+  }
+};
+var F = {
+  viacep: async (e2) => {
+    let t2 = await fetch(`https://viacep.com.br/ws/${e2}/json/`);
+    if (!t2.ok)
+      throw Error(`ViaCEP request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.erro || !n2.cep)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.cep.replace(/\D/g, ""),
+      state: n2.uf || "",
+      city: n2.localidade || "",
+      neighborhood: n2.bairro || "",
+      street: n2.logradouro || ""
+    };
+  },
+  widenet: async (e2) => {
+    let t2 = await fetch(`https://apps.widenet.com.br/busca-cep/api/cep/${e2}.json`);
+    if (!t2.ok)
+      throw Error(`Widenet request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.status !== 200 || !n2.ok || !n2.code)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.code.replace(/\D/g, ""),
+      state: n2.state || "",
+      city: n2.city || "",
+      neighborhood: n2.district || "",
+      street: n2.address || ""
+    };
+  },
+  brasilapi: async (e2) => {
+    let t2 = await fetch(`https://brasilapi.com.br/api/cep/v1/${e2}`);
+    if (!t2.ok)
+      throw Error(`BrasilAPI request failed with status ${t2.status}`);
+    let n2 = await t2.json();
+    if (n2.errors || !n2.cep)
+      throw new N("CEP n\xE3o encontrado");
+    return {
+      cep: n2.cep.replace(/\D/g, ""),
+      state: n2.state || "",
+      city: n2.city || "",
+      neighborhood: n2.neighborhood || "",
+      street: n2.street || ""
+    };
+  }
+};
+var We = async (e2, t2) => {
+  let n2 = i(e2);
+  if (typeof e2 == "number" && n2.length < 8 && (n2 = n2.padStart(8, "0")), !A(n2))
+    throw new M("CEP inv\xE1lido");
+  let r2;
+  if (t2?.providers !== void 0) {
+    if (t2.providers.length === 0 || (r2 = t2.providers.filter((e3) => e3 in F), r2.length === 0))
+      throw new M("Nenhum provedor v\xE1lido especificado");
+  } else
+    r2 = [
+      "viacep",
+      "widenet",
+      "brasilapi"
+    ];
+  let a2 = r2.map((e3) => F[e3](n2).catch((t3) => Promise.reject({
+    provider: e3,
+    error: t3
+  })));
+  try {
+    return await Promise.any(a2);
+  } catch {
+    let e3 = (await Promise.allSettled(a2)).filter((e4) => e4.status === "rejected"), t3 = e3.filter((e4) => (e4.reason?.error || e4.reason) instanceof N), n3 = e3.filter((e4) => !((e4.reason?.error || e4.reason) instanceof N));
+    throw t3.length === e3.length ? new N("CEP n\xE3o encontrado em nenhum servi\xE7o") : n3.length === e3.length ? new P("Todos os servi\xE7os est\xE3o fora de servi\xE7o ou indispon\xEDveis") : t3.length > 0 ? new N("CEP n\xE3o encontrado em nenhum servi\xE7o") : new P("Erro ao consultar os servi\xE7os de CEP");
+  }
+};
+var Ge = [
+  {
+    start: 0,
+    end: 9,
+    checkIdx: 9
+  },
+  {
+    start: 10,
+    end: 20,
+    checkIdx: 20
+  },
+  {
+    start: 21,
+    end: 31,
+    checkIdx: 31
+  }
+];
+var Ke = [
+  [0, 4],
+  [32, 47],
+  [4, 9],
+  [10, 20],
+  [21, 31]
+];
+var qe = (e2) => {
+  for (let { start: t2, end: n2, checkIdx: r2 } of Ge) {
+    let i2 = _(e2.substring(t2, n2));
+    if (e2.charCodeAt(r2) - 48 !== i2)
+      return false;
+  }
+  return true;
+};
+var Je = (e2) => {
+  let t2 = "";
+  for (let [n2, r2] of Ke)
+    t2 += e2.substring(n2, r2);
+  return t2;
+};
+var Ye = (e2) => {
+  let t2 = v(e2.substring(0, 4) + e2.substring(5));
+  return e2.charCodeAt(4) - 48 === t2;
+};
+var I = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 47 || !qe(t2) ? false : Ye(Je(t2));
+};
+var Xe = new Date(1997, 9, 7);
+var Ze = (e2) => {
+  if (!e2 || !I(e2))
+    return;
+  let t2 = i(e2), n2 = t2.slice(0, 3), r2 = t2.slice(33, 37), a2 = Number(r2), o2 = null;
+  if (a2 && a2 > 0) {
+    let e3 = new Date(Xe);
+    e3.setDate(e3.getDate() + a2), o2 = e3;
+  }
+  return {
+    amount: Number(t2.slice(37, 47)) || 0,
+    expirationDate: o2,
+    bankCode: n2
+  };
+};
+var L = {
+  AC: [
+    "Acrel\xE2ndia",
+    "Assis Brasil",
+    "Brasil\xE9ia",
+    "Bujari",
+    "Capixaba",
+    "Cruzeiro do Sul",
+    "Epitaciol\xE2ndia",
+    "Feij\xF3",
+    "Jord\xE3o",
+    "M\xE2ncio Lima",
+    "Manoel Urbano",
+    "Marechal Thaumaturgo",
+    "Pl\xE1cido de Castro",
+    "Porto Acre",
+    "Porto Walter",
+    "Rio Branco",
+    "Rodrigues Alves",
+    "Santa Rosa do Purus",
+    "Sena Madureira",
+    "Senador Guiomard",
+    "Tarauac\xE1",
+    "Xapuri"
+  ],
+  AL: /* @__PURE__ */ "\xC1gua Branca.Anadia.Arapiraca.Atalaia.Barra de Santo Ant\xF4nio.Barra de S\xE3o Miguel.Batalha.Bel\xE9m.Belo Monte.Boca da Mata.Branquinha.Cacimbinhas.Cajueiro.Campestre.Campo Alegre.Campo Grande.Canapi.Capela.Carneiros.Ch\xE3 Preta.Coit\xE9 do N\xF3ia.Col\xF4nia Leopoldina.Coqueiro Seco.Coruripe.Cra\xEDbas.Delmiro Gouveia.Dois Riachos.Estrela de Alagoas.Feira Grande.Feliz Deserto.Flexeiras.Girau do Ponciano.Ibateguara.Igaci.Igreja Nova.Inhapi.Jacar\xE9 dos Homens.Jacu\xEDpe.Japaratinga.Jaramataia.Jequi\xE1 da Praia.Joaquim Gomes.Jundi\xE1.Junqueiro.Lagoa da Canoa.Limoeiro de Anadia.Macei\xF3.Major Isidoro.Mar Vermelho.Maragogi.Maravilha.Marechal Deodoro.Maribondo.Mata Grande.Matriz de Camaragibe.Messias.Minador do Negr\xE3o.Monteir\xF3polis.Murici.Novo Lino.Olho d'\xC1gua das Flores.Olho d'\xC1gua do Casado.Olho d'\xC1gua Grande.Oliven\xE7a.Ouro Branco.Palestina.Palmeira dos \xCDndios.P\xE3o de A\xE7\xFAcar.Pariconha.Paripueira.Passo de Camaragibe.Paulo Jacinto.Penedo.Pia\xE7abu\xE7u.Pilar.Pindoba.Piranhas.Po\xE7o das Trincheiras.Porto Calvo.Porto de Pedras.Porto Real do Col\xE9gio.Quebrangulo.Rio Largo.Roteiro.Santa Luzia do Norte.Santana do Ipanema.Santana do Munda\xFA.S\xE3o Br\xE1s.S\xE3o Jos\xE9 da Laje.S\xE3o Jos\xE9 da Tapera.S\xE3o Lu\xEDs do Quitunde.S\xE3o Miguel dos Campos.S\xE3o Miguel dos Milagres.S\xE3o Sebasti\xE3o.Satuba.Senador Rui Palmeira.Tanque d'Arca.Taquarana.Teot\xF4nio Vilela.Traipu.Uni\xE3o dos Palmares.Vi\xE7osa".split("."),
+  AM: /* @__PURE__ */ "Alvar\xE3es.Amatur\xE1.Anam\xE3.Anori.Apu\xED.Atalaia do Norte.Autazes.Barcelos.Barreirinha.Benjamin Constant.Beruri.Boa Vista do Ramos.Boca do Acre.Borba.Caapiranga.Canutama.Carauari.Careiro.Careiro da V\xE1rzea.Coari.Codaj\xE1s.Eirunep\xE9.Envira.Fonte Boa.Guajar\xE1.Humait\xE1.Ipixuna.Iranduba.Itacoatiara.Itamarati.Itapiranga.Japur\xE1.Juru\xE1.Juta\xED.L\xE1brea.Manacapuru.Manaquiri.Manaus.Manicor\xE9.Mara\xE3.Mau\xE9s.Nhamund\xE1.Nova Olinda do Norte.Novo Air\xE3o.Novo Aripuan\xE3.Parintins.Pauini.Presidente Figueiredo.Rio Preto da Eva.Santa Isabel do Rio Negro.Santo Ant\xF4nio do I\xE7\xE1.S\xE3o Gabriel da Cachoeira.S\xE3o Paulo de Oliven\xE7a.S\xE3o Sebasti\xE3o do Uatum\xE3.Silves.Tabatinga.Tapau\xE1.Tef\xE9.Tonantins.Uarini.Urucar\xE1.Urucurituba".split("."),
+  AP: [
+    "Amap\xE1",
+    "Cal\xE7oene",
+    "Cutias",
+    "Ferreira Gomes",
+    "Itaubal",
+    "Laranjal do Jari",
+    "Macap\xE1",
+    "Mazag\xE3o",
+    "Oiapoque",
+    "Pedra Branca do Amapari",
+    "Porto Grande",
+    "Pracu\xFAba",
+    "Santana",
+    "Serra do Navio",
+    "Tartarugalzinho",
+    "Vit\xF3ria do Jari"
+  ],
+  BA: /* @__PURE__ */ "Aba\xEDra.Abar\xE9.Acajutiba.Adustina.\xC1gua Fria.Aiquara.Alagoinhas.Alcoba\xE7a.Almadina.Amargosa.Am\xE9lia Rodrigues.Am\xE9rica Dourada.Anag\xE9.Andara\xED.Andorinha.Angical.Anguera.Antas.Ant\xF4nio Cardoso.Ant\xF4nio Gon\xE7alves.Apor\xE1.Apuarema.Ara\xE7\xE1s.Aracatu.Araci.Aramari.Arataca.Aratu\xEDpe.Aurelino Leal.Baian\xF3polis.Baixa Grande.Banza\xEA.Barra.Barra da Estiva.Barra do Cho\xE7a.Barra do Mendes.Barra do Rocha.Barreiras.Barro Alto.Barro Preto.Barrocas.Belmonte.Belo Campo.Biritinga.Boa Nova.Boa Vista do Tupim.Bom Jesus da Lapa.Bom Jesus da Serra.Boninal.Bonito.Boquira.Botupor\xE3.Brej\xF5es.Brejol\xE2ndia.Brotas de Maca\xFAbas.Brumado.Buerarema.Buritirama.Caatiba.Cabaceiras do Paragua\xE7u.Cachoeira.Cacul\xE9.Ca\xE9m.Caetanos.Caetit\xE9.Cafarnaum.Cairu.Caldeir\xE3o Grande.Camacan.Cama\xE7ari.Camamu.Campo Alegre de Lourdes.Campo Formoso.Can\xE1polis.Canarana.Canavieiras.Candeal.Candeias.Candiba.C\xE2ndido Sales.Cansan\xE7\xE3o.Canudos.Capela do Alto Alegre.Capim Grosso.Cara\xEDbas.Caravelas.Cardeal da Silva.Carinhanha.Casa Nova.Castro Alves.Catol\xE2ndia.Catu.Caturama.Central.Chorroch\xF3.C\xEDcero Dantas.Cip\xF3.Coaraci.Cocos.Concei\xE7\xE3o da Feira.Concei\xE7\xE3o do Almeida.Concei\xE7\xE3o do Coit\xE9.Concei\xE7\xE3o do Jacu\xEDpe.Conde.Conde\xFAba.Contendas do Sincor\xE1.Cora\xE7\xE3o de Maria.Cordeiros.Coribe.Coronel Jo\xE3o S\xE1.Correntina.Cotegipe.Cravol\xE2ndia.Cris\xF3polis.Crist\xF3polis.Cruz das Almas.Cura\xE7\xE1.D\xE1rio Meira.Dias d'\xC1vila.Dom Bas\xEDlio.Dom Macedo Costa.El\xEDsio Medrado.Encruzilhada.Entre Rios.\xC9rico Cardoso.Esplanada.Euclides da Cunha.Eun\xE1polis.F\xE1tima.Feira da Mata.Feira de Santana.Filad\xE9lfia.Firmino Alves.Floresta Azul.Formosa do Rio Preto.Gandu.Gavi\xE3o.Gentio do Ouro.Gl\xF3ria.Gongogi.Governador Mangabeira.Guajeru.Guanambi.Guaratinga.Heli\xF3polis.Ia\xE7u.Ibiassuc\xEA.Ibicara\xED.Ibicoara.Ibicu\xED.Ibipeba.Ibipitanga.Ibiquera.Ibirapitanga.Ibirapu\xE3.Ibirataia.Ibitiara.Ibitit\xE1.Ibotirama.Ichu.Igapor\xE3.Igrapi\xFAna.Igua\xED.Ilh\xE9us.Inhambupe.Ipecaet\xE1.Ipia\xFA.Ipir\xE1.Ipupiara.Irajuba.Iramaia.Iraquara.Irar\xE1.Irec\xEA.Itabela.Itaberaba.Itabuna.Itacar\xE9.Itaet\xE9.Itagi.Itagib\xE1.Itagimirim.Itagua\xE7u da Bahia.Itaju do Col\xF4nia.Itaju\xEDpe.Itamaraju.Itamari.Itamb\xE9.Itanagra.Itanh\xE9m.Itaparica.Itap\xE9.Itapebi.Itapetinga.Itapicuru.Itapitanga.Itaquara.Itarantim.Itatim.Itiru\xE7u.Iti\xFAba.Itoror\xF3.Itua\xE7u.Ituber\xE1.Iuiu.Jaborandi.Jacaraci.Jacobina.Jaguaquara.Jaguarari.Jaguaripe.Janda\xEDra.Jequi\xE9.Jeremoabo.Jiquiri\xE7\xE1.Jita\xFAna.Jo\xE3o Dourado.Juazeiro.Jucuru\xE7u.Jussara.Jussari.Jussiape.Lafaiete Coutinho.Lagoa Real.Laje.Lajed\xE3o.Lajedinho.Lajedo do Tabocal.Lamar\xE3o.Lap\xE3o.Lauro de Freitas.Len\xE7\xF3is.Lic\xEDnio de Almeida.Livramento de Nossa Senhora.Lu\xEDs Eduardo Magalh\xE3es.Macajuba.Macarani.Maca\xFAbas.Macurur\xE9.Madre de Deus.Maetinga.Maiquinique.Mairi.Malhada.Malhada de Pedras.Manoel Vitorino.Mansid\xE3o.Marac\xE1s.Maragogipe.Mara\xFA.Marcion\xEDlio Souza.Mascote.Mata de S\xE3o Jo\xE3o.Matina.Medeiros Neto.Miguel Calmon.Milagres.Mirangaba.Mirante.Monte Santo.Morpar\xE1.Morro do Chap\xE9u.Mortugaba.Mucug\xEA.Mucuri.Mulungu do Morro.Mundo Novo.Muniz Ferreira.Muqu\xE9m do S\xE3o Francisco.Muritiba.Mutu\xEDpe.Nazar\xE9.Nilo Pe\xE7anha.Nordestina.Nova Cana\xE3.Nova F\xE1tima.Nova Ibi\xE1.Nova Itarana.Nova Reden\xE7\xE3o.Nova Soure.Nova Vi\xE7osa.Novo Horizonte.Novo Triunfo.Olindina.Oliveira dos Brejinhos.Ouri\xE7angas.Ourol\xE2ndia.Palmas de Monte Alto.Palmeiras.Paramirim.Paratinga.Paripiranga.Pau Brasil.Paulo Afonso.P\xE9 de Serra.Pedr\xE3o.Pedro Alexandre.Piat\xE3.Pil\xE3o Arcado.Pinda\xED.Pindoba\xE7u.Pintadas.Pira\xED do Norte.Pirip\xE1.Piritiba.Planaltino.Planalto.Po\xE7\xF5es.Pojuca.Ponto Novo.Porto Seguro.Potiragu\xE1.Prado.Presidente Dutra.Presidente J\xE2nio Quadros.Presidente Tancredo Neves.Queimadas.Quijingue.Quixabeira.Rafael Jambeiro.Remanso.Retirol\xE2ndia.Riach\xE3o das Neves.Riach\xE3o do Jacu\xEDpe.Riacho de Santana.Ribeira do Amparo.Ribeira do Pombal.Ribeir\xE3o do Largo.Rio de Contas.Rio do Ant\xF4nio.Rio do Pires.Rio Real.Rodelas.Ruy Barbosa.Salinas da Margarida.Salvador.Santa B\xE1rbara.Santa Br\xEDgida.Santa Cruz Cabr\xE1lia.Santa Cruz da Vit\xF3ria.Santa In\xEAs.Santa Luzia.Santa Maria da Vit\xF3ria.Santa Rita de C\xE1ssia.Santa Terezinha.Santaluz.Santana.Santan\xF3polis.Santo Amaro.Santo Ant\xF4nio de Jesus.Santo Est\xEAv\xE3o.S\xE3o Desid\xE9rio.S\xE3o Domingos.S\xE3o Felipe.S\xE3o F\xE9lix.S\xE3o F\xE9lix do Coribe.S\xE3o Francisco do Conde.S\xE3o Gabriel.S\xE3o Gon\xE7alo dos Campos.S\xE3o Jos\xE9 da Vit\xF3ria.S\xE3o Jos\xE9 do Jacu\xEDpe.S\xE3o Miguel das Matas.S\xE3o Sebasti\xE3o do Pass\xE9.Sapea\xE7u.S\xE1tiro Dias.Saubara.Sa\xFAde.Seabra.Sebasti\xE3o Laranjeiras.Senhor do Bonfim.Sento S\xE9.Serra do Ramalho.Serra Dourada.Serra Preta.Serrinha.Serrol\xE2ndia.Sim\xF5es Filho.S\xEDtio do Mato.S\xEDtio do Quinto.Sobradinho.Souto Soares.Tabocas do Brejo Velho.Tanha\xE7u.Tanque Novo.Tanquinho.Tapero\xE1.Tapiramut\xE1.Teixeira de Freitas.Teodoro Sampaio.Teofil\xE2ndia.Teol\xE2ndia.Terra Nova.Tremedal.Tucano.Uau\xE1.Uba\xEDra.Ubaitaba.Ubat\xE3.Uiba\xED.Umburanas.Una.Urandi.Uru\xE7uca.Utinga.Valen\xE7a.Valente.V\xE1rzea da Ro\xE7a.V\xE1rzea do Po\xE7o.V\xE1rzea Nova.Varzedo.Vera Cruz.Vereda.Vit\xF3ria da Conquista.Wagner.Wanderley.Wenceslau Guimar\xE3es.Xique-Xique".split("."),
+  CE: /* @__PURE__ */ "Abaiara.Acarape.Acara\xFA.Acopiara.Aiuaba.Alc\xE2ntaras.Altaneira.Alto Santo.Amontada.Antonina do Norte.Apuiar\xE9s.Aquiraz.Aracati.Aracoiaba.Ararend\xE1.Araripe.Aratuba.Arneiroz.Assar\xE9.Aurora.Baixio.Banabui\xFA.Barbalha.Barreira.Barro.Barroquinha.Baturit\xE9.Beberibe.Bela Cruz.Boa Viagem.Brejo Santo.Camocim.Campos Sales.Canind\xE9.Capistrano.Caridade.Carir\xE9.Cariria\xE7u.Cari\xFAs.Carnaubal.Cascavel.Catarina.Catunda.Caucaia.Cedro.Chaval.Chor\xF3.Chorozinho.Corea\xFA.Crate\xFAs.Crato.Croat\xE1.Cruz.Deputado Irapuan Pinheiro.Erer\xE9.Eus\xE9bio.Farias Brito.Forquilha.Fortaleza.Fortim.Frecheirinha.General Sampaio.Gra\xE7a.Granja.Granjeiro.Groa\xEDras.Guai\xFAba.Guaraciaba do Norte.Guaramiranga.Hidrol\xE2ndia.Horizonte.Ibaretama.Ibiapina.Ibicuitinga.Icapu\xED.Ic\xF3.Iguatu.Independ\xEAncia.Ipaporanga.Ipaumirim.Ipu.Ipueiras.Iracema.Irau\xE7uba.Itai\xE7aba.Itaitinga.Itapaj\xE9.Itapipoca.Itapi\xFAna.Itarema.Itatira.Jaguaretama.Jaguaribara.Jaguaribe.Jaguaruana.Jardim.Jati.Jijoca de Jericoacoara.Juazeiro do Norte.Juc\xE1s.Lavras da Mangabeira.Limoeiro do Norte.Madalena.Maracana\xFA.Maranguape.Marco.Martin\xF3pole.Massap\xEA.Mauriti.Meruoca.Milagres.Milh\xE3.Mira\xEDma.Miss\xE3o Velha.Momba\xE7a.Monsenhor Tabosa.Morada Nova.Mora\xFAjo.Morrinhos.Mucambo.Mulungu.Nova Olinda.Nova Russas.Novo Oriente.Ocara.Or\xF3s.Pacajus.Pacatuba.Pacoti.Pacuj\xE1.Palhano.Palm\xE1cia.Paracuru.Paraipaba.Parambu.Paramoti.Pedra Branca.Penaforte.Pentecoste.Pereiro.Pindoretama.Piquet Carneiro.Pires Ferreira.Poranga.Porteiras.Potengi.Potiretama.Quiterian\xF3polis.Quixad\xE1.Quixel\xF4.Quixeramobim.Quixer\xE9.Reden\xE7\xE3o.Reriutaba.Russas.Saboeiro.Salitre.Santa Quit\xE9ria.Santana do Acara\xFA.Santana do Cariri.S\xE3o Benedito.S\xE3o Gon\xE7alo do Amarante.S\xE3o Jo\xE3o do Jaguaribe.S\xE3o Lu\xEDs do Curu.Senador Pompeu.Senador S\xE1.Sobral.Solon\xF3pole.Tabuleiro do Norte.Tamboril.Tarrafas.Tau\xE1.Teju\xE7uoca.Tiangu\xE1.Trairi.Tururu.Ubajara.Umari.Umirim.Uruburetama.Uruoca.Varjota.V\xE1rzea Alegre.Vi\xE7osa do Cear\xE1".split("."),
+  DF: ["Bras\xEDlia"],
+  ES: /* @__PURE__ */ "Afonso Cl\xE1udio.\xC1gua Doce do Norte.\xC1guia Branca.Alegre.Alfredo Chaves.Alto Rio Novo.Anchieta.Apiac\xE1.Aracruz.At\xEDlio Viv\xE1cqua.Baixo Guandu.Barra de S\xE3o Francisco.Boa Esperan\xE7a.Bom Jesus do Norte.Brejetuba.Cachoeiro de Itapemirim.Cariacica.Castelo.Colatina.Concei\xE7\xE3o da Barra.Concei\xE7\xE3o do Castelo.Divino de S\xE3o Louren\xE7o.Domingos Martins.Dores do Rio Preto.Ecoporanga.Fund\xE3o.Governador Lindenberg.Gua\xE7u\xED.Guarapari.Ibatiba.Ibira\xE7u.Ibitirama.Iconha.Irupi.Itagua\xE7u.Itapemirim.Itarana.I\xFAna.Jaguar\xE9.Jer\xF4nimo Monteiro.Jo\xE3o Neiva.Laranja da Terra.Linhares.Manten\xF3polis.Marata\xEDzes.Marechal Floriano.Maril\xE2ndia.Mimoso do Sul.Montanha.Mucurici.Muniz Freire.Muqui.Nova Ven\xE9cia.Pancas.Pedro Can\xE1rio.Pinheiros.Pi\xFAma.Ponto Belo.Presidente Kennedy.Rio Bananal.Rio Novo do Sul.Santa Leopoldina.Santa Maria de Jetib\xE1.Santa Teresa.S\xE3o Domingos do Norte.S\xE3o Gabriel da Palha.S\xE3o Jos\xE9 do Cal\xE7ado.S\xE3o Mateus.S\xE3o Roque do Cana\xE3.Serra.Sooretama.Vargem Alta.Venda Nova do Imigrante.Viana.Vila Pav\xE3o.Vila Val\xE9rio.Vila Velha.Vit\xF3ria".split("."),
+  GO: /* @__PURE__ */ "Abadia de Goi\xE1s.Abadi\xE2nia.Acre\xFAna.Adel\xE2ndia.\xC1gua Fria de Goi\xE1s.\xC1gua Limpa.\xC1guas Lindas de Goi\xE1s.Alex\xE2nia.Alo\xE2ndia.Alto Horizonte.Alto Para\xEDso de Goi\xE1s.Alvorada do Norte.Amaralina.Americano do Brasil.Amorin\xF3polis.An\xE1polis.Anhanguera.Anicuns.Aparecida de Goi\xE2nia.Aparecida do Rio Doce.Apor\xE9.Ara\xE7u.Aragar\xE7as.Aragoi\xE2nia.Araguapaz.Aren\xF3polis.Aruan\xE3.Auril\xE2ndia.Avelin\xF3polis.Baliza.Barro Alto.Bela Vista de Goi\xE1s.Bom Jardim de Goi\xE1s.Bom Jesus de Goi\xE1s.Bonfin\xF3polis.Bon\xF3polis.Brazabrantes.Brit\xE2nia.Buriti Alegre.Buriti de Goi\xE1s.Buritin\xF3polis.Cabeceiras.Cachoeira Alta.Cachoeira de Goi\xE1s.Cachoeira Dourada.Ca\xE7u.Caiap\xF4nia.Caldas Novas.Caldazinha.Campestre de Goi\xE1s.Campina\xE7u.Campinorte.Campo Alegre de Goi\xE1s.Campo Limpo de Goi\xE1s.Campos Belos.Campos Verdes.Carmo do Rio Verde.Castel\xE2ndia.Catal\xE3o.Catura\xED.Cavalcante.Ceres.Cezarina.Chapad\xE3o do C\xE9u.Cidade Ocidental.Cocalzinho de Goi\xE1s.Colinas do Sul.C\xF3rrego do Ouro.Corumb\xE1 de Goi\xE1s.Corumba\xEDba.Cristalina.Cristian\xF3polis.Crix\xE1s.Crom\xEDnia.Cumari.Damian\xF3polis.Damol\xE2ndia.Davin\xF3polis.Diorama.Divin\xF3polis de Goi\xE1s.Doverl\xE2ndia.Edealina.Ed\xE9ia.Estrela do Norte.Faina.Fazenda Nova.Firmin\xF3polis.Flores de Goi\xE1s.Formosa.Formoso.Gameleira de Goi\xE1s.Goian\xE1polis.Goiandira.Goian\xE9sia.Goi\xE2nia.Goianira.Goi\xE1s.Goiatuba.Gouvel\xE2ndia.Guap\xF3.Guara\xEDta.Guarani de Goi\xE1s.Guarinos.Heitora\xED.Hidrol\xE2ndia.Hidrolina.Iaciara.Inaciol\xE2ndia.Indiara.Inhumas.Ipameri.Ipiranga de Goi\xE1s.Ipor\xE1.Israel\xE2ndia.Itabera\xED.Itaguari.Itaguaru.Itaj\xE1.Itapaci.Itapirapu\xE3.Itapuranga.Itarum\xE3.Itau\xE7u.Itumbiara.Ivol\xE2ndia.Jandaia.Jaragu\xE1.Jata\xED.Jaupaci.Jes\xFApolis.Jovi\xE2nia.Jussara.Lagoa Santa.Leopoldo de Bulh\xF5es.Luzi\xE2nia.Mairipotaba.Mamba\xED.Mara Rosa.Marzag\xE3o.Matrinch\xE3.Mauril\xE2ndia.Mimoso de Goi\xE1s.Mina\xE7u.Mineiros.Moipor\xE1.Monte Alegre de Goi\xE1s.Montes Claros de Goi\xE1s.Montividiu.Montividiu do Norte.Morrinhos.Morro Agudo de Goi\xE1s.Moss\xE2medes.Mozarl\xE2ndia.Mundo Novo.Mutun\xF3polis.Naz\xE1rio.Ner\xF3polis.Niquel\xE2ndia.Nova Am\xE9rica.Nova Aurora.Nova Crix\xE1s.Nova Gl\xF3ria.Nova Igua\xE7u de Goi\xE1s.Nova Roma.Nova Veneza.Novo Brasil.Novo Gama.Novo Planalto.Orizona.Ouro Verde de Goi\xE1s.Ouvidor.Padre Bernardo.Palestina de Goi\xE1s.Palmeiras de Goi\xE1s.Palmelo.Palmin\xF3polis.Panam\xE1.Paranaiguara.Para\xFAna.Perol\xE2ndia.Petrolina de Goi\xE1s.Pilar de Goi\xE1s.Piracanjuba.Piranhas.Piren\xF3polis.Pires do Rio.Planaltina.Pontalina.Porangatu.Porteir\xE3o.Portel\xE2ndia.Posse.Professor Jamil.Quirin\xF3polis.Rialma.Rian\xE1polis.Rio Quente.Rio Verde.Rubiataba.Sanclerl\xE2ndia.Santa B\xE1rbara de Goi\xE1s.Santa Cruz de Goi\xE1s.Santa F\xE9 de Goi\xE1s.Santa Helena de Goi\xE1s.Santa Isabel.Santa Rita do Araguaia.Santa Rita do Novo Destino.Santa Rosa de Goi\xE1s.Santa Tereza de Goi\xE1s.Santa Terezinha de Goi\xE1s.Santo Ant\xF4nio da Barra.Santo Ant\xF4nio de Goi\xE1s.Santo Ant\xF4nio do Descoberto.S\xE3o Domingos.S\xE3o Francisco de Goi\xE1s.S\xE3o Jo\xE3o d'Alian\xE7a.S\xE3o Jo\xE3o da Para\xFAna.S\xE3o Lu\xEDs de Montes Belos.S\xE3o Luiz do Norte.S\xE3o Miguel do Araguaia.S\xE3o Miguel do Passa Quatro.S\xE3o Patr\xEDcio.S\xE3o Sim\xE3o.Senador Canedo.Serran\xF3polis.Silv\xE2nia.Simol\xE2ndia.S\xEDtio d'Abadia.Taquaral de Goi\xE1s.Teresina de Goi\xE1s.Terez\xF3polis de Goi\xE1s.Tr\xEAs Ranchos.Trindade.Trombas.Turv\xE2nia.Turvel\xE2ndia.Uirapuru.Urua\xE7u.Uruana.Uruta\xED.Valpara\xEDso de Goi\xE1s.Varj\xE3o.Vian\xF3polis.Vicentin\xF3polis.Vila Boa.Vila Prop\xEDcio".split("."),
+  MA: /* @__PURE__ */ "A\xE7ail\xE2ndia.Afonso Cunha.\xC1gua Doce do Maranh\xE3o.Alc\xE2ntara.Aldeias Altas.Altamira do Maranh\xE3o.Alto Alegre do Maranh\xE3o.Alto Alegre do Pindar\xE9.Alto Parna\xEDba.Amap\xE1 do Maranh\xE3o.Amarante do Maranh\xE3o.Anajatuba.Anapurus.Apicum-A\xE7u.Araguan\xE3.Araioses.Arame.Arari.Axix\xE1.Bacabal.Bacabeira.Bacuri.Bacurituba.Balsas.Bar\xE3o de Graja\xFA.Barra do Corda.Barreirinhas.Bela Vista do Maranh\xE3o.Bel\xE1gua.Benedito Leite.Bequim\xE3o.Bernardo do Mearim.Boa Vista do Gurupi.Bom Jardim.Bom Jesus das Selvas.Bom Lugar.Brejo.Brejo de Areia.Buriti.Buriti Bravo.Buriticupu.Buritirana.Cachoeira Grande.Cajapi\xF3.Cajari.Campestre do Maranh\xE3o.C\xE2ndido Mendes.Cantanhede.Capinzal do Norte.Carolina.Carutapera.Caxias.Cedral.Central do Maranh\xE3o.Centro do Guilherme.Centro Novo do Maranh\xE3o.Chapadinha.Cidel\xE2ndia.Cod\xF3.Coelho Neto.Colinas.Concei\xE7\xE3o do Lago-A\xE7u.Coroat\xE1.Cururupu.Davin\xF3polis.Dom Pedro.Duque Bacelar.Esperantin\xF3polis.Estreito.Feira Nova do Maranh\xE3o.Fernando Falc\xE3o.Formosa da Serra Negra.Fortaleza dos Nogueiras.Fortuna.Godofredo Viana.Gon\xE7alves Dias.Governador Archer.Governador Edison Lob\xE3o.Governador Eug\xEAnio Barros.Governador Luiz Rocha.Governador Newton Bello.Governador Nunes Freire.Gra\xE7a Aranha.Graja\xFA.Guimar\xE3es.Humberto de Campos.Icatu.Igarap\xE9 do Meio.Igarap\xE9 Grande.Imperatriz.Itaipava do Graja\xFA.Itapecuru Mirim.Itinga do Maranh\xE3o.Jatob\xE1.Jenipapo dos Vieiras.Jo\xE3o Lisboa.Josel\xE2ndia.Junco do Maranh\xE3o.Lago da Pedra.Lago do Junco.Lago dos Rodrigues.Lago Verde.Lagoa do Mato.Lagoa Grande do Maranh\xE3o.Lajeado Novo.Lima Campos.Loreto.Lu\xEDs Domingues.Magalh\xE3es de Almeida.Maraca\xE7um\xE9.Maraj\xE1 do Sena.Maranh\xE3ozinho.Mata Roma.Matinha.Mat\xF5es.Mat\xF5es do Norte.Milagres do Maranh\xE3o.Mirador.Miranda do Norte.Mirinzal.Mon\xE7\xE3o.Montes Altos.Morros.Nina Rodrigues.Nova Colinas.Nova Iorque.Nova Olinda do Maranh\xE3o.Olho d'\xC1gua das Cunh\xE3s.Olinda Nova do Maranh\xE3o.Pa\xE7o do Lumiar.Palmeir\xE2ndia.Paraibano.Parnarama.Passagem Franca.Pastos Bons.Paulino Neves.Paulo Ramos.Pedreiras.Pedro do Ros\xE1rio.Penalva.Peri Mirim.Peritor\xF3.Pindar\xE9-Mirim.Pinheiro.Pio XII.Pirapemas.Po\xE7\xE3o de Pedras.Porto Franco.Porto Rico do Maranh\xE3o.Presidente Dutra.Presidente Juscelino.Presidente M\xE9dici.Presidente Sarney.Presidente Vargas.Primeira Cruz.Raposa.Riach\xE3o.Ribamar Fiquene.Ros\xE1rio.Samba\xEDba.Santa Filomena do Maranh\xE3o.Santa Helena.Santa In\xEAs.Santa Luzia.Santa Luzia do Paru\xE1.Santa Quit\xE9ria do Maranh\xE3o.Santa Rita.Santana do Maranh\xE3o.Santo Amaro do Maranh\xE3o.Santo Ant\xF4nio dos Lopes.S\xE3o Benedito do Rio Preto.S\xE3o Bento.S\xE3o Bernardo.S\xE3o Domingos do Azeit\xE3o.S\xE3o Domingos do Maranh\xE3o.S\xE3o F\xE9lix de Balsas.S\xE3o Francisco do Brej\xE3o.S\xE3o Francisco do Maranh\xE3o.S\xE3o Jo\xE3o Batista.S\xE3o Jo\xE3o do Car\xFA.S\xE3o Jo\xE3o do Para\xEDso.S\xE3o Jo\xE3o do Soter.S\xE3o Jo\xE3o dos Patos.S\xE3o Jos\xE9 de Ribamar.S\xE3o Jos\xE9 dos Bas\xEDlios.S\xE3o Lu\xEDs.S\xE3o Lu\xEDs Gonzaga do Maranh\xE3o.S\xE3o Mateus do Maranh\xE3o.S\xE3o Pedro da \xC1gua Branca.S\xE3o Pedro dos Crentes.S\xE3o Raimundo das Mangabeiras.S\xE3o Raimundo do Doca Bezerra.S\xE3o Roberto.S\xE3o Vicente Ferrer.Satubinha.Senador Alexandre Costa.Senador La Rocque.Serrano do Maranh\xE3o.S\xEDtio Novo.Sucupira do Norte.Sucupira do Riach\xE3o.Tasso Fragoso.Timbiras.Timon.Trizidela do Vale.Tufil\xE2ndia.Tuntum.Turia\xE7u.Turil\xE2ndia.Tut\xF3ia.Urbano Santos.Vargem Grande.Viana.Vila Nova dos Mart\xEDrios.Vit\xF3ria do Mearim.Vitorino Freire.Z\xE9 Doca".split("."),
+  MG: /* @__PURE__ */ "Abadia dos Dourados.Abaet\xE9.Abre Campo.Acaiaca.A\xE7ucena.\xC1gua Boa.\xC1gua Comprida.Aguanil.\xC1guas Formosas.\xC1guas Vermelhas.Aimor\xE9s.Aiuruoca.Alagoa.Albertina.Al\xE9m Para\xEDba.Alfenas.Alfredo Vasconcelos.Almenara.Alpercata.Alpin\xF3polis.Alterosa.Alto Capara\xF3.Alto Jequitib\xE1.Alto Rio Doce.Alvarenga.Alvin\xF3polis.Alvorada de Minas.Amparo do Serra.Andradas.Andrel\xE2ndia.Angel\xE2ndia.Ant\xF4nio Carlos.Ant\xF4nio Dias.Ant\xF4nio Prado de Minas.Ara\xE7a\xED.Aracitaba.Ara\xE7ua\xED.Araguari.Arantina.Araponga.Arapor\xE3.Arapu\xE1.Ara\xFAjos.Arax\xE1.Arceburgo.Arcos.Areado.Argirita.Aricanduva.Arinos.Astolfo Dutra.Atal\xE9ia.Augusto de Lima.Baependi.Baldim.Bambu\xED.Bandeira.Bandeira do Sul.Bar\xE3o de Cocais.Bar\xE3o do Monte Alto.Barbacena.Barra Longa.Barroso.Bela Vista de Minas.Belmiro Braga.Belo Horizonte.Belo Oriente.Belo Vale.Berilo.Berizal.Bert\xF3polis.Betim.Bias Fortes.Bicas.Biquinhas.Boa Esperan\xE7a.Bocaina de Minas.Bocai\xFAva.Bom Despacho.Bom Jardim de Minas.Bom Jesus da Penha.Bom Jesus do Amparo.Bom Jesus do Galho.Bom Repouso.Bom Sucesso.Bonfim.Bonfin\xF3polis de Minas.Bonito de Minas.Borda da Mata.Botelhos.Botumirim.Br\xE1s Pires.Brasil\xE2ndia de Minas.Bras\xEDlia de Minas.Bra\xFAnas.Braz\xF3polis.Brumadinho.Bueno Brand\xE3o.Buen\xF3polis.Bugre.Buritis.Buritizeiro.Cabeceira Grande.Cabo Verde.Cachoeira da Prata.Cachoeira de Minas.Cachoeira de Paje\xFA.Cachoeira Dourada.Caetan\xF3polis.Caet\xE9.Caiana.Cajuri.Caldas.Camacho.Camanducaia.Cambu\xED.Cambuquira.Campan\xE1rio.Campanha.Campestre.Campina Verde.Campo Azul.Campo Belo.Campo do Meio.Campo Florido.Campos Altos.Campos Gerais.Cana Verde.Cana\xE3.Can\xE1polis.Candeias.Cantagalo.Capara\xF3.Capela Nova.Capelinha.Capetinga.Capim Branco.Capin\xF3polis.Capit\xE3o Andrade.Capit\xE3o En\xE9as.Capit\xF3lio.Caputira.Cara\xED.Carana\xEDba.Caranda\xED.Carangola.Caratinga.Carbonita.Carea\xE7u.Carlos Chagas.Carm\xE9sia.Carmo da Cachoeira.Carmo da Mata.Carmo de Minas.Carmo do Cajuru.Carmo do Parana\xEDba.Carmo do Rio Claro.Carm\xF3polis de Minas.Carneirinho.Carrancas.Carvalh\xF3polis.Carvalhos.Casa Grande.Cascalho Rico.C\xE1ssia.Cataguases.Catas Altas.Catas Altas da Noruega.Catuji.Catuti.Caxambu.Cedro do Abaet\xE9.Central de Minas.Centralina.Ch\xE1cara.Chal\xE9.Chapada do Norte.Chapada Ga\xFAcha.Chiador.Cipot\xE2nea.Claraval.Claro dos Po\xE7\xF5es.Cl\xE1udio.Coimbra.Coluna.Comendador Gomes.Comercinho.Concei\xE7\xE3o da Aparecida.Concei\xE7\xE3o da Barra de Minas.Concei\xE7\xE3o das Alagoas.Concei\xE7\xE3o das Pedras.Concei\xE7\xE3o de Ipanema.Concei\xE7\xE3o do Mato Dentro.Concei\xE7\xE3o do Par\xE1.Concei\xE7\xE3o do Rio Verde.Concei\xE7\xE3o dos Ouros.C\xF4nego Marinho.Confins.Congonhal.Congonhas.Congonhas do Norte.Conquista.Conselheiro Lafaiete.Conselheiro Pena.Consola\xE7\xE3o.Contagem.Coqueiral.Cora\xE7\xE3o de Jesus.Cordisburgo.Cordisl\xE2ndia.Corinto.Coroaci.Coromandel.Coronel Fabriciano.Coronel Murta.Coronel Pacheco.Coronel Xavier Chaves.C\xF3rrego Danta.C\xF3rrego do Bom Jesus.C\xF3rrego Fundo.C\xF3rrego Novo.Couto de Magalh\xE3es de Minas.Cris\xF3lita.Cristais.Crist\xE1lia.Cristiano Otoni.Cristina.Crucil\xE2ndia.Cruzeiro da Fortaleza.Cruz\xEDlia.Cuparaque.Curral de Dentro.Curvelo.Datas.Delfim Moreira.Delfin\xF3polis.Delta.Descoberto.Desterro de Entre Rios.Desterro do Melo.Diamantina.Diogo de Vasconcelos.Dion\xEDsio.Divin\xE9sia.Divino.Divino das Laranjeiras.Divinol\xE2ndia de Minas.Divin\xF3polis.Divisa Alegre.Divisa Nova.Divis\xF3polis.Dom Bosco.Dom Cavati.Dom Joaquim.Dom Silv\xE9rio.Dom Vi\xE7oso.Dona Euz\xE9bia.Dores de Campos.Dores de Guanh\xE3es.Dores do Indai\xE1.Dores do Turvo.Dores\xF3polis.Douradoquara.Durand\xE9.El\xF3i Mendes.Engenheiro Caldas.Engenheiro Navarro.Entre Folhas.Entre Rios de Minas.Erv\xE1lia.Esmeraldas.Espera Feliz.Espinosa.Esp\xEDrito Santo do Dourado.Estiva.Estrela Dalva.Estrela do Indai\xE1.Estrela do Sul.Eugen\xF3polis.Ewbank da C\xE2mara.Extrema.Fama.Faria Lemos.Fel\xEDcio dos Santos.Felisburgo.Felixl\xE2ndia.Fernandes Tourinho.Ferros.Fervedouro.Florestal.Formiga.Formoso.Fortaleza de Minas.Fortuna de Minas.Francisco Badar\xF3.Francisco Dumont.Francisco S\xE1.Francisc\xF3polis.Frei Gaspar.Frei Inoc\xEAncio.Frei Lagonegro.Fronteira.Fronteira dos Vales.Fruta de Leite.Frutal.Funil\xE2ndia.Galil\xE9ia.Gameleiras.Glaucil\xE2ndia.Goiabeira.Goian\xE1.Gon\xE7alves.Gonzaga.Gouveia.Governador Valadares.Gr\xE3o Mogol.Grupiara.Guanh\xE3es.Guap\xE9.Guaraciaba.Guaraciama.Guaran\xE9sia.Guarani.Guarar\xE1.Guarda-Mor.Guaxup\xE9.Guidoval.Guimar\xE2nia.Guiricema.Gurinhat\xE3.Heliodora.Iapu.Ibertioga.Ibi\xE1.Ibia\xED.Ibiracatu.Ibiraci.Ibirit\xE9.Ibiti\xFAra de Minas.Ibituruna.Icara\xED de Minas.Igarap\xE9.Igaratinga.Iguatama.Ijaci.Ilic\xEDnea.Imb\xE9 de Minas.Inconfidentes.Indaiabira.Indian\xF3polis.Inga\xED.Inhapim.Inha\xFAma.Inimutaba.Ipaba.Ipanema.Ipatinga.Ipia\xE7u.Ipui\xFAna.Ira\xED de Minas.Itabira.Itabirinha.Itabirito.Itacambira.Itacarambi.Itaguara.Itaip\xE9.Itajub\xE1.Itamarandiba.Itamarati de Minas.Itambacuri.Itamb\xE9 do Mato Dentro.Itamogi.Itamonte.Itanhandu.Itanhomi.Itaobim.Itapagipe.Itapecerica.Itapeva.Itatiaiu\xE7u.Ita\xFA de Minas.Ita\xFAna.Itaverava.Itinga.Itueta.Ituiutaba.Itumirim.Iturama.Itutinga.Jaboticatubas.Jacinto.Jacu\xED.Jacutinga.Jaguara\xE7u.Ja\xEDba.Jampruca.Jana\xFAba.Janu\xE1ria.Japara\xEDba.Japonvar.Jeceaba.Jenipapo de Minas.Jequeri.Jequita\xED.Jequitib\xE1.Jequitinhonha.Jesu\xE2nia.Joa\xEDma.Joan\xE9sia.Jo\xE3o Monlevade.Jo\xE3o Pinheiro.Joaquim Fel\xEDcio.Jord\xE2nia.Jos\xE9 Gon\xE7alves de Minas.Jos\xE9 Raydan.Josen\xF3polis.Juatuba.Juiz de Fora.Juramento.Juruaia.Juven\xEDlia.Ladainha.Lagamar.Lagoa da Prata.Lagoa dos Patos.Lagoa Dourada.Lagoa Formosa.Lagoa Grande.Lagoa Santa.Lajinha.Lambari.Lamim.Laranjal.Lassance.Lavras.Leandro Ferreira.Leme do Prado.Leopoldina.Liberdade.Lima Duarte.Limeira do Oeste.Lontra.Luisburgo.Luisl\xE2ndia.Lumin\xE1rias.Luz.Machacalis.Machado.Madre de Deus de Minas.Malacacheta.Mamonas.Manga.Manhua\xE7u.Manhumirim.Mantena.Mar de Espanha.Maravilhas.Maria da F\xE9.Mariana.Marilac.M\xE1rio Campos.Marip\xE1 de Minas.Marli\xE9ria.Marmel\xF3polis.Martinho Campos.Martins Soares.Mata Verde.Materl\xE2ndia.Mateus Leme.Mathias Lobato.Matias Barbosa.Matias Cardoso.Matip\xF3.Mato Verde.Matozinhos.Matutina.Medeiros.Medina.Mendes Pimentel.Merc\xEAs.Mesquita.Minas Novas.Minduri.Mirabela.Miradouro.Mira\xED.Mirav\xE2nia.Moeda.Moema.Monjolos.Monsenhor Paulo.Montalv\xE2nia.Monte Alegre de Minas.Monte Azul.Monte Belo.Monte Carmelo.Monte Formoso.Monte Santo de Minas.Monte Si\xE3o.Montes Claros.Montezuma.Morada Nova de Minas.Morro da Gar\xE7a.Morro do Pilar.Munhoz.Muria\xE9.Mutum.Muzambinho.Nacip Raydan.Nanuque.Naque.Natal\xE2ndia.Nat\xE9rcia.Nazareno.Nepomuceno.Ninheira.Nova Bel\xE9m.Nova Era.Nova Lima.Nova M\xF3dica.Nova Ponte.Nova Porteirinha.Nova Resende.Nova Serrana.Nova Uni\xE3o.Novo Cruzeiro.Novo Oriente de Minas.Novorizonte.Olaria.Olhos-d'\xC1gua.Ol\xEDmpio Noronha.Oliveira.Oliveira Fortes.On\xE7a de Pitangui.Orat\xF3rios.Oriz\xE2nia.Ouro Branco.Ouro Fino.Ouro Preto.Ouro Verde de Minas.Padre Carvalho.Padre Para\xEDso.Pai Pedro.Paineiras.Pains.Paiva.Palma.Palm\xF3polis.Papagaios.Par\xE1 de Minas.Paracatu.Paragua\xE7u.Parais\xF3polis.Paraopeba.Passa Quatro.Passa Tempo.Passa Vinte.Passab\xE9m.Passos.Patis.Patos de Minas.Patroc\xEDnio.Patroc\xEDnio do Muria\xE9.Paula C\xE2ndido.Paulistas.Pav\xE3o.Pe\xE7anha.Pedra Azul.Pedra Bonita.Pedra do Anta.Pedra do Indai\xE1.Pedra Dourada.Pedralva.Pedras de Maria da Cruz.Pedrin\xF3polis.Pedro Leopoldo.Pedro Teixeira.Pequeri.Pequi.Perdig\xE3o.Perdizes.Perd\xF5es.Periquito.Pescador.Piau.Piedade de Caratinga.Piedade de Ponte Nova.Piedade do Rio Grande.Piedade dos Gerais.Pimenta.Pingo-d'\xC1gua.Pint\xF3polis.Piracema.Pirajuba.Piranga.Pirangu\xE7u.Piranguinho.Pirapetinga.Pirapora.Pira\xFAba.Pitangui.Piumhi.Planura.Po\xE7o Fundo.Po\xE7os de Caldas.Pocrane.Pomp\xE9u.Ponte Nova.Ponto Chique.Ponto dos Volantes.Porteirinha.Porto Firme.Pot\xE9.Pouso Alegre.Pouso Alto.Prados.Prata.Prat\xE1polis.Pratinha.Presidente Bernardes.Presidente Juscelino.Presidente Kubitschek.Presidente Oleg\xE1rio.Prudente de Morais.Quartel Geral.Queluzito.Raposos.Raul Soares.Recreio.Reduto.Resende Costa.Resplendor.Ressaquinha.Riachinho.Riacho dos Machados.Ribeir\xE3o das Neves.Ribeir\xE3o Vermelho.Rio Acima.Rio Casca.Rio do Prado.Rio Doce.Rio Espera.Rio Manso.Rio Novo.Rio Parana\xEDba.Rio Pardo de Minas.Rio Piracicaba.Rio Pomba.Rio Preto.Rio Vermelho.Rit\xE1polis.Rochedo de Minas.Rodeiro.Romaria.Ros\xE1rio da Limeira.Rubelita.Rubim.Sabar\xE1.Sabin\xF3polis.Sacramento.Salinas.Salto da Divisa.Santa B\xE1rbara.Santa B\xE1rbara do Leste.Santa B\xE1rbara do Monte Verde.Santa B\xE1rbara do Tug\xFArio.Santa Cruz de Minas.Santa Cruz de Salinas.Santa Cruz do Escalvado.Santa Efig\xEAnia de Minas.Santa F\xE9 de Minas.Santa Helena de Minas.Santa Juliana.Santa Luzia.Santa Margarida.Santa Maria de Itabira.Santa Maria do Salto.Santa Maria do Sua\xE7u\xED.Santa Rita de Caldas.Santa Rita de Ibitipoca.Santa Rita de Jacutinga.Santa Rita de Minas.Santa Rita do Itueto.Santa Rita do Sapuca\xED.Santa Rosa da Serra.Santa Vit\xF3ria.Santana da Vargem.Santana de Cataguases.Santana de Pirapama.Santana do Deserto.Santana do Garamb\xE9u.Santana do Jacar\xE9.Santana do Manhua\xE7u.Santana do Para\xEDso.Santana do Riacho.Santana dos Montes.Santo Ant\xF4nio do Amparo.Santo Ant\xF4nio do Aventureiro.Santo Ant\xF4nio do Grama.Santo Ant\xF4nio do Itamb\xE9.Santo Ant\xF4nio do Jacinto.Santo Ant\xF4nio do Monte.Santo Ant\xF4nio do Retiro.Santo Ant\xF4nio do Rio Abaixo.Santo Hip\xF3lito.Santos Dumont.S\xE3o Bento Abade.S\xE3o Br\xE1s do Sua\xE7u\xED.S\xE3o Domingos das Dores.S\xE3o Domingos do Prata.S\xE3o F\xE9lix de Minas.S\xE3o Francisco.S\xE3o Francisco de Paula.S\xE3o Francisco de Sales.S\xE3o Francisco do Gl\xF3ria.S\xE3o Geraldo.S\xE3o Geraldo da Piedade.S\xE3o Geraldo do Baixio.S\xE3o Gon\xE7alo do Abaet\xE9.S\xE3o Gon\xE7alo do Par\xE1.S\xE3o Gon\xE7alo do Rio Abaixo.S\xE3o Gon\xE7alo do Rio Preto.S\xE3o Gon\xE7alo do Sapuca\xED.S\xE3o Gotardo.S\xE3o Jo\xE3o Batista do Gl\xF3ria.S\xE3o Jo\xE3o da Lagoa.S\xE3o Jo\xE3o da Mata.S\xE3o Jo\xE3o da Ponte.S\xE3o Jo\xE3o das Miss\xF5es.S\xE3o Jo\xE3o del Rei.S\xE3o Jo\xE3o do Manhua\xE7u.S\xE3o Jo\xE3o do Manteninha.S\xE3o Jo\xE3o do Oriente.S\xE3o Jo\xE3o do Pacu\xED.S\xE3o Jo\xE3o do Para\xEDso.S\xE3o Jo\xE3o Evangelista.S\xE3o Jo\xE3o Nepomuceno.S\xE3o Joaquim de Bicas.S\xE3o Jos\xE9 da Barra.S\xE3o Jos\xE9 da Lapa.S\xE3o Jos\xE9 da Safira.S\xE3o Jos\xE9 da Varginha.S\xE3o Jos\xE9 do Alegre.S\xE3o Jos\xE9 do Divino.S\xE3o Jos\xE9 do Goiabal.S\xE3o Jos\xE9 do Jacuri.S\xE3o Jos\xE9 do Mantimento.S\xE3o Louren\xE7o.S\xE3o Miguel do Anta.S\xE3o Pedro da Uni\xE3o.S\xE3o Pedro do Sua\xE7u\xED.S\xE3o Pedro dos Ferros.S\xE3o Rom\xE3o.S\xE3o Roque de Minas.S\xE3o Sebasti\xE3o da Bela Vista.S\xE3o Sebasti\xE3o da Vargem Alegre.S\xE3o Sebasti\xE3o do Anta.S\xE3o Sebasti\xE3o do Maranh\xE3o.S\xE3o Sebasti\xE3o do Oeste.S\xE3o Sebasti\xE3o do Para\xEDso.S\xE3o Sebasti\xE3o do Rio Preto.S\xE3o Sebasti\xE3o do Rio Verde.S\xE3o Tiago.S\xE3o Tom\xE1s de Aquino.S\xE3o Tom\xE9 das Letras.S\xE3o Vicente de Minas.Sapuca\xED-Mirim.Sardo\xE1.Sarzedo.Sem-Peixe.Senador Amaral.Senador Cortes.Senador Firmino.Senador Jos\xE9 Bento.Senador Modestino Gon\xE7alves.Senhora de Oliveira.Senhora do Porto.Senhora dos Rem\xE9dios.Sericita.Seritinga.Serra Azul de Minas.Serra da Saudade.Serra do Salitre.Serra dos Aimor\xE9s.Serrania.Serran\xF3polis de Minas.Serranos.Serro.Sete Lagoas.Setubinha.Silveir\xE2nia.Silvian\xF3polis.Sim\xE3o Pereira.Simon\xE9sia.Sobr\xE1lia.Soledade de Minas.Tabuleiro.Taiobeiras.Taparuba.Tapira.Tapira\xED.Taquara\xE7u de Minas.Tarumirim.Teixeiras.Te\xF3filo Otoni.Tim\xF3teo.Tiradentes.Tiros.Tocantins.Tocos do Moji.Toledo.Tombos.Tr\xEAs Cora\xE7\xF5es.Tr\xEAs Marias.Tr\xEAs Pontas.Tumiritinga.Tupaciguara.Turmalina.Turvol\xE2ndia.Ub\xE1.Uba\xED.Ubaporanga.Uberaba.Uberl\xE2ndia.Umburatiba.Una\xED.Uni\xE3o de Minas.Uruana de Minas.Uruc\xE2nia.Urucuia.Vargem Alegre.Vargem Bonita.Vargem Grande do Rio Pardo.Varginha.Varj\xE3o de Minas.V\xE1rzea da Palma.Varzel\xE2ndia.Vazante.Verdel\xE2ndia.Veredinha.Ver\xEDssimo.Vermelho Novo.Vespasiano.Vi\xE7osa.Vieiras.Virgem da Lapa.Virg\xEDnia.Virgin\xF3polis.Virgol\xE2ndia.Visconde do Rio Branco.Volta Grande.Wenceslau Braz".split("."),
+  MS: /* @__PURE__ */ "\xC1gua Clara.Alcin\xF3polis.Amambai.Anast\xE1cio.Anauril\xE2ndia.Ang\xE9lica.Ant\xF4nio Jo\xE3o.Aparecida do Taboado.Aquidauana.Aral Moreira.Bandeirantes.Bataguassu.Bataypor\xE3.Bela Vista.Bodoquena.Bonito.Brasil\xE2ndia.Caarap\xF3.Camapu\xE3.Campo Grande.Caracol.Cassil\xE2ndia.Chapad\xE3o do Sul.Corguinho.Coronel Sapucaia.Corumb\xE1.Costa Rica.Coxim.Deod\xE1polis.Dois Irm\xE3os do Buriti.Douradina.Dourados.Eldorado.F\xE1tima do Sul.Figueir\xE3o.Gl\xF3ria de Dourados.Guia Lopes da Laguna.Iguatemi.Inoc\xEAncia.Itapor\xE3.Itaquira\xED.Ivinhema.Japor\xE3.Jaraguari.Jardim.Jate\xED.Juti.Lad\xE1rio.Laguna Carap\xE3.Maracaju.Miranda.Mundo Novo.Navira\xED.Nioaque.Nova Alvorada do Sul.Nova Andradina.Novo Horizonte do Sul.Para\xEDso das \xC1guas.Parana\xEDba.Paranhos.Pedro Gomes.Ponta Por\xE3.Porto Murtinho.Ribas do Rio Pardo.Rio Brilhante.Rio Negro.Rio Verde de Mato Grosso.Rochedo.Santa Rita do Pardo.S\xE3o Gabriel do Oeste.Selv\xEDria.Sete Quedas.Sidrol\xE2ndia.Sonora.Tacuru.Taquarussu.Terenos.Tr\xEAs Lagoas.Vicentina".split("."),
+  MT: /* @__PURE__ */ "Acorizal.\xC1gua Boa.Alta Floresta.Alto Araguaia.Alto Boa Vista.Alto Gar\xE7as.Alto Paraguai.Alto Taquari.Apiac\xE1s.Araguaiana.Araguainha.Araputanga.Aren\xE1polis.Aripuan\xE3.Bar\xE3o de Melga\xE7o.Barra do Bugres.Barra do Gar\xE7as.Bom Jesus do Araguaia.Brasnorte.C\xE1ceres.Campin\xE1polis.Campo Novo do Parecis.Campo Verde.Campos de J\xFAlio.Canabrava do Norte.Canarana.Carlinda.Castanheira.Chapada dos Guimar\xE3es.Cl\xE1udia.Cocalinho.Col\xEDder.Colniza.Comodoro.Confresa.Conquista D'Oeste.Cotrigua\xE7u.Cuiab\xE1.Curvel\xE2ndia.Denise.Diamantino.Dom Aquino.Feliz Natal.Figueir\xF3polis D'Oeste.Ga\xFAcha do Norte.General Carneiro.Gl\xF3ria D'Oeste.Guarant\xE3 do Norte.Guiratinga.Indiava\xED.Ipiranga do Norte.Itanhang\xE1.Ita\xFAba.Itiquira.Jaciara.Jangada.Jauru.Juara.Ju\xEDna.Juruena.Juscimeira.Lambari D'Oeste.Lucas do Rio Verde.Luciara.Marcel\xE2ndia.Matup\xE1.Mirassol d'Oeste.Nobres.Nortel\xE2ndia.Nossa Senhora do Livramento.Nova Bandeirantes.Nova Brasil\xE2ndia.Nova Cana\xE3 do Norte.Nova Guarita.Nova Lacerda.Nova Maril\xE2ndia.Nova Maring\xE1.Nova Monte Verde.Nova Mutum.Nova Nazar\xE9.Nova Ol\xEDmpia.Nova Santa Helena.Nova Ubirat\xE3.Nova Xavantina.Novo Horizonte do Norte.Novo Mundo.Novo Santo Ant\xF4nio.Novo S\xE3o Joaquim.Parana\xEDta.Paranatinga.Pedra Preta.Peixoto de Azevedo.Planalto da Serra.Pocon\xE9.Pontal do Araguaia.Ponte Branca.Pontes e Lacerda.Porto Alegre do Norte.Porto dos Ga\xFAchos.Porto Esperidi\xE3o.Porto Estrela.Poxor\xE9u.Primavera do Leste.Quer\xEAncia.Reserva do Caba\xE7al.Ribeir\xE3o Cascalheira.Ribeir\xE3ozinho.Rio Branco.Rondol\xE2ndia.Rondon\xF3polis.Ros\xE1rio Oeste.Salto do C\xE9u.Santa Carmem.Santa Cruz do Xingu.Santa Rita do Trivelato.Santa Terezinha.Santo Afonso.Santo Ant\xF4nio de Leverger.Santo Ant\xF4nio do Leste.S\xE3o F\xE9lix do Araguaia.S\xE3o Jos\xE9 do Povo.S\xE3o Jos\xE9 do Rio Claro.S\xE3o Jos\xE9 do Xingu.S\xE3o Jos\xE9 dos Quatro Marcos.S\xE3o Pedro da Cipa.Sapezal.Serra Nova Dourada.Sinop.Sorriso.Tabapor\xE3.Tangar\xE1 da Serra.Tapurah.Terra Nova do Norte.Tesouro.Torixor\xE9u.Uni\xE3o do Sul.Vale de S\xE3o Domingos.V\xE1rzea Grande.Vera.Vila Bela da Sant\xEDssima Trindade.Vila Rica".split("."),
+  PA: /* @__PURE__ */ "Abaetetuba.Abel Figueiredo.Acar\xE1.Afu\xE1.\xC1gua Azul do Norte.Alenquer.Almeirim.Altamira.Anaj\xE1s.Ananindeua.Anapu.Augusto Corr\xEAa.Aurora do Par\xE1.Aveiro.Bagre.Bai\xE3o.Bannach.Barcarena.Bel\xE9m.Belterra.Benevides.Bom Jesus do Tocantins.Bonito.Bragan\xE7a.Brasil Novo.Brejo Grande do Araguaia.Breu Branco.Breves.Bujaru.Cachoeira do Arari.Cachoeira do Piri\xE1.Camet\xE1.Cana\xE3 dos Caraj\xE1s.Capanema.Capit\xE3o Po\xE7o.Castanhal.Chaves.Colares.Concei\xE7\xE3o do Araguaia.Conc\xF3rdia do Par\xE1.Cumaru do Norte.Curion\xF3polis.Curralinho.Curu\xE1.Curu\xE7\xE1.Dom Eliseu.Eldorado do Caraj\xE1s.Faro.Floresta do Araguaia.Garraf\xE3o do Norte.Goian\xE9sia do Par\xE1.Gurup\xE1.Igarap\xE9-A\xE7u.Igarap\xE9-Miri.Inhangapi.Ipixuna do Par\xE1.Irituia.Itaituba.Itupiranga.Jacareacanga.Jacund\xE1.Juruti.Limoeiro do Ajuru.M\xE3e do Rio.Magalh\xE3es Barata.Marab\xE1.Maracan\xE3.Marapanim.Marituba.Medicil\xE2ndia.Melga\xE7o.Mocajuba.Moju.Moju\xED dos Campos.Monte Alegre.Muan\xE1.Nova Esperan\xE7a do Piri\xE1.Nova Ipixuna.Nova Timboteua.Novo Progresso.Novo Repartimento.\xD3bidos.Oeiras do Par\xE1.Oriximin\xE1.Our\xE9m.Ouril\xE2ndia do Norte.Pacaj\xE1.Palestina do Par\xE1.Paragominas.Parauapebas.Pau D'Arco.Peixe-Boi.Pi\xE7arra.Placas.Ponta de Pedras.Portel.Porto de Moz.Prainha.Primavera.Quatipuru.Reden\xE7\xE3o.Rio Maria.Rondon do Par\xE1.Rur\xF3polis.Salin\xF3polis.Salvaterra.Santa B\xE1rbara do Par\xE1.Santa Cruz do Arari.Santa Izabel do Par\xE1.Santa Luzia do Par\xE1.Santa Maria das Barreiras.Santa Maria do Par\xE1.Santana do Araguaia.Santar\xE9m.Santar\xE9m Novo.Santo Ant\xF4nio do Tau\xE1.S\xE3o Caetano de Odivelas.S\xE3o Domingos do Araguaia.S\xE3o Domingos do Capim.S\xE3o F\xE9lix do Xingu.S\xE3o Francisco do Par\xE1.S\xE3o Geraldo do Araguaia.S\xE3o Jo\xE3o da Ponta.S\xE3o Jo\xE3o de Pirabas.S\xE3o Jo\xE3o do Araguaia.S\xE3o Miguel do Guam\xE1.S\xE3o Sebasti\xE3o da Boa Vista.Sapucaia.Senador Jos\xE9 Porf\xEDrio.Soure.Tail\xE2ndia.Terra Alta.Terra Santa.Tom\xE9-A\xE7u.Tracuateua.Trair\xE3o.Tucum\xE3.Tucuru\xED.Ulian\xF3polis.Uruar\xE1.Vigia.Viseu.Vit\xF3ria do Xingu.Xinguara".split("."),
+  PB: /* @__PURE__ */ "\xC1gua Branca.Aguiar.Alagoa Grande.Alagoa Nova.Alagoinha.Alcantil.Algod\xE3o de Janda\xEDra.Alhandra.Amparo.Aparecida.Ara\xE7agi.Arara.Araruna.Areia.Areia de Bara\xFAnas.Areial.Aroeiras.Assun\xE7\xE3o.Ba\xEDa da Trai\xE7\xE3o.Bananeiras.Bara\xFAna.Barra de Santa Rosa.Barra de Santana.Barra de S\xE3o Miguel.Bayeux.Bel\xE9m.Bel\xE9m do Brejo do Cruz.Bernardino Batista.Boa Ventura.Boa Vista.Bom Jesus.Bom Sucesso.Bonito de Santa F\xE9.Boqueir\xE3o.Borborema.Brejo do Cruz.Brejo dos Santos.Caapor\xE3.Cabaceiras.Cabedelo.Cachoeira dos \xCDndios.Cacimba de Areia.Cacimba de Dentro.Cacimbas.Cai\xE7ara.Cajazeiras.Cajazeirinhas.Caldas Brand\xE3o.Camala\xFA.Campina Grande.Capim.Cara\xFAbas.Carrapateira.Casserengue.Catingueira.Catol\xE9 do Rocha.Caturit\xE9.Concei\xE7\xE3o.Condado.Conde.Congo.Coremas.Coxixola.Cruz do Esp\xEDrito Santo.Cubati.Cuit\xE9.Cuit\xE9 de Mamanguape.Cuitegi.Curral de Cima.Curral Velho.Dami\xE3o.Desterro.Diamante.Dona In\xEAs.Duas Estradas.Emas.Esperan\xE7a.Fagundes.Frei Martinho.Gado Bravo.Guarabira.Gurinh\xE9m.Gurj\xE3o.Ibiara.Igaracy.Imaculada.Ing\xE1.Itabaiana.Itaporanga.Itapororoca.Itatuba.Jacara\xFA.Jeric\xF3.Jo\xE3o Pessoa.Joca Claudino.Juarez T\xE1vora.Juazeirinho.Junco do Serid\xF3.Juripiranga.Juru.Lagoa.Lagoa de Dentro.Lagoa Seca.Lastro.Livramento.Logradouro.Lucena.M\xE3e d'\xC1gua.Malta.Mamanguape.Mana\xEDra.Marca\xE7\xE3o.Mari.Mariz\xF3polis.Massaranduba.Mataraca.Matinhas.Mato Grosso.Matur\xE9ia.Mogeiro.Montadas.Monte Horebe.Monteiro.Mulungu.Natuba.Nazarezinho.Nova Floresta.Nova Olinda.Nova Palmeira.Olho d'\xC1gua.Olivedos.Ouro Velho.Parari.Passagem.Patos.Paulista.Pedra Branca.Pedra Lavrada.Pedras de Fogo.Pedro R\xE9gis.Pianc\xF3.Picu\xED.Pilar.Pil\xF5es.Pil\xF5ezinhos.Pirpirituba.Pitimbu.Pocinhos.Po\xE7o Dantas.Po\xE7o de Jos\xE9 de Moura.Pombal.Prata.Princesa Isabel.Puxinan\xE3.Queimadas.Quixaba.Rem\xEDgio.Riach\xE3o.Riach\xE3o do Bacamarte.Riach\xE3o do Po\xE7o.Riacho de Santo Ant\xF4nio.Riacho dos Cavalos.Rio Tinto.Salgadinho.Salgado de S\xE3o F\xE9lix.Santa Cec\xEDlia.Santa Cruz.Santa Helena.Santa In\xEAs.Santa Luzia.Santa Rita.Santa Teresinha.Santana de Mangueira.Santana dos Garrotes.Santo Andr\xE9.S\xE3o Bentinho.S\xE3o Bento.S\xE3o Domingos.S\xE3o Domingos do Cariri.S\xE3o Francisco.S\xE3o Jo\xE3o do Cariri.S\xE3o Jo\xE3o do Rio do Peixe.S\xE3o Jo\xE3o do Tigre.S\xE3o Jos\xE9 da Lagoa Tapada.S\xE3o Jos\xE9 de Caiana.S\xE3o Jos\xE9 de Espinharas.S\xE3o Jos\xE9 de Piranhas.S\xE3o Jos\xE9 de Princesa.S\xE3o Jos\xE9 do Bonfim.S\xE3o Jos\xE9 do Brejo do Cruz.S\xE3o Jos\xE9 do Sabugi.S\xE3o Jos\xE9 dos Cordeiros.S\xE3o Jos\xE9 dos Ramos.S\xE3o Mamede.S\xE3o Miguel de Taipu.S\xE3o Sebasti\xE3o de Lagoa de Ro\xE7a.S\xE3o Sebasti\xE3o do Umbuzeiro.S\xE3o Vicente do Serid\xF3.Sap\xE9.Serra Branca.Serra da Raiz.Serra Grande.Serra Redonda.Serraria.Sert\xE3ozinho.Sobrado.Sol\xE2nea.Soledade.Soss\xEAgo.Sousa.Sum\xE9.Tacima.Tapero\xE1.Tavares.Teixeira.Ten\xF3rio.Triunfo.Uira\xFAna.Umbuzeiro.V\xE1rzea.Vieir\xF3polis.Vista Serrana.Zabel\xEA".split("."),
+  PE: /* @__PURE__ */ "Abreu e Lima.Afogados da Ingazeira.Afr\xE2nio.Agrestina.\xC1gua Preta.\xC1guas Belas.Alagoinha.Alian\xE7a.Altinho.Amaraji.Angelim.Ara\xE7oiaba.Araripina.Arcoverde.Barra de Guabiraba.Barreiros.Bel\xE9m de Maria.Bel\xE9m do S\xE3o Francisco.Belo Jardim.Bet\xE2nia.Bezerros.Bodoc\xF3.Bom Conselho.Bom Jardim.Bonito.Brej\xE3o.Brejinho.Brejo da Madre de Deus.Buenos Aires.Bu\xEDque.Cabo de Santo Agostinho.Cabrob\xF3.Cachoeirinha.Caet\xE9s.Cal\xE7ado.Calumbi.Camaragibe.Camocim de S\xE3o F\xE9lix.Camutanga.Canhotinho.Capoeiras.Carna\xEDba.Carnaubeira da Penha.Carpina.Caruaru.Casinhas.Catende.Cedro.Ch\xE3 de Alegria.Ch\xE3 Grande.Condado.Correntes.Cort\xEAs.Cumaru.Cupira.Cust\xF3dia.Dormentes.Escada.Exu.Feira Nova.Fernando de Noronha.Ferreiros.Flores.Floresta.Frei Miguelinho.Gameleira.Garanhuns.Gl\xF3ria do Goit\xE1.Goiana.Granito.Gravat\xE1.Iati.Ibimirim.Ibirajuba.Igarassu.Iguaracy.Ilha de Itamarac\xE1.Inaj\xE1.Ingazeira.Ipojuca.Ipubi.Itacuruba.Ita\xEDba.Itamb\xE9.Itapetim.Itapissuma.Itaquitinga.Jaboat\xE3o dos Guararapes.Jaqueira.Jata\xFAba.Jatob\xE1.Jo\xE3o Alfredo.Joaquim Nabuco.Jucati.Jupi.Jurema.Lagoa de Itaenga.Lagoa do Carro.Lagoa do Ouro.Lagoa dos Gatos.Lagoa Grande.Lajedo.Limoeiro.Macaparana.Machados.Manari.Maraial.Mirandiba.Moreil\xE2ndia.Moreno.Nazar\xE9 da Mata.Olinda.Orob\xF3.Oroc\xF3.Ouricuri.Palmares.Palmeirina.Panelas.Paranatama.Parnamirim.Passira.Paudalho.Paulista.Pedra.Pesqueira.Petrol\xE2ndia.Petrolina.Po\xE7\xE3o.Pombos.Primavera.Quipap\xE1.Quixaba.Recife.Riacho das Almas.Ribeir\xE3o.Rio Formoso.Sair\xE9.Salgadinho.Salgueiro.Salo\xE1.Sanhar\xF3.Santa Cruz.Santa Cruz da Baixa Verde.Santa Cruz do Capibaribe.Santa Filomena.Santa Maria da Boa Vista.Santa Maria do Cambuc\xE1.Santa Terezinha.S\xE3o Benedito do Sul.S\xE3o Bento do Una.S\xE3o Caitano.S\xE3o Jo\xE3o.S\xE3o Joaquim do Monte.S\xE3o Jos\xE9 da Coroa Grande.S\xE3o Jos\xE9 do Belmonte.S\xE3o Jos\xE9 do Egito.S\xE3o Louren\xE7o da Mata.S\xE3o Vicente F\xE9rrer.Serra Talhada.Serrita.Sert\xE2nia.Sirinha\xE9m.Solid\xE3o.Surubim.Tabira.Tacaimb\xF3.Tacaratu.Tamandar\xE9.Taquaritinga do Norte.Terezinha.Terra Nova.Timba\xFAba.Toritama.Tracunha\xE9m.Trindade.Triunfo.Tupanatinga.Tuparetama.Venturosa.Verdejante.Vertente do L\xE9rio.Vertentes.Vic\xEAncia.Vit\xF3ria de Santo Ant\xE3o.Xex\xE9u".split("."),
+  PI: /* @__PURE__ */ "Acau\xE3.Agricol\xE2ndia.\xC1gua Branca.Alagoinha do Piau\xED.Alegrete do Piau\xED.Alto Long\xE1.Altos.Alvorada do Gurgu\xE9ia.Amarante.Angical do Piau\xED.An\xEDsio de Abreu.Ant\xF4nio Almeida.Aroazes.Aroeiras do Itaim.Arraial.Assun\xE7\xE3o do Piau\xED.Avelino Lopes.Baixa Grande do Ribeiro.Barra D'Alc\xE2ntara.Barras.Barreiras do Piau\xED.Barro Duro.Batalha.Bela Vista do Piau\xED.Bel\xE9m do Piau\xED.Beneditinos.Bertol\xEDnia.Bet\xE2nia do Piau\xED.Boa Hora.Bocaina.Bom Jesus.Bom Princ\xEDpio do Piau\xED.Bonfim do Piau\xED.Boqueir\xE3o do Piau\xED.Brasileira.Brejo do Piau\xED.Buriti dos Lopes.Buriti dos Montes.Cabeceiras do Piau\xED.Cajazeiras do Piau\xED.Cajueiro da Praia.Caldeir\xE3o Grande do Piau\xED.Campinas do Piau\xED.Campo Alegre do Fidalgo.Campo Grande do Piau\xED.Campo Largo do Piau\xED.Campo Maior.Canavieira.Canto do Buriti.Capit\xE3o de Campos.Capit\xE3o Gerv\xE1sio Oliveira.Caracol.Cara\xFAbas do Piau\xED.Caridade do Piau\xED.Castelo do Piau\xED.Caxing\xF3.Cocal.Cocal de Telha.Cocal dos Alves.Coivaras.Col\xF4nia do Gurgu\xE9ia.Col\xF4nia do Piau\xED.Concei\xE7\xE3o do Canind\xE9.Coronel Jos\xE9 Dias.Corrente.Cristal\xE2ndia do Piau\xED.Cristino Castro.Curimat\xE1.Currais.Curral Novo do Piau\xED.Curralinhos.Demerval Lob\xE3o.Dirceu Arcoverde.Dom Expedito Lopes.Dom Inoc\xEAncio.Domingos Mour\xE3o.Elesb\xE3o Veloso.Eliseu Martins.Esperantina.Fartura do Piau\xED.Flores do Piau\xED.Floresta do Piau\xED.Floriano.Francin\xF3polis.Francisco Ayres.Francisco Macedo.Francisco Santos.Fronteiras.Geminiano.Gilbu\xE9s.Guadalupe.Guaribas.Hugo Napole\xE3o.Ilha Grande.Inhuma.Ipiranga do Piau\xED.Isa\xEDas Coelho.Itain\xF3polis.Itaueira.Jacobina do Piau\xED.Jaic\xF3s.Jardim do Mulato.Jatob\xE1 do Piau\xED.Jerumenha.Jo\xE3o Costa.Joaquim Pires.Joca Marques.Jos\xE9 de Freitas.Juazeiro do Piau\xED.J\xFAlio Borges.Jurema.Lagoa Alegre.Lagoa de S\xE3o Francisco.Lagoa do Barro do Piau\xED.Lagoa do Piau\xED.Lagoa do S\xEDtio.Lagoinha do Piau\xED.Landri Sales.Lu\xEDs Correia.Luzil\xE2ndia.Madeiro.Manoel Em\xEDdio.Marcol\xE2ndia.Marcos Parente.Massap\xEA do Piau\xED.Matias Ol\xEDmpio.Miguel Alves.Miguel Le\xE3o.Milton Brand\xE3o.Monsenhor Gil.Monsenhor Hip\xF3lito.Monte Alegre do Piau\xED.Morro Cabe\xE7a no Tempo.Morro do Chap\xE9u do Piau\xED.Murici dos Portelas.Nazar\xE9 do Piau\xED.Naz\xE1ria.Nossa Senhora de Nazar\xE9.Nossa Senhora dos Rem\xE9dios.Nova Santa Rita.Novo Oriente do Piau\xED.Novo Santo Ant\xF4nio.Oeiras.Olho D'\xC1gua do Piau\xED.Padre Marcos.Paes Landim.Paje\xFA do Piau\xED.Palmeira do Piau\xED.Palmeirais.Paquet\xE1.Parnagu\xE1.Parna\xEDba.Passagem Franca do Piau\xED.Patos do Piau\xED.Pau D'Arco do Piau\xED.Paulistana.Pavussu.Pedro II.Pedro Laurentino.Picos.Pimenteiras.Pio IX.Piracuruca.Piripiri.Porto.Porto Alegre do Piau\xED.Prata do Piau\xED.Queimada Nova.Reden\xE7\xE3o do Gurgu\xE9ia.Regenera\xE7\xE3o.Riacho Frio.Ribeira do Piau\xED.Ribeiro Gon\xE7alves.Rio Grande do Piau\xED.Santa Cruz do Piau\xED.Santa Cruz dos Milagres.Santa Filomena.Santa Luz.Santa Rosa do Piau\xED.Santana do Piau\xED.Santo Ant\xF4nio de Lisboa.Santo Ant\xF4nio dos Milagres.Santo In\xE1cio do Piau\xED.S\xE3o Braz do Piau\xED.S\xE3o F\xE9lix do Piau\xED.S\xE3o Francisco de Assis do Piau\xED.S\xE3o Francisco do Piau\xED.S\xE3o Gon\xE7alo do Gurgu\xE9ia.S\xE3o Gon\xE7alo do Piau\xED.S\xE3o Jo\xE3o da Canabrava.S\xE3o Jo\xE3o da Fronteira.S\xE3o Jo\xE3o da Serra.S\xE3o Jo\xE3o da Varjota.S\xE3o Jo\xE3o do Arraial.S\xE3o Jo\xE3o do Piau\xED.S\xE3o Jos\xE9 do Divino.S\xE3o Jos\xE9 do Peixe.S\xE3o Jos\xE9 do Piau\xED.S\xE3o Juli\xE3o.S\xE3o Louren\xE7o do Piau\xED.S\xE3o Luis do Piau\xED.S\xE3o Miguel da Baixa Grande.S\xE3o Miguel do Fidalgo.S\xE3o Miguel do Tapuio.S\xE3o Pedro do Piau\xED.S\xE3o Raimundo Nonato.Sebasti\xE3o Barros.Sebasti\xE3o Leal.Sigefredo Pacheco.Sim\xF5es.Simpl\xEDcio Mendes.Socorro do Piau\xED.Sussuapara.Tamboril do Piau\xED.Tanque do Piau\xED.Teresina.Uni\xE3o.Uru\xE7u\xED.Valen\xE7a do Piau\xED.V\xE1rzea Branca.V\xE1rzea Grande.Vera Mendes.Vila Nova do Piau\xED.Wall Ferraz".split("."),
+  PR: /* @__PURE__ */ "Abati\xE1.Adrian\xF3polis.Agudos do Sul.Almirante Tamandar\xE9.Altamira do Paran\xE1.Alto Para\xEDso.Alto Paran\xE1.Alto Piquiri.Alt\xF4nia.Alvorada do Sul.Amapor\xE3.Amp\xE9re.Anahy.Andir\xE1.\xC2ngulo.Antonina.Ant\xF4nio Olinto.Apucarana.Arapongas.Arapoti.Arapu\xE3.Araruna.Arauc\xE1ria.Ariranha do Iva\xED.Assa\xED.Assis Chateaubriand.Astorga.Atalaia.Balsa Nova.Bandeirantes.Barbosa Ferraz.Barra do Jacar\xE9.Barrac\xE3o.Bela Vista da Caroba.Bela Vista do Para\xEDso.Bituruna.Boa Esperan\xE7a.Boa Esperan\xE7a do Igua\xE7u.Boa Ventura de S\xE3o Roque.Boa Vista da Aparecida.Bocai\xFAva do Sul.Bom Jesus do Sul.Bom Sucesso.Bom Sucesso do Sul.Borraz\xF3polis.Braganey.Brasil\xE2ndia do Sul.Cafeara.Cafel\xE2ndia.Cafezal do Sul.Calif\xF3rnia.Cambar\xE1.Camb\xE9.Cambira.Campina da Lagoa.Campina do Sim\xE3o.Campina Grande do Sul.Campo Bonito.Campo do Tenente.Campo Largo.Campo Magro.Campo Mour\xE3o.C\xE2ndido de Abreu.Cand\xF3i.Cantagalo.Capanema.Capit\xE3o Le\xF4nidas Marques.Carambe\xED.Carl\xF3polis.Cascavel.Castro.Catanduvas.Centen\xE1rio do Sul.Cerro Azul.C\xE9u Azul.Chopinzinho.Cianorte.Cidade Ga\xFAcha.Clevel\xE2ndia.Colombo.Colorado.Congonhinhas.Conselheiro Mairinck.Contenda.Corb\xE9lia.Corn\xE9lio Proc\xF3pio.Coronel Domingos Soares.Coronel Vivida.Corumbata\xED do Sul.Cruz Machado.Cruzeiro do Igua\xE7u.Cruzeiro do Oeste.Cruzeiro do Sul.Cruzmaltina.Curitiba.Curi\xFAva.Diamante D'Oeste.Diamante do Norte.Diamante do Sul.Dois Vizinhos.Douradina.Doutor Camargo.Doutor Ulysses.En\xE9as Marques.Engenheiro Beltr\xE3o.Entre Rios do Oeste.Esperan\xE7a Nova.Espig\xE3o Alto do Igua\xE7u.Farol.Faxinal.Fazenda Rio Grande.F\xEAnix.Fernandes Pinheiro.Figueira.Flor da Serra do Sul.Flora\xED.Floresta.Florest\xF3polis.Fl\xF3rida.Formosa do Oeste.Foz do Igua\xE7u.Foz do Jord\xE3o.Francisco Alves.Francisco Beltr\xE3o.General Carneiro.Godoy Moreira.Goioer\xEA.Goioxim.Grandes Rios.Gua\xEDra.Guaira\xE7\xE1.Guamiranga.Guapirama.Guaporema.Guaraci.Guarania\xE7u.Guarapuava.Guaraque\xE7aba.Guaratuba.Hon\xF3rio Serpa.Ibaiti.Ibema.Ibipor\xE3.Icara\xEDma.Iguara\xE7u.Iguatu.Imba\xFA.Imbituva.In\xE1cio Martins.Inaj\xE1.Indian\xF3polis.Ipiranga.Ipor\xE3.Iracema do Oeste.Irati.Iretama.Itaguaj\xE9.Itaipul\xE2ndia.Itambarac\xE1.Itamb\xE9.Itapejara d'Oeste.Itaperu\xE7u.Ita\xFAna do Sul.Iva\xED.Ivaipor\xE3.Ivat\xE9.Ivatuba.Jaboti.Jacarezinho.Jaguapit\xE3.Jaguaria\xEDva.Jandaia do Sul.Jani\xF3polis.Japira.Japur\xE1.Jardim Alegre.Jardim Olinda.Jataizinho.Jesu\xEDtas.Joaquim T\xE1vora.Jundia\xED do Sul.Juranda.Jussara.Kalor\xE9.Lapa.Laranjal.Laranjeiras do Sul.Le\xF3polis.Lidian\xF3polis.Lindoeste.Loanda.Lobato.Londrina.Luiziana.Lunardelli.Lupion\xF3polis.Mallet.Mambor\xEA.Mandagua\xE7u.Mandaguari.Mandirituba.Manfrin\xF3polis.Mangueirinha.Manoel Ribas.Marechal C\xE2ndido Rondon.Maria Helena.Marialva.Maril\xE2ndia do Sul.Marilena.Mariluz.Maring\xE1.Mari\xF3polis.Marip\xE1.Marmeleiro.Marquinho.Marumbi.Matel\xE2ndia.Matinhos.Mato Rico.Mau\xE1 da Serra.Medianeira.Mercedes.Mirador.Miraselva.Missal.Moreira Sales.Morretes.Munhoz de Melo.Nossa Senhora das Gra\xE7as.Nova Alian\xE7a do Iva\xED.Nova Am\xE9rica da Colina.Nova Aurora.Nova Cantu.Nova Esperan\xE7a.Nova Esperan\xE7a do Sudoeste.Nova F\xE1tima.Nova Laranjeiras.Nova Londrina.Nova Ol\xEDmpia.Nova Prata do Igua\xE7u.Nova Santa B\xE1rbara.Nova Santa Rosa.Nova Tebas.Novo Itacolomi.Ortigueira.Ourizona.Ouro Verde do Oeste.Pai\xE7andu.Palmas.Palmeira.Palmital.Palotina.Para\xEDso do Norte.Paranacity.Paranagu\xE1.Paranapoema.Paranava\xED.Pato Bragado.Pato Branco.Paula Freitas.Paulo Frontin.Peabiru.Perobal.P\xE9rola.P\xE9rola d'Oeste.Pi\xEAn.Pinhais.Pinhal de S\xE3o Bento.Pinhal\xE3o.Pinh\xE3o.Pira\xED do Sul.Piraquara.Pitanga.Pitangueiras.Planaltina do Paran\xE1.Planalto.Ponta Grossa.Pontal do Paran\xE1.Porecatu.Porto Amazonas.Porto Barreiro.Porto Rico.Porto Vit\xF3ria.Prado Ferreira.Pranchita.Presidente Castelo Branco.Primeiro de Maio.Prudent\xF3polis.Quarto Centen\xE1rio.Quatigu\xE1.Quatro Barras.Quatro Pontes.Quedas do Igua\xE7u.Quer\xEAncia do Norte.Quinta do Sol.Quitandinha.Ramil\xE2ndia.Rancho Alegre.Rancho Alegre D'Oeste.Realeza.Rebou\xE7as.Renascen\xE7a.Reserva.Reserva do Igua\xE7u.Ribeir\xE3o Claro.Ribeir\xE3o do Pinhal.Rio Azul.Rio Bom.Rio Bonito do Igua\xE7u.Rio Branco do Iva\xED.Rio Branco do Sul.Rio Negro.Rol\xE2ndia.Roncador.Rondon.Ros\xE1rio do Iva\xED.Sab\xE1udia.Salgado Filho.Salto do Itarar\xE9.Salto do Lontra.Santa Am\xE9lia.Santa Cec\xEDlia do Pav\xE3o.Santa Cruz de Monte Castelo.Santa F\xE9.Santa Helena.Santa In\xEAs.Santa Isabel do Iva\xED.Santa Izabel do Oeste.Santa L\xFAcia.Santa Maria do Oeste.Santa Mariana.Santa M\xF4nica.Santa Tereza do Oeste.Santa Terezinha de Itaipu.Santana do Itarar\xE9.Santo Ant\xF4nio da Platina.Santo Ant\xF4nio do Caiu\xE1.Santo Ant\xF4nio do Para\xEDso.Santo Ant\xF4nio do Sudoeste.Santo In\xE1cio.S\xE3o Carlos do Iva\xED.S\xE3o Jer\xF4nimo da Serra.S\xE3o Jo\xE3o.S\xE3o Jo\xE3o do Caiu\xE1.S\xE3o Jo\xE3o do Iva\xED.S\xE3o Jo\xE3o do Triunfo.S\xE3o Jorge d'Oeste.S\xE3o Jorge do Iva\xED.S\xE3o Jorge do Patroc\xEDnio.S\xE3o Jos\xE9 da Boa Vista.S\xE3o Jos\xE9 das Palmeiras.S\xE3o Jos\xE9 dos Pinhais.S\xE3o Manoel do Paran\xE1.S\xE3o Mateus do Sul.S\xE3o Miguel do Igua\xE7u.S\xE3o Pedro do Igua\xE7u.S\xE3o Pedro do Iva\xED.S\xE3o Pedro do Paran\xE1.S\xE3o Sebasti\xE3o da Amoreira.S\xE3o Tom\xE9.Sapopema.Sarandi.Saudade do Igua\xE7u.Seng\xE9s.Serran\xF3polis do Igua\xE7u.Sertaneja.Sertan\xF3polis.Siqueira Campos.Sulina.Tamarana.Tamboara.Tapejara.Tapira.Teixeira Soares.Tel\xEAmaco Borba.Terra Boa.Terra Rica.Terra Roxa.Tibagi.Tijucas do Sul.Toledo.Tomazina.Tr\xEAs Barras do Paran\xE1.Tunas do Paran\xE1.Tuneiras do Oeste.Tup\xE3ssi.Turvo.Ubirat\xE3.Umuarama.Uni\xE3o da Vit\xF3ria.Uniflor.Ura\xED.Ventania.Vera Cruz do Oeste.Ver\xEA.Virmond.Vitorino.Wenceslau Braz.Xambr\xEA".split("."),
+  RJ: /* @__PURE__ */ "Angra dos Reis.Aperib\xE9.Araruama.Areal.Arma\xE7\xE3o dos B\xFAzios.Arraial do Cabo.Barra do Pira\xED.Barra Mansa.Belford Roxo.Bom Jardim.Bom Jesus do Itabapoana.Cabo Frio.Cachoeiras de Macacu.Cambuci.Campos dos Goytacazes.Cantagalo.Carapebus.Cardoso Moreira.Carmo.Casimiro de Abreu.Comendador Levy Gasparian.Concei\xE7\xE3o de Macabu.Cordeiro.Duas Barras.Duque de Caxias.Engenheiro Paulo de Frontin.Guapimirim.Iguaba Grande.Itabora\xED.Itagua\xED.Italva.Itaocara.Itaperuna.Itatiaia.Japeri.Laje do Muria\xE9.Maca\xE9.Macuco.Mag\xE9.Mangaratiba.Maric\xE1.Mendes.Mesquita.Miguel Pereira.Miracema.Natividade.Nil\xF3polis.Niter\xF3i.Nova Friburgo.Nova Igua\xE7u.Paracambi.Para\xEDba do Sul.Paraty.Paty do Alferes.Petr\xF3polis.Pinheiral.Pira\xED.Porci\xFAncula.Porto Real.Quatis.Queimados.Quissam\xE3.Resende.Rio Bonito.Rio Claro.Rio das Flores.Rio das Ostras.Rio de Janeiro.Santa Maria Madalena.Santo Ant\xF4nio de P\xE1dua.S\xE3o Fid\xE9lis.S\xE3o Francisco de Itabapoana.S\xE3o Gon\xE7alo.S\xE3o Jo\xE3o da Barra.S\xE3o Jo\xE3o de Meriti.S\xE3o Jos\xE9 de Ub\xE1.S\xE3o Jos\xE9 do Vale do Rio Preto.S\xE3o Pedro da Aldeia.S\xE3o Sebasti\xE3o do Alto.Sapucaia.Saquarema.Serop\xE9dica.Silva Jardim.Sumidouro.Tangu\xE1.Teres\xF3polis.Trajano de Moraes.Tr\xEAs Rios.Valen\xE7a.Varre-Sai.Vassouras.Volta Redonda".split("."),
+  RN: /* @__PURE__ */ "Acari.Afonso Bezerra.\xC1gua Nova.Alexandria.Almino Afonso.Alto do Rodrigues.Angicos.Ant\xF4nio Martins.Apodi.Areia Branca.Arez.Ass\xFA.Ba\xEDa Formosa.Bara\xFAna.Barcelona.Bento Fernandes.Bod\xF3.Bom Jesus.Brejinho.Cai\xE7ara do Norte.Cai\xE7ara do Rio do Vento.Caic\xF3.Campo Grande.Campo Redondo.Canguaretama.Cara\xFAbas.Carna\xFAba dos Dantas.Carnaubais.Cear\xE1-Mirim.Cerro Cor\xE1.Coronel Ezequiel.Coronel Jo\xE3o Pessoa.Cruzeta.Currais Novos.Doutor Severiano.Encanto.Equador.Esp\xEDrito Santo.Extremoz.Felipe Guerra.Fernando Pedroza.Flor\xE2nia.Francisco Dantas.Frutuoso Gomes.Galinhos.Goianinha.Governador Dix-Sept Rosado.Grossos.Guamar\xE9.Ielmo Marinho.Ipangua\xE7u.Ipueira.Itaj\xE1.Ita\xFA.Ja\xE7an\xE3.Janda\xEDra.Jandu\xEDs.Janu\xE1rio Cicco.Japi.Jardim de Angicos.Jardim de Piranhas.Jardim do Serid\xF3.Jo\xE3o C\xE2mara.Jo\xE3o Dias.Jos\xE9 da Penha.Jucurutu.Jundi\xE1.Lagoa d'Anta.Lagoa de Pedras.Lagoa de Velhos.Lagoa Nova.Lagoa Salgada.Lajes.Lajes Pintadas.Lucr\xE9cia.Lu\xEDs Gomes.Maca\xEDba.Macau.Major Sales.Marcelino Vieira.Martins.Maxaranguape.Messias Targino.Montanhas.Monte Alegre.Monte das Gameleiras.Mossor\xF3.Natal.N\xEDsia Floresta.Nova Cruz.Olho d'\xC1gua do Borges.Ouro Branco.Paran\xE1.Para\xFA.Parazinho.Parelhas.Parnamirim.Passa e Fica.Passagem.Patu.Pau dos Ferros.Pedra Grande.Pedra Preta.Pedro Avelino.Pedro Velho.Pend\xEAncias.Pil\xF5es.Po\xE7o Branco.Portalegre.Porto do Mangue.Pureza.Rafael Fernandes.Rafael Godeiro.Riacho da Cruz.Riacho de Santana.Riachuelo.Rio do Fogo.Rodolfo Fernandes.Ruy Barbosa.Santa Cruz.Santa Maria.Santana do Matos.Santana do Serid\xF3.Santo Ant\xF4nio.S\xE3o Bento do Norte.S\xE3o Bento do Trair\xED.S\xE3o Fernando.S\xE3o Francisco do Oeste.S\xE3o Gon\xE7alo do Amarante.S\xE3o Jo\xE3o do Sabugi.S\xE3o Jos\xE9 de Mipibu.S\xE3o Jos\xE9 do Campestre.S\xE3o Jos\xE9 do Serid\xF3.S\xE3o Miguel.S\xE3o Miguel do Gostoso.S\xE3o Paulo do Potengi.S\xE3o Pedro.S\xE3o Rafael.S\xE3o Tom\xE9.S\xE3o Vicente.Senador El\xF3i de Souza.Senador Georgino Avelino.Serra Caiada.Serra de S\xE3o Bento.Serra do Mel.Serra Negra do Norte.Serrinha.Serrinha dos Pintos.Severiano Melo.S\xEDtio Novo.Taboleiro Grande.Taipu.Tangar\xE1.Tenente Ananias.Tenente Laurentino Cruz.Tibau.Tibau do Sul.Timba\xFAba dos Batistas.Touros.Triunfo Potiguar.Umarizal.Upanema.V\xE1rzea.Venha-Ver.Vera Cruz.Vi\xE7osa.Vila Flor".split("."),
+  RO: /* @__PURE__ */ "Alta Floresta D'Oeste.Alto Alegre dos Parecis.Alto Para\xEDso.Alvorada D'Oeste.Ariquemes.Buritis.Cabixi.Cacaul\xE2ndia.Cacoal.Campo Novo de Rond\xF4nia.Candeias do Jamari.Castanheiras.Cerejeiras.Chupinguaia.Colorado do Oeste.Corumbiara.Costa Marques.Cujubim.Espig\xE3o D'Oeste.Governador Jorge Teixeira.Guajar\xE1-Mirim.Itapu\xE3 do Oeste.Jaru.Ji-Paran\xE1.Machadinho D'Oeste.Ministro Andreazza.Mirante da Serra.Monte Negro.Nova Brasil\xE2ndia D'Oeste.Nova Mamor\xE9.Nova Uni\xE3o.Novo Horizonte do Oeste.Ouro Preto do Oeste.Parecis.Pimenta Bueno.Pimenteiras do Oeste.Porto Velho.Presidente M\xE9dici.Primavera de Rond\xF4nia.Rio Crespo.Rolim de Moura.Santa Luzia D'Oeste.S\xE3o Felipe D'Oeste.S\xE3o Francisco do Guapor\xE9.S\xE3o Miguel do Guapor\xE9.Seringueiras.Teixeir\xF3polis.Theobroma.Urup\xE1.Vale do Anari.Vale do Para\xEDso.Vilhena".split("."),
+  RR: [
+    "Alto Alegre",
+    "Amajari",
+    "Boa Vista",
+    "Bonfim",
+    "Cant\xE1",
+    "Caracara\xED",
+    "Caroebe",
+    "Iracema",
+    "Mucaja\xED",
+    "Normandia",
+    "Pacaraima",
+    "Rorain\xF3polis",
+    "S\xE3o Jo\xE3o da Baliza",
+    "S\xE3o Luiz do Anau\xE1",
+    "Uiramut\xE3"
+  ],
+  RS: /* @__PURE__ */ "Acegu\xE1.\xC1gua Santa.Agudo.Ajuricaba.Alecrim.Alegrete.Alegria.Almirante Tamandar\xE9 do Sul.Alpestre.Alto Alegre.Alto Feliz.Alvorada.Amaral Ferrador.Ametista do Sul.Andr\xE9 da Rocha.Anta Gorda.Ant\xF4nio Prado.Arambar\xE9.Araric\xE1.Aratiba.Arroio do Meio.Arroio do Padre.Arroio do Sal.Arroio do Tigre.Arroio dos Ratos.Arroio Grande.Arvorezinha.Augusto Pestana.\xC1urea.Bag\xE9.Balne\xE1rio Pinhal.Bar\xE3o.Bar\xE3o de Cotegipe.Bar\xE3o do Triunfo.Barra do Guarita.Barra do Quara\xED.Barra do Ribeiro.Barra do Rio Azul.Barra Funda.Barrac\xE3o.Barros Cassal.Benjamin Constant do Sul.Bento Gon\xE7alves.Boa Vista das Miss\xF5es.Boa Vista do Buric\xE1.Boa Vista do Cadeado.Boa Vista do Incra.Boa Vista do Sul.Bom Jesus.Bom Princ\xEDpio.Bom Progresso.Bom Retiro do Sul.Boqueir\xE3o do Le\xE3o.Bossoroca.Bozano.Braga.Brochier.Buti\xE1.Ca\xE7apava do Sul.Cacequi.Cachoeira do Sul.Cachoeirinha.Cacique Doble.Caibat\xE9.Cai\xE7ara.Camaqu\xE3.Camargo.Cambar\xE1 do Sul.Campestre da Serra.Campina das Miss\xF5es.Campinas do Sul.Campo Bom.Campo Novo.Campos Borges.Candel\xE1ria.C\xE2ndido God\xF3i.Candiota.Canela.Cangu\xE7u.Canoas.Canudos do Vale.Cap\xE3o Bonito do Sul.Cap\xE3o da Canoa.Cap\xE3o do Cip\xF3.Cap\xE3o do Le\xE3o.Capela de Santana.Capit\xE3o.Capivari do Sul.Cara\xE1.Carazinho.Carlos Barbosa.Carlos Gomes.Casca.Caseiros.Catu\xEDpe.Caxias do Sul.Centen\xE1rio.Cerrito.Cerro Branco.Cerro Grande.Cerro Grande do Sul.Cerro Largo.Chapada.Charqueadas.Charrua.Chiapetta.Chu\xED.Chuvisca.Cidreira.Cir\xEDaco.Colinas.Colorado.Condor.Constantina.Coqueiro Baixo.Coqueiros do Sul.Coronel Barros.Coronel Bicaco.Coronel Pilar.Cotipor\xE3.Coxilha.Crissiumal.Cristal.Cristal do Sul.Cruz Alta.Cruzaltense.Cruzeiro do Sul.David Canabarro.Derrubadas.Dezesseis de Novembro.Dilermando de Aguiar.Dois Irm\xE3os.Dois Irm\xE3os das Miss\xF5es.Dois Lajeados.Dom Feliciano.Dom Pedrito.Dom Pedro de Alc\xE2ntara.Dona Francisca.Doutor Maur\xEDcio Cardoso.Doutor Ricardo.Eldorado do Sul.Encantado.Encruzilhada do Sul.Engenho Velho.Entre Rios do Sul.Entre-Iju\xEDs.Erebango.Erechim.Ernestina.Erval Grande.Erval Seco.Esmeralda.Esperan\xE7a do Sul.Espumoso.Esta\xE7\xE3o.Est\xE2ncia Velha.Esteio.Estrela.Estrela Velha.Eug\xEAnio de Castro.Fagundes Varela.Farroupilha.Faxinal do Soturno.Faxinalzinho.Fazenda Vilanova.Feliz.Flores da Cunha.Floriano Peixoto.Fontoura Xavier.Formigueiro.Forquetinha.Fortaleza dos Valos.Frederico Westphalen.Garibaldi.Garruchos.Gaurama.General C\xE2mara.Gentil.Get\xFAlio Vargas.Giru\xE1.Glorinha.Gramado.Gramado dos Loureiros.Gramado Xavier.Gravata\xED.Guabiju.Gua\xEDba.Guapor\xE9.Guarani das Miss\xF5es.Harmonia.Herval.Herveiras.Horizontina.Hulha Negra.Humait\xE1.Ibarama.Ibia\xE7\xE1.Ibiraiaras.Ibirapuit\xE3.Ibirub\xE1.Igrejinha.Iju\xED.Il\xF3polis.Imb\xE9.Imigrante.Independ\xEAncia.Inhacor\xE1.Ip\xEA.Ipiranga do Sul.Ira\xED.Itaara.Itacurubi.Itapuca.Itaqui.Itati.Itatiba do Sul.Ivor\xE1.Ivoti.Jaboticaba.Jacuizinho.Jacutinga.Jaguar\xE3o.Jaguari.Jaquirana.Jari.J\xF3ia.J\xFAlio de Castilhos.Lagoa Bonita do Sul.Lagoa dos Tr\xEAs Cantos.Lagoa Vermelha.Lago\xE3o.Lajeado.Lajeado do Bugre.Lavras do Sul.Liberato Salzano.Lindolfo Collor.Linha Nova.Ma\xE7ambar\xE1.Machadinho.Mampituba.Manoel Viana.Maquin\xE9.Marat\xE1.Marau.Marcelino Ramos.Mariana Pimentel.Mariano Moro.Marques de Souza.Mata.Mato Castelhano.Mato Leit\xE3o.Mato Queimado.Maximiliano de Almeida.Minas do Le\xE3o.Miragua\xED.Montauri.Monte Alegre dos Campos.Monte Belo do Sul.Montenegro.Morma\xE7o.Morrinhos do Sul.Morro Redondo.Morro Reuter.Mostardas.Mu\xE7um.Muitos Cap\xF5es.Muliterno.N\xE3o-Me-Toque.Nicolau Vergueiro.Nonoai.Nova Alvorada.Nova Ara\xE7\xE1.Nova Bassano.Nova Boa Vista.Nova Br\xE9scia.Nova Candel\xE1ria.Nova Esperan\xE7a do Sul.Nova Hartz.Nova P\xE1dua.Nova Palma.Nova Petr\xF3polis.Nova Prata.Nova Ramada.Nova Roma do Sul.Nova Santa Rita.Novo Barreiro.Novo Cabrais.Novo Hamburgo.Novo Machado.Novo Tiradentes.Novo Xingu.Os\xF3rio.Paim Filho.Palmares do Sul.Palmeira das Miss\xF5es.Palmitinho.Panambi.Pantano Grande.Para\xED.Para\xEDso do Sul.Pareci Novo.Parob\xE9.Passa Sete.Passo do Sobrado.Passo Fundo.Paulo Bento.Paverama.Pedras Altas.Pedro Os\xF3rio.Peju\xE7ara.Pelotas.Picada Caf\xE9.Pinhal.Pinhal da Serra.Pinhal Grande.Pinheirinho do Vale.Pinheiro Machado.Pinto Bandeira.Pirap\xF3.Piratini.Planalto.Po\xE7o das Antas.Pont\xE3o.Ponte Preta.Port\xE3o.Porto Alegre.Porto Lucena.Porto Mau\xE1.Porto Vera Cruz.Porto Xavier.Pouso Novo.Presidente Lucena.Progresso.Prot\xE1sio Alves.Putinga.Quara\xED.Quatro Irm\xE3os.Quevedos.Quinze de Novembro.Redentora.Relvado.Restinga S\xEAca.Rio dos \xCDndios.Rio Grande.Rio Pardo.Riozinho.Roca Sales.Rodeio Bonito.Rolador.Rolante.Ronda Alta.Rondinha.Roque Gonzales.Ros\xE1rio do Sul.Sagrada Fam\xEDlia.Saldanha Marinho.Salto do Jacu\xED.Salvador das Miss\xF5es.Salvador do Sul.Sananduva.Sant'Ana do Livramento.Santa B\xE1rbara do Sul.Santa Cec\xEDlia do Sul.Santa Clara do Sul.Santa Cruz do Sul.Santa Margarida do Sul.Santa Maria.Santa Maria do Herval.Santa Rosa.Santa Tereza.Santa Vit\xF3ria do Palmar.Santana da Boa Vista.Santiago.Santo \xC2ngelo.Santo Ant\xF4nio da Patrulha.Santo Ant\xF4nio das Miss\xF5es.Santo Ant\xF4nio do Palma.Santo Ant\xF4nio do Planalto.Santo Augusto.Santo Cristo.Santo Expedito do Sul.S\xE3o Borja.S\xE3o Domingos do Sul.S\xE3o Francisco de Assis.S\xE3o Francisco de Paula.S\xE3o Gabriel.S\xE3o Jer\xF4nimo.S\xE3o Jo\xE3o da Urtiga.S\xE3o Jo\xE3o do Pol\xEAsine.S\xE3o Jorge.S\xE3o Jos\xE9 das Miss\xF5es.S\xE3o Jos\xE9 do Herval.S\xE3o Jos\xE9 do Hort\xEAncio.S\xE3o Jos\xE9 do Inhacor\xE1.S\xE3o Jos\xE9 do Norte.S\xE3o Jos\xE9 do Ouro.S\xE3o Jos\xE9 do Sul.S\xE3o Jos\xE9 dos Ausentes.S\xE3o Leopoldo.S\xE3o Louren\xE7o do Sul.S\xE3o Luiz Gonzaga.S\xE3o Marcos.S\xE3o Martinho.S\xE3o Martinho da Serra.S\xE3o Miguel das Miss\xF5es.S\xE3o Nicolau.S\xE3o Paulo das Miss\xF5es.S\xE3o Pedro da Serra.S\xE3o Pedro das Miss\xF5es.S\xE3o Pedro do Buti\xE1.S\xE3o Pedro do Sul.S\xE3o Sebasti\xE3o do Ca\xED.S\xE3o Sep\xE9.S\xE3o Valentim.S\xE3o Valentim do Sul.S\xE3o Val\xE9rio do Sul.S\xE3o Vendelino.S\xE3o Vicente do Sul.Sapiranga.Sapucaia do Sul.Sarandi.Seberi.Sede Nova.Segredo.Selbach.Senador Salgado Filho.Sentinela do Sul.Serafina Corr\xEAa.S\xE9rio.Sert\xE3o.Sert\xE3o Santana.Sete de Setembro.Severiano de Almeida.Silveira Martins.Sinimbu.Sobradinho.Soledade.Taba\xED.Tapejara.Tapera.Tapes.Taquara.Taquari.Taquaru\xE7u do Sul.Tavares.Tenente Portela.Terra de Areia.Teut\xF4nia.Tio Hugo.Tiradentes do Sul.Toropi.Torres.Tramanda\xED.Travesseiro.Tr\xEAs Arroios.Tr\xEAs Cachoeiras.Tr\xEAs Coroas.Tr\xEAs de Maio.Tr\xEAs Forquilhas.Tr\xEAs Palmeiras.Tr\xEAs Passos.Trindade do Sul.Triunfo.Tucunduva.Tunas.Tupanci do Sul.Tupanciret\xE3.Tupandi.Tuparendi.Turu\xE7u.Ubiretama.Uni\xE3o da Serra.Unistalda.Uruguaiana.Vacaria.Vale do Sol.Vale Real.Vale Verde.Vanini.Ven\xE2ncio Aires.Vera Cruz.Veran\xF3polis.Vespasiano Corr\xEAa.Viadutos.Viam\xE3o.Vicente Dutra.Victor Graeff.Vila Flores.Vila L\xE2ngaro.Vila Maria.Vila Nova do Sul.Vista Alegre.Vista Alegre do Prata.Vista Ga\xFAcha.Vit\xF3ria das Miss\xF5es.Westf\xE1lia.Xangri-l\xE1".split("."),
+  SC: /* @__PURE__ */ "Abdon Batista.Abelardo Luz.Agrol\xE2ndia.Agron\xF4mica.\xC1gua Doce.\xC1guas de Chapec\xF3.\xC1guas Frias.\xC1guas Mornas.Alfredo Wagner.Alto Bela Vista.Anchieta.Angelina.Anita Garibaldi.Anit\xE1polis.Ant\xF4nio Carlos.Api\xFAna.Arabut\xE3.Araquari.Ararangu\xE1.Armaz\xE9m.Arroio Trinta.Arvoredo.Ascurra.Atalanta.Aurora.Balne\xE1rio Arroio do Silva.Balne\xE1rio Barra do Sul.Balne\xE1rio Cambori\xFA.Balne\xE1rio Gaivota.Balne\xE1rio Pi\xE7arras.Balne\xE1rio Rinc\xE3o.Bandeirante.Barra Bonita.Barra Velha.Bela Vista do Toldo.Belmonte.Benedito Novo.Bigua\xE7u.Blumenau.Bocaina do Sul.Bom Jardim da Serra.Bom Jesus.Bom Jesus do Oeste.Bom Retiro.Bombinhas.Botuver\xE1.Bra\xE7o do Norte.Bra\xE7o do Trombudo.Brun\xF3polis.Brusque.Ca\xE7ador.Caibi.Calmon.Cambori\xFA.Campo Alegre.Campo Belo do Sul.Campo Er\xEA.Campos Novos.Canelinha.Canoinhas.Cap\xE3o Alto.Capinzal.Capivari de Baixo.Catanduvas.Caxambu do Sul.Celso Ramos.Cerro Negro.Chapad\xE3o do Lageado.Chapec\xF3.Cocal do Sul.Conc\xF3rdia.Cordilheira Alta.Coronel Freitas.Coronel Martins.Correia Pinto.Corup\xE1.Crici\xFAma.Cunha Por\xE3.Cunhata\xED.Curitibanos.Descanso.Dion\xEDsio Cerqueira.Dona Emma.Doutor Pedrinho.Entre Rios.Ermo.Erval Velho.Faxinal dos Guedes.Flor do Sert\xE3o.Florian\xF3polis.Formosa do Sul.Forquilhinha.Fraiburgo.Frei Rog\xE9rio.Galv\xE3o.Garopaba.Garuva.Gaspar.Governador Celso Ramos.Gr\xE3o-Par\xE1.Gravatal.Guabiruba.Guaraciaba.Guaramirim.Guaruj\xE1 do Sul.Guatamb\xFA.Herval d'Oeste.Ibiam.Ibicar\xE9.Ibirama.I\xE7ara.Ilhota.Imaru\xED.Imbituba.Imbuia.Indaial.Iomer\xEA.Ipira.Ipor\xE3 do Oeste.Ipua\xE7u.Ipumirim.Iraceminha.Irani.Irati.Irine\xF3polis.It\xE1.Itai\xF3polis.Itaja\xED.Itapema.Itapiranga.Itapo\xE1.Ituporanga.Jabor\xE1.Jacinto Machado.Jaguaruna.Jaragu\xE1 do Sul.Jardin\xF3polis.Joa\xE7aba.Joinville.Jos\xE9 Boiteux.Jupi\xE1.Lacerd\xF3polis.Lages.Laguna.Lajeado Grande.Laurentino.Lauro M\xFCller.Lebon R\xE9gis.Leoberto Leal.Lind\xF3ia do Sul.Lontras.Luiz Alves.Luzerna.Macieira.Mafra.Major Gercino.Major Vieira.Maracaj\xE1.Maravilha.Marema.Massaranduba.Matos Costa.Meleiro.Mirim Doce.Modelo.Monda\xED.Monte Carlo.Monte Castelo.Morro da Fuma\xE7a.Morro Grande.Navegantes.Nova Erechim.Nova Itaberaba.Nova Trento.Nova Veneza.Novo Horizonte.Orleans.Otac\xEDlio Costa.Ouro.Ouro Verde.Paial.Painel.Palho\xE7a.Palma Sola.Palmeira.Palmitos.Papanduva.Para\xEDso.Passo de Torres.Passos Maia.Paulo Lopes.Pedras Grandes.Penha.Peritiba.Pescaria Brava.Petrol\xE2ndia.Pinhalzinho.Pinheiro Preto.Piratuba.Planalto Alegre.Pomerode.Ponte Alta.Ponte Alta do Norte.Ponte Serrada.Porto Belo.Porto Uni\xE3o.Pouso Redondo.Praia Grande.Presidente Castello Branco.Presidente Get\xFAlio.Presidente Nereu.Princesa.Quilombo.Rancho Queimado.Rio das Antas.Rio do Campo.Rio do Oeste.Rio do Sul.Rio dos Cedros.Rio Fortuna.Rio Negrinho.Rio Rufino.Riqueza.Rodeio.Romel\xE2ndia.Salete.Saltinho.Salto Veloso.Sang\xE3o.Santa Cec\xEDlia.Santa Helena.Santa Rosa de Lima.Santa Rosa do Sul.Santa Terezinha.Santa Terezinha do Progresso.Santiago do Sul.Santo Amaro da Imperatriz.S\xE3o Bento do Sul.S\xE3o Bernardino.S\xE3o Bonif\xE1cio.S\xE3o Carlos.S\xE3o Crist\xF3v\xE3o do Sul.S\xE3o Domingos.S\xE3o Francisco do Sul.S\xE3o Jo\xE3o Batista.S\xE3o Jo\xE3o do Itaperi\xFA.S\xE3o Jo\xE3o do Oeste.S\xE3o Jo\xE3o do Sul.S\xE3o Joaquim.S\xE3o Jos\xE9.S\xE3o Jos\xE9 do Cedro.S\xE3o Jos\xE9 do Cerrito.S\xE3o Louren\xE7o do Oeste.S\xE3o Ludgero.S\xE3o Martinho.S\xE3o Miguel da Boa Vista.S\xE3o Miguel do Oeste.S\xE3o Pedro de Alc\xE2ntara.Saudades.Schroeder.Seara.Serra Alta.Sider\xF3polis.Sombrio.Sul Brasil.Tai\xF3.Tangar\xE1.Tigrinhos.Tijucas.Timb\xE9 do Sul.Timb\xF3.Timb\xF3 Grande.Tr\xEAs Barras.Treviso.Treze de Maio.Treze T\xEDlias.Trombudo Central.Tubar\xE3o.Tun\xE1polis.Turvo.Uni\xE3o do Oeste.Urubici.Urupema.Urussanga.Varge\xE3o.Vargem.Vargem Bonita.Vidal Ramos.Videira.Vitor Meireles.Witmarsum.Xanxer\xEA.Xavantina.Xaxim.Zort\xE9a".split("."),
+  SE: /* @__PURE__ */ "Amparo do S\xE3o Francisco.Aquidab\xE3.Aracaju.Arau\xE1.Areia Branca.Barra dos Coqueiros.Boquim.Brejo Grande.Campo do Brito.Canhoba.Canind\xE9 de S\xE3o Francisco.Capela.Carira.Carm\xF3polis.Cedro de S\xE3o Jo\xE3o.Cristin\xE1polis.Cumbe.Divina Pastora.Est\xE2ncia.Feira Nova.Frei Paulo.Gararu.General Maynard.Graccho Cardoso.Ilha das Flores.Indiaroba.Itabaiana.Itabaianinha.Itabi.Itaporanga d'Ajuda.Japaratuba.Japoat\xE3.Lagarto.Laranjeiras.Macambira.Malhada dos Bois.Malhador.Maruim.Moita Bonita.Monte Alegre de Sergipe.Muribeca.Ne\xF3polis.Nossa Senhora Aparecida.Nossa Senhora da Gl\xF3ria.Nossa Senhora das Dores.Nossa Senhora de Lourdes.Nossa Senhora do Socorro.Pacatuba.Pedra Mole.Pedrinhas.Pinh\xE3o.Pirambu.Po\xE7o Redondo.Po\xE7o Verde.Porto da Folha.Propri\xE1.Riach\xE3o do Dantas.Riachuelo.Ribeir\xF3polis.Ros\xE1rio do Catete.Salgado.Santa Luzia do Itanhy.Santa Rosa de Lima.Santana do S\xE3o Francisco.Santo Amaro das Brotas.S\xE3o Crist\xF3v\xE3o.S\xE3o Domingos.S\xE3o Francisco.S\xE3o Miguel do Aleixo.Sim\xE3o Dias.Siriri.Telha.Tobias Barreto.Tomar do Geru.Umba\xFAba".split("."),
+  SP: /* @__PURE__ */ "Adamantina.Adolfo.Agua\xED.\xC1guas da Prata.\xC1guas de Lind\xF3ia.\xC1guas de Santa B\xE1rbara.\xC1guas de S\xE3o Pedro.Agudos.Alambari.Alfredo Marcondes.Altair.Altin\xF3polis.Alto Alegre.Alum\xEDnio.\xC1lvares Florence.\xC1lvares Machado.\xC1lvaro de Carvalho.Alvinl\xE2ndia.Americana.Am\xE9rico Brasiliense.Am\xE9rico de Campos.Amparo.Anal\xE2ndia.Andradina.Angatuba.Anhembi.Anhumas.Aparecida.Aparecida d'Oeste.Apia\xED.Ara\xE7ariguama.Ara\xE7atuba.Ara\xE7oiaba da Serra.Aramina.Arandu.Arape\xED.Araraquara.Araras.Arco-\xCDris.Arealva.Areias.Arei\xF3polis.Ariranha.Artur Nogueira.Aruj\xE1.Asp\xE1sia.Assis.Atibaia.Auriflama.Ava\xED.Avanhandava.Avar\xE9.Bady Bassitt.Balbinos.B\xE1lsamo.Bananal.Bar\xE3o de Antonina.Barbosa.Bariri.Barra Bonita.Barra do Chap\xE9u.Barra do Turvo.Barretos.Barrinha.Barueri.Bastos.Batatais.Bauru.Bebedouro.Bento de Abreu.Bernardino de Campos.Bertioga.Bilac.Birigui.Biritiba Mirim.Boa Esperan\xE7a do Sul.Bocaina.Bofete.Boituva.Bom Jesus dos Perd\xF5es.Bom Sucesso de Itarar\xE9.Bor\xE1.Borac\xE9ia.Borborema.Borebi.Botucatu.Bragan\xE7a Paulista.Bra\xFAna.Brejo Alegre.Brodowski.Brotas.Buri.Buritama.Buritizal.Cabr\xE1lia Paulista.Cabre\xFAva.Ca\xE7apava.Cachoeira Paulista.Caconde.Cafel\xE2ndia.Caiabu.Caieiras.Caiu\xE1.Cajamar.Cajati.Cajobi.Cajuru.Campina do Monte Alegre.Campinas.Campo Limpo Paulista.Campos do Jord\xE3o.Campos Novos Paulista.Canan\xE9ia.Canas.C\xE2ndido Mota.C\xE2ndido Rodrigues.Canitar.Cap\xE3o Bonito.Capela do Alto.Capivari.Caraguatatuba.Carapicu\xEDba.Cardoso.Casa Branca.C\xE1ssia dos Coqueiros.Castilho.Catanduva.Catigu\xE1.Cedral.Cerqueira C\xE9sar.Cerquilho.Ces\xE1rio Lange.Charqueada.Chavantes.Clementina.Colina.Col\xF4mbia.Conchal.Conchas.Cordeir\xF3polis.Coroados.Coronel Macedo.Corumbata\xED.Cosm\xF3polis.Cosmorama.Cotia.Cravinhos.Cristais Paulista.Cruz\xE1lia.Cruzeiro.Cubat\xE3o.Cunha.Descalvado.Diadema.Dirce Reis.Divinol\xE2ndia.Dobrada.Dois C\xF3rregos.Dolcin\xF3polis.Dourado.Dracena.Duartina.Dumont.Echapor\xE3.Eldorado.Elias Fausto.Elisi\xE1rio.Emba\xFAba.Embu das Artes.Embu-Gua\xE7u.Emilian\xF3polis.Engenheiro Coelho.Esp\xEDrito Santo do Pinhal.Esp\xEDrito Santo do Turvo.Estiva Gerbi.Estrela d'Oeste.Estrela do Norte.Euclides da Cunha Paulista.Fartura.Fernando Prestes.Fernand\xF3polis.Fern\xE3o.Ferraz de Vasconcelos.Flora Rica.Floreal.Fl\xF3rida Paulista.Flor\xEDnea.Franca.Francisco Morato.Franco da Rocha.Gabriel Monteiro.G\xE1lia.Gar\xE7a.Gast\xE3o Vidigal.Gavi\xE3o Peixoto.General Salgado.Getulina.Glic\xE9rio.Guai\xE7ara.Guaimb\xEA.Gua\xEDra.Guapia\xE7u.Guapiara.Guar\xE1.Guara\xE7a\xED.Guaraci.Guarani d'Oeste.Guarant\xE3.Guararapes.Guararema.Guaratinguet\xE1.Guare\xED.Guariba.Guaruj\xE1.Guarulhos.Guatapar\xE1.Guzol\xE2ndia.Hercul\xE2ndia.Holambra.Hortol\xE2ndia.Iacanga.Iacri.Iaras.Ibat\xE9.Ibir\xE1.Ibirarema.Ibitinga.Ibi\xFAna.Ic\xE9m.Iep\xEA.Igara\xE7u do Tiet\xEA.Igarapava.Igarat\xE1.Iguape.Ilha Comprida.Ilha Solteira.Ilhabela.Indaiatuba.Indiana.Indiapor\xE3.In\xFAbia Paulista.Ipaussu.Iper\xF3.Ipe\xFAna.Ipigu\xE1.Iporanga.Ipu\xE3.Iracem\xE1polis.Irapu\xE3.Irapuru.Itaber\xE1.Ita\xED.Itajobi.Itaju.Itanha\xE9m.Itaoca.Itapecerica da Serra.Itapetininga.Itapeva.Itapevi.Itapira.Itapirapu\xE3 Paulista.It\xE1polis.Itaporanga.Itapu\xED.Itapura.Itaquaquecetuba.Itarar\xE9.Itariri.Itatiba.Itatinga.Itirapina.Itirapu\xE3.Itobi.Itu.Itupeva.Ituverava.Jaborandi.Jaboticabal.Jacare\xED.Jaci.Jacupiranga.Jaguari\xFAna.Jales.Jambeiro.Jandira.Jardin\xF3polis.Jarinu.Ja\xFA.Jeriquara.Joan\xF3polis.Jo\xE3o Ramalho.Jos\xE9 Bonif\xE1cio.J\xFAlio Mesquita.Jumirim.Jundia\xED.Junqueir\xF3polis.Juqui\xE1.Juquitiba.Lagoinha.Laranjal Paulista.Lav\xEDnia.Lavrinhas.Leme.Len\xE7\xF3is Paulista.Limeira.Lind\xF3ia.Lins.Lorena.Lourdes.Louveira.Luc\xE9lia.Lucian\xF3polis.Lu\xEDs Ant\xF4nio.Luizi\xE2nia.Lup\xE9rcio.Lut\xE9cia.Macatuba.Macaubal.Maced\xF4nia.Magda.Mairinque.Mairipor\xE3.Manduri.Marab\xE1 Paulista.Maraca\xED.Marapoama.Mari\xE1polis.Mar\xEDlia.Marin\xF3polis.Martin\xF3polis.Mat\xE3o.Mau\xE1.Mendon\xE7a.Meridiano.Mes\xF3polis.Miguel\xF3polis.Mineiros do Tiet\xEA.Mira Estrela.Miracatu.Mirand\xF3polis.Mirante do Paranapanema.Mirassol.Mirassol\xE2ndia.Mococa.Mogi das Cruzes.Mogi Gua\xE7u.Mogi Mirim.Mombuca.Mon\xE7\xF5es.Mongagu\xE1.Monte Alegre do Sul.Monte Alto.Monte Apraz\xEDvel.Monte Azul Paulista.Monte Castelo.Monte Mor.Monteiro Lobato.Morro Agudo.Morungaba.Motuca.Murutinga do Sul.Nantes.Narandiba.Natividade da Serra.Nazar\xE9 Paulista.Neves Paulista.Nhandeara.Nipo\xE3.Nova Alian\xE7a.Nova Campina.Nova Cana\xE3 Paulista.Nova Castilho.Nova Europa.Nova Granada.Nova Guataporanga.Nova Independ\xEAncia.Nova Luzit\xE2nia.Nova Odessa.Novais.Novo Horizonte.Nuporanga.Ocau\xE7u.\xD3leo.Ol\xEDmpia.Onda Verde.Oriente.Orindi\xFAva.Orl\xE2ndia.Osasco.Oscar Bressane.Osvaldo Cruz.Ourinhos.Ouro Verde.Ouroeste.Pacaembu.Palestina.Palmares Paulista.Palmeira d'Oeste.Palmital.Panorama.Paragua\xE7u Paulista.Paraibuna.Para\xEDso.Paranapanema.Paranapu\xE3.Parapu\xE3.Pardinho.Pariquera-A\xE7u.Parisi.Patroc\xEDnio Paulista.Paulic\xE9ia.Paul\xEDnia.Paulist\xE2nia.Paulo de Faria.Pederneiras.Pedra Bela.Pedran\xF3polis.Pedregulho.Pedreira.Pedrinhas Paulista.Pedro de Toledo.Pen\xE1polis.Pereira Barreto.Pereiras.Peru\xEDbe.Piacatu.Piedade.Pilar do Sul.Pindamonhangaba.Pindorama.Pinhalzinho.Piquerobi.Piquete.Piracaia.Piracicaba.Piraju.Piraju\xED.Pirangi.Pirapora do Bom Jesus.Pirapozinho.Pirassununga.Piratininga.Pitangueiras.Planalto.Platina.Po\xE1.Poloni.Pomp\xE9ia.Ponga\xED.Pontal.Pontalinda.Pontes Gestal.Populina.Porangaba.Porto Feliz.Porto Ferreira.Potim.Potirendaba.Pracinha.Prad\xF3polis.Praia Grande.Prat\xE2nia.Presidente Alves.Presidente Bernardes.Presidente Epit\xE1cio.Presidente Prudente.Presidente Venceslau.Promiss\xE3o.Quadra.Quat\xE1.Queiroz.Queluz.Quintana.Rafard.Rancharia.Reden\xE7\xE3o da Serra.Regente Feij\xF3.Regin\xF3polis.Registro.Restinga.Ribeira.Ribeir\xE3o Bonito.Ribeir\xE3o Branco.Ribeir\xE3o Corrente.Ribeir\xE3o do Sul.Ribeir\xE3o dos \xCDndios.Ribeir\xE3o Grande.Ribeir\xE3o Pires.Ribeir\xE3o Preto.Rifaina.Rinc\xE3o.Rin\xF3polis.Rio Claro.Rio das Pedras.Rio Grande da Serra.Riol\xE2ndia.Riversul.Rosana.Roseira.Rubi\xE1cea.Rubin\xE9ia.Sabino.Sagres.Sales.Sales Oliveira.Sales\xF3polis.Salmour\xE3o.Saltinho.Salto.Salto de Pirapora.Salto Grande.Sandovalina.Santa Ad\xE9lia.Santa Albertina.Santa B\xE1rbara d'Oeste.Santa Branca.Santa Clara d'Oeste.Santa Cruz da Concei\xE7\xE3o.Santa Cruz da Esperan\xE7a.Santa Cruz das Palmeiras.Santa Cruz do Rio Pardo.Santa Ernestina.Santa F\xE9 do Sul.Santa Gertrudes.Santa Isabel.Santa L\xFAcia.Santa Maria da Serra.Santa Mercedes.Santa Rita d'Oeste.Santa Rita do Passa Quatro.Santa Rosa de Viterbo.Santa Salete.Santana da Ponte Pensa.Santana de Parna\xEDba.Santo Anast\xE1cio.Santo Andr\xE9.Santo Ant\xF4nio da Alegria.Santo Ant\xF4nio de Posse.Santo Ant\xF4nio do Aracangu\xE1.Santo Ant\xF4nio do Jardim.Santo Ant\xF4nio do Pinhal.Santo Expedito.Sant\xF3polis do Aguape\xED.Santos.S\xE3o Bento do Sapuca\xED.S\xE3o Bernardo do Campo.S\xE3o Caetano do Sul.S\xE3o Carlos.S\xE3o Francisco.S\xE3o Jo\xE3o da Boa Vista.S\xE3o Jo\xE3o das Duas Pontes.S\xE3o Jo\xE3o de Iracema.S\xE3o Jo\xE3o do Pau d'Alho.S\xE3o Joaquim da Barra.S\xE3o Jos\xE9 da Bela Vista.S\xE3o Jos\xE9 do Barreiro.S\xE3o Jos\xE9 do Rio Pardo.S\xE3o Jos\xE9 do Rio Preto.S\xE3o Jos\xE9 dos Campos.S\xE3o Louren\xE7o da Serra.S\xE3o Luiz do Paraitinga.S\xE3o Manuel.S\xE3o Miguel Arcanjo.S\xE3o Paulo.S\xE3o Pedro.S\xE3o Pedro do Turvo.S\xE3o Roque.S\xE3o Sebasti\xE3o.S\xE3o Sebasti\xE3o da Grama.S\xE3o Sim\xE3o.S\xE3o Vicente.Sarapu\xED.Sarutai\xE1.Sebastian\xF3polis do Sul.Serra Azul.Serra Negra.Serrana.Sert\xE3ozinho.Sete Barras.Sever\xEDnia.Silveiras.Socorro.Sorocaba.Sud Mennucci.Sumar\xE9.Suzan\xE1polis.Suzano.Tabapu\xE3.Tabatinga.Tabo\xE3o da Serra.Taciba.Tagua\xED.Taia\xE7u.Tai\xFAva.Tamba\xFA.Tanabi.Tapira\xED.Tapiratiba.Taquaral.Taquaritinga.Taquarituba.Taquariva\xED.Tarabai.Tarum\xE3.Tatu\xED.Taubat\xE9.Tejup\xE1.Teodoro Sampaio.Terra Roxa.Tiet\xEA.Timburi.Torre de Pedra.Torrinha.Trabiju.Trememb\xE9.Tr\xEAs Fronteiras.Tuiuti.Tup\xE3.Tupi Paulista.Turi\xFAba.Turmalina.Ubarana.Ubatuba.Ubirajara.Uchoa.Uni\xE3o Paulista.Ur\xE2nia.Uru.Urup\xEAs.Valentim Gentil.Valinhos.Valpara\xEDso.Vargem.Vargem Grande do Sul.Vargem Grande Paulista.V\xE1rzea Paulista.Vera Cruz.Vinhedo.Viradouro.Vista Alegre do Alto.Vit\xF3ria Brasil.Votorantim.Votuporanga.Zacarias".split("."),
+  TO: /* @__PURE__ */ "Abreul\xE2ndia.Aguiarn\xF3polis.Alian\xE7a do Tocantins.Almas.Alvorada.Anan\xE1s.Angico.Aparecida do Rio Negro.Aragominas.Araguacema.Aragua\xE7u.Aragua\xEDna.Araguan\xE3.Araguatins.Arapoema.Arraias.Augustin\xF3polis.Aurora do Tocantins.Axix\xE1 do Tocantins.Baba\xE7ul\xE2ndia.Bandeirantes do Tocantins.Barra do Ouro.Barrol\xE2ndia.Bernardo Say\xE3o.Bom Jesus do Tocantins.Brasil\xE2ndia do Tocantins.Brejinho de Nazar\xE9.Buriti do Tocantins.Cachoeirinha.Campos Lindos.Cariri do Tocantins.Carmol\xE2ndia.Carrasco Bonito.Caseara.Centen\xE1rio.Chapada da Natividade.Chapada de Areia.Colinas do Tocantins.Colm\xE9ia.Combinado.Concei\xE7\xE3o do Tocantins.Couto Magalh\xE3es.Cristal\xE2ndia.Crix\xE1s do Tocantins.Darcin\xF3polis.Dian\xF3polis.Divin\xF3polis do Tocantins.Dois Irm\xE3os do Tocantins.Duer\xE9.Esperantina.F\xE1tima.Figueir\xF3polis.Filad\xE9lfia.Formoso do Araguaia.Goianorte.Goiatins.Guara\xED.Gurupi.Ipueiras.Itacaj\xE1.Itaguatins.Itapiratins.Itapor\xE3 do Tocantins.Ja\xFA do Tocantins.Juarina.Lagoa da Confus\xE3o.Lagoa do Tocantins.Lajeado.Lavandeira.Lizarda.Luzin\xF3polis.Marian\xF3polis do Tocantins.Mateiros.Mauril\xE2ndia do Tocantins.Miracema do Tocantins.Miranorte.Monte do Carmo.Monte Santo do Tocantins.Muricil\xE2ndia.Natividade.Nazar\xE9.Nova Olinda.Nova Rosal\xE2ndia.Novo Acordo.Novo Alegre.Novo Jardim.Oliveira de F\xE1tima.Palmas.Palmeirante.Palmeiras do Tocantins.Palmeir\xF3polis.Para\xEDso do Tocantins.Paran\xE3.Pau D'Arco.Pedro Afonso.Peixe.Pequizeiro.Pindorama do Tocantins.Piraqu\xEA.Pium.Ponte Alta do Bom Jesus.Ponte Alta do Tocantins.Porto Alegre do Tocantins.Porto Nacional.Praia Norte.Presidente Kennedy.Pugmil.Recursol\xE2ndia.Riachinho.Rio da Concei\xE7\xE3o.Rio dos Bois.Rio Sono.Sampaio.Sandol\xE2ndia.Santa F\xE9 do Araguaia.Santa Maria do Tocantins.Santa Rita do Tocantins.Santa Rosa do Tocantins.Santa Tereza do Tocantins.Santa Terezinha do Tocantins.S\xE3o Bento do Tocantins.S\xE3o F\xE9lix do Tocantins.S\xE3o Miguel do Tocantins.S\xE3o Salvador do Tocantins.S\xE3o Sebasti\xE3o do Tocantins.S\xE3o Val\xE9rio.Silvan\xF3polis.S\xEDtio Novo do Tocantins.Sucupira.Taboc\xE3o.Taguatinga.Taipas do Tocantins.Talism\xE3.Tocant\xEDnia.Tocantin\xF3polis.Tupirama.Tupiratins.Wanderl\xE2ndia.Xambio\xE1".split(".")
+};
+var Qe = (e2) => e2 ? e2 in L ? [...L[e2]] : [] : Object.values(L).flat().sort((e3, t2) => e3.localeCompare(t2));
+var R = [
+  {
+    code: "AC",
+    name: "Acre",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "AL",
+    name: "Alagoas",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "AP",
+    name: "Amap\xE1",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "AM",
+    name: "Amazonas",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "BA",
+    name: "Bahia",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "CE",
+    name: "Cear\xE1",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "DF",
+    name: "Distrito Federal",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "ES",
+    name: "Esp\xEDrito Santo",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "GO",
+    name: "Goi\xE1s",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MA",
+    name: "Maranh\xE3o",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "MT",
+    name: "Mato Grosso",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MS",
+    name: "Mato Grosso do Sul",
+    regionCode: "CO",
+    regionName: "Centro-Oeste"
+  },
+  {
+    code: "MG",
+    name: "Minas Gerais",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "PR",
+    name: "Paran\xE1",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "PB",
+    name: "Para\xEDba",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "PA",
+    name: "Par\xE1",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "PE",
+    name: "Pernambuco",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "PI",
+    name: "Piau\xED",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "RN",
+    name: "Rio Grande do Norte",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "RS",
+    name: "Rio Grande do Sul",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "RJ",
+    name: "Rio de Janeiro",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "RO",
+    name: "Rond\xF4nia",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "RR",
+    name: "Roraima",
+    regionCode: "N",
+    regionName: "Norte"
+  },
+  {
+    code: "SC",
+    name: "Santa Catarina",
+    regionCode: "S",
+    regionName: "Sul"
+  },
+  {
+    code: "SE",
+    name: "Sergipe",
+    regionCode: "NE",
+    regionName: "Nordeste"
+  },
+  {
+    code: "SP",
+    name: "S\xE3o Paulo",
+    regionCode: "SE",
+    regionName: "Sudeste"
+  },
+  {
+    code: "TO",
+    name: "Tocantins",
+    regionCode: "N",
+    regionName: "Norte"
+  }
+];
+var z = class extends Error {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressError";
+  }
+};
+var B = class extends z {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressValidationError";
+  }
+};
+var V = class extends z {
+  constructor(e2) {
+    super(e2), this.name = "GetCepInfoByAddressNotFoundError";
+  }
+};
+var $e = new Set(R.map((e2) => e2.code));
+var et = (e2) => $e.has(e2);
+var H = (e2) => e2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+var tt = async ({ federalUnit: e2, city: t2, street: n2 }) => {
+  let r2 = e2.trim().toUpperCase();
+  if (!et(r2))
+    throw new B(`Invalid UF: ${e2}`);
+  if (!t2 || !n2)
+    throw new B("City and street are required");
+  let i2 = await fetch(`https://viacep.com.br/ws/${r2}/${encodeURIComponent(H(t2))}/${encodeURIComponent(H(n2))}/json/`);
+  if (!i2.ok)
+    throw new z(`ViaCEP request failed with status ${i2.status}`);
+  let a2 = await i2.json();
+  if (!Array.isArray(a2) || a2.length === 0)
+    throw new V(`${r2} - ${t2} - ${n2}`);
+  return a2;
+};
+var nt = {
+  "Ano novo": {
+    day: 1,
+    month: 1
+  },
+  Tiradentes: {
+    day: 21,
+    month: 4
+  },
+  "Dia do trabalhador": {
+    day: 1,
+    month: 5
+  },
+  "Independ\xEAncia do Brasil": {
+    day: 7,
+    month: 9
+  },
+  "Nossa Senhora Aparecida": {
+    day: 12,
+    month: 10
+  },
+  Finados: {
+    day: 2,
+    month: 11
+  },
+  "Proclama\xE7\xE3o da Rep\xFAblica": {
+    day: 15,
+    month: 11
+  },
+  "Dia da Consci\xEAncia Negra": {
+    day: 20,
+    month: 11
+  },
+  Natal: {
+    day: 25,
+    month: 12
+  }
+};
+var rt = {
+  AC: [
+    {
+      name: "Dia do Evang\xE9lico",
+      day: 23,
+      month: 1
+    },
+    {
+      name: "Dia Internacional da Mulher",
+      day: 8,
+      month: 3
+    },
+    {
+      name: "Anivers\xE1rio do Acre",
+      day: 15,
+      month: 6
+    },
+    {
+      name: "Dia da Amaz\xF4nia",
+      day: 5,
+      month: 9
+    },
+    {
+      name: "Assinatura do Tratado de Petr\xF3polis",
+      day: 17,
+      month: 11
+    }
+  ],
+  AL: [
+    {
+      name: "S\xE3o Jo\xE3o",
+      day: 24,
+      month: 6
+    },
+    {
+      name: "S\xE3o Pedro",
+      day: 29,
+      month: 6
+    },
+    {
+      name: "Emancipa\xE7\xE3o Pol\xEDtica de Alagoas",
+      day: 16,
+      month: 9
+    }
+  ],
+  AP: [{
+    name: "Dia de S\xE3o Jos\xE9",
+    day: 19,
+    month: 3
+  }, {
+    name: "Cria\xE7\xE3o do Territ\xF3rio Federal do Amap\xE1",
+    day: 13,
+    month: 9
+  }],
+  AM: [{
+    name: "Eleva\xE7\xE3o do Amazonas \xE0 categoria de Prov\xEDncia",
+    day: 5,
+    month: 9
+  }, {
+    name: "Nossa Senhora da Concei\xE7\xE3o",
+    day: 8,
+    month: 12
+  }],
+  BA: [{
+    name: "Independ\xEAncia da Bahia",
+    day: 2,
+    month: 7
+  }],
+  CE: [{
+    name: "Dia de S\xE3o Jos\xE9",
+    day: 19,
+    month: 3
+  }, {
+    name: "Aboli\xE7\xE3o da Escravid\xE3o no Cear\xE1",
+    day: 25,
+    month: 3
+  }],
+  DF: [{
+    name: "Funda\xE7\xE3o de Bras\xEDlia",
+    day: 21,
+    month: 4
+  }, {
+    name: "Dia do Evang\xE9lico",
+    day: 30,
+    month: 11
+  }],
+  ES: [{
+    name: "Dia do Estado do Esp\xEDrito Santo",
+    day: 23,
+    month: 5
+  }],
+  GO: [{
+    name: "Dia do Estado de Goi\xE1s",
+    day: 5,
+    month: 7
+  }, {
+    name: "Nossa Senhora Sant'Ana",
+    day: 26,
+    month: 7
+  }],
+  MA: [{
+    name: "Ades\xE3o do Maranh\xE3o \xE0 Independ\xEAncia",
+    day: 28,
+    month: 7
+  }],
+  MT: [{
+    name: "Cria\xE7\xE3o do Estado de Mato Grosso",
+    day: 9,
+    month: 5
+  }, {
+    name: "Consci\xEAncia Negra",
+    day: 20,
+    month: 11
+  }],
+  MS: [{
+    name: "Cria\xE7\xE3o do Estado de Mato Grosso do Sul",
+    day: 11,
+    month: 10
+  }],
+  MG: [{
+    name: "Anivers\xE1rio de Minas Gerais",
+    day: 21,
+    month: 7
+  }],
+  PA: [{
+    name: "Ades\xE3o do Par\xE1 \xE0 Independ\xEAncia",
+    day: 15,
+    month: 8
+  }],
+  PB: [{
+    name: "Funda\xE7\xE3o do Estado e Dia de Nossa Senhora das Neves",
+    day: 5,
+    month: 8
+  }],
+  PR: [{
+    name: "Emancipa\xE7\xE3o Pol\xEDtica do Paran\xE1",
+    day: 19,
+    month: 12
+  }],
+  PE: [{
+    name: "Revolu\xE7\xE3o Pernambucana",
+    day: 6,
+    month: 3
+  }],
+  PI: [{
+    name: "Dia do Piau\xED",
+    day: 19,
+    month: 10
+  }],
+  RJ: [
+    {
+      name: "S\xE3o Sebasti\xE3o",
+      day: 20,
+      month: 1
+    },
+    {
+      name: "S\xE3o Jorge",
+      day: 23,
+      month: 4
+    },
+    {
+      name: "Consci\xEAncia Negra",
+      day: 20,
+      month: 11
+    }
+  ],
+  RN: [{
+    name: "M\xE1rtires de Cunha\xFA e Urua\xE7u",
+    day: 3,
+    month: 10
+  }, {
+    name: "Dia do Rio Grande do Norte",
+    day: 7,
+    month: 9
+  }],
+  RS: [{
+    name: "Revolu\xE7\xE3o Farroupilha",
+    day: 20,
+    month: 9
+  }],
+  RO: [{
+    name: "Cria\xE7\xE3o do Estado de Rond\xF4nia",
+    day: 4,
+    month: 1
+  }, {
+    name: "Dia do Evang\xE9lico",
+    day: 18,
+    month: 6
+  }],
+  RR: [{
+    name: "Cria\xE7\xE3o do Estado de Roraima",
+    day: 5,
+    month: 10
+  }],
+  SC: [{
+    name: "Cria\xE7\xE3o da Capitania de Santa Catarina",
+    day: 11,
+    month: 8
+  }, {
+    name: "Dia de Santa Catarina de Alexandria",
+    day: 25,
+    month: 11
+  }],
+  SP: [{
+    name: "Revolu\xE7\xE3o Constitucionalista",
+    day: 9,
+    month: 7
+  }],
+  SE: [{
+    name: "Emancipa\xE7\xE3o Pol\xEDtica de Sergipe",
+    day: 8,
+    month: 7
+  }],
+  TO: [{
+    name: "Padroeira do Estado (Nossa Senhora da Natividade)",
+    day: 8,
+    month: 9
+  }, {
+    name: "Cria\xE7\xE3o do Estado do Tocantins",
+    day: 5,
+    month: 10
+  }]
+};
+function U(e2) {
+  let t2 = e2 % 19, n2 = Math.floor(e2 / 100), r2 = e2 % 100, i2 = Math.floor(n2 / 4), a2 = n2 % 4, o2 = Math.floor((n2 + 8) / 25), s2 = Math.floor((n2 - o2 + 1) / 3), c2 = (19 * t2 + n2 - i2 - s2 + 15) % 30, l2 = Math.floor(r2 / 4), u2 = r2 % 4, d2 = (32 + 2 * a2 + 2 * l2 - c2 - u2) % 7, f2 = Math.floor((t2 + 11 * c2 + 22 * d2) / 451), p2 = Math.floor((c2 + d2 - 7 * f2 + 114) / 31) - 1, m2 = (c2 + d2 - 7 * f2 + 114) % 31 + 1;
+  return new Date(e2, p2, m2);
+}
+function W(e2, t2) {
+  let n2 = U(e2), r2 = new Date(n2);
+  return r2.setDate(n2.getDate() + t2), r2;
+}
+function G(e2) {
+  let t2, n2;
+  if (typeof e2 == "number" ? (t2 = e2, n2 = void 0) : (t2 = e2.year, n2 = e2.stateCode), typeof t2 != "number" || !Number.isInteger(t2) || t2 < 1900 || t2 > 2099)
+    return [];
+  let r2 = [];
+  for (let [e3, { day: n3, month: i3 }] of Object.entries(nt))
+    r2.push({
+      name: e3,
+      date: new Date(t2, i3 - 1, n3)
+    });
+  let i2 = U(t2);
+  if (r2.push({
+    name: "Carnaval (ter\xE7a-feira)",
+    date: W(t2, -47)
+  }), r2.push({
+    name: "Sexta-feira Santa",
+    date: W(t2, -2)
+  }), r2.push({
+    name: "P\xE1scoa",
+    date: i2
+  }), r2.push({
+    name: "Corpus Christi",
+    date: W(t2, 70)
+  }), n2) {
+    let e3 = rt[n2];
+    if (e3)
+      for (let { name: n3, day: i3, month: a2 } of e3)
+        r2.push({
+          name: n3,
+          date: new Date(t2, a2 - 1, i3)
+        });
+  }
+  return r2.sort((e3, t3) => e3.date.getTime() - t3.date.getTime()), r2;
+}
+var it = () => ({ ...E });
+var K = (e2) => e2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+var at = async (e2) => {
+  let t2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${e2}`);
+  if (!t2.ok)
+    return null;
+  let n2 = await t2.json(), r2 = n2.nome, i2 = n2.microrregiao?.mesorregiao?.UF?.sigla;
+  return !r2 || !i2 ? null : [r2, i2];
+};
+var ot = async ({ municipalityName: e2, uf: t2 }) => {
+  if (!e2 || typeof e2 != "string")
+    return null;
+  let n2 = t2.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(n2))
+    return null;
+  let r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${n2}/municipios`);
+  if (!r2.ok)
+    return null;
+  let i2 = await r2.json(), a2 = K(e2);
+  return i2.find((e3) => K(e3.nome ?? "") === a2)?.id?.toString() ?? null;
+};
+var st = async (e2) => "code" in e2 ? at(e2.code) : ot(e2);
+var ct = () => [...R];
+var lt = ({ targetDate: e2, stateCode: t2 }) => !(e2 instanceof Date) || Number.isNaN(e2.getTime()) || t2 !== void 0 && typeof t2 != "string" ? null : G({
+  year: e2.getFullYear(),
+  stateCode: t2
+}).some((t3) => t3.date.getFullYear() === e2.getFullYear() && t3.date.getMonth() === e2.getMonth() && t3.date.getDate() === e2.getDate());
+var ut = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length < 4 || t2.length > 5 || n2.length < 8 || n2.length > 10 || r2.length !== 1)
+    return false;
+  let i2 = n2.replace(/^0+/, "") || "0", a2 = t2.padStart(5, "0") + i2.padStart(8, "0"), o2 = 0, s2 = 2;
+  for (let e3 = a2.length - 1; e3 >= 0; e3--) {
+    let t3 = a2.charCodeAt(e3) - 48;
+    o2 += t3 * s2, s2 = s2 === 9 ? 2 : s2 + 1;
+  }
+  let c2 = o2 % 11, l2 = c2 === 0 || c2 === 1 ? 0 : 11 - c2;
+  return String(l2) === r2;
+};
+var dt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 5 || r2.length !== 1)
+    return false;
+  let i2 = t2 + n2, a2 = 0;
+  for (let e3 = 0; e3 < i2.length; e3++) {
+    let t3 = (i2.charCodeAt(e3) - 48) * (e3 % 2 == 0 ? 2 : 1);
+    t3 > 9 && (t3 = Math.floor(t3 / 10) + t3 % 10), a2 += t3;
+  }
+  let o2 = a2 % 10, s2 = o2 === 0 ? 0 : 10 - o2;
+  return String(s2) === r2;
+};
+var ft = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 7 || r2.length !== 1)
+    return false;
+  let i2 = 0, a2 = 2;
+  for (let e3 = n2.length - 1; e3 >= 0; e3--) {
+    let t3 = n2.charCodeAt(e3) - 48;
+    i2 += t3 * a2, a2 = a2 === 7 ? 2 : a2 + 1;
+  }
+  let o2 = i2 % 11, s2 = o2 === 0 || o2 === 1 ? 0 : 11 - o2;
+  return String(s2) === r2;
+};
+var pt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 8 || r2.length !== 1)
+    return false;
+  let i2 = v(n2);
+  return String(i2 > 9 ? 0 : i2) === r2;
+};
+var mt = (e2) => {
+  let { agency: t2, account: n2, digit: r2 } = e2;
+  if (t2.length !== 4 || n2.length !== 11 || r2.length !== 1)
+    return false;
+  let i2 = v(n2.substring(0, 10));
+  return String(i2 > 9 ? 0 : i2) === r2;
+};
+var ht = (e2) => {
+  let { account: t2, digit: n2 } = e2;
+  if (n2.length < 1 || n2.length > 2)
+    return false;
+  let r2 = v(t2);
+  if (r2 <= 9 && String(r2) === n2)
+    return true;
+  let i2 = _(t2);
+  return String(i2) === n2;
+};
+var q = {
+  "001": ut,
+  341: dt,
+  237: ft,
+  "033": pt,
+  104: mt
+};
+var gt = (e2) => {
+  let { bankCode: t2, agency: n2, account: r2, digit: a2 } = e2;
+  if (!t2 || !n2 || !r2 || !a2 || typeof t2 != "string" || typeof n2 != "string" || typeof r2 != "string" || typeof a2 != "string")
+    return false;
+  let o2 = i(t2), s2 = i(n2), c2 = i(r2), l2 = i(a2);
+  return o2.length !== 3 || s2.length === 0 || s2.length > 5 || c2.length === 0 || c2.length > 13 || l2.length === 0 || l2.length > 2 ? false : (o2 in q ? q[o2] : ht)({
+    bankCode: o2,
+    agency: s2,
+    account: c2,
+    digit: l2
+  });
+};
+var _t = (e2) => e2 === e2[0].repeat(e2.length);
+var vt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 11 || _t(t2))
+    return false;
+  let n2 = 0;
+  for (let e3 = 0; e3 < 9; e3++)
+    n2 += (t2.charCodeAt(e3) - 48) * (9 - e3);
+  let r2 = n2 % 11, a2 = 0;
+  if (r2 >= 10 && (r2 = 0, a2 = 2), r2 !== t2.charCodeAt(9) - 48)
+    return false;
+  let o2 = 0;
+  for (let e3 = 0; e3 < 9; e3++)
+    o2 += (t2.charCodeAt(e3) - 48) * (e3 + 1);
+  let s2 = o2 % 11 - a2;
+  return s2 < 0 && (s2 += 11), s2 >= 10 && (s2 = 0), s2 === t2.charCodeAt(10) - 48;
+};
+var yt = /* @__PURE__ */ new Set([
+  "00000000000000",
+  "11111111111111",
+  "22222222222222",
+  "33333333333333",
+  "44444444444444",
+  "55555555555555",
+  "66666666666666",
+  "77777777777777",
+  "88888888888888",
+  "99999999999999"
+]);
+var bt = [
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var xt = [
+  6,
+  5,
+  4,
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var St = /^[0-9A-Z]{2}\.?[0-9A-Z]{3}\.?[0-9A-Z]{3}\/?[0-9A-Z]{4}-?[0-9]{2}$/;
+var Ct = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/;
+var wt = (e2) => {
+  let t2 = "";
+  for (let n2 = 0; n2 < e2.length; n2++) {
+    let r2 = e2[n2];
+    (r2 >= "0" && r2 <= "9" || r2 >= "A" && r2 <= "Z" || r2 >= "a" && r2 <= "z") && (t2 += r2 >= "a" && r2 <= "z" ? String.fromCharCode(r2.charCodeAt(0) - 32) : r2);
+  }
+  return t2;
+};
+var J = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 12; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * bt[n3];
+  let n2 = t2 % 11, r2 = n2 < 2 ? 48 : 59 - n2;
+  if (e2.charCodeAt(12) !== r2)
+    return false;
+  t2 = 0;
+  for (let n3 = 0; n3 < 13; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * xt[n3];
+  n2 = t2 % 11;
+  let i2 = n2 < 2 ? 48 : 59 - n2;
+  return e2.charCodeAt(13) === i2;
+};
+var Y = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = wt(e2);
+  if (n2.length !== 14)
+    return false;
+  let r2 = t2?.version ?? 1, a2 = true, o2 = false;
+  if (r2 !== 1)
+    for (let e3 = 0; e3 < 14; e3++) {
+      let t3 = n2.charCodeAt(e3);
+      (t3 < 48 || t3 > 57) && (a2 = false, t3 >= 65 && t3 <= 90 && (o2 = true));
+    }
+  if (a2) {
+    let t3 = i(e2);
+    return Ct.test(e2) && !yt.has(t3) && J(t3);
+  }
+  return o2 && St.test(e2) && J(n2);
+};
+var Tt = /* @__PURE__ */ new Set([
+  "00000000000",
+  "11111111111",
+  "22222222222",
+  "33333333333",
+  "44444444444",
+  "55555555555",
+  "66666666666",
+  "77777777777",
+  "88888888888",
+  "99999999999"
+]);
+var Et = /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/;
+var Dt = (e2) => {
+  let t2 = 0;
+  for (let n3 = 0; n3 < 9; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (10 - n3);
+  let n2 = t2 % 11, r2 = n2 < 2 ? 48 : 59 - n2;
+  if (e2.charCodeAt(9) !== r2)
+    return false;
+  t2 = 0;
+  for (let n3 = 0; n3 < 10; n3++)
+    t2 += (e2.charCodeAt(n3) - 48) * (11 - n3);
+  n2 = t2 % 11;
+  let i2 = n2 < 2 ? 48 : 59 - n2;
+  return e2.charCodeAt(10) === i2;
+};
+var X = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 11 || !Et.test(e2) || Tt.has(t2) ? false : Dt(t2);
+};
+var Ot = /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9-]*\.)+[a-z]{2,}$/i;
+var kt = (e2) => !e2 || typeof e2 != "string" ? false : Ot.test(e2);
+var Z = (e2, t2) => typeof t2 == "number" ? e2.length === t2 : t2.includes(e2.length);
+var Q = (e2, t2) => e2.substring(0, t2.length) === t2;
+var $ = ({ body: e2, startWeight: t2, minWeight: n2, mod: r2 = 11 }) => {
+  let i2 = t2, a2 = 0;
+  for (let t3 = 0; t3 < e2.length; t3++) {
+    let r3 = e2.charCodeAt(t3) - 48;
+    a2 += r3 * i2, i2--, i2 < n2 && (i2 = n2 === 1 ? 9 : 11);
+  }
+  let o2 = r2 - a2 % r2;
+  return o2 >= 10 ? 0 : o2;
+};
+var At = (e2) => {
+  if (!Z(e2, 13) || !Q(e2, "01"))
+    return false;
+  let t2 = e2.substring(0, 11), n2 = t2.length - 7, r2 = 0;
+  for (let i3 = 0; i3 < t2.length; i3++) {
+    let t3 = e2.charCodeAt(i3) - 48;
+    r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+  }
+  let i2 = 11 - r2 % 11;
+  i2 >= 10 && (i2 = 0);
+  let a2 = t2 + i2;
+  n2 = a2.length - 7, r2 = 0;
+  for (let o3 = 0; o3 < a2.length; o3++) {
+    let a3 = o3 < t2.length ? e2.charCodeAt(o3) - 48 : i2;
+    r2 += a3 * n2, n2--, n2 === 1 && (n2 = 9);
+  }
+  let o2 = 11 - r2 % 11;
+  return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(11), 10) === i2 && Number.parseInt(e2.charAt(12), 10) === o2;
+};
+var jt = (e2) => {
+  if (!Z(e2, 9) || !Q(e2, "24"))
+    return false;
+  let t2 = 9, n2 = 0;
+  for (let r3 = 0; r3 < 8; r3++) {
+    let i3 = e2.charCodeAt(r3) - 48;
+    n2 += i3 * t2, t2--;
+  }
+  let r2 = n2 * 10, i2 = r2 - Math.floor(r2 / 11) * 11;
+  return i2 >= 10 && (i2 = 0), i2 === Number.parseInt(e2.charAt(8), 10);
+};
+var Mt = (e2) => {
+  if (!Z(e2, 9) || !Q(e2, "03"))
+    return false;
+  let t2 = e2.length, n2 = t2 - 1, r2 = t2, i2 = e2.substring(0, n2), a2 = Number.parseInt(i2, 10), o2 = 0, s2 = 0;
+  a2 >= 3000001 && a2 <= 3017e3 ? (o2 = 5, s2 = 0) : a2 >= 3017001 && a2 <= 3019022 && (o2 = 9, s2 = 1);
+  let c2 = o2;
+  for (let t3 = 0; t3 < i2.length; t3++) {
+    let n3 = e2.charCodeAt(t3) - 48;
+    c2 += n3 * r2, r2--;
+  }
+  let l2 = 11 - c2 % 11;
+  return l2 === 10 && (l2 = 0), l2 === 11 && (l2 = s2), l2 === Number.parseInt(e2.charAt(n2), 10);
+};
+var Nt = (e2) => {
+  if (!Z(e2, 9))
+    return false;
+  let t2 = e2.substring(0, 8), n2 = $({
+    body: t2,
+    startWeight: t2.length + 1,
+    minWeight: 1
+  });
+  return Number.parseInt(e2.charAt(8), 10) === n2;
+};
+var Pt = (e2) => {
+  if (!Z(e2, [8, 9]))
+    return false;
+  let t2 = +(e2.length === 9), n2 = Number.parseInt(e2.substring(t2, t2 + 1), 10), r2 = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    8
+  ].includes(n2) ? 10 : 11, i2 = e2.substring(0, e2.length - 2), a2 = i2.length + 1, o2 = 0;
+  for (let t3 = 0; t3 < i2.length; t3++) {
+    let n3 = e2.charCodeAt(t3) - 48;
+    o2 += n3 * a2, a2--;
+  }
+  let s2 = o2 % r2, c2 = r2 - s2;
+  c2 >= 10 && (c2 = 0);
+  let l2 = i2 + c2;
+  a2 = l2.length + 1, o2 = 0;
+  for (let t3 = 0; t3 < l2.length; t3++) {
+    let n3 = t3 < i2.length ? e2.charCodeAt(t3) - 48 : c2;
+    o2 += n3 * a2, a2--;
+  }
+  s2 = o2 % r2;
+  let u2 = r2 - s2;
+  return u2 >= 10 && (u2 = 0), Number.parseInt(e2.charAt(e2.length - 2), 10) === u2 && Number.parseInt(e2.charAt(e2.length - 1), 10) === c2;
+};
+var Ft = (e2) => {
+  if (!Z(e2, 9))
+    return false;
+  let t2 = e2.substring(0, 8), n2 = $({
+    body: t2,
+    startWeight: t2.length + 1,
+    minWeight: 1
+  });
+  return Number.parseInt(e2.charAt(8), 10) === n2;
+};
+var It = (e2) => {
+  if (!Z(e2, 13) || !Q(e2, "07"))
+    return false;
+  let t2 = e2.length, n2 = e2.substring(0, t2 - 2), r2 = Lt(n2), i2 = Lt(n2 + r2);
+  return Number.parseInt(e2.charAt(t2 - 2), 10) === r2 && Number.parseInt(e2.charAt(t2 - 1), 10) === i2;
+};
+var Lt = (e2) => {
+  let t2 = e2.length - 7, n2 = 0;
+  for (let r3 = 0; r3 < e2.length; r3++) {
+    let i2 = Number.parseInt(e2.charAt(r3), 10);
+    n2 += i2 * t2, t2--, t2 === 1 && (t2 = 9);
+  }
+  let r2 = 11 - n2 % 11;
+  return r2 >= 10 && (r2 = 0), r2;
+};
+var Rt = {
+  AC: At,
+  AL: jt,
+  AP: Mt,
+  AM: Nt,
+  BA: Pt,
+  CE: Ft,
+  DF: It,
+  ES: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  GO: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = [
+      "10",
+      "11",
+      "12",
+      "20"
+    ], n2 = e2.substring(0, 2);
+    if (!t2.includes(n2))
+      return false;
+    let r2 = e2.substring(0, 8), i2 = Number.parseInt(r2, 10), a2 = 9, o2 = 0;
+    for (let t3 = 0; t3 < r2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      o2 += n3 * a2, a2--;
+    }
+    let s2 = 11 - o2 % 11;
+    return s2 >= 10 && (s2 = +(s2 === 11 && i2 >= 10103105 && i2 <= 10119997)), Number.parseInt(e2.charAt(8), 10) === s2;
+  },
+  MA: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "12"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  MG: (e2) => {
+    if (!Z(e2, 13))
+      return false;
+    let t2 = e2.substring(0, 11), n2 = `${t2.substring(0, 3)}0${t2.substring(3)}`, r2 = "";
+    for (let e3 = 0; e3 < n2.length; e3++) {
+      let t3 = n2.charCodeAt(e3) - 48, i3 = (e3 + 3) % 2 == 0 ? 2 : 1;
+      r2 += String(t3 * i3);
+    }
+    let i2 = 0;
+    for (let e3 = 0; e3 < r2.length; e3++)
+      i2 += r2.charCodeAt(e3) - 48;
+    let a2 = String(i2), o2 = a2.charAt(a2.length - 1), s2 = Number.parseInt(o2, 10), c2 = s2 === 0 ? 0 : 10 - s2, l2 = 3, u2 = 0, d2 = t2 + c2;
+    for (let e3 = 0; e3 < d2.length; e3++) {
+      let t3 = d2.charCodeAt(e3) - 48;
+      u2 += t3 * l2, l2--, l2 === 1 && (l2 = 11);
+    }
+    let f2 = 11 - u2 % 11;
+    return f2 >= 10 && (f2 = 0), Number.parseInt(e2.charAt(11), 10) === c2 && Number.parseInt(e2.charAt(12), 10) === f2;
+  },
+  MT: (e2) => {
+    if (!Z(e2, 11))
+      return false;
+    let t2 = e2.substring(0, 10), n2 = 3, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(10), 10) === i2;
+  },
+  MS: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "28"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PA: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "15"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PB: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PE: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 7), n2 = t2.length + 1, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--;
+    }
+    let i2 = 11 - r2 % 11;
+    i2 >= 10 && (i2 = 0);
+    let a2 = t2 + i2;
+    n2 = a2.length + 1, r2 = 0;
+    for (let o3 = 0; o3 < a2.length; o3++) {
+      let a3 = o3 < t2.length ? e2.charCodeAt(o3) - 48 : i2;
+      r2 += a3 * n2, n2--;
+    }
+    let o2 = 11 - r2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(7), 10) === i2 && Number.parseInt(e2.charAt(8), 10) === o2;
+  },
+  PI: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  PR: (e2) => {
+    if (!Z(e2, 10))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = t2.length - 5, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let i2 = 11 - r2 % 11;
+    i2 >= 10 && (i2 = 0);
+    let a2 = t2 + i2;
+    n2 = a2.length - 5, r2 = 0;
+    for (let e3 = 0; e3 < a2.length; e3++) {
+      let t3 = Number.parseInt(a2.charAt(e3), 10);
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let o2 = 11 - r2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(8), 10) === i2 && Number.parseInt(e2.charAt(9), 10) === o2;
+  },
+  RJ: (e2) => {
+    if (!Z(e2, 8))
+      return false;
+    let t2 = e2.substring(0, 7), n2 = 2, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = Number.parseInt(e2.charAt(i3), 10);
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 7);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(7), 10) === i2;
+  },
+  RN: (e2) => {
+    if (!Z(e2, [9, 10]) || !Q(e2, "20"))
+      return false;
+    let t2 = e2.length, n2 = t2 - 1, r2 = t2, i2 = e2.substring(0, n2), a2 = 0;
+    for (let t3 = 0; t3 < i2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      a2 += n3 * r2, r2--;
+    }
+    let o2 = 11 - a2 % 11;
+    return o2 >= 10 && (o2 = 0), Number.parseInt(e2.charAt(n2), 10) === o2;
+  },
+  RO: (e2) => {
+    if (!Z(e2, 14))
+      return false;
+    let t2 = e2.length - 1, n2 = 6, r2 = e2.substring(0, t2), i2 = 0;
+    for (let t3 = 0; t3 < r2.length; t3++) {
+      let r3 = Number.parseInt(e2.charAt(t3), 10);
+      i2 += r3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let a2 = 11 - i2 % 11;
+    return a2 >= 10 && (a2 -= 10), a2 === Number.parseInt(e2.charAt(t2), 10);
+  },
+  RR: (e2) => {
+    if (!Z(e2, 9) || !Q(e2, "24"))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = 1, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2++;
+    }
+    let i2 = r2 % 9;
+    return Number.parseInt(e2.charAt(8), 10) === i2;
+  },
+  RS: (e2) => {
+    if (!Z(e2, 10))
+      return false;
+    let t2 = e2.substring(0, 9), n2 = 2, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--, n2 === 1 && (n2 = 9);
+    }
+    let i2 = 11 - r2 % 11;
+    return i2 >= 10 && (i2 = 0), Number.parseInt(e2.charAt(9), 10) === i2;
+  },
+  SC: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  SE: (e2) => {
+    if (!Z(e2, 9))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = $({
+      body: t2,
+      startWeight: t2.length + 1,
+      minWeight: 1
+    });
+    return Number.parseInt(e2.charAt(8), 10) === n2;
+  },
+  SP: (e2) => {
+    if (!Z(e2, 12))
+      return false;
+    let t2 = e2.substring(0, 8), n2 = [
+      1,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      10
+    ], r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2[i3];
+    }
+    let i2 = r2 % 11, a2 = String(i2), o2 = Number.parseInt(a2.charAt(a2.length - 1), 10), s2 = e2.substring(0, 11), c2 = 3, l2 = 0;
+    for (let t3 = 0; t3 < s2.length; t3++) {
+      let n3 = e2.charCodeAt(t3) - 48;
+      l2 += n3 * c2, c2--, c2 === 1 && (c2 = 10);
+    }
+    let u2 = l2 % 11, d2 = String(u2), f2 = Number.parseInt(d2.charAt(d2.length - 1), 10);
+    return Number.parseInt(e2.charAt(8), 10) === o2 && Number.parseInt(e2.charAt(11), 10) === f2;
+  },
+  TO: (e2) => {
+    if (!Z(e2, [9, 11]))
+      return false;
+    if (e2.length === 11) {
+      let t3 = e2.substring(2, 4);
+      if ([
+        "01",
+        "02",
+        "03",
+        "99"
+      ].includes(t3)) {
+        let t4 = e2.substring(0, 2) + e2.substring(4, 10), n3 = 9, r3 = 0;
+        for (let e3 = 0; e3 < t4.length; e3++) {
+          let i4 = Number.parseInt(t4.charAt(e3), 10);
+          r3 += i4 * n3, n3--;
+        }
+        let i3 = r3 % 11, a3 = 11 - i3;
+        return i3 < 2 && (a3 = 0), Number.parseInt(e2.charAt(10), 10) === a3;
+      }
+    }
+    let t2 = e2.substring(0, 8), n2 = 9, r2 = 0;
+    for (let i3 = 0; i3 < t2.length; i3++) {
+      let t3 = e2.charCodeAt(i3) - 48;
+      r2 += t3 * n2, n2--;
+    }
+    let i2 = r2 % 11, a2 = 11 - i2;
+    return i2 < 2 && (a2 = 0), Number.parseInt(e2.charAt(8), 10) === a2;
+  }
+};
+var zt = (e2, t2) => {
+  if (!e2 || !t2 || typeof t2 != "string")
+    return false;
+  let n2 = i(t2);
+  if (!n2)
+    return false;
+  let r2 = Rt[e2];
+  return r2 ? r2(n2) : false;
+};
+var Bt = [
+  2,
+  3,
+  4,
+  5
+];
+var Vt = new Set(O);
+var Ht = (e2) => {
+  let t2 = (e2.charCodeAt(0) - 48) * 10 + (e2.charCodeAt(1) - 48);
+  return Vt.has(t2);
+};
+var Ut = (e2) => {
+  let t2 = e2.charCodeAt(2) - 48;
+  return Bt.includes(t2);
+};
+var Wt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length !== 10 || !Ht(t2) ? false : Ut(t2);
+};
+var Gt = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length === 4 && t2 in E;
+};
+var Kt = /^[a-z]{3}[0-9]{1}[a-z]{1}[0-9]{2}$|^[a-z]{3}[0-9]{2}[a-z]{1}[0-9]{1}$/i;
+var qt = /^[a-z]{3}-?[0-9]{4}$/i;
+var Jt = (e2) => !e2 || typeof e2 != "string" ? false : Kt.test(e2) || qt.test(e2);
+var Yt = [
+  6,
+  7,
+  8,
+  9
+];
+var Xt = [9];
+var Zt = new Set(O);
+var Qt = (e2) => {
+  let t2 = (e2.charCodeAt(0) - 48) * 10 + (e2.charCodeAt(1) - 48);
+  return Zt.has(t2);
+};
+var $t = (e2, t2) => {
+  let n2 = e2.charCodeAt(2) - 48;
+  return !t2 || t2 === 1 ? Yt.includes(n2) : Xt.includes(n2);
+};
+var en = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = i(e2);
+  return n2.length !== 11 || !Qt(n2) ? false : $t(n2, t2?.version);
+};
+var tn = /^[A-Z]{2}[0-9]{6}$/;
+var nn = (e2) => e2 == null ? false : tn.test(String(e2));
+var rn = (e2, t2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let n2 = i(e2);
+  return n2.length === 10 ? Wt(e2) : n2.length === 11 ? en(e2, t2) : false;
+};
+var an = /* @__PURE__ */ new Set([
+  "00000000000",
+  "11111111111",
+  "22222222222",
+  "33333333333",
+  "44444444444",
+  "55555555555",
+  "66666666666",
+  "77777777777",
+  "88888888888",
+  "99999999999"
+]);
+var on = [
+  3,
+  2,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+  3,
+  2
+];
+var sn = (e2) => {
+  if (!e2 || typeof e2 != "string" || /[^0-9 ().,*-]/.test(e2))
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 11 || an.has(t2))
+    return false;
+  let n2 = t2.substring(0, 10), r2 = t2.charCodeAt(10) - 48, a2 = 11 - y({
+    base: n2,
+    weight: on
+  }) % 11;
+  return r2 === (a2 >= 10 ? 0 : a2);
+};
+var cn = (e2) => {
+  let t2 = Number.parseInt(e2.substring(7, 9), 10), n2 = e2.substring(0, 7) + e2.substring(9), r2 = 0;
+  for (let e3 = 0; e3 < 11; e3++)
+    r2 += (n2.charCodeAt(e3) - 48) * 10 ** (10 - e3);
+  let i2 = r2 % 97, a2 = 0;
+  for (let e3 = 11; e3 < 18; e3++)
+    a2 += (n2.charCodeAt(e3) - 48) * 10 ** (6 - (e3 - 11));
+  return 98 - (i2 * 1e9 + a2 * 100) % 97 === t2;
+};
+var ln = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  return t2.length === 20 ? cn(t2) : false;
+};
+var un = 11;
+var dn = (e2, t2) => {
+  let n2 = e2.length;
+  return n2 >= t2 ? e2 : "0".repeat(t2 - n2) + e2;
+};
+var fn = (e2) => {
+  if (!e2)
+    return false;
+  let t2 = i(e2);
+  if (t2.length !== 9 && t2.length !== 11)
+    return false;
+  let n2 = dn(t2, un);
+  if (!/^\d{11}$/.test(n2))
+    return false;
+  let r2 = n2.substring(0, 10).split("").reverse().join(""), a2 = 0, o2 = 2;
+  for (let e3 = 0; e3 < 10; e3++)
+    a2 += Number.parseInt(r2[e3] ?? "0", 10) * o2, o2 >= 9 ? o2 = 2 : o2++;
+  let s2 = 11 - a2 % 11;
+  return s2 >= 10 && (s2 = 0), s2 === Number.parseInt(n2[10] ?? "0", 10);
+};
+var pn = (e2) => {
+  if (e2.length === 12)
+    return true;
+  let t2 = e2.slice(-4, -2);
+  return e2.length === 13 && (t2 === "01" || t2 === "02");
+};
+var mn = ({ sequentialNumber: e2, federativeUnion: t2 }) => {
+  let n2 = 0;
+  for (let t3 = 0; t3 < 8; t3++)
+    n2 += (e2.charCodeAt(t3) - 48) * (t3 + 2);
+  let r2 = n2 % 11;
+  return r2 === 0 && (t2 === "01" || t2 === "02") ? 1 : r2 === 10 ? 0 : r2;
+};
+var hn = ({ federativeUnion: e2, firstDigit: t2 }) => {
+  let n2 = ((e2.charCodeAt(0) - 48) * 7 + (e2.charCodeAt(1) - 48) * 8 + t2 * 9) % 11;
+  return (e2 === "01" || e2 === "02") && n2 === 0 ? 1 : n2 === 10 ? 0 : n2;
+};
+var gn = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return false;
+  let t2 = i(e2);
+  if (!pn(t2))
+    return false;
+  let n2 = t2.slice(0, 8), r2 = t2.slice(-4, -2), a2 = t2.slice(-2), o2 = Number(r2);
+  if (!Number.isInteger(o2) || o2 < 1 || o2 > 28)
+    return false;
+  let s2 = mn({
+    sequentialNumber: n2,
+    federativeUnion: r2
+  });
+  return a2 === `${s2}${hn({
+    federativeUnion: r2,
+    firstDigit: s2
+  })}`;
+};
+var _n = (e2) => i(e2).slice(0, 47);
+var vn = (e2) => i(e2).slice(0, 8);
+var yn = (e2) => i(e2).slice(0, 11);
+var bn = (e2, t2) => t2 === 2 ? c(e2) : i(e2);
+var xn = (e2, t2) => bn(e2, t2?.version).slice(0, 14);
+var Sn = (e2) => i(e2).slice(0, 11);
+var Cn = (e2) => {
+  if (!e2 || typeof e2 != "string")
+    return 0;
+  let t2 = i(e2) || "0";
+  return Number.parseInt(t2, 10) / 100;
+};
+var wn = (e2) => i(e2).slice(0, 4);
+var Tn = (e2) => !e2 || typeof e2 != "string" ? "" : c(e2).slice(0, 8);
+var En = (e2) => i(e2).slice(0, 11);
+var Dn = (e2) => i(e2).slice(0, 11);
+var On = (e2) => i(e2).slice(0, 20);
+var kn = (e2) => i(e2).slice(0, 12);
+
+// fontes/cpf.ts
+function cpfValido(_2, cpf) {
+  return X(cpf);
+}
+function formatarCpf(_2, cpf, opcoes) {
+  return d(cpf, { pad: opcoes?.completar });
+}
+function limparCpf(_2, cpf) {
+  return Sn(cpf);
+}
+function gerarCpf(_2) {
+  return T();
+}
+
+// fontes/cnpj.ts
+function cnpjValido(_2, cnpj) {
+  return Y(cnpj);
+}
+function formatarCnpj(_2, cnpj, opcoes) {
+  return u(cnpj, { pad: opcoes?.completar, version: opcoes?.versao });
+}
+function limparCnpj(_2, cnpj, opcoes) {
+  return xn(cnpj, { version: opcoes?.versao });
+}
+function gerarCnpj(_2) {
+  return Te();
+}
+
+// fontes/cnh.ts
+function cnhValida(_2, cnh) {
+  return vt(cnh);
+}
+function formatarCnh(_2, cnh, opcoes) {
+  return s(cnh, { pad: opcoes?.completar });
+}
+function limparCnh(_2, cnh) {
+  return yn(cnh);
+}
+function gerarCnh(_2) {
+  return he();
+}
+
+// fontes/pis.ts
+function pisValido(_2, pis) {
+  return sn(pis);
+}
+function formatarPis(_2, pis, opcoes) {
+  return ce(pis, { pad: opcoes?.completar });
+}
+function limparPis(_2, pis) {
+  return Dn(pis);
+}
+function gerarPis(_2) {
+  return Le();
+}
+
+// fontes/passaporte.ts
+function passaporteValido(_2, passaporte) {
+  return nn(passaporte);
+}
+function formatarPassaporte(_2, passaporte) {
+  return ie(passaporte);
+}
+function limparPassaporte(_2, passaporte) {
+  return Tn(passaporte);
+}
+function gerarPassaporte(_2) {
+  return Ne();
+}
+
+// fontes/placa-veiculo.ts
+function placaVeiculoValida(_2, placa) {
+  return Jt(placa);
+}
+function formatarPlacaVeiculo(_2, placa) {
+  return re(placa);
+}
+function limparPlacaVeiculo(_2, placa) {
+  return m(placa);
+}
+function gerarPlacaVeiculo(_2, formato) {
+  return Me(formato);
+}
+function obterFormatoPlacaVeiculo(_2, placa) {
+  return h(placa);
+}
+
+// fontes/renavam.ts
+function renavamValido(_2, renavam) {
+  return fn(renavam);
+}
+
+// fontes/inscricao-estadual.ts
+function inscricaoEstadualValida(_2, uf, inscricao) {
+  return zt(uf, inscricao);
+}
+
+// fontes/conta-bancaria.ts
+function contaBancariaValida(_2, conta) {
+  return gt({
+    bankCode: conta.banco ?? "",
+    agency: conta.agencia ?? "",
+    account: conta.conta ?? "",
+    digit: conta.digito ?? ""
+  });
+}
+
+// fontes/processo-juridico.ts
+function processoJuridicoValido(_2, processo) {
+  return ln(processo);
+}
+function formatarProcessoJuridico(_2, processo) {
+  return le(processo);
+}
+function limparProcessoJuridico(_2, processo) {
+  return On(processo);
+}
+function gerarProcessoJuridico(_2, opcoes) {
+  return ze({ year: opcoes?.ano, court: opcoes?.tribunal });
+}
+
+// fontes/natureza-juridica.ts
+function naturezaJuridicaValida(_2, codigo) {
+  return Gt(codigo);
+}
+function formatarNaturezaJuridica(_2, codigo) {
+  return p(codigo);
+}
+function limparNaturezaJuridica(_2, codigo) {
+  return wn(codigo);
+}
+function gerarNaturezaJuridica(_2) {
+  return Oe();
+}
+function obterNaturezasJuridicas(_2) {
+  return it();
+}
+
+// fontes/cep.ts
+function cepValido(_2, cep) {
+  return A(cep);
+}
+function formatarCep(_2, cep) {
+  return o(cep);
+}
+function limparCep(_2, cep) {
+  return vn(cep);
+}
+function gerarCep(_2) {
+  return fe();
+}
+async function obterEnderecoPorCep(_2, cep) {
+  return We(cep);
+}
+async function obterCepPorEndereco(_2, unidadeFederativa, cidade, logradouro) {
+  return tt({
+    federalUnit: unidadeFederativa,
+    city: cidade,
+    street: logradouro
+  });
+}
+
+// fontes/boleto.ts
+function boletoValido(_2, boleto) {
+  return I(boleto);
+}
+function formatarBoleto(_2, boleto, opcoes) {
+  return a(boleto, { pad: opcoes?.completar });
+}
+function limparBoleto(_2, boleto) {
+  return _n(boleto);
+}
+function gerarBoleto(_2) {
+  return de();
+}
+function obterInfoBoleto(_2, boleto) {
+  const info = Ze(boleto);
+  return {
+    valorBoleto: info.amount,
+    dataVencimento: info.expirationDate,
+    codigoBanco: info.bankCode
+  };
+}
+
+// fontes/moeda.ts
+function formatarMoeda(_2, valor, opcoes) {
+  return f(valor, { precision: opcoes?.precisao });
+}
+function analisarMoeda(_2, moeda) {
+  return Cn(moeda);
+}
+
+// fontes/telefone.ts
+function telefoneValido(_2, telefone) {
+  return rn(telefone);
+}
+function formatarTelefone(_2, telefone, opcoes) {
+  return se(telefone, { mask: opcoes?.mascara });
+}
+function limparTelefone(_2, telefone) {
+  return En(telefone);
+}
+function celularValido(_2, telefone) {
+  return en(telefone);
+}
+function telefoneFixoValido(_2, telefone) {
+  return Wt(telefone);
+}
+function gerarTelefone(_2, tipo) {
+  const tipoIngles = tipo === "celular" ? "mobile" : tipo === "fixo" ? "landline" : void 0;
+  return k(tipoIngles);
+}
+
+// fontes/email.ts
+function emailValido(_2, email) {
+  return kt(email);
+}
+
+// fontes/titulo-eleitor.ts
+function tituloEleitorValido(_2, titulo) {
+  return gn(titulo);
+}
+function formatarTituloEleitor(_2, titulo) {
+  return ue(titulo);
+}
+function limparTituloEleitor(_2, titulo) {
+  return kn(titulo);
+}
+function gerarTituloEleitor(_2, codigoEstado) {
+  return Ue(codigoEstado);
+}
+
+// fontes/estados.ts
+function obterEstados(_2) {
+  return ct().map((estado) => ({
+    codigo: estado.code,
+    nome: estado.name
+  }));
+}
+function obterCidades(_2, codigoEstado) {
+  return Qe(codigoEstado);
+}
+
+// fontes/municipios.ts
+async function obterMunicipioPorCodigo(_2, codigo) {
+  return st({ code: codigo });
+}
+async function obterMunicipioPorNome(_2, nomeMunicipio, uf) {
+  return st({ municipalityName: nomeMunicipio, uf });
+}
+
+// fontes/feriados.ts
+function obterFeriados(_2, ano, codigoEstado) {
+  const feriados = codigoEstado ? G({ year: ano, stateCode: codigoEstado }) : G(ano);
+  return feriados.map((feriado) => ({
+    nome: feriado.name,
+    data: feriado.date
+  }));
+}
+function ehFeriado(_2, data, codigoEstado) {
+  return lt({ targetDate: data, stateCode: codigoEstado });
+}
+
+// fontes/texto.ts
+function capitalizar(_2, texto, opcoes) {
+  return n(texto, {
+    lowerCaseWords: opcoes?.palavrasMinusculas,
+    upperCaseWords: opcoes?.palavrasMaiusculas
+  });
+}
+
+// fontes/delegua-modulo.ts
+var DeleguaModuloBrasil = {
+  // CPF
+  cpfValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cpfValido,
+    argumentos: [{ nome: "cpf", tipo: "texto" }]
+  },
+  formatarCpf: {
+    tipoRetorno: "texto",
+    funcao: formatarCpf,
+    argumentos: [
+      { nome: "cpf", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCpf: {
+    tipoRetorno: "texto",
+    funcao: limparCpf,
+    argumentos: [{ nome: "cpf", tipo: "texto" }]
+  },
+  gerarCpf: {
+    tipoRetorno: "texto",
+    funcao: gerarCpf,
+    argumentos: []
+  },
+  // CNPJ
+  cnpjValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cnpjValido,
+    argumentos: [{ nome: "cnpj", tipo: "texto" }]
+  },
+  formatarCnpj: {
+    tipoRetorno: "texto",
+    funcao: formatarCnpj,
+    argumentos: [
+      { nome: "cnpj", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCnpj: {
+    tipoRetorno: "texto",
+    funcao: limparCnpj,
+    argumentos: [
+      { nome: "cnpj", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  gerarCnpj: {
+    tipoRetorno: "texto",
+    funcao: gerarCnpj,
+    argumentos: []
+  },
+  // CNH
+  cnhValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cnhValida,
+    argumentos: [{ nome: "cnh", tipo: "texto" }]
+  },
+  formatarCnh: {
+    tipoRetorno: "texto",
+    funcao: formatarCnh,
+    argumentos: [
+      { nome: "cnh", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparCnh: {
+    tipoRetorno: "texto",
+    funcao: limparCnh,
+    argumentos: [{ nome: "cnh", tipo: "texto" }]
+  },
+  gerarCnh: {
+    tipoRetorno: "texto",
+    funcao: gerarCnh,
+    argumentos: []
+  },
+  // PIS
+  pisValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: pisValido,
+    argumentos: [{ nome: "pis", tipo: "texto" }]
+  },
+  formatarPis: {
+    tipoRetorno: "texto",
+    funcao: formatarPis,
+    argumentos: [
+      { nome: "pis", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparPis: {
+    tipoRetorno: "texto",
+    funcao: limparPis,
+    argumentos: [{ nome: "pis", tipo: "texto" }]
+  },
+  gerarPis: {
+    tipoRetorno: "texto",
+    funcao: gerarPis,
+    argumentos: []
+  },
+  // Passaporte
+  passaporteValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: passaporteValido,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  formatarPassaporte: {
+    tipoRetorno: "texto",
+    funcao: formatarPassaporte,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  limparPassaporte: {
+    tipoRetorno: "texto",
+    funcao: limparPassaporte,
+    argumentos: [{ nome: "passaporte", tipo: "texto" }]
+  },
+  gerarPassaporte: {
+    tipoRetorno: "texto",
+    funcao: gerarPassaporte,
+    argumentos: []
+  },
+  // Placa de Veículo
+  placaVeiculoValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: placaVeiculoValida,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  formatarPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: formatarPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  limparPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: limparPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  gerarPlacaVeiculo: {
+    tipoRetorno: "texto",
+    funcao: gerarPlacaVeiculo,
+    argumentos: [{ nome: "formato", tipo: "texto", opcional: true }]
+  },
+  obterFormatoPlacaVeiculo: {
+    tipoRetorno: "qualquer",
+    funcao: obterFormatoPlacaVeiculo,
+    argumentos: [{ nome: "placa", tipo: "texto" }]
+  },
+  // RENAVAM
+  renavamValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: renavamValido,
+    argumentos: [{ nome: "renavam", tipo: "texto" }]
+  },
+  // Inscrição Estadual
+  inscricaoEstadualValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: inscricaoEstadualValida,
+    argumentos: [
+      { nome: "uf", tipo: "texto" },
+      { nome: "inscricao", tipo: "texto" }
+    ]
+  },
+  // Conta Bancária
+  contaBancariaValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: contaBancariaValida,
+    argumentos: [{ nome: "conta", tipo: "dicion\xE1rio" }]
+  },
+  // Processo Jurídico
+  processoJuridicoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: processoJuridicoValido,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  formatarProcessoJuridico: {
+    tipoRetorno: "texto",
+    funcao: formatarProcessoJuridico,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  limparProcessoJuridico: {
+    tipoRetorno: "texto",
+    funcao: limparProcessoJuridico,
+    argumentos: [{ nome: "processo", tipo: "texto" }]
+  },
+  gerarProcessoJuridico: {
+    tipoRetorno: "qualquer",
+    funcao: gerarProcessoJuridico,
+    argumentos: [{ nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }]
+  },
+  // Natureza Jurídica
+  naturezaJuridicaValida: {
+    tipoRetorno: "l\xF3gico",
+    funcao: naturezaJuridicaValida,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  formatarNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: formatarNaturezaJuridica,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  limparNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: limparNaturezaJuridica,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  gerarNaturezaJuridica: {
+    tipoRetorno: "texto",
+    funcao: gerarNaturezaJuridica,
+    argumentos: []
+  },
+  obterNaturezasJuridicas: {
+    tipoRetorno: "dicion\xE1rio",
+    funcao: obterNaturezasJuridicas,
+    argumentos: []
+  },
+  // CEP
+  cepValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: cepValido,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  formatarCep: {
+    tipoRetorno: "texto",
+    funcao: formatarCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  limparCep: {
+    tipoRetorno: "texto",
+    funcao: limparCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  gerarCep: {
+    tipoRetorno: "texto",
+    funcao: gerarCep,
+    argumentos: []
+  },
+  obterEnderecoPorCep: {
+    tipoRetorno: "qualquer",
+    funcao: obterEnderecoPorCep,
+    argumentos: [{ nome: "cep", tipo: "texto" }]
+  },
+  obterCepPorEndereco: {
+    tipoRetorno: "vetor",
+    funcao: obterCepPorEndereco,
+    argumentos: [
+      { nome: "unidadeFederativa", tipo: "texto" },
+      { nome: "cidade", tipo: "texto" },
+      { nome: "logradouro", tipo: "texto" }
+    ]
+  },
+  // Boleto
+  boletoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: boletoValido,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  formatarBoleto: {
+    tipoRetorno: "texto",
+    funcao: formatarBoleto,
+    argumentos: [
+      { nome: "boleto", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparBoleto: {
+    tipoRetorno: "texto",
+    funcao: limparBoleto,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  gerarBoleto: {
+    tipoRetorno: "texto",
+    funcao: gerarBoleto,
+    argumentos: []
+  },
+  obterInfoBoleto: {
+    tipoRetorno: "dicion\xE1rio",
+    funcao: obterInfoBoleto,
+    argumentos: [{ nome: "boleto", tipo: "texto" }]
+  },
+  // Moeda
+  formatarMoeda: {
+    tipoRetorno: "texto",
+    funcao: formatarMoeda,
+    argumentos: [
+      { nome: "valor", tipo: "n\xFAmero" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  analisarMoeda: {
+    tipoRetorno: "n\xFAmero",
+    funcao: analisarMoeda,
+    argumentos: [{ nome: "moeda", tipo: "texto" }]
+  },
+  // Telefone
+  telefoneValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: telefoneValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  formatarTelefone: {
+    tipoRetorno: "texto",
+    funcao: formatarTelefone,
+    argumentos: [
+      { nome: "telefone", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  },
+  limparTelefone: {
+    tipoRetorno: "texto",
+    funcao: limparTelefone,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  celularValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: celularValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  telefoneFixoValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: telefoneFixoValido,
+    argumentos: [{ nome: "telefone", tipo: "texto" }]
+  },
+  gerarTelefone: {
+    tipoRetorno: "texto",
+    funcao: gerarTelefone,
+    argumentos: [{ nome: "tipo", tipo: "texto", opcional: true }]
+  },
+  // E-mail
+  emailValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: emailValido,
+    argumentos: [{ nome: "email", tipo: "texto" }]
+  },
+  // Título de Eleitor
+  tituloEleitorValido: {
+    tipoRetorno: "l\xF3gico",
+    funcao: tituloEleitorValido,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  formatarTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: formatarTituloEleitor,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  limparTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: limparTituloEleitor,
+    argumentos: [{ nome: "titulo", tipo: "texto" }]
+  },
+  gerarTituloEleitor: {
+    tipoRetorno: "texto",
+    funcao: gerarTituloEleitor,
+    argumentos: [{ nome: "codigoEstado", tipo: "texto", opcional: true }]
+  },
+  // Estados e Cidades
+  obterEstados: {
+    tipoRetorno: "vetor",
+    funcao: obterEstados,
+    argumentos: []
+  },
+  obterCidades: {
+    tipoRetorno: "vetor",
+    funcao: obterCidades,
+    argumentos: [{ nome: "codigoEstado", tipo: "texto", opcional: true }]
+  },
+  // Municípios
+  obterMunicipioPorCodigo: {
+    tipoRetorno: "texto",
+    funcao: obterMunicipioPorCodigo,
+    argumentos: [{ nome: "codigo", tipo: "texto" }]
+  },
+  obterMunicipioPorNome: {
+    tipoRetorno: "vetor",
+    funcao: obterMunicipioPorNome,
+    argumentos: [
+      { nome: "nomeMunicipio", tipo: "texto" },
+      { nome: "uf", tipo: "texto" }
+    ]
+  },
+  // Feriados
+  obterFeriados: {
+    tipoRetorno: "vetor",
+    funcao: obterFeriados,
+    argumentos: [
+      { nome: "ano", tipo: "n\xFAmero" },
+      { nome: "codigoEstado", tipo: "texto", opcional: true }
+    ]
+  },
+  ehFeriado: {
+    tipoRetorno: "l\xF3gico",
+    funcao: ehFeriado,
+    argumentos: [
+      { nome: "data", tipo: "qualquer" },
+      { nome: "codigoEstado", tipo: "texto", opcional: true }
+    ]
+  },
+  // Texto
+  capitalizar: {
+    tipoRetorno: "texto",
+    funcao: capitalizar,
+    argumentos: [
+      { nome: "texto", tipo: "texto" },
+      { nome: "opcoes", tipo: "dicion\xE1rio", opcional: true }
+    ]
+  }
+};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  DeleguaModuloBrasil,
+  analisarMoeda,
+  boletoValido,
+  capitalizar,
+  celularValido,
+  cepValido,
+  cnhValida,
+  cnpjValido,
+  contaBancariaValida,
+  cpfValido,
+  ehFeriado,
+  emailValido,
+  formatarBoleto,
+  formatarCep,
+  formatarCnh,
+  formatarCnpj,
+  formatarCpf,
+  formatarMoeda,
+  formatarNaturezaJuridica,
+  formatarPassaporte,
+  formatarPis,
+  formatarPlacaVeiculo,
+  formatarProcessoJuridico,
+  formatarTelefone,
+  formatarTituloEleitor,
+  gerarBoleto,
+  gerarCep,
+  gerarCnh,
+  gerarCnpj,
+  gerarCpf,
+  gerarNaturezaJuridica,
+  gerarPassaporte,
+  gerarPis,
+  gerarPlacaVeiculo,
+  gerarProcessoJuridico,
+  gerarTelefone,
+  gerarTituloEleitor,
+  inscricaoEstadualValida,
+  limparBoleto,
+  limparCep,
+  limparCnh,
+  limparCnpj,
+  limparCpf,
+  limparNaturezaJuridica,
+  limparPassaporte,
+  limparPis,
+  limparPlacaVeiculo,
+  limparProcessoJuridico,
+  limparTelefone,
+  limparTituloEleitor,
+  naturezaJuridicaValida,
+  obterCepPorEndereco,
+  obterCidades,
+  obterEnderecoPorCep,
+  obterEstados,
+  obterFeriados,
+  obterFormatoPlacaVeiculo,
+  obterInfoBoleto,
+  obterMunicipioPorCodigo,
+  obterMunicipioPorNome,
+  obterNaturezasJuridicas,
+  passaporteValido,
+  pisValido,
+  placaVeiculoValida,
+  processoJuridicoValido,
+  renavamValido,
+  telefoneFixoValido,
+  telefoneValido,
+  tituloEleitorValido
+});
+
+
+},{}],9:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1146,7 +6987,7 @@ async function descriptografarAes256(interpretador, textoCriptografado, chave, i
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./comum":10,"buffer":537}],8:[function(require,module,exports){
+},{"./comum":12,"buffer":539}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gerarBytesAleatorios = gerarBytesAleatorios;
@@ -1199,7 +7040,7 @@ function gerarUuid() {
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-},{"./comum":10}],9:[function(require,module,exports){
+},{"./comum":12}],11:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1236,7 +7077,7 @@ function decodificarBase64(interpretador, textoBase64) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./comum":10,"buffer":537}],10:[function(require,module,exports){
+},{"./comum":12,"buffer":539}],12:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1280,7 +7121,7 @@ function bufferToString(buffer) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":672,"crypto":553}],11:[function(require,module,exports){
+},{"_process":674,"crypto":555}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModuloCriptografia = void 0;
@@ -1780,7 +7621,7 @@ exports.DeleguaModuloCriptografia = {
     }
 };
 
-},{"./aes":7,"./aleatorios":8,"./base64":9,"./educacionais":12,"./hashes":13,"./menino-do-acre":15,"./pbkdf2":16,"./rsa":17,"./salt":18}],12:[function(require,module,exports){
+},{"./aes":9,"./aleatorios":10,"./base64":11,"./educacionais":14,"./hashes":15,"./menino-do-acre":17,"./pbkdf2":18,"./rsa":19,"./salt":20}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cifrarXor = cifrarXor;
@@ -1894,7 +7735,7 @@ function decifrarRotN(interpretador, texto, deslocamento = 13) {
     return rotN(interpretador, texto, -deslocamento);
 }
 
-},{"./comum":10}],13:[function(require,module,exports){
+},{"./comum":12}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.md5 = md5;
@@ -2106,7 +7947,7 @@ async function hmacSha512(interpretador, texto, chave) {
     throw new Error('HMAC-SHA512 não disponível neste ambiente');
 }
 
-},{"./comum":10}],14:[function(require,module,exports){
+},{"./comum":12}],16:[function(require,module,exports){
 "use strict";
 /**
  * Biblioteca de criptografia para Delégua.
@@ -2137,7 +7978,7 @@ __exportStar(require("./pbkdf2"), exports);
 __exportStar(require("./rsa"), exports);
 __exportStar(require("./salt"), exports);
 
-},{"./aes":7,"./aleatorios":8,"./base64":9,"./educacionais":12,"./hashes":13,"./menino-do-acre":15,"./pbkdf2":16,"./rsa":17,"./salt":18}],15:[function(require,module,exports){
+},{"./aes":9,"./aleatorios":10,"./base64":11,"./educacionais":14,"./hashes":15,"./menino-do-acre":17,"./pbkdf2":18,"./rsa":19,"./salt":20}],17:[function(require,module,exports){
 "use strict";
 /*
   delegua-criptografia: tema híbrido inspirado no "Menino do Acre"
@@ -2223,7 +8064,7 @@ function descriptografarDeMeninoDoAcre(interpretador, textoCriptografado, opcoes
         .join("");
 }
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.derivarChavePbkdf2 = derivarChavePbkdf2;
@@ -2261,7 +8102,7 @@ async function derivarChavePbkdf2(interpretador, senha, sal, iteracoes = 100000,
     throw new Error('PBKDF2 não disponível neste ambiente');
 }
 
-},{"./comum":10}],17:[function(require,module,exports){
+},{"./comum":12}],19:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2424,7 +8265,7 @@ async function verificarAssinaturaRsa(interpretador, texto, assinatura, chavePub
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./comum":10,"buffer":537}],18:[function(require,module,exports){
+},{"./comum":12,"buffer":539}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gerarSalt = gerarSalt;
@@ -2441,7 +8282,7 @@ function gerarSalt(interpretador, tamanho = 16) {
     return (0, aleatorios_1.gerarTextoAleatorio)(interpretador, tamanho);
 }
 
-},{"./aleatorios":8}],19:[function(require,module,exports){
+},{"./aleatorios":10}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.max = max;
@@ -2582,7 +8423,7 @@ function moda(_, vetor) {
         .map((item) => Number(item));
 }
 
-},{"./excecoes":20,"@designliquido/delegua-matematica":32,"@designliquido/delegua-matematica/algebra-linear":25}],20:[function(require,module,exports){
+},{"./excecoes":22,"@designliquido/delegua-matematica":34,"@designliquido/delegua-matematica/algebra-linear":27}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstatisticaErroEmTempoDeExecucao = void 0;
@@ -2596,7 +8437,7 @@ class EstatisticaErroEmTempoDeExecucao extends Error {
 }
 exports.EstatisticaErroEmTempoDeExecucao = EstatisticaErroEmTempoDeExecucao;
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2616,7 +8457,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./estatistica"), exports);
 __exportStar(require("./excecoes"), exports);
 
-},{"./estatistica":19,"./excecoes":20}],22:[function(require,module,exports){
+},{"./estatistica":21,"./excecoes":22}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.velocidadeMedia = velocidadeMedia;
@@ -2709,7 +8550,7 @@ function mruv(_, s0, s, a) {
     return vf;
 }
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2728,7 +8569,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./cinematica"), exports);
 
-},{"./cinematica":22}],24:[function(require,module,exports){
+},{"./cinematica":24}],26:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -2803,7 +8644,7 @@ function objetoParaTextoJson(_, objeto) {
 }
 exports.objetoParaTextoJson = objetoParaTextoJson;
 
-},{"fs":535,"path":663}],25:[function(require,module,exports){
+},{"fs":537,"path":665}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.somaElementosMatriz = somaElementosMatriz;
@@ -2840,7 +8681,7 @@ function gerarPontosAbscissa(_, distancia, valorPontoCentral, numeroPontos) {
     return vetor;
 }
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.limite = limite;
@@ -2856,7 +8697,7 @@ function limite(_, valor, min, max) {
     return valor < min ? min : valor > max ? max : valor;
 }
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MatematicaErroEmTempoDeExecucao = void 0;
@@ -2870,7 +8711,7 @@ class MatematicaErroEmTempoDeExecucao extends Error {
 }
 exports.MatematicaErroEmTempoDeExecucao = MatematicaErroEmTempoDeExecucao;
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.jurosSimples = jurosSimples;
@@ -2903,7 +8744,7 @@ function jurosCompostos(_, capital, taxaDeJuros, tempo) {
     return juros;
 }
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exp = exp;
@@ -2960,7 +8801,7 @@ function raizQuadrada(_, valor) {
     return Math.sqrt(valor);
 }
 
-},{"./excecoes":27}],30:[function(require,module,exports){
+},{"./excecoes":29}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fun1 = fun1;
@@ -3070,7 +8911,7 @@ function linspace(_, valorInicial, valorDeParada, cardinalidade) {
     return lista;
 }
 
-},{"./funcoes-algebricas":29}],31:[function(require,module,exports){
+},{"./funcoes-algebricas":31}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.areaCirculo = areaCirculo;
@@ -3170,7 +9011,7 @@ function pontoMedio(_, x1, x2, y1, y2) {
     return [xm, ym];
 }
 
-},{"./funcoes-algebricas":29}],32:[function(require,module,exports){
+},{"./funcoes-algebricas":31}],34:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3197,7 +9038,7 @@ __exportStar(require("./miscelanea"), exports);
 __exportStar(require("./trigonometria"), exports);
 __exportStar(require("./vetores"), exports);
 
-},{"./algebra-linear":25,"./calculo-diferencial-integral":26,"./financeira":28,"./funcoes-algebricas":29,"./funcoes-primeiro-grau":30,"./geometria-plana":31,"./miscelanea":33,"./trigonometria":34,"./vetores":35}],33:[function(require,module,exports){
+},{"./algebra-linear":27,"./calculo-diferencial-integral":28,"./financeira":30,"./funcoes-algebricas":31,"./funcoes-primeiro-grau":32,"./geometria-plana":33,"./miscelanea":35,"./trigonometria":36,"./vetores":37}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.aprox = aprox;
@@ -3258,7 +9099,7 @@ function arredondarParaBaixo(_, valor) {
     return Math.floor(valor);
 }
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pi = pi;
@@ -3377,7 +9218,7 @@ function radiano(_, angulo) {
     return angulo * (Math.PI / 180);
 }
 
-},{"./excecoes":27}],35:[function(require,module,exports){
+},{"./excecoes":29}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.comprimentoVetor = comprimentoVetor;
@@ -3402,7 +9243,7 @@ function numeroOcorrencias(_, vetor, valor) {
     return vetor.filter((v) => v === valor).length;
 }
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TempoErroEmTempoDeExecucao = void 0;
@@ -3416,7 +9257,7 @@ class TempoErroEmTempoDeExecucao extends Error {
 }
 exports.TempoErroEmTempoDeExecucao = TempoErroEmTempoDeExecucao;
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3566,7 +9407,7 @@ function textoParaData(_, dataComoTexto, formato = "DD/MM/YYYY") {
     return new objeto_data_1.ObjetoData(data);
 }
 
-},{"./excecoes":36,"./objeto-data":38,"dayjs":554,"dayjs/locale/pt-br":555,"dayjs/plugin/customParseFormat":557,"dayjs/plugin/weekOfYear":562,"dayjs/plugin/weekYear":563}],38:[function(require,module,exports){
+},{"./excecoes":38,"./objeto-data":40,"dayjs":556,"dayjs/locale/pt-br":557,"dayjs/plugin/customParseFormat":559,"dayjs/plugin/weekOfYear":564,"dayjs/plugin/weekYear":565}],40:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -3765,7 +9606,7 @@ class ObjetoData {
 }
 exports.ObjetoData = ObjetoData;
 
-},{"dayjs":554,"dayjs/locale/pt":556,"dayjs/plugin/customParseFormat":557,"dayjs/plugin/localizedFormat":558,"dayjs/plugin/quarterOfYear":559,"dayjs/plugin/timezone":560,"dayjs/plugin/utc":561,"dayjs/plugin/weekOfYear":562,"dayjs/plugin/weekYear":563}],39:[function(require,module,exports){
+},{"dayjs":556,"dayjs/locale/pt":558,"dayjs/plugin/customParseFormat":559,"dayjs/plugin/localizedFormat":560,"dayjs/plugin/quarterOfYear":561,"dayjs/plugin/timezone":562,"dayjs/plugin/utc":563,"dayjs/plugin/weekOfYear":564,"dayjs/plugin/weekYear":565}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemanticoBase = void 0;
@@ -4265,7 +10106,7 @@ class AnalisadorSemanticoBase {
 }
 exports.AnalisadorSemanticoBase = AnalisadorSemanticoBase;
 
-},{"../construtos":105,"../declaracoes":155,"../interfaces":219,"../quebras":292,"./gerenciador-escopos":43,"./tabela-diagnosticos-semanticos":46}],40:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../interfaces":221,"../quebras":294,"./gerenciador-escopos":45,"./tabela-diagnosticos-semanticos":48}],42:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalisadorSemantico = void 0;
@@ -5691,15 +11532,15 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
 }
 exports.AnalisadorSemantico = AnalisadorSemantico;
 
-},{"../avaliador-sintatico/comum":50,"../avaliador-sintatico/micro-avaliador-sintatico":63,"../construtos":105,"../declaracoes":155,"../interfaces/erros":216,"../lexador/micro-lexador":289,"./analisador-semantico-base":39,"./gerenciador-escopos":43,"./pilha-variaveis":45}],41:[function(require,module,exports){
+},{"../avaliador-sintatico/comum":52,"../avaliador-sintatico/micro-avaliador-sintatico":65,"../construtos":107,"../declaracoes":157,"../interfaces/erros":218,"../lexador/micro-lexador":291,"./analisador-semantico-base":41,"./gerenciador-escopos":45,"./pilha-variaveis":47}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GerenciadorEscopos = void 0;
@@ -5777,7 +11618,7 @@ class GerenciadorEscopos {
 }
 exports.GerenciadorEscopos = GerenciadorEscopos;
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -5803,7 +11644,7 @@ __exportStar(require("./pilha-variaveis"), exports);
 __exportStar(require("./tabela-diagnosticos-semanticos"), exports);
 __exportStar(require("./variavel-hipotetica-interface"), exports);
 
-},{"./analisador-semantico":40,"./analisador-semantico-base":39,"./escopo-variavel":41,"./funcao-hipotetica-interface":42,"./gerenciador-escopos":43,"./pilha-variaveis":45,"./tabela-diagnosticos-semanticos":46,"./variavel-hipotetica-interface":47}],45:[function(require,module,exports){
+},{"./analisador-semantico":42,"./analisador-semantico-base":41,"./escopo-variavel":43,"./funcao-hipotetica-interface":44,"./gerenciador-escopos":45,"./pilha-variaveis":47,"./tabela-diagnosticos-semanticos":48,"./variavel-hipotetica-interface":49}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaVariaveis = void 0;
@@ -5830,7 +11671,7 @@ class PilhaVariaveis {
 }
 exports.PilhaVariaveis = PilhaVariaveis;
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TABELA_AVISOS_SEMANTICOS = exports.TABELA_ERROS_SEMANTICOS = void 0;
@@ -5903,11 +11744,11 @@ function inferirCodigoDiagnosticoSemantico(mensagem, severidade) {
     return 'SEMANTICO_DIAGNOSTICO_GENERICO';
 }
 
-},{"../interfaces":219}],47:[function(require,module,exports){
+},{"../interfaces":221}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -6221,7 +12062,7 @@ class AvaliadorSintaticoBase {
 }
 exports.AvaliadorSintaticoBase = AvaliadorSintaticoBase;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/comum":297,"./erro-avaliador-sintatico":59}],49:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/comum":299,"./erro-avaliador-sintatico":61}],51:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -9555,7 +15396,7 @@ class AvaliadorSintatico extends avaliador_sintatico_base_1.AvaliadorSintaticoBa
 }
 exports.AvaliadorSintatico = AvaliadorSintatico;
 
-},{"../bibliotecas/primitivas-dicionario":69,"../bibliotecas/primitivas-numero":70,"../bibliotecas/primitivas-texto":71,"../bibliotecas/primitivas-vetor":72,"../construtos":105,"../construtos/tuplas":124,"../declaracoes":155,"../inferenciador":189,"../informacao-elemento-sintatico":190,"../lexador/simbolo":291,"../tipos-de-dados/delegua":293,"../tipos-de-simbolos/delegua":298,"./avaliador-sintatico-base":48,"./comum":50,"./elemento-montao-tipos":58,"./erro-avaliador-sintatico":59,"./informacao-escopo":61,"./montao-tipos":64,"./pilha-escopos":65,"browser-process-hrtime":504}],50:[function(require,module,exports){
+},{"../bibliotecas/primitivas-dicionario":71,"../bibliotecas/primitivas-numero":72,"../bibliotecas/primitivas-texto":73,"../bibliotecas/primitivas-vetor":74,"../construtos":107,"../construtos/tuplas":126,"../declaracoes":157,"../inferenciador":191,"../informacao-elemento-sintatico":192,"../lexador/simbolo":293,"../tipos-de-dados/delegua":295,"../tipos-de-simbolos/delegua":300,"./avaliador-sintatico-base":50,"./comum":52,"./elemento-montao-tipos":60,"./erro-avaliador-sintatico":61,"./informacao-escopo":63,"./montao-tipos":66,"./pilha-escopos":67,"browser-process-hrtime":506}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buscarRetornos = buscarRetornos;
@@ -9670,7 +15511,7 @@ function registrarPrimitiva(primitivasConhecidas, tipo, catalogoPrimitivas) {
     }
 }
 
-},{"../declaracoes":155,"../informacao-elemento-sintatico":190}],51:[function(require,module,exports){
+},{"../declaracoes":157,"../informacao-elemento-sintatico":192}],53:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -10330,7 +16171,7 @@ class AvaliadorSintaticoEguaClassico {
 }
 exports.AvaliadorSintaticoEguaClassico = AvaliadorSintaticoEguaClassico;
 
-},{"../../construtos":105,"../../declaracoes":155,"../../tipos-de-simbolos/egua-classico":299,"../erro-avaliador-sintatico":59}],52:[function(require,module,exports){
+},{"../../construtos":107,"../../declaracoes":157,"../../tipos-de-simbolos/egua-classico":301,"../erro-avaliador-sintatico":61}],54:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12231,7 +18072,7 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
 }
 exports.AvaliadorSintaticoPitugues = AvaliadorSintaticoPitugues;
 
-},{"../../bibliotecas/dialetos/pitugues/primitivas-tupla":68,"../../bibliotecas/primitivas-dicionario":69,"../../bibliotecas/primitivas-numero":70,"../../bibliotecas/primitivas-texto":71,"../../bibliotecas/primitivas-vetor":72,"../../construtos":105,"../../declaracoes":155,"../../inferenciador":189,"../../informacao-elemento-sintatico":190,"../../lexador":283,"../../lexador/micro-lexador-pitugues":288,"../../tipos-de-dados/dialetos/pitugues":294,"../../tipos-de-simbolos/pitugues":302,"../avaliador-sintatico-base":48,"../comum":50,"../erro-avaliador-sintatico":59,"../informacao-escopo":61,"../pilha-escopos":65,"./micro-avaliador-sintatico-pitugues":57,"browser-process-hrtime":504}],53:[function(require,module,exports){
+},{"../../bibliotecas/dialetos/pitugues/primitivas-tupla":70,"../../bibliotecas/primitivas-dicionario":71,"../../bibliotecas/primitivas-numero":72,"../../bibliotecas/primitivas-texto":73,"../../bibliotecas/primitivas-vetor":74,"../../construtos":107,"../../declaracoes":157,"../../inferenciador":191,"../../informacao-elemento-sintatico":192,"../../lexador":285,"../../lexador/micro-lexador-pitugues":290,"../../tipos-de-dados/dialetos/pitugues":296,"../../tipos-de-simbolos/pitugues":304,"../avaliador-sintatico-base":50,"../comum":52,"../erro-avaliador-sintatico":61,"../informacao-escopo":63,"../pilha-escopos":67,"./micro-avaliador-sintatico-pitugues":59,"browser-process-hrtime":506}],55:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -12779,7 +18620,7 @@ class AvaliadorSintaticoPortugolIpt extends avaliador_sintatico_base_1.Avaliador
 }
 exports.AvaliadorSintaticoPortugolIpt = AvaliadorSintaticoPortugolIpt;
 
-},{"../../construtos":105,"../../declaracoes":155,"../../lexador/simbolo":291,"../../tipos-de-simbolos/portugol-ipt":303,"../avaliador-sintatico-base":48}],54:[function(require,module,exports){
+},{"../../construtos":107,"../../declaracoes":157,"../../lexador/simbolo":293,"../../tipos-de-simbolos/portugol-ipt":305,"../avaliador-sintatico-base":50}],56:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13746,7 +19587,7 @@ class AvaliadorSintaticoPrisma extends avaliador_sintatico_base_1.AvaliadorSinta
 }
 exports.AvaliadorSintaticoPrisma = AvaliadorSintaticoPrisma;
 
-},{"../../bibliotecas/primitivas-dicionario":69,"../../bibliotecas/primitivas-numero":70,"../../bibliotecas/primitivas-texto":71,"../../bibliotecas/primitivas-vetor":72,"../../construtos":105,"../../declaracoes":155,"../../inferenciador":189,"../../informacao-elemento-sintatico":190,"../../lexador":283,"../../tipos-de-simbolos/prisma":304,"../avaliador-sintatico-base":48,"../comum":50,"../erro-avaliador-sintatico":59,"../informacao-escopo":61,"../pilha-escopos":65,"browser-process-hrtime":504}],55:[function(require,module,exports){
+},{"../../bibliotecas/primitivas-dicionario":71,"../../bibliotecas/primitivas-numero":72,"../../bibliotecas/primitivas-texto":73,"../../bibliotecas/primitivas-vetor":74,"../../construtos":107,"../../declaracoes":157,"../../inferenciador":191,"../../informacao-elemento-sintatico":192,"../../lexador":285,"../../tipos-de-simbolos/prisma":306,"../avaliador-sintatico-base":50,"../comum":52,"../erro-avaliador-sintatico":61,"../informacao-escopo":63,"../pilha-escopos":67,"browser-process-hrtime":506}],57:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -14757,7 +20598,7 @@ class AvaliadorSintaticoTenda extends avaliador_sintatico_base_1.AvaliadorSintat
 }
 exports.AvaliadorSintaticoTenda = AvaliadorSintaticoTenda;
 
-},{"../../bibliotecas/primitivas-dicionario":69,"../../bibliotecas/primitivas-numero":70,"../../bibliotecas/primitivas-texto":71,"../../bibliotecas/primitivas-vetor":72,"../../construtos":105,"../../construtos/tuplas":124,"../../declaracoes":155,"../../inferenciador":189,"../../informacao-elemento-sintatico":190,"../../lexador/simbolo":291,"../../tipos-de-dados/delegua":293,"../../tipos-de-simbolos/tenda":305,"../avaliador-sintatico-base":48,"./../erro-avaliador-sintatico":59,"./../informacao-escopo":61,"./../pilha-escopos":65,"browser-process-hrtime":504}],56:[function(require,module,exports){
+},{"../../bibliotecas/primitivas-dicionario":71,"../../bibliotecas/primitivas-numero":72,"../../bibliotecas/primitivas-texto":73,"../../bibliotecas/primitivas-vetor":74,"../../construtos":107,"../../construtos/tuplas":126,"../../declaracoes":157,"../../inferenciador":191,"../../informacao-elemento-sintatico":192,"../../lexador/simbolo":293,"../../tipos-de-dados/delegua":295,"../../tipos-de-simbolos/tenda":307,"../avaliador-sintatico-base":50,"./../erro-avaliador-sintatico":61,"./../informacao-escopo":63,"./../pilha-escopos":67,"browser-process-hrtime":506}],58:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -14780,7 +20621,7 @@ __exportStar(require("./avaliador-sintatico-portugol-ipt"), exports);
 __exportStar(require("./avaliador-sintatico-prisma"), exports);
 __exportStar(require("./avaliador-sintatico-tenda"), exports);
 
-},{"./avaliador-sintatico-egua-classico":51,"./avaliador-sintatico-pitugues":52,"./avaliador-sintatico-portugol-ipt":53,"./avaliador-sintatico-prisma":54,"./avaliador-sintatico-tenda":55}],57:[function(require,module,exports){
+},{"./avaliador-sintatico-egua-classico":53,"./avaliador-sintatico-pitugues":54,"./avaliador-sintatico-portugol-ipt":55,"./avaliador-sintatico-prisma":56,"./avaliador-sintatico-tenda":57}],59:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15028,7 +20869,7 @@ class MicroAvaliadorSintaticoPitugues extends micro_avaliador_sintatico_base_1.M
 }
 exports.MicroAvaliadorSintaticoPitugues = MicroAvaliadorSintaticoPitugues;
 
-},{"../../construtos":105,"../../declaracoes":155,"../../inferenciador":189,"../../tipos-de-simbolos/pitugues":302,"../micro-avaliador-sintatico-base":62}],58:[function(require,module,exports){
+},{"../../construtos":107,"../../declaracoes":157,"../../inferenciador":191,"../../tipos-de-simbolos/pitugues":304,"../micro-avaliador-sintatico-base":64}],60:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ElementoMontaoTipos = void 0;
@@ -15040,7 +20881,7 @@ class ElementoMontaoTipos {
 }
 exports.ElementoMontaoTipos = ElementoMontaoTipos;
 
-},{}],59:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroAvaliadorSintatico = void 0;
@@ -15058,7 +20899,7 @@ class ErroAvaliadorSintatico extends Error {
 }
 exports.ErroAvaliadorSintatico = ErroAvaliadorSintatico;
 
-},{"./tabela-diagnosticos-sintaticos":66}],60:[function(require,module,exports){
+},{"./tabela-diagnosticos-sintaticos":68}],62:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -15084,7 +20925,7 @@ __exportStar(require("./micro-avaliador-sintatico"), exports);
 __exportStar(require("./pilha-escopos"), exports);
 __exportStar(require("./tabela-diagnosticos-sintaticos"), exports);
 
-},{"./avaliador-sintatico":49,"./avaliador-sintatico-base":48,"./dialetos":56,"./erro-avaliador-sintatico":59,"./informacao-escopo":61,"./micro-avaliador-sintatico":63,"./pilha-escopos":65,"./tabela-diagnosticos-sintaticos":66}],61:[function(require,module,exports){
+},{"./avaliador-sintatico":51,"./avaliador-sintatico-base":50,"./dialetos":58,"./erro-avaliador-sintatico":61,"./informacao-escopo":63,"./micro-avaliador-sintatico":65,"./pilha-escopos":67,"./tabela-diagnosticos-sintaticos":68}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoEscopo = void 0;
@@ -15096,7 +20937,7 @@ class InformacaoEscopo {
 }
 exports.InformacaoEscopo = InformacaoEscopo;
 
-},{}],62:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15214,7 +21055,7 @@ class MicroAvaliadorSintaticoBase {
 }
 exports.MicroAvaliadorSintaticoBase = MicroAvaliadorSintaticoBase;
 
-},{"../construtos":105,"../tipos-de-simbolos/comum":297,"./erro-avaliador-sintatico":59}],63:[function(require,module,exports){
+},{"../construtos":107,"../tipos-de-simbolos/comum":299,"./erro-avaliador-sintatico":61}],65:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -15447,7 +21288,7 @@ class MicroAvaliadorSintatico extends micro_avaliador_sintatico_base_1.MicroAval
 }
 exports.MicroAvaliadorSintatico = MicroAvaliadorSintatico;
 
-},{"../construtos":105,"../tipos-de-simbolos/microgramaticas/delegua":301,"./micro-avaliador-sintatico-base":62}],64:[function(require,module,exports){
+},{"../construtos":107,"../tipos-de-simbolos/microgramaticas/delegua":303,"./micro-avaliador-sintatico-base":64}],66:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MontaoTipos = void 0;
@@ -15498,7 +21339,7 @@ class MontaoTipos {
 }
 exports.MontaoTipos = MontaoTipos;
 
-},{"../geracao-identificadores":187,"./erro-avaliador-sintatico":59}],65:[function(require,module,exports){
+},{"../geracao-identificadores":189,"./erro-avaliador-sintatico":61}],67:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PilhaEscopos = void 0;
@@ -15577,7 +21418,7 @@ class PilhaEscopos {
 }
 exports.PilhaEscopos = PilhaEscopos;
 
-},{"./elemento-montao-tipos":58}],66:[function(require,module,exports){
+},{"./elemento-montao-tipos":60}],68:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TABELA_AVISOS_SINTATICOS = exports.TABELA_ERROS_SINTATICOS = void 0;
@@ -15623,7 +21464,7 @@ function inferirCodigoDiagnosticoSintatico(mensagem) {
     return 'SINTATICO_ERRO_GENERICO';
 }
 
-},{}],67:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.aleatorio = aleatorio;
@@ -16789,7 +22630,7 @@ async function vetor(interpretador, tupla) {
     return resultadoFinal;
 }
 
-},{"../construtos":105,"../excecoes":179,"../interpretador/estruturas":254,"../interpretador/estruturas/descritor-tipo-classe":251,"../interpretador/estruturas/funcao-padrao":253,"../interpretador/estruturas/objeto-delegua-classe":259,"../quebras":292}],68:[function(require,module,exports){
+},{"../construtos":107,"../excecoes":181,"../interpretador/estruturas":256,"../interpretador/estruturas/descritor-tipo-classe":253,"../interpretador/estruturas/funcao-padrao":255,"../interpretador/estruturas/objeto-delegua-classe":261,"../quebras":294}],70:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const excecoes_1 = require("../../../excecoes");
@@ -16826,7 +22667,7 @@ exports.default = {
     },
 };
 
-},{"../../../construtos":105,"../../../excecoes":179,"../../../informacao-elemento-sintatico":190}],69:[function(require,module,exports){
+},{"../../../construtos":107,"../../../excecoes":181,"../../../informacao-elemento-sintatico":192}],71:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const construtos_1 = require("../construtos");
@@ -16939,7 +22780,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":105,"../informacao-elemento-sintatico":190}],70:[function(require,module,exports){
+},{"../construtos":107,"../informacao-elemento-sintatico":192}],72:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -17024,7 +22865,7 @@ exports.default = {
     },
 };
 
-},{"../informacao-elemento-sintatico":190}],71:[function(require,module,exports){
+},{"../informacao-elemento-sintatico":192}],73:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.implementacaoParticao = void 0;
@@ -17423,7 +23264,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":105,"../excecoes":179,"../informacao-elemento-sintatico":190}],72:[function(require,module,exports){
+},{"../construtos":107,"../excecoes":181,"../informacao-elemento-sintatico":192}],74:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const informacao_elemento_sintatico_1 = require("../informacao-elemento-sintatico");
@@ -17835,7 +23676,7 @@ exports.default = {
     },
 };
 
-},{"../construtos":105,"../excecoes":179,"../inferenciador":189,"../informacao-elemento-sintatico":190}],73:[function(require,module,exports){
+},{"../construtos":107,"../excecoes":181,"../inferenciador":191,"../informacao-elemento-sintatico":192}],75:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.construirModuloAfirmar = construirModuloAfirmar;
@@ -17903,7 +23744,7 @@ function construirModuloAfirmar() {
     return modulo;
 }
 
-},{"../../excecoes/erro-de-assertiva":177,"../../interpretador/estruturas/funcao-padrao":253,"../../interpretador/estruturas/modulo":257}],74:[function(require,module,exports){
+},{"../../excecoes/erro-de-assertiva":179,"../../interpretador/estruturas/funcao-padrao":255,"../../interpretador/estruturas/modulo":259}],76:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.construirModuloDeTestes = construirModuloDeTestes;
@@ -18083,7 +23924,7 @@ function construirModuloDeTestes(interpretador, registro) {
     return modulo;
 }
 
-},{"../../excecoes/erro-de-assertiva":177,"../../interpretador/estruturas/funcao-padrao":253,"../../interpretador/estruturas/modulo":257,"./modulo-afirmar":73}],75:[function(require,module,exports){
+},{"../../excecoes/erro-de-assertiva":179,"../../interpretador/estruturas/funcao-padrao":255,"../../interpretador/estruturas/modulo":259,"./modulo-afirmar":75}],77:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegistroTestes = void 0;
@@ -18097,7 +23938,7 @@ class RegistroTestes {
 }
 exports.RegistroTestes = RegistroTestes;
 
-},{}],76:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoElementoMatriz = void 0;
@@ -18125,7 +23966,7 @@ class AcessoElementoMatriz {
 }
 exports.AcessoElementoMatriz = AcessoElementoMatriz;
 
-},{}],77:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIndiceVariavel = void 0;
@@ -18157,7 +23998,7 @@ class AcessoIndiceVariavel {
 }
 exports.AcessoIndiceVariavel = AcessoIndiceVariavel;
 
-},{}],78:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoIntervaloVariavel = void 0;
@@ -18196,7 +24037,7 @@ class AcessoIntervaloVariavel {
 }
 exports.AcessoIntervaloVariavel = AcessoIntervaloVariavel;
 
-},{}],79:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodoOuPropriedade = void 0;
@@ -18228,7 +24069,7 @@ class AcessoMetodoOuPropriedade {
 }
 exports.AcessoMetodoOuPropriedade = AcessoMetodoOuPropriedade;
 
-},{}],80:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoMetodo = void 0;
@@ -18253,7 +24094,7 @@ class AcessoMetodo {
 }
 exports.AcessoMetodo = AcessoMetodo;
 
-},{}],81:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcessoPropriedade = void 0;
@@ -18277,7 +24118,7 @@ class AcessoPropriedade {
 }
 exports.AcessoPropriedade = AcessoPropriedade;
 
-},{}],82:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Agrupamento = void 0;
@@ -18305,7 +24146,7 @@ class Agrupamento {
 }
 exports.Agrupamento = Agrupamento;
 
-},{}],83:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AjudaComoConstruto = void 0;
@@ -18338,7 +24179,7 @@ class AjudaComoConstruto {
 }
 exports.AjudaComoConstruto = AjudaComoConstruto;
 
-},{}],84:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArgumentoReferenciaFuncao = void 0;
@@ -18365,7 +24206,7 @@ class ArgumentoReferenciaFuncao {
 }
 exports.ArgumentoReferenciaFuncao = ArgumentoReferenciaFuncao;
 
-},{}],85:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndice = void 0;
@@ -18392,7 +24233,7 @@ class AtribuicaoPorIndice {
 }
 exports.AtribuicaoPorIndice = AtribuicaoPorIndice;
 
-},{}],86:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AtribuicaoPorIndicesMatriz = void 0;
@@ -18421,7 +24262,7 @@ class AtribuicaoPorIndicesMatriz {
 }
 exports.AtribuicaoPorIndicesMatriz = AtribuicaoPorIndicesMatriz;
 
-},{}],87:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Atribuir = void 0;
@@ -18468,7 +24309,7 @@ class Atribuir {
 }
 exports.Atribuir = Atribuir;
 
-},{"./variavel":133}],88:[function(require,module,exports){
+},{"./variavel":135}],90:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -18555,7 +24396,7 @@ class Binario {
 }
 exports.Binario = Binario;
 
-},{"../tipos-de-simbolos/delegua":298}],89:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":300}],91:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bote = void 0;
@@ -18578,7 +24419,7 @@ class Bote {
 }
 exports.Bote = Bote;
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamada = void 0;
@@ -18610,7 +24451,7 @@ class Chamada {
 }
 exports.Chamada = Chamada;
 
-},{"../geracao-identificadores":187}],91:[function(require,module,exports){
+},{"../geracao-identificadores":189}],93:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComentarioComoConstruto = void 0;
@@ -18637,7 +24478,7 @@ class ComentarioComoConstruto {
 }
 exports.ComentarioComoConstruto = ComentarioComoConstruto;
 
-},{}],92:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteLinguagem = void 0;
@@ -18663,7 +24504,7 @@ class ComponenteLinguagem {
 }
 exports.ComponenteLinguagem = ComponenteLinguagem;
 
-},{}],93:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Constante = void 0;
@@ -18688,7 +24529,7 @@ class Constante {
 }
 exports.Constante = Constante;
 
-},{}],94:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Decorador = void 0;
@@ -18729,7 +24570,7 @@ class Decorador {
 }
 exports.Decorador = Decorador;
 
-},{}],95:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefinirValor = void 0;
@@ -18753,7 +24594,7 @@ class DefinirValor {
 }
 exports.DefinirValor = DefinirValor;
 
-},{}],96:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dicionario = void 0;
@@ -18778,7 +24619,7 @@ class Dicionario {
 }
 exports.Dicionario = Dicionario;
 
-},{}],97:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Elvis = void 0;
@@ -18803,7 +24644,7 @@ class Elvis {
 }
 exports.Elvis = Elvis;
 
-},{}],98:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EnquantoComoConstruto = void 0;
@@ -18826,7 +24667,7 @@ class EnquantoComoConstruto {
 }
 exports.EnquantoComoConstruto = EnquantoComoConstruto;
 
-},{}],99:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpressaoRegular = void 0;
@@ -18849,7 +24690,7 @@ class ExpressaoRegular {
 }
 exports.ExpressaoRegular = ExpressaoRegular;
 
-},{}],100:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FazerComoConstruto = void 0;
@@ -18872,7 +24713,7 @@ class FazerComoConstruto {
 }
 exports.FazerComoConstruto = FazerComoConstruto;
 
-},{}],101:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FimPara = void 0;
@@ -18905,7 +24746,7 @@ class FimPara {
 }
 exports.FimPara = FimPara;
 
-},{}],102:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatacaoEscrita = void 0;
@@ -18934,7 +24775,7 @@ class FormatacaoEscrita {
 }
 exports.FormatacaoEscrita = FormatacaoEscrita;
 
-},{}],103:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoConstruto = void 0;
@@ -18972,7 +24813,7 @@ class FuncaoConstruto {
 }
 exports.FuncaoConstruto = FuncaoConstruto;
 
-},{}],104:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportarComoConstruto = void 0;
@@ -18998,7 +24839,7 @@ class ImportarComoConstruto {
 }
 exports.ImportarComoConstruto = ImportarComoConstruto;
 
-},{}],105:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -19065,7 +24906,7 @@ __exportStar(require("./unario"), exports);
 __exportStar(require("./variavel"), exports);
 __exportStar(require("./vetor"), exports);
 
-},{"./acesso-elemento-matriz":76,"./acesso-indice-variavel":77,"./acesso-intervalo-variavel":78,"./acesso-metodo":80,"./acesso-metodo-ou-propriedade":79,"./acesso-propriedade":81,"./agrupamento":82,"./ajuda-como-construto":83,"./argumento-referencia-funcao":84,"./atribuicao-por-indice":85,"./atribuicao-por-indices-matriz":86,"./atribuir":87,"./binario":88,"./bote":89,"./chamada":90,"./comentario-como-construto":91,"./componente-linguagem":92,"./constante":93,"./decorador":94,"./definir-valor":95,"./dicionario":96,"./elvis":97,"./enquanto-como-construto":98,"./expressao-regular":99,"./fazer-como-construto":100,"./fim-para":101,"./formatacao-escrita":102,"./funcao":103,"./importar-como-construto":104,"./isto":106,"./leia":107,"./lista-compreensao":108,"./literal":109,"./logico":110,"./morsa":111,"./para-cada-como-construto":112,"./para-como-construto":113,"./referencia-biblioteca-global":114,"./referencia-funcao":115,"./se-ternario":116,"./separador":117,"./super":118,"./tipo-de":119,"./tupla":121,"./tupla-n":120,"./tuplas":124,"./unario":132,"./variavel":133,"./vetor":134}],106:[function(require,module,exports){
+},{"./acesso-elemento-matriz":78,"./acesso-indice-variavel":79,"./acesso-intervalo-variavel":80,"./acesso-metodo":82,"./acesso-metodo-ou-propriedade":81,"./acesso-propriedade":83,"./agrupamento":84,"./ajuda-como-construto":85,"./argumento-referencia-funcao":86,"./atribuicao-por-indice":87,"./atribuicao-por-indices-matriz":88,"./atribuir":89,"./binario":90,"./bote":91,"./chamada":92,"./comentario-como-construto":93,"./componente-linguagem":94,"./constante":95,"./decorador":96,"./definir-valor":97,"./dicionario":98,"./elvis":99,"./enquanto-como-construto":100,"./expressao-regular":101,"./fazer-como-construto":102,"./fim-para":103,"./formatacao-escrita":104,"./funcao":105,"./importar-como-construto":106,"./isto":108,"./leia":109,"./lista-compreensao":110,"./literal":111,"./logico":112,"./morsa":113,"./para-cada-como-construto":114,"./para-como-construto":115,"./referencia-biblioteca-global":116,"./referencia-funcao":117,"./se-ternario":118,"./separador":119,"./super":120,"./tipo-de":121,"./tupla":123,"./tupla-n":122,"./tuplas":126,"./unario":134,"./variavel":135,"./vetor":136}],108:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Isto = void 0;
@@ -19088,7 +24929,7 @@ class Isto {
 }
 exports.Isto = Isto;
 
-},{}],107:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Leia = void 0;
@@ -19118,7 +24959,7 @@ class Leia {
 }
 exports.Leia = Leia;
 
-},{"../geracao-identificadores":187}],108:[function(require,module,exports){
+},{"../geracao-identificadores":189}],110:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListaCompreensao = void 0;
@@ -19143,7 +24984,7 @@ class ListaCompreensao {
 }
 exports.ListaCompreensao = ListaCompreensao;
 
-},{}],109:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Literal = void 0;
@@ -19174,7 +25015,7 @@ class Literal {
 }
 exports.Literal = Literal;
 
-},{}],110:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
@@ -19201,7 +25042,7 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],111:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Morsa = void 0;
@@ -19224,7 +25065,7 @@ class Morsa {
 }
 exports.Morsa = Morsa;
 
-},{}],112:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCadaComoConstruto = void 0;
@@ -19249,7 +25090,7 @@ class ParaCadaComoConstruto {
 }
 exports.ParaCadaComoConstruto = ParaCadaComoConstruto;
 
-},{}],113:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaComoConstruto = void 0;
@@ -19278,7 +25119,7 @@ class ParaComoConstruto {
 }
 exports.ParaComoConstruto = ParaComoConstruto;
 
-},{}],114:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaBibliotecaGlobal = void 0;
@@ -19304,7 +25145,7 @@ class ReferenciaBibliotecaGlobal {
 }
 exports.ReferenciaBibliotecaGlobal = ReferenciaBibliotecaGlobal;
 
-},{}],115:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaFuncao = void 0;
@@ -19328,7 +25169,7 @@ class ReferenciaFuncao {
 }
 exports.ReferenciaFuncao = ReferenciaFuncao;
 
-},{}],116:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SeTernario = void 0;
@@ -19353,7 +25194,7 @@ class SeTernario {
 }
 exports.SeTernario = SeTernario;
 
-},{}],117:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Separador = void 0;
@@ -19375,7 +25216,7 @@ class Separador {
 }
 exports.Separador = Separador;
 
-},{}],118:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Super = void 0;
@@ -19398,7 +25239,7 @@ class Super {
 }
 exports.Super = Super;
 
-},{}],119:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoDe = void 0;
@@ -19425,7 +25266,7 @@ class TipoDe {
 }
 exports.TipoDe = TipoDe;
 
-},{}],120:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TuplaN = void 0;
@@ -19454,7 +25295,7 @@ class TuplaN extends tupla_1.Tupla {
 }
 exports.TuplaN = TuplaN;
 
-},{"./tupla":121}],121:[function(require,module,exports){
+},{"./tupla":123}],123:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tupla = void 0;
@@ -19465,7 +25306,7 @@ class Tupla {
 }
 exports.Tupla = Tupla;
 
-},{}],122:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Deceto = void 0;
@@ -19516,7 +25357,7 @@ class Deceto extends tupla_1.Tupla {
 }
 exports.Deceto = Deceto;
 
-},{"../tupla":121}],123:[function(require,module,exports){
+},{"../tupla":123}],125:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Dupla = void 0;
@@ -19538,7 +25379,7 @@ class Dupla extends tupla_1.Tupla {
 }
 exports.Dupla = Dupla;
 
-},{"../tupla":121}],124:[function(require,module,exports){
+},{"../tupla":123}],126:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -19606,7 +25447,7 @@ class SeletorTuplas {
 }
 exports.SeletorTuplas = SeletorTuplas;
 
-},{"./deceto":122,"./dupla":123,"./noneto":125,"./octeto":126,"./quarteto":127,"./quinteto":128,"./septeto":129,"./sexteto":130,"./trio":131}],125:[function(require,module,exports){
+},{"./deceto":124,"./dupla":125,"./noneto":127,"./octeto":128,"./quarteto":129,"./quinteto":130,"./septeto":131,"./sexteto":132,"./trio":133}],127:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Noneto = void 0;
@@ -19648,7 +25489,7 @@ class Noneto extends tupla_1.Tupla {
 }
 exports.Noneto = Noneto;
 
-},{"../tupla":121}],126:[function(require,module,exports){
+},{"../tupla":123}],128:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Octeto = void 0;
@@ -19688,7 +25529,7 @@ class Octeto extends tupla_1.Tupla {
 }
 exports.Octeto = Octeto;
 
-},{"../tupla":121}],127:[function(require,module,exports){
+},{"../tupla":123}],129:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quarteto = void 0;
@@ -19714,7 +25555,7 @@ class Quarteto extends tupla_1.Tupla {
 }
 exports.Quarteto = Quarteto;
 
-},{"../tupla":121}],128:[function(require,module,exports){
+},{"../tupla":123}],130:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Quinteto = void 0;
@@ -19742,7 +25583,7 @@ class Quinteto extends tupla_1.Tupla {
 }
 exports.Quinteto = Quinteto;
 
-},{"../tupla":121}],129:[function(require,module,exports){
+},{"../tupla":123}],131:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Septeto = void 0;
@@ -19780,7 +25621,7 @@ class Septeto extends tupla_1.Tupla {
 }
 exports.Septeto = Septeto;
 
-},{"../tupla":121}],130:[function(require,module,exports){
+},{"../tupla":123}],132:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sexteto = void 0;
@@ -19810,7 +25651,7 @@ class Sexteto extends tupla_1.Tupla {
 }
 exports.Sexteto = Sexteto;
 
-},{"../tupla":121}],131:[function(require,module,exports){
+},{"../tupla":123}],133:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Trio = void 0;
@@ -19834,7 +25675,7 @@ class Trio extends tupla_1.Tupla {
 }
 exports.Trio = Trio;
 
-},{"../tupla":121}],132:[function(require,module,exports){
+},{"../tupla":123}],134:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unario = void 0;
@@ -19860,7 +25701,7 @@ class Unario {
 }
 exports.Unario = Unario;
 
-},{}],133:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Variavel = void 0;
@@ -19883,7 +25724,7 @@ class Variavel {
 }
 exports.Variavel = Variavel;
 
-},{}],134:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Vetor = void 0;
@@ -19918,7 +25759,7 @@ class Vetor {
 }
 exports.Vetor = Vetor;
 
-},{"./comentario-como-construto":91,"./separador":117}],135:[function(require,module,exports){
+},{"./comentario-como-construto":93,"./separador":119}],137:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ajuda = void 0;
@@ -19947,7 +25788,7 @@ class Ajuda extends declaracao_1.Declaracao {
 }
 exports.Ajuda = Ajuda;
 
-},{"./declaracao":144}],136:[function(require,module,exports){
+},{"./declaracao":146}],138:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlocoPegue = void 0;
@@ -19960,7 +25801,7 @@ class BlocoPegue {
 }
 exports.BlocoPegue = BlocoPegue;
 
-},{}],137:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Bloco = void 0;
@@ -19984,7 +25825,7 @@ class Bloco extends declaracao_1.Declaracao {
 }
 exports.Bloco = Bloco;
 
-},{"./declaracao":144}],138:[function(require,module,exports){
+},{"./declaracao":146}],140:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CabecalhoPrograma = void 0;
@@ -20006,7 +25847,7 @@ class CabecalhoPrograma extends declaracao_1.Declaracao {
 }
 exports.CabecalhoPrograma = CabecalhoPrograma;
 
-},{"./declaracao":144}],139:[function(require,module,exports){
+},{"./declaracao":146}],141:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Classe = void 0;
@@ -20053,7 +25894,7 @@ class Classe extends declaracao_1.Declaracao {
 }
 exports.Classe = Classe;
 
-},{"./declaracao":144}],140:[function(require,module,exports){
+},{"./declaracao":146}],142:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Comentario = void 0;
@@ -20078,7 +25919,7 @@ class Comentario extends declaracao_1.Declaracao {
 }
 exports.Comentario = Comentario;
 
-},{"./declaracao":144}],141:[function(require,module,exports){
+},{"./declaracao":146}],143:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConstMultiplo = void 0;
@@ -20103,7 +25944,7 @@ class ConstMultiplo extends declaracao_1.Declaracao {
 }
 exports.ConstMultiplo = ConstMultiplo;
 
-},{"./declaracao":144}],142:[function(require,module,exports){
+},{"./declaracao":146}],144:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Const = void 0;
@@ -20133,7 +25974,7 @@ class Const extends declaracao_1.Declaracao {
 }
 exports.Const = Const;
 
-},{"./declaracao":144}],143:[function(require,module,exports){
+},{"./declaracao":146}],145:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Continua = void 0;
@@ -20151,7 +25992,7 @@ class Continua extends declaracao_1.Declaracao {
 }
 exports.Continua = Continua;
 
-},{"./declaracao":144}],144:[function(require,module,exports){
+},{"./declaracao":146}],146:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Declaracao = void 0;
@@ -20174,7 +26015,7 @@ class Declaracao {
 }
 exports.Declaracao = Declaracao;
 
-},{}],145:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Enquanto = void 0;
@@ -20194,7 +26035,7 @@ class Enquanto extends declaracao_1.Declaracao {
 }
 exports.Enquanto = Enquanto;
 
-},{"./declaracao":144}],146:[function(require,module,exports){
+},{"./declaracao":146}],148:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escolha = void 0;
@@ -20226,7 +26067,7 @@ class Escolha extends declaracao_1.Declaracao {
 }
 exports.Escolha = Escolha;
 
-},{"./declaracao":144}],147:[function(require,module,exports){
+},{"./declaracao":146}],149:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscrevaMesmaLinha = void 0;
@@ -20245,7 +26086,7 @@ class EscrevaMesmaLinha extends declaracao_1.Declaracao {
 }
 exports.EscrevaMesmaLinha = EscrevaMesmaLinha;
 
-},{"./declaracao":144}],148:[function(require,module,exports){
+},{"./declaracao":146}],150:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Escreva = void 0;
@@ -20264,7 +26105,7 @@ class Escreva extends declaracao_1.Declaracao {
 }
 exports.Escreva = Escreva;
 
-},{"./declaracao":144}],149:[function(require,module,exports){
+},{"./declaracao":146}],151:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Expressao = void 0;
@@ -20283,7 +26124,7 @@ class Expressao extends declaracao_1.Declaracao {
 }
 exports.Expressao = Expressao;
 
-},{"./declaracao":144}],150:[function(require,module,exports){
+},{"./declaracao":146}],152:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Extensao = void 0;
@@ -20313,7 +26154,7 @@ class Extensao extends declaracao_1.Declaracao {
 }
 exports.Extensao = Extensao;
 
-},{"./declaracao":144}],151:[function(require,module,exports){
+},{"./declaracao":146}],153:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Falhar = void 0;
@@ -20333,7 +26174,7 @@ class Falhar extends declaracao_1.Declaracao {
 }
 exports.Falhar = Falhar;
 
-},{"./declaracao":144}],152:[function(require,module,exports){
+},{"./declaracao":146}],154:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fazer = void 0;
@@ -20353,7 +26194,7 @@ class Fazer extends declaracao_1.Declaracao {
 }
 exports.Fazer = Fazer;
 
-},{"./declaracao":144}],153:[function(require,module,exports){
+},{"./declaracao":146}],155:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoDeclaracao = void 0;
@@ -20386,7 +26227,7 @@ class FuncaoDeclaracao extends declaracao_1.Declaracao {
 }
 exports.FuncaoDeclaracao = FuncaoDeclaracao;
 
-},{"../geracao-identificadores":187,"./declaracao":144}],154:[function(require,module,exports){
+},{"../geracao-identificadores":189,"./declaracao":146}],156:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Importar = void 0;
@@ -20412,7 +26253,7 @@ class Importar extends declaracao_1.Declaracao {
 }
 exports.Importar = Importar;
 
-},{"./declaracao":144}],155:[function(require,module,exports){
+},{"./declaracao":146}],157:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -20464,7 +26305,7 @@ __exportStar(require("./texto-documentacao"), exports);
 __exportStar(require("./var"), exports);
 __exportStar(require("./var-multiplo"), exports);
 
-},{"./ajuda":135,"./bloco":137,"./bloco-pegue":136,"./cabecalho-programa":138,"./classe":139,"./comentario":140,"./const":142,"./const-multiplo":141,"./continua":143,"./declaracao":144,"./enquanto":145,"./escolha":146,"./escreva":148,"./escreva-mesma-linha":147,"./expressao":149,"./extensao":150,"./falhar":151,"./fazer":152,"./funcao":153,"./importar":154,"./inicio-algoritmo":156,"./interface":157,"./para":159,"./para-cada":158,"./propriedade-classe":160,"./retorna":161,"./se":162,"./sustar":163,"./tendo-como":164,"./tente":165,"./texto-documentacao":166,"./var":168,"./var-multiplo":167}],156:[function(require,module,exports){
+},{"./ajuda":137,"./bloco":139,"./bloco-pegue":138,"./cabecalho-programa":140,"./classe":141,"./comentario":142,"./const":144,"./const-multiplo":143,"./continua":145,"./declaracao":146,"./enquanto":147,"./escolha":148,"./escreva":150,"./escreva-mesma-linha":149,"./expressao":151,"./extensao":152,"./falhar":153,"./fazer":154,"./funcao":155,"./importar":156,"./inicio-algoritmo":158,"./interface":159,"./para":161,"./para-cada":160,"./propriedade-classe":162,"./retorna":163,"./se":164,"./sustar":165,"./tendo-como":166,"./tente":167,"./texto-documentacao":168,"./var":170,"./var-multiplo":169}],158:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InicioAlgoritmo = void 0;
@@ -20486,7 +26327,7 @@ class InicioAlgoritmo extends declaracao_1.Declaracao {
 }
 exports.InicioAlgoritmo = InicioAlgoritmo;
 
-},{"./declaracao":144}],157:[function(require,module,exports){
+},{"./declaracao":146}],159:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InterfaceDeclaracao = exports.AssinaturaMetodo = void 0;
@@ -20532,7 +26373,7 @@ class InterfaceDeclaracao extends declaracao_1.Declaracao {
 }
 exports.InterfaceDeclaracao = InterfaceDeclaracao;
 
-},{"./declaracao":144}],158:[function(require,module,exports){
+},{"./declaracao":146}],160:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParaCada = void 0;
@@ -20554,7 +26395,7 @@ class ParaCada extends declaracao_1.Declaracao {
 }
 exports.ParaCada = ParaCada;
 
-},{"./declaracao":144}],159:[function(require,module,exports){
+},{"./declaracao":146}],161:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Para = void 0;
@@ -20591,7 +26432,7 @@ class Para extends declaracao_1.Declaracao {
 }
 exports.Para = Para;
 
-},{"./declaracao":144}],160:[function(require,module,exports){
+},{"./declaracao":146}],162:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PropriedadeClasse = void 0;
@@ -20617,7 +26458,7 @@ class PropriedadeClasse extends declaracao_1.Declaracao {
 }
 exports.PropriedadeClasse = PropriedadeClasse;
 
-},{"./declaracao":144}],161:[function(require,module,exports){
+},{"./declaracao":146}],163:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Retorna = void 0;
@@ -20643,7 +26484,7 @@ class Retorna extends declaracao_1.Declaracao {
 }
 exports.Retorna = Retorna;
 
-},{"./declaracao":144}],162:[function(require,module,exports){
+},{"./declaracao":146}],164:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Se = void 0;
@@ -20674,7 +26515,7 @@ class Se extends declaracao_1.Declaracao {
 }
 exports.Se = Se;
 
-},{"./declaracao":144}],163:[function(require,module,exports){
+},{"./declaracao":146}],165:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Sustar = void 0;
@@ -20692,7 +26533,7 @@ class Sustar extends declaracao_1.Declaracao {
 }
 exports.Sustar = Sustar;
 
-},{"./declaracao":144}],164:[function(require,module,exports){
+},{"./declaracao":146}],166:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TendoComo = void 0;
@@ -20718,7 +26559,7 @@ class TendoComo extends declaracao_1.Declaracao {
 }
 exports.TendoComo = TendoComo;
 
-},{"./declaracao":144}],165:[function(require,module,exports){
+},{"./declaracao":146}],167:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tente = void 0;
@@ -20749,7 +26590,7 @@ class Tente extends declaracao_1.Declaracao {
 }
 exports.Tente = Tente;
 
-},{"./declaracao":144}],166:[function(require,module,exports){
+},{"./declaracao":146}],168:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TextoDocumentacao = void 0;
@@ -20771,7 +26612,7 @@ class TextoDocumentacao extends declaracao_1.Declaracao {
 }
 exports.TextoDocumentacao = TextoDocumentacao;
 
-},{"./declaracao":144}],167:[function(require,module,exports){
+},{"./declaracao":146}],169:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarMultiplo = void 0;
@@ -20797,7 +26638,7 @@ class VarMultiplo extends declaracao_1.Declaracao {
 }
 exports.VarMultiplo = VarMultiplo;
 
-},{"./declaracao":144}],168:[function(require,module,exports){
+},{"./declaracao":146}],170:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Var = void 0;
@@ -20832,7 +26673,7 @@ class Var extends declaracao_1.Declaracao {
 }
 exports.Var = Var;
 
-},{"./declaracao":144}],169:[function(require,module,exports){
+},{"./declaracao":146}],171:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstilizadorDelegua = void 0;
@@ -21081,7 +26922,7 @@ class EstilizadorDelegua {
 }
 exports.EstilizadorDelegua = EstilizadorDelegua;
 
-},{"../formatadores":186,"./quebrador-linha":171}],170:[function(require,module,exports){
+},{"../formatadores":188,"./quebrador-linha":173}],172:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21102,7 +26943,7 @@ __exportStar(require("./estilizador-delegua"), exports);
 __exportStar(require("./quebrador-linha"), exports);
 __exportStar(require("./regras"), exports);
 
-},{"./estilizador-delegua":169,"./quebrador-linha":171,"./regras":172}],171:[function(require,module,exports){
+},{"./estilizador-delegua":171,"./quebrador-linha":173,"./regras":174}],173:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuebradorDeLinha = void 0;
@@ -21300,7 +27141,7 @@ class QuebradorDeLinha {
 }
 exports.QuebradorDeLinha = QuebradorDeLinha;
 
-},{}],172:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21322,7 +27163,7 @@ __exportStar(require("./regra-convencao-nomenclatura"), exports);
 __exportStar(require("./regra-explicitar-tipos-parametros"), exports);
 __exportStar(require("./regra-paradigma-consistente"), exports);
 
-},{"./regra-convencao-nomenclatura":173,"./regra-explicitar-tipos-parametros":174,"./regra-fortalecer-tipos":175,"./regra-paradigma-consistente":176}],173:[function(require,module,exports){
+},{"./regra-convencao-nomenclatura":175,"./regra-explicitar-tipos-parametros":176,"./regra-fortalecer-tipos":177,"./regra-paradigma-consistente":178}],175:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegraConvencaoNomenclatura = void 0;
@@ -21491,7 +27332,7 @@ class RegraConvencaoNomenclatura {
 }
 exports.RegraConvencaoNomenclatura = RegraConvencaoNomenclatura;
 
-},{"../../declaracoes":155}],174:[function(require,module,exports){
+},{"../../declaracoes":157}],176:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegraExplicitarTiposParametros = void 0;
@@ -21542,7 +27383,7 @@ class RegraExplicitarTiposParametros {
 }
 exports.RegraExplicitarTiposParametros = RegraExplicitarTiposParametros;
 
-},{}],175:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegraFortalecerTipos = void 0;
@@ -21627,7 +27468,7 @@ class RegraFortalecerTipos {
 }
 exports.RegraFortalecerTipos = RegraFortalecerTipos;
 
-},{"../../construtos":105,"../../declaracoes":155,"../../inferenciador":189}],176:[function(require,module,exports){
+},{"../../construtos":107,"../../declaracoes":157,"../../inferenciador":191}],178:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegraParadigmaConsistente = void 0;
@@ -21717,7 +27558,7 @@ class RegraParadigmaConsistente {
 }
 exports.RegraParadigmaConsistente = RegraParadigmaConsistente;
 
-},{"../../construtos/leia":107,"../../declaracoes":155,"../../lexador/mapeamento-paradigmas":287}],177:[function(require,module,exports){
+},{"../../construtos/leia":109,"../../declaracoes":157,"../../lexador/mapeamento-paradigmas":289}],179:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroDeAssertiva = void 0;
@@ -21732,7 +27573,7 @@ class ErroDeAssertiva extends erro_em_tempo_de_execucao_1.ErroEmTempoDeExecucao 
 }
 exports.ErroDeAssertiva = ErroDeAssertiva;
 
-},{"./erro-em-tempo-de-execucao":178}],178:[function(require,module,exports){
+},{"./erro-em-tempo-de-execucao":180}],180:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErroEmTempoDeExecucao = void 0;
@@ -21747,7 +27588,7 @@ class ErroEmTempoDeExecucao extends Error {
 }
 exports.ErroEmTempoDeExecucao = ErroEmTempoDeExecucao;
 
-},{}],179:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21768,7 +27609,7 @@ __exportStar(require("./erro-de-assertiva"), exports);
 __exportStar(require("./erro-em-tempo-de-execucao"), exports);
 __exportStar(require("./mensagem-erro"), exports);
 
-},{"./erro-de-assertiva":177,"./erro-em-tempo-de-execucao":178,"./mensagem-erro":180}],180:[function(require,module,exports){
+},{"./erro-de-assertiva":179,"./erro-em-tempo-de-execucao":180,"./mensagem-erro":182}],182:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.obterMensagemErro = obterMensagemErro;
@@ -21800,11 +27641,11 @@ function obterMensagemErro(erro) {
     return String(erro);
 }
 
-},{}],181:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],182:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21824,7 +27665,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./despachador-ffi-interface"), exports);
 __exportStar(require("./leitor-definicao"), exports);
 
-},{"./despachador-ffi-interface":181,"./leitor-definicao":183}],183:[function(require,module,exports){
+},{"./despachador-ffi-interface":183,"./leitor-definicao":185}],185:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lerMetadadosClasse = lerMetadadosClasse;
@@ -21881,7 +27722,7 @@ function lerMetadadosMetodo(decoradores, nomeMetodo, prefixo) {
     return { simbolo: prefixo + nomeMetodo };
 }
 
-},{"../construtos":105}],184:[function(require,module,exports){
+},{"../construtos":107}],186:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -22846,7 +28687,7 @@ class FormatadorDelegua {
 }
 exports.FormatadorDelegua = FormatadorDelegua;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],185:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],187:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -23320,7 +29161,7 @@ class FormatadorPitugues {
 }
 exports.FormatadorPitugues = FormatadorPitugues;
 
-},{"../declaracoes":155,"../tipos-de-simbolos/pitugues":302}],186:[function(require,module,exports){
+},{"../declaracoes":157,"../tipos-de-simbolos/pitugues":304}],188:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23340,7 +29181,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./formatador-delegua"), exports);
 __exportStar(require("./formatador-pitugues"), exports);
 
-},{"./formatador-delegua":184,"./formatador-pitugues":185}],187:[function(require,module,exports){
+},{"./formatador-delegua":186,"./formatador-pitugues":187}],189:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cyrb53 = cyrb53;
@@ -23384,7 +29225,7 @@ function uuidv4() {
     });
 }
 
-},{}],188:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23414,7 +29255,7 @@ __exportStar(require("./interpretador"), exports);
 __exportStar(require("./lexador"), exports);
 __exportStar(require("./tradutores"), exports);
 
-},{"./analisador-semantico":44,"./avaliador-sintatico":60,"./construtos":105,"./declaracoes":155,"./estilizador":170,"./ffi":182,"./formatadores":186,"./geracao-identificadores":187,"./interfaces":219,"./interpretador":263,"./lexador":283,"./tradutores":306}],189:[function(require,module,exports){
+},{"./analisador-semantico":46,"./avaliador-sintatico":62,"./construtos":107,"./declaracoes":157,"./estilizador":172,"./ffi":184,"./formatadores":188,"./geracao-identificadores":189,"./interfaces":221,"./interpretador":265,"./lexador":285,"./tradutores":308}],191:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -23542,7 +29383,7 @@ function inferirTipoVariavel(variavel) {
     }
 }
 
-},{"./tipos-de-dados/delegua":293,"./tipos-de-dados/primitivos":295,"./tipos-de-simbolos/delegua":298}],190:[function(require,module,exports){
+},{"./tipos-de-dados/delegua":295,"./tipos-de-dados/primitivos":297,"./tipos-de-simbolos/delegua":300}],192:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InformacaoElementoSintatico = void 0;
@@ -23561,15 +29402,15 @@ class InformacaoElementoSintatico {
 }
 exports.InformacaoElementoSintatico = InformacaoElementoSintatico;
 
-},{}],191:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],192:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
 },{}],193:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],194:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],195:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23590,15 +29431,7 @@ __exportStar(require("./avaliador-sintatico-interface"), exports);
 __exportStar(require("./correcao-implementacao-interface"), exports);
 __exportStar(require("./membro-interface-faltando-interface"), exports);
 
-},{"./avaliador-sintatico-interface":191,"./correcao-implementacao-interface":192,"./membro-interface-faltando-interface":194}],194:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],195:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],196:[function(require,module,exports){
+},{"./avaliador-sintatico-interface":193,"./correcao-implementacao-interface":194,"./membro-interface-faltando-interface":196}],196:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23612,25 +29445,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],199:[function(require,module,exports){
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./caminho-escolha-interface"), exports);
-__exportStar(require("./construto-interface"), exports);
 
-},{"./caminho-escolha-interface":197,"./construto-interface":198}],200:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23651,17 +29468,41 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./caminho-se-senao-interface"), exports);
+__exportStar(require("./caminho-escolha-interface"), exports);
+__exportStar(require("./construto-interface"), exports);
 
-},{"./caminho-se-senao-interface":200}],202:[function(require,module,exports){
+},{"./caminho-escolha-interface":199,"./construto-interface":200}],202:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],203:[function(require,module,exports){
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./caminho-se-senao-interface"), exports);
+
+},{"./caminho-se-senao-interface":202}],204:[function(require,module,exports){
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],204:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],206:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23683,19 +29524,19 @@ __exportStar(require("./fazer-interface"), exports);
 __exportStar(require("./para-cada-interface"), exports);
 __exportStar(require("./para-interface"), exports);
 
-},{"./enquanto-interface":202,"./fazer-interface":203,"./para-cada-interface":205,"./para-interface":206}],205:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],206:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],207:[function(require,module,exports){
+},{"./enquanto-interface":204,"./fazer-interface":205,"./para-cada-interface":207,"./para-interface":208}],207:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],208:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],209:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],210:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23714,15 +29555,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./retorno-resolvedor-interface"), exports);
 
-},{"./retorno-resolvedor-interface":209}],209:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],210:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],211:[function(require,module,exports){
+},{"./retorno-resolvedor-interface":211}],211:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23737,6 +29570,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 },{}],214:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],215:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],216:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiagnosticoSeveridade = void 0;
 var DiagnosticoSeveridade;
 (function (DiagnosticoSeveridade) {
@@ -23746,11 +29587,11 @@ var DiagnosticoSeveridade;
     DiagnosticoSeveridade[DiagnosticoSeveridade["SUGESTAO"] = 3] = "SUGESTAO";
 })(DiagnosticoSeveridade || (exports.DiagnosticoSeveridade = DiagnosticoSeveridade = {}));
 
-},{}],215:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],216:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23772,15 +29613,15 @@ __exportStar(require("./correcao-sugerida-interface"), exports);
 __exportStar(require("./diagnostico-analisador-semantico-interface"), exports);
 __exportStar(require("./erro-interpretador-interface"), exports);
 
-},{"./correcao-implementacao-metodo-interface":212,"./correcao-sugerida-interface":213,"./diagnostico-analisador-semantico-interface":214,"./erro-interpretador-interface":215}],217:[function(require,module,exports){
+},{"./correcao-implementacao-metodo-interface":214,"./correcao-sugerida-interface":215,"./diagnostico-analisador-semantico-interface":216,"./erro-interpretador-interface":217}],219:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],218:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],219:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -23829,15 +29670,7 @@ __exportStar(require("./erros"), exports);
 __exportStar(require("./retornos"), exports);
 __exportStar(require("./tradutores"), exports);
 
-},{"./avaliador-sintatico":193,"./componente-modulo-classe-interface":195,"./componente-modulo-funcao-interface":196,"./construtos":199,"./declaracoes":201,"./delegua":204,"./depuracao":207,"./egua-classico":208,"./entrada-tabela-diagnostico-semantico-interface":210,"./entrada-tabela-diagnosticos-sintatico-interface":211,"./erros":216,"./estilizador/estilizador-interface":217,"./formatador-comum-interface":218,"./interpretador-com-depuracao-interface":220,"./interpretador-interface":221,"./iteravel-interface":222,"./lexador-interface":223,"./modulo-interface":224,"./parametro-interface":225,"./pilha-interface":226,"./primitiva-interface":227,"./resolvedor-interface":228,"./resultado-parcial-interpretador-interface":229,"./retornos":230,"./retornos/retorno-execucao-interface":233,"./simbolo-interface":236,"./tradutores":238,"./tradutores/tradutor-interface":239,"./variavel-interface":240,"./visitante-comum-interface":241,"./visitante-delegua-interface":242}],220:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],221:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],222:[function(require,module,exports){
+},{"./avaliador-sintatico":195,"./componente-modulo-classe-interface":197,"./componente-modulo-funcao-interface":198,"./construtos":201,"./declaracoes":203,"./delegua":206,"./depuracao":209,"./egua-classico":210,"./entrada-tabela-diagnostico-semantico-interface":212,"./entrada-tabela-diagnosticos-sintatico-interface":213,"./erros":218,"./estilizador/estilizador-interface":219,"./formatador-comum-interface":220,"./interpretador-com-depuracao-interface":222,"./interpretador-interface":223,"./iteravel-interface":224,"./lexador-interface":225,"./modulo-interface":226,"./parametro-interface":227,"./pilha-interface":228,"./primitiva-interface":229,"./resolvedor-interface":230,"./resultado-parcial-interpretador-interface":231,"./retornos":232,"./retornos/retorno-execucao-interface":235,"./simbolo-interface":238,"./tradutores":240,"./tradutores/tradutor-interface":241,"./variavel-interface":242,"./visitante-comum-interface":243,"./visitante-delegua-interface":244}],222:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23871,6 +29704,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],230:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],231:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],232:[function(require,module,exports){
+"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -23892,15 +29733,7 @@ __exportStar(require("./retorno-execucao-interface"), exports);
 __exportStar(require("./retorno-interpretador-interface"), exports);
 __exportStar(require("./retorno-lexador-interface"), exports);
 
-},{"./retorno-analisador-semantico-interface":231,"./retorno-avaliador-sintatico-interface":232,"./retorno-execucao-interface":233,"./retorno-interpretador-interface":234,"./retorno-lexador-interface":235}],231:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],232:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],233:[function(require,module,exports){
+},{"./retorno-analisador-semantico-interface":233,"./retorno-avaliador-sintatico-interface":234,"./retorno-execucao-interface":235,"./retorno-interpretador-interface":236,"./retorno-lexador-interface":237}],233:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23922,6 +29755,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],238:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],239:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],240:[function(require,module,exports){
+"use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -23940,15 +29781,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./contexto-funcao-interface"), exports);
 __exportStar(require("./tradutor-interface"), exports);
 
-},{"./contexto-funcao-interface":237,"./tradutor-interface":239}],239:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],240:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],241:[function(require,module,exports){
+},{"./contexto-funcao-interface":239,"./tradutor-interface":241}],241:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -23957,6 +29790,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],243:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],244:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],245:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -24635,7 +30476,7 @@ function obterAjudaFuncaoPadrao(funcaoPadrao) {
     }
 }
 
-},{"../bibliotecas/biblioteca-global":67,"../construtos":105,"../excecoes":179,"./estruturas/delegua-funcao":250,"./estruturas/descritor-tipo-classe":251,"./estruturas/funcao-padrao":253,"./estruturas/objeto-delegua-classe":259}],244:[function(require,module,exports){
+},{"../bibliotecas/biblioteca-global":69,"../construtos":107,"../excecoes":181,"./estruturas/delegua-funcao":252,"./estruturas/descritor-tipo-classe":253,"./estruturas/funcao-padrao":255,"./estruturas/objeto-delegua-classe":261}],246:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encadear = encadear;
@@ -24679,7 +30520,7 @@ function encadear(valorOuPromise, continuacao) {
         : continuacao(valorOuPromise);
 }
 
-},{}],245:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EspacoMemoria = void 0;
@@ -24704,7 +30545,7 @@ class EspacoMemoria {
 }
 exports.EspacoMemoria = EspacoMemoria;
 
-},{}],246:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Chamavel = void 0;
@@ -24721,7 +30562,7 @@ class Chamavel {
 }
 exports.Chamavel = Chamavel;
 
-},{}],247:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClasseDeModulo = void 0;
@@ -24742,7 +30583,7 @@ class ClasseDeModulo extends chamavel_1.Chamavel {
 }
 exports.ClasseDeModulo = ClasseDeModulo;
 
-},{"./chamavel":246}],248:[function(require,module,exports){
+},{"./chamavel":248}],250:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClassePadrao = void 0;
@@ -24783,7 +30624,7 @@ class ClassePadrao extends chamavel_1.Chamavel {
 }
 exports.ClassePadrao = ClassePadrao;
 
-},{"./chamavel":246}],249:[function(require,module,exports){
+},{"./chamavel":248}],251:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncaoNativa = void 0;
@@ -24826,7 +30667,7 @@ class DeleguaFuncaoNativa extends delegua_funcao_1.DeleguaFuncao {
 }
 exports.DeleguaFuncaoNativa = DeleguaFuncaoNativa;
 
-},{"./delegua-funcao":250}],250:[function(require,module,exports){
+},{"./delegua-funcao":252}],252:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaFuncao = void 0;
@@ -25142,7 +30983,7 @@ function tipoDeDados(valor) {
     }
 }
 
-},{"../../declaracoes":155,"../../inferenciador":189,"../../quebras":292,"../espaco-memoria":245,"./chamavel":246,"./objeto-delegua-classe":259,"./referencia-montao":261}],251:[function(require,module,exports){
+},{"../../declaracoes":157,"../../inferenciador":191,"../../quebras":294,"../espaco-memoria":247,"./chamavel":248,"./objeto-delegua-classe":261,"./referencia-montao":263}],253:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DescritorTipoClasse = void 0;
@@ -25457,7 +31298,7 @@ class DescritorTipoClasse extends chamavel_1.Chamavel {
 }
 exports.DescritorTipoClasse = DescritorTipoClasse;
 
-},{"../../excecoes":179,"./chamavel":246,"./metodo-polimorfico":255,"./objeto-delegua-classe":259}],252:[function(require,module,exports){
+},{"../../excecoes":181,"./chamavel":248,"./metodo-polimorfico":257,"./objeto-delegua-classe":261}],254:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EXCECAO_BASE = void 0;
@@ -25486,7 +31327,7 @@ function criarDescritorExcecao() {
 }
 exports.EXCECAO_BASE = criarDescritorExcecao();
 
-},{"./delegua-funcao-nativa":249,"./descritor-tipo-classe":251,"./objeto-base":258}],253:[function(require,module,exports){
+},{"./delegua-funcao-nativa":251,"./descritor-tipo-classe":253,"./objeto-base":260}],255:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FuncaoPadrao = void 0;
@@ -25525,7 +31366,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
 }
 exports.FuncaoPadrao = FuncaoPadrao;
 
-},{"./chamavel":246}],254:[function(require,module,exports){
+},{"./chamavel":248}],256:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -25559,7 +31400,7 @@ __exportStar(require("./objeto-padrao"), exports);
 __exportStar(require("./referencia-montao"), exports);
 __exportStar(require("./super-proxy"), exports);
 
-},{"./chamavel":246,"./classe-de-modulo":247,"./classe-padrao":248,"./delegua-funcao":250,"./delegua-funcao-nativa":249,"./descritor-tipo-classe":251,"./excecao-base":252,"./funcao-padrao":253,"./metodo-polimorfico":255,"./metodo-primitiva":256,"./modulo":257,"./objeto-base":258,"./objeto-delegua-classe":259,"./objeto-padrao":260,"./referencia-montao":261,"./super-proxy":262}],255:[function(require,module,exports){
+},{"./chamavel":248,"./classe-de-modulo":249,"./classe-padrao":250,"./delegua-funcao":252,"./delegua-funcao-nativa":251,"./descritor-tipo-classe":253,"./excecao-base":254,"./funcao-padrao":255,"./metodo-polimorfico":257,"./metodo-primitiva":258,"./modulo":259,"./objeto-base":260,"./objeto-delegua-classe":261,"./objeto-padrao":262,"./referencia-montao":263,"./super-proxy":264}],257:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPolimorfico = void 0;
@@ -25737,7 +31578,7 @@ class MetodoPolimorfico extends chamavel_1.Chamavel {
 }
 exports.MetodoPolimorfico = MetodoPolimorfico;
 
-},{"../../excecoes":179,"../../inferenciador":189,"./chamavel":246}],256:[function(require,module,exports){
+},{"../../excecoes":181,"../../inferenciador":191,"./chamavel":248}],258:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetodoPrimitiva = void 0;
@@ -25783,7 +31624,7 @@ class MetodoPrimitiva extends chamavel_1.Chamavel {
 }
 exports.MetodoPrimitiva = MetodoPrimitiva;
 
-},{"./chamavel":246}],257:[function(require,module,exports){
+},{"./chamavel":248}],259:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleguaModulo = void 0;
@@ -25809,7 +31650,7 @@ class DeleguaModulo {
 }
 exports.DeleguaModulo = DeleguaModulo;
 
-},{}],258:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OBJETO_BASE = void 0;
@@ -25883,7 +31724,7 @@ function criarDescritorObjeto() {
 }
 exports.OBJETO_BASE = criarDescritorObjeto();
 
-},{"./delegua-funcao-nativa":249,"./descritor-tipo-classe":251}],259:[function(require,module,exports){
+},{"./delegua-funcao-nativa":251,"./descritor-tipo-classe":253}],261:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoDeleguaClasse = void 0;
@@ -26065,7 +31906,7 @@ class ObjetoDeleguaClasse {
 }
 exports.ObjetoDeleguaClasse = ObjetoDeleguaClasse;
 
-},{"../../excecoes":179}],260:[function(require,module,exports){
+},{"../../excecoes":181}],262:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ObjetoPadrao = void 0;
@@ -26099,7 +31940,7 @@ class ObjetoPadrao {
 }
 exports.ObjetoPadrao = ObjetoPadrao;
 
-},{}],261:[function(require,module,exports){
+},{}],263:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReferenciaMontao = void 0;
@@ -26124,7 +31965,7 @@ class ReferenciaMontao {
 }
 exports.ReferenciaMontao = ReferenciaMontao;
 
-},{}],262:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SuperProxy = void 0;
@@ -26163,7 +32004,7 @@ class SuperProxy extends chamavel_1.Chamavel {
 }
 exports.SuperProxy = SuperProxy;
 
-},{"./chamavel":246}],263:[function(require,module,exports){
+},{"./chamavel":248}],265:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -26184,7 +32025,7 @@ __exportStar(require("./estruturas"), exports);
 __exportStar(require("./interpretador"), exports);
 __exportStar(require("./interpretador-base"), exports);
 
-},{"./estruturas":254,"./interpretador":265,"./interpretador-base":264}],264:[function(require,module,exports){
+},{"./estruturas":256,"./interpretador":267,"./interpretador-base":266}],266:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -28620,7 +34461,7 @@ class InterpretadorBase {
 }
 exports.InterpretadorBase = InterpretadorBase;
 
-},{"../avaliador-sintatico":60,"../bibliotecas/primitivas-dicionario":69,"../bibliotecas/primitivas-vetor":72,"../construtos":105,"../excecoes":179,"../inferenciador":189,"../lexador":283,"../quebras":292,"../tipos-de-dados/delegua":293,"../tipos-de-dados/primitivos":295,"../tipos-de-simbolos/delegua":298,"./encadear":244,"./espaco-memoria":245,"./estruturas":254,"./estruturas/metodo-primitiva":256,"./pilha-escopos-execucao":267,"browser-process-hrtime":504}],265:[function(require,module,exports){
+},{"../avaliador-sintatico":62,"../bibliotecas/primitivas-dicionario":71,"../bibliotecas/primitivas-vetor":74,"../construtos":107,"../excecoes":181,"../inferenciador":191,"../lexador":285,"../quebras":294,"../tipos-de-dados/delegua":295,"../tipos-de-dados/primitivos":297,"../tipos-de-simbolos/delegua":300,"./encadear":246,"./espaco-memoria":247,"./estruturas":256,"./estruturas/metodo-primitiva":258,"./pilha-escopos-execucao":269,"browser-process-hrtime":506}],267:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30277,7 +36118,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
 }
 exports.Interpretador = Interpretador;
 
-},{"../bibliotecas/dialetos/pitugues/primitivas-tupla":68,"../bibliotecas/primitivas-dicionario":69,"../bibliotecas/primitivas-numero":70,"../bibliotecas/primitivas-texto":71,"../bibliotecas/primitivas-vetor":72,"../bibliotecas/testes/modulo-testes":74,"../bibliotecas/testes/registro-testes":75,"../construtos":105,"../declaracoes":155,"../excecoes":179,"../inferenciador":189,"../quebras":292,"../tipos-de-dados/delegua":293,"../tipos-de-dados/primitivos":295,"../tipos-de-simbolos/delegua":298,"./comum":243,"./encadear":244,"./estruturas":254,"./interpretador-base":264,"./montao":266}],266:[function(require,module,exports){
+},{"../bibliotecas/dialetos/pitugues/primitivas-tupla":70,"../bibliotecas/primitivas-dicionario":71,"../bibliotecas/primitivas-numero":72,"../bibliotecas/primitivas-texto":73,"../bibliotecas/primitivas-vetor":74,"../bibliotecas/testes/modulo-testes":76,"../bibliotecas/testes/registro-testes":77,"../construtos":107,"../declaracoes":157,"../excecoes":181,"../inferenciador":191,"../quebras":294,"../tipos-de-dados/delegua":295,"../tipos-de-dados/primitivos":297,"../tipos-de-simbolos/delegua":300,"./comum":245,"./encadear":246,"./estruturas":256,"./interpretador-base":266,"./montao":268}],268:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Montao = void 0;
@@ -30334,7 +36175,7 @@ class Montao {
 }
 exports.Montao = Montao;
 
-},{"../excecoes":179,"../geracao-identificadores":187}],267:[function(require,module,exports){
+},{"../excecoes":181,"../geracao-identificadores":189}],269:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30675,7 +36516,7 @@ class PilhaEscoposExecucao {
 }
 exports.PilhaEscoposExecucao = PilhaEscoposExecucao;
 
-},{"../excecoes":179,"../inferenciador":189,"../lexador":283,"../tipos-de-dados/delegua":293,"./estruturas":254}],268:[function(require,module,exports){
+},{"../excecoes":181,"../inferenciador":191,"../lexador":285,"../tipos-de-dados/delegua":295,"./estruturas":256}],270:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -30700,7 +36541,7 @@ __exportStar(require("./lexador-portugol-ipt"), exports);
 __exportStar(require("./lexador-prisma"), exports);
 __exportStar(require("./lexador-tenda"), exports);
 
-},{"./lexador-calango":269,"./lexador-egua-classico":270,"./lexador-guarani":271,"./lexador-pitugues":272,"./lexador-portugol-ipt":273,"./lexador-prisma":274,"./lexador-tenda":275}],269:[function(require,module,exports){
+},{"./lexador-calango":271,"./lexador-egua-classico":272,"./lexador-guarani":273,"./lexador-pitugues":274,"./lexador-portugol-ipt":275,"./lexador-prisma":276,"./lexador-tenda":277}],271:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31015,7 +36856,7 @@ class LexadorCalango {
 }
 exports.LexadorCalango = LexadorCalango;
 
-},{"../../tipos-de-simbolos/calango":296,"../simbolo":291,"./palavras-reservadas/calango":276}],270:[function(require,module,exports){
+},{"../../tipos-de-simbolos/calango":298,"../simbolo":293,"./palavras-reservadas/calango":278}],272:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31308,7 +37149,7 @@ class LexadorEguaClassico {
 }
 exports.LexadorEguaClassico = LexadorEguaClassico;
 
-},{"../../tipos-de-simbolos/egua-classico":299,"../simbolo":291,"./palavras-reservadas/egua-classico":277}],271:[function(require,module,exports){
+},{"../../tipos-de-simbolos/egua-classico":301,"../simbolo":293,"./palavras-reservadas/egua-classico":279}],273:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31427,7 +37268,7 @@ class LexadorGuarani extends lexador_base_1.LexadorBase {
 }
 exports.LexadorGuarani = LexadorGuarani;
 
-},{"../../tipos-de-simbolos/guarani":300,"../lexador-base":285,"./palavras-reservadas/guarani":278}],272:[function(require,module,exports){
+},{"../../tipos-de-simbolos/guarani":302,"../lexador-base":287,"./palavras-reservadas/guarani":280}],274:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -31969,7 +37810,7 @@ class LexadorPitugues {
 }
 exports.LexadorPitugues = LexadorPitugues;
 
-},{"../../tipos-de-simbolos/pitugues":302,"../simbolo":291,"./palavras-reservadas/pitugues":279,"browser-process-hrtime":504}],273:[function(require,module,exports){
+},{"../../tipos-de-simbolos/pitugues":304,"../simbolo":293,"./palavras-reservadas/pitugues":281,"browser-process-hrtime":506}],275:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -32279,7 +38120,7 @@ class LexadorPortugolIpt {
 }
 exports.LexadorPortugolIpt = LexadorPortugolIpt;
 
-},{"../../tipos-de-simbolos/portugol-ipt":303,"../simbolo":291,"./palavras-reservadas/portugol-ipt":280}],274:[function(require,module,exports){
+},{"../../tipos-de-simbolos/portugol-ipt":305,"../simbolo":293,"./palavras-reservadas/portugol-ipt":282}],276:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -32680,7 +38521,7 @@ class LexadorPrisma {
 }
 exports.LexadorPrisma = LexadorPrisma;
 
-},{"../../tipos-de-simbolos/prisma":304,"../simbolo":291,"./palavras-reservadas/prisma":281,"browser-process-hrtime":504}],275:[function(require,module,exports){
+},{"../../tipos-de-simbolos/prisma":306,"../simbolo":293,"./palavras-reservadas/prisma":283,"browser-process-hrtime":506}],277:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33073,7 +38914,7 @@ class LexadorTenda {
 }
 exports.LexadorTenda = LexadorTenda;
 
-},{"../../tipos-de-simbolos/tenda":305,"../simbolo":291,"./palavras-reservadas/tenda":282,"browser-process-hrtime":504}],276:[function(require,module,exports){
+},{"../../tipos-de-simbolos/tenda":307,"../simbolo":293,"./palavras-reservadas/tenda":284,"browser-process-hrtime":506}],278:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33121,7 +38962,7 @@ exports.default = {
     verdadeiro: calango_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/calango":296}],277:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/calango":298}],279:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33162,7 +39003,7 @@ exports.palavrasReservadas = {
     verdadeiro: egua_classico_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/egua-classico":299}],278:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/egua-classico":301}],280:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33174,7 +39015,7 @@ exports.palavrasReservadas = {
     hai: guarani_1.default.HAI,
 };
 
-},{"../../../tipos-de-simbolos/guarani":300}],279:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/guarani":302}],281:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33236,7 +39077,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: pitugues_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/pitugues":302}],280:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/pitugues":304}],282:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33296,7 +39137,7 @@ exports.palavrasReservadas = {
     não: portugol_ipt_1.default.NAO,
 };
 
-},{"../../../tipos-de-simbolos/portugol-ipt":303}],281:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/portugol-ipt":305}],283:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33347,7 +39188,7 @@ exports.palavrasReservadas = {
     verdadeiro: prisma_1.default.VERDADEIRO,
 };
 
-},{"../../../tipos-de-simbolos/prisma":304}],282:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/prisma":306}],284:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -33405,7 +39246,7 @@ exports.palavrasReservadas = {
     Texto: tenda_1.default.BIBLIOTECA_GLOBAL,
 };
 
-},{"../../../tipos-de-simbolos/tenda":305}],283:[function(require,module,exports){
+},{"../../../tipos-de-simbolos/tenda":307}],285:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -33428,7 +39269,7 @@ __exportStar(require("./lexador-base-linha-unica"), exports);
 __exportStar(require("./micro-lexador"), exports);
 __exportStar(require("./simbolo"), exports);
 
-},{"./dialetos":268,"./lexador":286,"./lexador-base-linha-unica":284,"./micro-lexador":289,"./simbolo":291}],284:[function(require,module,exports){
+},{"./dialetos":270,"./lexador":288,"./lexador-base-linha-unica":286,"./micro-lexador":291,"./simbolo":293}],286:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBaseLinhaUnica = void 0;
@@ -33518,7 +39359,7 @@ class LexadorBaseLinhaUnica {
 }
 exports.LexadorBaseLinhaUnica = LexadorBaseLinhaUnica;
 
-},{"./simbolo":291}],285:[function(require,module,exports){
+},{"./simbolo":293}],287:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LexadorBase = void 0;
@@ -33664,7 +39505,7 @@ class LexadorBase {
 }
 exports.LexadorBase = LexadorBase;
 
-},{"./simbolo":291}],286:[function(require,module,exports){
+},{"./simbolo":293}],288:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -34144,7 +39985,7 @@ class Lexador extends lexador_base_1.LexadorBase {
 }
 exports.Lexador = Lexador;
 
-},{"../tipos-de-simbolos/delegua":298,"./lexador-base":285,"./palavras-reservadas":290,"./simbolo":291,"browser-process-hrtime":504}],287:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":300,"./lexador-base":287,"./palavras-reservadas":292,"./simbolo":293,"browser-process-hrtime":506}],289:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -34327,7 +40168,7 @@ function pertenceAoParadigma(lexema, paradigma) {
     return paradigmaLexema === paradigma;
 }
 
-},{"../tipos-de-simbolos/delegua":298}],288:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":300}],290:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -34548,7 +40389,7 @@ class MicroLexadorPitugues {
 }
 exports.MicroLexadorPitugues = MicroLexadorPitugues;
 
-},{"../tipos-de-simbolos/pitugues":302,"./palavras-reservadas":290,"./simbolo":291}],289:[function(require,module,exports){
+},{"../tipos-de-simbolos/pitugues":304,"./palavras-reservadas":292,"./simbolo":293}],291:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -34787,7 +40628,7 @@ class MicroLexador {
 }
 exports.MicroLexador = MicroLexador;
 
-},{"../tipos-de-simbolos/microgramaticas/delegua":301,"./palavras-reservadas":290,"./simbolo":291}],290:[function(require,module,exports){
+},{"../tipos-de-simbolos/microgramaticas/delegua":303,"./palavras-reservadas":292,"./simbolo":293}],292:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -34888,7 +40729,7 @@ exports.palavrasReservadasMicroGramatica = {
     verdadeiro: delegua_1.default.VERDADEIRO,
 };
 
-},{"../tipos-de-simbolos/delegua":298}],291:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":300}],293:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Simbolo = void 0;
@@ -34910,7 +40751,7 @@ class Simbolo {
 }
 exports.Simbolo = Simbolo;
 
-},{}],292:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContinuarQuebra = exports.SustarQuebra = exports.RetornoQuebra = exports.Quebra = void 0;
@@ -34935,7 +40776,7 @@ class ContinuarQuebra extends Quebra {
 }
 exports.ContinuarQuebra = ContinuarQuebra;
 
-},{}],293:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -34969,7 +40810,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],294:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -34995,7 +40836,7 @@ exports.default = {
     VETOR_TEXTO: 'texto[]',
 };
 
-},{}],295:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35014,7 +40855,7 @@ exports.default = {
     TEXTO: 'string',
 };
 
-},{}],296:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35086,7 +40927,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],297:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35113,7 +40954,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],298:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35229,7 +41070,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],299:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35307,7 +41148,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],300:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35324,7 +41165,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],301:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35377,7 +41218,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],302:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35472,7 +41313,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],303:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35551,7 +41392,7 @@ exports.default = {
     VARIAVEL: 'VARIAVEL',
 };
 
-},{}],304:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
@@ -35635,7 +41476,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],305:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // Em Tenda, isto é implementado em https://github.com/gabrielbrunop/tenda/blob/main/crates/scanner/src/token.rs#L42.
@@ -35730,7 +41571,7 @@ exports.default = {
     VIRGULA: 'VIRGULA',
 };
 
-},{}],306:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -35759,7 +41600,7 @@ __exportStar(require("./tradutor-reverso-python"), exports);
 __exportStar(require("./tradutor-reverso-tenda"), exports);
 __exportStar(require("./tradutor-ruby"), exports);
 
-},{"./tradutor-assemblyscript":315,"./tradutor-elixir":316,"./tradutor-javascript":317,"./tradutor-mermaidjs":318,"./tradutor-portugol-ipt":319,"./tradutor-python":320,"./tradutor-reverso-calango":321,"./tradutor-reverso-javascript":322,"./tradutor-reverso-python":323,"./tradutor-reverso-tenda":324,"./tradutor-ruby":325}],307:[function(require,module,exports){
+},{"./tradutor-assemblyscript":317,"./tradutor-elixir":318,"./tradutor-javascript":319,"./tradutor-mermaidjs":320,"./tradutor-portugol-ipt":321,"./tradutor-python":322,"./tradutor-reverso-calango":323,"./tradutor-reverso-javascript":324,"./tradutor-reverso-python":325,"./tradutor-reverso-tenda":326,"./tradutor-ruby":327}],309:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArestaFluxograma = void 0;
@@ -35771,7 +41612,7 @@ class ArestaFluxograma {
 }
 exports.ArestaFluxograma = ArestaFluxograma;
 
-},{}],308:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -35794,7 +41635,7 @@ __exportStar(require("./subgrafo-funcao"), exports);
 __exportStar(require("./subgrafo-metodo"), exports);
 __exportStar(require("./vertice-fluxograma"), exports);
 
-},{"./aresta-fluxograma":307,"./subgrafo-classe":309,"./subgrafo-funcao":310,"./subgrafo-metodo":311,"./vertice-fluxograma":312}],309:[function(require,module,exports){
+},{"./aresta-fluxograma":309,"./subgrafo-classe":311,"./subgrafo-funcao":312,"./subgrafo-metodo":313,"./vertice-fluxograma":314}],311:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubgrafoClasse = void 0;
@@ -35840,7 +41681,7 @@ class SubgrafoClasse {
 }
 exports.SubgrafoClasse = SubgrafoClasse;
 
-},{}],310:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubgrafoFuncao = void 0;
@@ -35855,7 +41696,7 @@ class SubgrafoFuncao {
 }
 exports.SubgrafoFuncao = SubgrafoFuncao;
 
-},{}],311:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SubgrafoMetodo = void 0;
@@ -35872,7 +41713,7 @@ class SubgrafoMetodo {
 }
 exports.SubgrafoMetodo = SubgrafoMetodo;
 
-},{}],312:[function(require,module,exports){
+},{}],314:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VerticeFluxograma = void 0;
@@ -35889,7 +41730,7 @@ class VerticeFluxograma {
 }
 exports.VerticeFluxograma = VerticeFluxograma;
 
-},{}],313:[function(require,module,exports){
+},{}],315:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -37129,7 +42970,7 @@ __decorate([
     Decorators_1.Override
 ], Python3Lexer.prototype, "nextToken", null);
 
-},{"./python3-parser":314,"antlr4ts/CommonToken":335,"antlr4ts/Decorators":339,"antlr4ts/Lexer":347,"antlr4ts/Token":364,"antlr4ts/VocabularyImpl":370,"antlr4ts/atn/ATNDeserializer":376,"antlr4ts/atn/LexerATNSimulator":397,"antlr4ts/misc/Utils":458}],314:[function(require,module,exports){
+},{"./python3-parser":316,"antlr4ts/CommonToken":337,"antlr4ts/Decorators":341,"antlr4ts/Lexer":349,"antlr4ts/Token":366,"antlr4ts/VocabularyImpl":372,"antlr4ts/atn/ATNDeserializer":378,"antlr4ts/atn/LexerATNSimulator":399,"antlr4ts/misc/Utils":460}],316:[function(require,module,exports){
 "use strict";
 // Generated from fontes\tradutores\python\Python3.g4 by ANTLR 4.9.0-SNAPSHOT
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -48376,7 +54217,7 @@ class Yield_argContext extends ParserRuleContext_1.ParserRuleContext {
 }
 exports.Yield_argContext = Yield_argContext;
 
-},{"antlr4ts/FailedPredicateException":343,"antlr4ts/NoViableAltException":351,"antlr4ts/Parser":352,"antlr4ts/ParserRuleContext":355,"antlr4ts/RecognitionException":358,"antlr4ts/Token":364,"antlr4ts/VocabularyImpl":370,"antlr4ts/atn/ATN":372,"antlr4ts/atn/ATNDeserializer":376,"antlr4ts/atn/ParserATNSimulator":413,"antlr4ts/misc/Utils":458}],315:[function(require,module,exports){
+},{"antlr4ts/FailedPredicateException":345,"antlr4ts/NoViableAltException":353,"antlr4ts/Parser":354,"antlr4ts/ParserRuleContext":357,"antlr4ts/RecognitionException":360,"antlr4ts/Token":366,"antlr4ts/VocabularyImpl":372,"antlr4ts/atn/ATN":374,"antlr4ts/atn/ATNDeserializer":378,"antlr4ts/atn/ParserATNSimulator":415,"antlr4ts/misc/Utils":460}],317:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -49588,7 +55429,7 @@ class TradutorAssemblyScript {
 }
 exports.TradutorAssemblyScript = TradutorAssemblyScript;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],316:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],318:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -50631,7 +56472,7 @@ class TradutorElixir {
 }
 exports.TradutorElixir = TradutorElixir;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],317:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],319:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -51432,7 +57273,7 @@ class TradutorJavaScript {
 }
 exports.TradutorJavaScript = TradutorJavaScript;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],318:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],320:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -52261,7 +58102,7 @@ class TradutorMermaidJs {
 }
 exports.TradutorMermaidJs = TradutorMermaidJs;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298,"./mermaid":308}],319:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300,"./mermaid":310}],321:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -52643,7 +58484,7 @@ class TradutorPortugolIpt {
 }
 exports.TradutorPortugolIpt = TradutorPortugolIpt;
 
-},{"../avaliador-sintatico/dialetos":56,"../construtos":105,"../declaracoes":155,"../lexador/dialetos":268,"../tipos-de-simbolos/portugol-ipt":303}],320:[function(require,module,exports){
+},{"../avaliador-sintatico/dialetos":58,"../construtos":107,"../declaracoes":157,"../lexador/dialetos":270,"../tipos-de-simbolos/portugol-ipt":305}],322:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -53359,7 +59200,7 @@ class TradutorPython {
 }
 exports.TradutorPython = TradutorPython;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],321:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],323:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -53713,7 +59554,7 @@ class TradutorReversoCalango {
 }
 exports.TradutorReversoCalango = TradutorReversoCalango;
 
-},{"../tipos-de-simbolos/calango":296}],322:[function(require,module,exports){
+},{"../tipos-de-simbolos/calango":298}],324:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoJavaScript = void 0;
@@ -54139,7 +59980,7 @@ class TradutorReversoJavaScript {
 }
 exports.TradutorReversoJavaScript = TradutorReversoJavaScript;
 
-},{}],323:[function(require,module,exports){
+},{}],325:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TradutorReversoPython = void 0;
@@ -54792,7 +60633,7 @@ class TradutorReversoPython extends AbstractParseTreeVisitor_1.AbstractParseTree
 }
 exports.TradutorReversoPython = TradutorReversoPython;
 
-},{"./python/python3-lexer":313,"./python/python3-parser":314,"antlr4ts":441,"antlr4ts/tree/AbstractParseTreeVisitor":459}],324:[function(require,module,exports){
+},{"./python/python3-lexer":315,"./python/python3-parser":316,"antlr4ts":443,"antlr4ts/tree/AbstractParseTreeVisitor":461}],326:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -55378,7 +61219,7 @@ class TradutorReversoTenda {
 }
 exports.TradutorReversoTenda = TradutorReversoTenda;
 
-},{"../construtos":105,"../tipos-de-simbolos/tenda":305}],325:[function(require,module,exports){
+},{"../construtos":107,"../tipos-de-simbolos/tenda":307}],327:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -56065,7 +61906,7 @@ class TradutorRuby {
 }
 exports.TradutorRuby = TradutorRuby;
 
-},{"../construtos":105,"../declaracoes":155,"../tipos-de-simbolos/delegua":298}],326:[function(require,module,exports){
+},{"../construtos":107,"../declaracoes":157,"../tipos-de-simbolos/delegua":300}],328:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56073,7 +61914,7 @@ exports.TradutorRuby = TradutorRuby;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],327:[function(require,module,exports){
+},{}],329:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56081,7 +61922,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],328:[function(require,module,exports){
+},{}],330:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56243,7 +62084,7 @@ __decorate([
 ], ANTLRInputStream.prototype, "toString", null);
 exports.ANTLRInputStream = ANTLRInputStream;
 
-},{"./Decorators":339,"./IntStream":345,"assert":496}],329:[function(require,module,exports){
+},{"./Decorators":341,"./IntStream":347,"assert":498}],331:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56326,7 +62167,7 @@ __decorate([
 ], BailErrorStrategy.prototype, "sync", null);
 exports.BailErrorStrategy = BailErrorStrategy;
 
-},{"./Decorators":339,"./DefaultErrorStrategy":340,"./InputMismatchException":344,"./misc/ParseCancellationException":456}],330:[function(require,module,exports){
+},{"./Decorators":341,"./DefaultErrorStrategy":342,"./InputMismatchException":346,"./misc/ParseCancellationException":458}],332:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56816,7 +62657,7 @@ BufferedTokenStream = __decorate([
 ], BufferedTokenStream);
 exports.BufferedTokenStream = BufferedTokenStream;
 
-},{"./CommonToken":335,"./Decorators":339,"./Lexer":347,"./Token":364,"./misc/Interval":451,"assert":496}],331:[function(require,module,exports){
+},{"./CommonToken":337,"./Decorators":341,"./Lexer":349,"./Token":366,"./misc/Interval":453,"assert":498}],333:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56824,7 +62665,7 @@ exports.BufferedTokenStream = BufferedTokenStream;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],332:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -56958,7 +62799,7 @@ var CharStreams;
     // }
 })(CharStreams = exports.CharStreams || (exports.CharStreams = {}));
 
-},{"./CodePointBuffer":333,"./CodePointCharStream":334,"./IntStream":345}],333:[function(require,module,exports){
+},{"./CodePointBuffer":335,"./CodePointCharStream":336,"./IntStream":347}],335:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57193,7 +63034,7 @@ exports.CodePointBuffer = CodePointBuffer;
     CodePointBuffer.Builder = Builder;
 })(CodePointBuffer = exports.CodePointBuffer || (exports.CodePointBuffer = {}));
 
-},{"./misc/Character":447,"assert":496}],334:[function(require,module,exports){
+},{"./misc/Character":449,"assert":498}],336:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57343,7 +63184,7 @@ __decorate([
 ], CodePointCharStream.prototype, "getText", null);
 exports.CodePointCharStream = CodePointCharStream;
 
-},{"./Decorators":339,"./IntStream":345,"./misc/Interval":451,"assert":496}],335:[function(require,module,exports){
+},{"./Decorators":341,"./IntStream":347,"./misc/Interval":453,"assert":498}],337:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57573,7 +63414,7 @@ CommonToken = __decorate([
 ], CommonToken);
 exports.CommonToken = CommonToken;
 
-},{"./Decorators":339,"./Token":364,"./misc/Interval":451}],336:[function(require,module,exports){
+},{"./Decorators":341,"./Token":366,"./misc/Interval":453}],338:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57637,7 +63478,7 @@ exports.CommonTokenFactory = CommonTokenFactory;
     CommonTokenFactory.DEFAULT = new CommonTokenFactory();
 })(CommonTokenFactory = exports.CommonTokenFactory || (exports.CommonTokenFactory = {}));
 
-},{"./CommonToken":335,"./Decorators":339,"./misc/Interval":451}],337:[function(require,module,exports){
+},{"./CommonToken":337,"./Decorators":341,"./misc/Interval":453}],339:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57764,7 +63605,7 @@ CommonTokenStream = __decorate([
 ], CommonTokenStream);
 exports.CommonTokenStream = CommonTokenStream;
 
-},{"./BufferedTokenStream":330,"./Decorators":339,"./Token":364}],338:[function(require,module,exports){
+},{"./BufferedTokenStream":332,"./Decorators":341,"./Token":366}],340:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57798,7 +63639,7 @@ exports.ConsoleErrorListener = ConsoleErrorListener;
  */
 ConsoleErrorListener.INSTANCE = new ConsoleErrorListener();
 
-},{}],339:[function(require,module,exports){
+},{}],341:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -57825,7 +63666,7 @@ function SuppressWarnings(options) {
 }
 exports.SuppressWarnings = SuppressWarnings;
 
-},{}],340:[function(require,module,exports){
+},{}],342:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58639,7 +64480,7 @@ __decorate([
 ], DefaultErrorStrategy.prototype, "consumeUntil", null);
 exports.DefaultErrorStrategy = DefaultErrorStrategy;
 
-},{"./Decorators":339,"./FailedPredicateException":343,"./InputMismatchException":344,"./NoViableAltException":351,"./Token":364,"./atn/ATNState":378,"./atn/ATNStateType":379,"./atn/PredictionContext":419,"./misc/IntervalSet":452}],341:[function(require,module,exports){
+},{"./Decorators":341,"./FailedPredicateException":345,"./InputMismatchException":346,"./NoViableAltException":353,"./Token":366,"./atn/ATNState":380,"./atn/ATNStateType":381,"./atn/PredictionContext":421,"./misc/IntervalSet":454}],343:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58715,7 +64556,7 @@ var Dependents;
     Dependents[Dependents["FOLLOWING"] = 9] = "FOLLOWING";
 })(Dependents = exports.Dependents || (exports.Dependents = {}));
 
-},{}],342:[function(require,module,exports){
+},{}],344:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58863,7 +64704,7 @@ __decorate([
 ], DiagnosticErrorListener.prototype, "getConflictingAlts", null);
 exports.DiagnosticErrorListener = DiagnosticErrorListener;
 
-},{"./Decorators":339,"./misc/BitSet":446,"./misc/Interval":451}],343:[function(require,module,exports){
+},{"./Decorators":341,"./misc/BitSet":448,"./misc/Interval":453}],345:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58928,7 +64769,7 @@ FailedPredicateException = __decorate([
 ], FailedPredicateException);
 exports.FailedPredicateException = FailedPredicateException;
 
-},{"./Decorators":339,"./RecognitionException":358,"./atn/PredicateTransition":418}],344:[function(require,module,exports){
+},{"./Decorators":341,"./RecognitionException":360,"./atn/PredicateTransition":420}],346:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58968,7 +64809,7 @@ InputMismatchException = __decorate([
 ], InputMismatchException);
 exports.InputMismatchException = InputMismatchException;
 
-},{"./Decorators":339,"./RecognitionException":358}],345:[function(require,module,exports){
+},{"./Decorators":341,"./RecognitionException":360}],347:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -58991,7 +64832,7 @@ var IntStream;
     IntStream.UNKNOWN_SOURCE_NAME = "<unknown>";
 })(IntStream = exports.IntStream || (exports.IntStream = {}));
 
-},{}],346:[function(require,module,exports){
+},{}],348:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59038,7 +64879,7 @@ __decorate([
 ], InterpreterRuleContext.prototype, "ruleIndex", null);
 exports.InterpreterRuleContext = InterpreterRuleContext;
 
-},{"./Decorators":339,"./ParserRuleContext":355}],347:[function(require,module,exports){
+},{"./Decorators":341,"./ParserRuleContext":357}],349:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59374,7 +65215,7 @@ __decorate([
 ], Lexer.prototype, "charPositionInLine", null);
 exports.Lexer = Lexer;
 
-},{"./CommonTokenFactory":336,"./Decorators":339,"./IntStream":345,"./LexerNoViableAltException":349,"./Recognizer":359,"./Token":364,"./atn/LexerATNSimulator":397,"./misc/IntegerStack":450,"./misc/Interval":451}],348:[function(require,module,exports){
+},{"./CommonTokenFactory":338,"./Decorators":341,"./IntStream":347,"./LexerNoViableAltException":351,"./Recognizer":361,"./Token":366,"./atn/LexerATNSimulator":399,"./misc/IntegerStack":452,"./misc/Interval":453}],350:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59454,7 +65295,7 @@ LexerInterpreter = __decorate([
 ], LexerInterpreter);
 exports.LexerInterpreter = LexerInterpreter;
 
-},{"./Decorators":339,"./Lexer":347,"./atn/LexerATNSimulator":397}],349:[function(require,module,exports){
+},{"./Decorators":341,"./Lexer":349,"./atn/LexerATNSimulator":399}],351:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59511,7 +65352,7 @@ LexerNoViableAltException = __decorate([
 ], LexerNoViableAltException);
 exports.LexerNoViableAltException = LexerNoViableAltException;
 
-},{"./Decorators":339,"./RecognitionException":358,"./misc/Interval":451,"./misc/Utils":458}],350:[function(require,module,exports){
+},{"./Decorators":341,"./RecognitionException":360,"./misc/Interval":453,"./misc/Utils":460}],352:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59721,7 +65562,7 @@ ListTokenSource = __decorate([
 ], ListTokenSource);
 exports.ListTokenSource = ListTokenSource;
 
-},{"./CommonTokenFactory":336,"./Decorators":339,"./Token":364}],351:[function(require,module,exports){
+},{"./CommonTokenFactory":338,"./Decorators":341,"./Token":366}],353:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -59776,7 +65617,7 @@ __decorate([
 ], NoViableAltException.prototype, "_startToken", void 0);
 exports.NoViableAltException = NoViableAltException;
 
-},{"./Decorators":339,"./Parser":352,"./RecognitionException":358}],352:[function(require,module,exports){
+},{"./Decorators":341,"./Parser":354,"./RecognitionException":360}],354:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -60622,7 +66463,7 @@ __decorate([
 exports.Parser = Parser;
 
 }).call(this)}).call(this,require('_process'))
-},{"./Decorators":339,"./DefaultErrorStrategy":340,"./Lexer":347,"./ProxyParserErrorListener":357,"./Recognizer":359,"./Token":364,"./atn/ATNDeserializationOptions":375,"./atn/ATNDeserializer":376,"./atn/ParseInfo":412,"./atn/ParserATNSimulator":413,"./atn/ProfilingATNSimulator":422,"./misc/IntegerStack":450,"./misc/Utils":458,"./tree/ErrorNode":460,"./tree/TerminalNode":462,"./tree/pattern/ParseTreePatternMatcher":467,"_process":672}],353:[function(require,module,exports){
+},{"./Decorators":341,"./DefaultErrorStrategy":342,"./Lexer":349,"./ProxyParserErrorListener":359,"./Recognizer":361,"./Token":366,"./atn/ATNDeserializationOptions":377,"./atn/ATNDeserializer":378,"./atn/ParseInfo":414,"./atn/ParserATNSimulator":415,"./atn/ProfilingATNSimulator":424,"./misc/IntegerStack":452,"./misc/Utils":460,"./tree/ErrorNode":462,"./tree/TerminalNode":464,"./tree/pattern/ParseTreePatternMatcher":469,"_process":674}],355:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -60630,7 +66471,7 @@ exports.Parser = Parser;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],354:[function(require,module,exports){
+},{}],356:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61038,7 +66879,7 @@ ParserInterpreter = __decorate([
 ], ParserInterpreter);
 exports.ParserInterpreter = ParserInterpreter;
 
-},{"./Decorators":339,"./FailedPredicateException":343,"./InputMismatchException":344,"./InterpreterRuleContext":346,"./Parser":352,"./RecognitionException":358,"./Token":364,"./atn/ATNState":378,"./atn/ATNStateType":379,"./atn/LoopEndState":409,"./atn/ParserATNSimulator":413,"./atn/StarLoopEntryState":431,"./misc/BitSet":446}],355:[function(require,module,exports){
+},{"./Decorators":341,"./FailedPredicateException":345,"./InputMismatchException":346,"./InterpreterRuleContext":348,"./Parser":354,"./RecognitionException":360,"./Token":366,"./atn/ATNState":380,"./atn/ATNStateType":381,"./atn/LoopEndState":411,"./atn/ParserATNSimulator":415,"./atn/StarLoopEntryState":433,"./misc/BitSet":448}],357:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61339,7 +67180,7 @@ __decorate([
 ], ParserRuleContext.prototype, "sourceInterval", null);
 exports.ParserRuleContext = ParserRuleContext;
 
-},{"./Decorators":339,"./RuleContext":360,"./misc/Interval":451,"./tree/ErrorNode":460,"./tree/TerminalNode":462}],356:[function(require,module,exports){
+},{"./Decorators":341,"./RuleContext":362,"./misc/Interval":453,"./tree/ErrorNode":462,"./tree/TerminalNode":464}],358:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61389,7 +67230,7 @@ __decorate([
 ], ProxyErrorListener.prototype, "syntaxError", null);
 exports.ProxyErrorListener = ProxyErrorListener;
 
-},{"./Decorators":339}],357:[function(require,module,exports){
+},{"./Decorators":341}],359:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61448,7 +67289,7 @@ __decorate([
 ], ProxyParserErrorListener.prototype, "reportContextSensitivity", null);
 exports.ProxyParserErrorListener = ProxyParserErrorListener;
 
-},{"./Decorators":339,"./ProxyErrorListener":356}],358:[function(require,module,exports){
+},{"./Decorators":341,"./ProxyErrorListener":358}],360:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61553,7 +67394,7 @@ class RecognitionException extends Error {
 }
 exports.RecognitionException = RecognitionException;
 
-},{}],359:[function(require,module,exports){
+},{}],361:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61772,7 +67613,7 @@ __decorate([
 ], Recognizer.prototype, "getErrorListeners", null);
 exports.Recognizer = Recognizer;
 
-},{"./ConsoleErrorListener":338,"./Decorators":339,"./ProxyErrorListener":356,"./Token":364,"./misc/Utils":458}],360:[function(require,module,exports){
+},{"./ConsoleErrorListener":340,"./Decorators":341,"./ProxyErrorListener":358,"./Token":366,"./misc/Utils":460}],362:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -61989,7 +67830,7 @@ __decorate([
 ], RuleContext.prototype, "toStringTree", null);
 exports.RuleContext = RuleContext;
 
-},{"./Decorators":339,"./ParserRuleContext":355,"./Recognizer":359,"./atn/ATN":372,"./misc/Interval":451,"./tree/RuleNode":461,"./tree/Trees":463}],361:[function(require,module,exports){
+},{"./Decorators":341,"./ParserRuleContext":357,"./Recognizer":361,"./atn/ATN":374,"./misc/Interval":453,"./tree/RuleNode":463,"./tree/Trees":465}],363:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62040,7 +67881,7 @@ __decorate([
 ], RuleContextWithAltNum.prototype, "altNumber", null);
 exports.RuleContextWithAltNum = RuleContextWithAltNum;
 
-},{"./Decorators":339,"./ParserRuleContext":355,"./atn/ATN":372}],362:[function(require,module,exports){
+},{"./Decorators":341,"./ParserRuleContext":357,"./atn/ATN":374}],364:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62063,7 +67904,7 @@ function RuleDependency(dependency) {
 }
 exports.RuleDependency = RuleDependency;
 
-},{}],363:[function(require,module,exports){
+},{}],365:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62082,7 +67923,7 @@ function RuleVersion(version) {
 }
 exports.RuleVersion = RuleVersion;
 
-},{}],364:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62122,23 +67963,7 @@ var Token;
     Token.MIN_USER_CHANNEL_VALUE = 2;
 })(Token = exports.Token || (exports.Token = {}));
 
-},{"./IntStream":345}],365:[function(require,module,exports){
-"use strict";
-/*!
- * Copyright 2016 The ANTLR Project. All rights reserved.
- * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],366:[function(require,module,exports){
-"use strict";
-/*!
- * Copyright 2016 The ANTLR Project. All rights reserved.
- * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
- */
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],367:[function(require,module,exports){
+},{"./IntStream":347}],367:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62147,6 +67972,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 Object.defineProperty(exports, "__esModule", { value: true });
 
 },{}],368:[function(require,module,exports){
+"use strict";
+/*!
+ * Copyright 2016 The ANTLR Project. All rights reserved.
+ * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],369:[function(require,module,exports){
+"use strict";
+/*!
+ * Copyright 2016 The ANTLR Project. All rights reserved.
+ * Licensed under the BSD-3-Clause license. See LICENSE file in the project root for license information.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],370:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62654,7 +68495,7 @@ __decorate([
     Decorators_1.Override
 ], ReplaceOp.prototype, "toString", null);
 
-},{"./Decorators":339,"./Token":364,"./misc/Interval":451}],369:[function(require,module,exports){
+},{"./Decorators":341,"./Token":366,"./misc/Interval":453}],371:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62662,7 +68503,7 @@ __decorate([
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],370:[function(require,module,exports){
+},{}],372:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62782,7 +68623,7 @@ __decorate([
 ], VocabularyImpl, "EMPTY_VOCABULARY", void 0);
 exports.VocabularyImpl = VocabularyImpl;
 
-},{"./Decorators":339,"./Token":364}],371:[function(require,module,exports){
+},{"./Decorators":341,"./Token":366}],373:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -62790,7 +68631,7 @@ exports.VocabularyImpl = VocabularyImpl;
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],372:[function(require,module,exports){
+},{}],374:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63012,7 +68853,7 @@ exports.ATN = ATN;
 })(ATN = exports.ATN || (exports.ATN = {}));
 exports.ATN = ATN;
 
-},{"../Decorators":339,"../Token":364,"../dfa/DFA":437,"../misc/Array2DHashMap":442,"../misc/IntervalSet":452,"../misc/ObjectEqualityComparator":455,"./InvalidState":395,"./LL1Analyzer":396,"./PredictionContext":419,"assert":496}],373:[function(require,module,exports){
+},{"../Decorators":341,"../Token":366,"../dfa/DFA":439,"../misc/Array2DHashMap":444,"../misc/IntervalSet":454,"../misc/ObjectEqualityComparator":457,"./InvalidState":397,"./LL1Analyzer":398,"./PredictionContext":421,"assert":498}],375:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63537,7 +69378,7 @@ ActionSemanticContextATNConfig = __decorate([
     __param(1, Decorators_1.NotNull), __param(2, Decorators_1.NotNull)
 ], ActionSemanticContextATNConfig);
 
-},{"../Decorators":339,"../misc/Array2DHashMap":442,"../misc/MurmurHash":454,"../misc/ObjectEqualityComparator":455,"./DecisionState":392,"./PredictionContext":419,"./SemanticContext":427,"assert":496}],374:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashMap":444,"../misc/MurmurHash":456,"../misc/ObjectEqualityComparator":457,"./DecisionState":394,"./PredictionContext":421,"./SemanticContext":429,"assert":498}],376:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -63984,7 +69825,7 @@ __decorate([
 ], ATNConfigSet.prototype, "hashCode", null);
 exports.ATNConfigSet = ATNConfigSet;
 
-},{"../Decorators":339,"../misc/Array2DHashMap":442,"../misc/Array2DHashSet":443,"../misc/ArrayEqualityComparator":444,"../misc/BitSet":446,"../misc/ObjectEqualityComparator":455,"../misc/Utils":458,"./ATN":372,"./ATNConfig":373,"./PredictionContext":419,"./PredictionContextCache":420,"./SemanticContext":427,"assert":496}],375:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashMap":444,"../misc/Array2DHashSet":445,"../misc/ArrayEqualityComparator":446,"../misc/BitSet":448,"../misc/ObjectEqualityComparator":457,"../misc/Utils":460,"./ATN":374,"./ATNConfig":375,"./PredictionContext":421,"./PredictionContextCache":422,"./SemanticContext":429,"assert":498}],377:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -64063,7 +69904,7 @@ __decorate([
 ], ATNDeserializationOptions, "defaultOptions", null);
 exports.ATNDeserializationOptions = ATNDeserializationOptions;
 
-},{"../Decorators":339}],376:[function(require,module,exports){
+},{"../Decorators":341}],378:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65150,7 +70991,7 @@ __decorate([
 ], ATNDeserializer.prototype, "edgeFactory", null);
 exports.ATNDeserializer = ATNDeserializer;
 
-},{"../Decorators":339,"../Token":364,"../dfa/DFA":437,"../misc/Array2DHashSet":443,"../misc/BitSet":446,"../misc/IntervalSet":452,"../misc/UUID":457,"./ATN":372,"./ATNDeserializationOptions":375,"./ATNStateType":379,"./ActionTransition":381,"./AtomTransition":383,"./BasicBlockStartState":384,"./BasicState":385,"./BlockEndState":386,"./BlockStartState":387,"./DecisionState":392,"./EpsilonTransition":393,"./InvalidState":395,"./LexerChannelAction":399,"./LexerCustomAction":400,"./LexerModeAction":402,"./LexerMoreAction":403,"./LexerPopModeAction":404,"./LexerPushModeAction":405,"./LexerSkipAction":406,"./LexerTypeAction":407,"./LoopEndState":409,"./NotSetTransition":410,"./ParserATNSimulator":413,"./PlusBlockStartState":414,"./PlusLoopbackState":415,"./PrecedencePredicateTransition":416,"./PredicateTransition":418,"./RangeTransition":423,"./RuleStartState":424,"./RuleStopState":425,"./RuleTransition":426,"./SetTransition":428,"./StarBlockStartState":430,"./StarLoopEntryState":431,"./StarLoopbackState":432,"./TokensStartState":433,"./WildcardTransition":435}],377:[function(require,module,exports){
+},{"../Decorators":341,"../Token":366,"../dfa/DFA":439,"../misc/Array2DHashSet":445,"../misc/BitSet":448,"../misc/IntervalSet":454,"../misc/UUID":459,"./ATN":374,"./ATNDeserializationOptions":377,"./ATNStateType":381,"./ActionTransition":383,"./AtomTransition":385,"./BasicBlockStartState":386,"./BasicState":387,"./BlockEndState":388,"./BlockStartState":389,"./DecisionState":394,"./EpsilonTransition":395,"./InvalidState":397,"./LexerChannelAction":401,"./LexerCustomAction":402,"./LexerModeAction":404,"./LexerMoreAction":405,"./LexerPopModeAction":406,"./LexerPushModeAction":407,"./LexerSkipAction":408,"./LexerTypeAction":409,"./LoopEndState":411,"./NotSetTransition":412,"./ParserATNSimulator":415,"./PlusBlockStartState":416,"./PlusLoopbackState":417,"./PrecedencePredicateTransition":418,"./PredicateTransition":420,"./RangeTransition":425,"./RuleStartState":426,"./RuleStopState":427,"./RuleTransition":428,"./SetTransition":430,"./StarBlockStartState":432,"./StarLoopEntryState":433,"./StarLoopbackState":434,"./TokensStartState":435,"./WildcardTransition":437}],379:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65214,7 +71055,7 @@ exports.ATNSimulator = ATNSimulator;
 })(ATNSimulator = exports.ATNSimulator || (exports.ATNSimulator = {}));
 exports.ATNSimulator = ATNSimulator;
 
-},{"../Decorators":339,"../dfa/DFAState":439,"./ATNConfigSet":374,"./PredictionContext":419}],378:[function(require,module,exports){
+},{"../Decorators":341,"../dfa/DFAState":441,"./ATNConfigSet":376,"./PredictionContext":421}],380:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65401,7 +71242,7 @@ exports.ATNState = ATNState;
     ATNState.INVALID_STATE_NUMBER = -1;
 })(ATNState = exports.ATNState || (exports.ATNState = {}));
 
-},{"../Decorators":339}],379:[function(require,module,exports){
+},{"../Decorators":341}],381:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65427,7 +71268,7 @@ var ATNStateType;
     ATNStateType[ATNStateType["LOOP_END"] = 12] = "LOOP_END";
 })(ATNStateType = exports.ATNStateType || (exports.ATNStateType = {}));
 
-},{}],380:[function(require,module,exports){
+},{}],382:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65447,7 +71288,7 @@ class AbstractPredicateTransition extends Transition_1.Transition {
 }
 exports.AbstractPredicateTransition = AbstractPredicateTransition;
 
-},{"./Transition":434}],381:[function(require,module,exports){
+},{"./Transition":436}],383:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65503,7 +71344,7 @@ ActionTransition = __decorate([
 ], ActionTransition);
 exports.ActionTransition = ActionTransition;
 
-},{"../Decorators":339,"./Transition":434}],382:[function(require,module,exports){
+},{"../Decorators":341,"./Transition":436}],384:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65590,7 +71431,7 @@ AmbiguityInfo = __decorate([
 ], AmbiguityInfo);
 exports.AmbiguityInfo = AmbiguityInfo;
 
-},{"../Decorators":339,"./DecisionEventInfo":390}],383:[function(require,module,exports){
+},{"../Decorators":341,"./DecisionEventInfo":392}],385:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65648,7 +71489,7 @@ AtomTransition = __decorate([
 ], AtomTransition);
 exports.AtomTransition = AtomTransition;
 
-},{"../Decorators":339,"../misc/IntervalSet":452,"./Transition":434}],384:[function(require,module,exports){
+},{"../Decorators":341,"../misc/IntervalSet":454,"./Transition":436}],386:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65680,7 +71521,7 @@ __decorate([
 ], BasicBlockStartState.prototype, "stateType", null);
 exports.BasicBlockStartState = BasicBlockStartState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./BlockStartState":387}],385:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./BlockStartState":389}],387:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65712,7 +71553,7 @@ __decorate([
 ], BasicState.prototype, "stateType", null);
 exports.BasicState = BasicState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],386:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],388:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65741,7 +71582,7 @@ __decorate([
 ], BlockEndState.prototype, "stateType", null);
 exports.BlockEndState = BlockEndState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],387:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],389:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65755,7 +71596,7 @@ class BlockStartState extends DecisionState_1.DecisionState {
 }
 exports.BlockStartState = BlockStartState;
 
-},{"./DecisionState":392}],388:[function(require,module,exports){
+},{"./DecisionState":394}],390:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65825,7 +71666,7 @@ __decorate([
 ], ConflictInfo.prototype, "hashCode", null);
 exports.ConflictInfo = ConflictInfo;
 
-},{"../Decorators":339,"../misc/Utils":458}],389:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Utils":460}],391:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65885,7 +71726,7 @@ ContextSensitivityInfo = __decorate([
 ], ContextSensitivityInfo);
 exports.ContextSensitivityInfo = ContextSensitivityInfo;
 
-},{"../Decorators":339,"./DecisionEventInfo":390}],390:[function(require,module,exports){
+},{"../Decorators":341,"./DecisionEventInfo":392}],392:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -65937,7 +71778,7 @@ DecisionEventInfo = __decorate([
 ], DecisionEventInfo);
 exports.DecisionEventInfo = DecisionEventInfo;
 
-},{"../Decorators":339}],391:[function(require,module,exports){
+},{"../Decorators":341}],393:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66150,7 +71991,7 @@ __decorate([
 ], DecisionInfo.prototype, "toString", null);
 exports.DecisionInfo = DecisionInfo;
 
-},{"../Decorators":339}],392:[function(require,module,exports){
+},{"../Decorators":341}],394:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66170,7 +72011,7 @@ class DecisionState extends ATNState_1.ATNState {
 }
 exports.DecisionState = DecisionState;
 
-},{"./ATNState":378}],393:[function(require,module,exports){
+},{"./ATNState":380}],395:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66236,7 +72077,7 @@ EpsilonTransition = __decorate([
 ], EpsilonTransition);
 exports.EpsilonTransition = EpsilonTransition;
 
-},{"../Decorators":339,"./Transition":434}],394:[function(require,module,exports){
+},{"../Decorators":341,"./Transition":436}],396:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66289,7 +72130,7 @@ ErrorInfo = __decorate([
 ], ErrorInfo);
 exports.ErrorInfo = ErrorInfo;
 
-},{"../Decorators":339,"./DecisionEventInfo":390}],395:[function(require,module,exports){
+},{"../Decorators":341,"./DecisionEventInfo":392}],397:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66320,7 +72161,7 @@ __decorate([
 ], InvalidState.prototype, "stateType", null);
 exports.InvalidState = InvalidState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./BasicState":385}],396:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./BasicState":387}],398:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -66542,7 +72383,7 @@ LL1Analyzer = __decorate([
 ], LL1Analyzer);
 exports.LL1Analyzer = LL1Analyzer;
 
-},{"../Decorators":339,"../Token":364,"../misc/Array2DHashSet":443,"../misc/BitSet":446,"../misc/IntervalSet":452,"../misc/ObjectEqualityComparator":455,"./ATNConfig":373,"./AbstractPredicateTransition":380,"./NotSetTransition":410,"./PredictionContext":419,"./RuleStopState":425,"./RuleTransition":426,"./WildcardTransition":435}],397:[function(require,module,exports){
+},{"../Decorators":341,"../Token":366,"../misc/Array2DHashSet":445,"../misc/BitSet":448,"../misc/IntervalSet":454,"../misc/ObjectEqualityComparator":457,"./ATNConfig":375,"./AbstractPredicateTransition":382,"./NotSetTransition":412,"./PredictionContext":421,"./RuleStopState":427,"./RuleTransition":428,"./WildcardTransition":437}],399:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67259,7 +73100,7 @@ exports.LexerATNSimulator = LexerATNSimulator;
 })(LexerATNSimulator = exports.LexerATNSimulator || (exports.LexerATNSimulator = {}));
 exports.LexerATNSimulator = LexerATNSimulator;
 
-},{"../Decorators":339,"../IntStream":345,"../Lexer":347,"../LexerNoViableAltException":349,"../Token":364,"../dfa/AcceptStateInfo":436,"../dfa/DFAState":439,"../misc/Interval":451,"./ATN":372,"./ATNConfig":373,"./ATNConfigSet":374,"./ATNSimulator":377,"./LexerActionExecutor":398,"./OrderedATNConfigSet":411,"./PredictionContext":419,"./RuleStopState":425,"assert":496}],398:[function(require,module,exports){
+},{"../Decorators":341,"../IntStream":347,"../Lexer":349,"../LexerNoViableAltException":351,"../Token":366,"../dfa/AcceptStateInfo":438,"../dfa/DFAState":441,"../misc/Interval":453,"./ATN":374,"./ATNConfig":375,"./ATNConfigSet":376,"./ATNSimulator":379,"./LexerActionExecutor":400,"./OrderedATNConfigSet":413,"./PredictionContext":421,"./RuleStopState":427,"assert":498}],400:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67460,7 +73301,7 @@ LexerActionExecutor = __decorate([
 ], LexerActionExecutor);
 exports.LexerActionExecutor = LexerActionExecutor;
 
-},{"../Decorators":339,"../misc/ArrayEqualityComparator":444,"../misc/MurmurHash":454,"./LexerIndexedCustomAction":401}],399:[function(require,module,exports){
+},{"../Decorators":341,"../misc/ArrayEqualityComparator":446,"../misc/MurmurHash":456,"./LexerIndexedCustomAction":403}],401:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67565,7 +73406,7 @@ __decorate([
 ], LexerChannelAction.prototype, "toString", null);
 exports.LexerChannelAction = LexerChannelAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],400:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],402:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67694,7 +73535,7 @@ __decorate([
 ], LexerCustomAction.prototype, "equals", null);
 exports.LexerCustomAction = LexerCustomAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],401:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],403:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67829,7 +73670,7 @@ LexerIndexedCustomAction = __decorate([
 ], LexerIndexedCustomAction);
 exports.LexerIndexedCustomAction = LexerIndexedCustomAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],402:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],404:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -67934,7 +73775,7 @@ __decorate([
 ], LexerModeAction.prototype, "toString", null);
 exports.LexerModeAction = LexerModeAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],403:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],405:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68030,7 +73871,7 @@ exports.LexerMoreAction = LexerMoreAction;
     LexerMoreAction.INSTANCE = new LexerMoreAction();
 })(LexerMoreAction = exports.LexerMoreAction || (exports.LexerMoreAction = {}));
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],404:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],406:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68126,7 +73967,7 @@ exports.LexerPopModeAction = LexerPopModeAction;
     LexerPopModeAction.INSTANCE = new LexerPopModeAction();
 })(LexerPopModeAction = exports.LexerPopModeAction || (exports.LexerPopModeAction = {}));
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],405:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],407:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68231,7 +74072,7 @@ __decorate([
 ], LexerPushModeAction.prototype, "toString", null);
 exports.LexerPushModeAction = LexerPushModeAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],406:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],408:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68327,7 +74168,7 @@ exports.LexerSkipAction = LexerSkipAction;
     LexerSkipAction.INSTANCE = new LexerSkipAction();
 })(LexerSkipAction = exports.LexerSkipAction || (exports.LexerSkipAction = {}));
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],407:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],409:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68431,7 +74272,7 @@ __decorate([
 ], LexerTypeAction.prototype, "toString", null);
 exports.LexerTypeAction = LexerTypeAction;
 
-},{"../Decorators":339,"../misc/MurmurHash":454}],408:[function(require,module,exports){
+},{"../Decorators":341,"../misc/MurmurHash":456}],410:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68483,7 +74324,7 @@ LookaheadEventInfo = __decorate([
 ], LookaheadEventInfo);
 exports.LookaheadEventInfo = LookaheadEventInfo;
 
-},{"../Decorators":339,"./DecisionEventInfo":390}],409:[function(require,module,exports){
+},{"../Decorators":341,"./DecisionEventInfo":392}],411:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68512,7 +74353,7 @@ __decorate([
 ], LoopEndState.prototype, "stateType", null);
 exports.LoopEndState = LoopEndState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],410:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],412:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68561,7 +74402,7 @@ NotSetTransition = __decorate([
 ], NotSetTransition);
 exports.NotSetTransition = NotSetTransition;
 
-},{"../Decorators":339,"./SetTransition":428}],411:[function(require,module,exports){
+},{"../Decorators":341,"./SetTransition":430}],413:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68616,7 +74457,7 @@ __decorate([
 ], OrderedATNConfigSet.prototype, "canMerge", null);
 exports.OrderedATNConfigSet = OrderedATNConfigSet;
 
-},{"../Decorators":339,"./ATNConfigSet":374}],412:[function(require,module,exports){
+},{"../Decorators":341,"./ATNConfigSet":376}],414:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -68778,7 +74619,7 @@ ParseInfo = __decorate([
 ], ParseInfo);
 exports.ParseInfo = ParseInfo;
 
-},{"../Decorators":339}],413:[function(require,module,exports){
+},{"../Decorators":341}],415:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71051,7 +76892,7 @@ ParserATNSimulator = __decorate([
 ], ParserATNSimulator);
 exports.ParserATNSimulator = ParserATNSimulator;
 
-},{"../Decorators":339,"../IntStream":345,"../NoViableAltException":351,"../ParserRuleContext":355,"../Token":364,"../VocabularyImpl":370,"../dfa/AcceptStateInfo":436,"../dfa/DFAState":439,"../misc/Array2DHashSet":443,"../misc/Arrays":445,"../misc/BitSet":446,"../misc/IntegerList":449,"../misc/Interval":451,"../misc/ObjectEqualityComparator":455,"./ATN":372,"./ATNConfig":373,"./ATNConfigSet":374,"./ATNSimulator":377,"./ATNStateType":379,"./ActionTransition":381,"./AtomTransition":383,"./ConflictInfo":388,"./DecisionState":392,"./NotSetTransition":410,"./PredictionContext":419,"./PredictionContextCache":420,"./PredictionMode":421,"./RuleStopState":425,"./RuleTransition":426,"./SemanticContext":427,"./SetTransition":428,"./SimulatorState":429,"assert":496}],414:[function(require,module,exports){
+},{"../Decorators":341,"../IntStream":347,"../NoViableAltException":353,"../ParserRuleContext":357,"../Token":366,"../VocabularyImpl":372,"../dfa/AcceptStateInfo":438,"../dfa/DFAState":441,"../misc/Array2DHashSet":445,"../misc/Arrays":447,"../misc/BitSet":448,"../misc/IntegerList":451,"../misc/Interval":453,"../misc/ObjectEqualityComparator":457,"./ATN":374,"./ATNConfig":375,"./ATNConfigSet":376,"./ATNSimulator":379,"./ATNStateType":381,"./ActionTransition":383,"./AtomTransition":385,"./ConflictInfo":390,"./DecisionState":394,"./NotSetTransition":412,"./PredictionContext":421,"./PredictionContextCache":422,"./PredictionMode":423,"./RuleStopState":427,"./RuleTransition":428,"./SemanticContext":429,"./SetTransition":430,"./SimulatorState":431,"assert":498}],416:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71084,7 +76925,7 @@ __decorate([
 ], PlusBlockStartState.prototype, "stateType", null);
 exports.PlusBlockStartState = PlusBlockStartState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./BlockStartState":387}],415:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./BlockStartState":389}],417:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71115,7 +76956,7 @@ __decorate([
 ], PlusLoopbackState.prototype, "stateType", null);
 exports.PlusLoopbackState = PlusLoopbackState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./DecisionState":392}],416:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./DecisionState":394}],418:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71178,7 +77019,7 @@ PrecedencePredicateTransition = __decorate([
 ], PrecedencePredicateTransition);
 exports.PrecedencePredicateTransition = PrecedencePredicateTransition;
 
-},{"../Decorators":339,"./AbstractPredicateTransition":380,"./SemanticContext":427}],417:[function(require,module,exports){
+},{"../Decorators":341,"./AbstractPredicateTransition":382,"./SemanticContext":429}],419:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71241,7 +77082,7 @@ PredicateEvalInfo = __decorate([
 ], PredicateEvalInfo);
 exports.PredicateEvalInfo = PredicateEvalInfo;
 
-},{"../Decorators":339,"./DecisionEventInfo":390}],418:[function(require,module,exports){
+},{"../Decorators":341,"./DecisionEventInfo":392}],420:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71307,7 +77148,7 @@ PredicateTransition = __decorate([
 ], PredicateTransition);
 exports.PredicateTransition = PredicateTransition;
 
-},{"../Decorators":339,"./AbstractPredicateTransition":380,"./SemanticContext":427}],419:[function(require,module,exports){
+},{"../Decorators":341,"./AbstractPredicateTransition":382,"./SemanticContext":429}],421:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -71998,7 +77839,7 @@ exports.SingletonPredictionContext = SingletonPredictionContext;
     PredictionContext.IdentityEqualityComparator = IdentityEqualityComparator;
 })(PredictionContext = exports.PredictionContext || (exports.PredictionContext = {}));
 
-},{"../Decorators":339,"../misc/Array2DHashMap":442,"../misc/Array2DHashSet":443,"../misc/Arrays":445,"../misc/MurmurHash":454,"./PredictionContextCache":420,"assert":496}],420:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashMap":444,"../misc/Array2DHashSet":445,"../misc/Arrays":447,"../misc/MurmurHash":456,"./PredictionContextCache":422,"assert":498}],422:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72139,7 +77980,7 @@ PredictionContextCache.UNCACHED = new PredictionContextCache(false);
     PredictionContextCache.IdentityCommutativePredictionContextOperands = IdentityCommutativePredictionContextOperands;
 })(PredictionContextCache = exports.PredictionContextCache || (exports.PredictionContextCache = {}));
 
-},{"../Decorators":339,"../misc/Array2DHashMap":442,"../misc/ObjectEqualityComparator":455,"./PredictionContext":419,"assert":496}],421:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashMap":444,"../misc/ObjectEqualityComparator":457,"./PredictionContext":421,"assert":498}],423:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72300,7 +78141,7 @@ var PredictionMode;
     PredictionMode.allConfigsInRuleStopStates = allConfigsInRuleStopStates;
 })(PredictionMode = exports.PredictionMode || (exports.PredictionMode = {}));
 
-},{"../Decorators":339,"../misc/Array2DHashMap":442,"../misc/MurmurHash":454,"./RuleStopState":425}],422:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashMap":444,"../misc/MurmurHash":456,"./RuleStopState":427}],424:[function(require,module,exports){
 (function (process){(function (){
 "use strict";
 /*!
@@ -72569,7 +78410,7 @@ __decorate([
 exports.ProfilingATNSimulator = ProfilingATNSimulator;
 
 }).call(this)}).call(this,require('_process'))
-},{"../Decorators":339,"./ATN":372,"./ATNSimulator":377,"./AmbiguityInfo":382,"./ContextSensitivityInfo":389,"./DecisionInfo":391,"./ErrorInfo":394,"./LookaheadEventInfo":408,"./ParserATNSimulator":413,"./PredicateEvalInfo":417,"./SemanticContext":427,"./SimulatorState":429,"_process":672}],423:[function(require,module,exports){
+},{"../Decorators":341,"./ATN":374,"./ATNSimulator":379,"./AmbiguityInfo":384,"./ContextSensitivityInfo":391,"./DecisionInfo":393,"./ErrorInfo":396,"./LookaheadEventInfo":410,"./ParserATNSimulator":415,"./PredicateEvalInfo":419,"./SemanticContext":429,"./SimulatorState":431,"_process":674}],425:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72627,7 +78468,7 @@ RangeTransition = __decorate([
 ], RangeTransition);
 exports.RangeTransition = RangeTransition;
 
-},{"../Decorators":339,"../misc/IntervalSet":452,"./Transition":434}],424:[function(require,module,exports){
+},{"../Decorators":341,"../misc/IntervalSet":454,"./Transition":436}],426:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72660,7 +78501,7 @@ __decorate([
 ], RuleStartState.prototype, "stateType", null);
 exports.RuleStartState = RuleStartState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],425:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],427:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72699,7 +78540,7 @@ __decorate([
 ], RuleStopState.prototype, "stateType", null);
 exports.RuleStopState = RuleStopState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],426:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],428:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -72755,7 +78596,7 @@ RuleTransition = __decorate([
 ], RuleTransition);
 exports.RuleTransition = RuleTransition;
 
-},{"../Decorators":339,"./Transition":434}],427:[function(require,module,exports){
+},{"../Decorators":341,"./Transition":436}],429:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73235,7 +79076,7 @@ exports.SemanticContext = SemanticContext;
     SemanticContext.OR = OR;
 })(SemanticContext = exports.SemanticContext || (exports.SemanticContext = {}));
 
-},{"../Decorators":339,"../misc/Array2DHashSet":443,"../misc/ArrayEqualityComparator":444,"../misc/MurmurHash":454,"../misc/ObjectEqualityComparator":455,"../misc/Utils":458}],428:[function(require,module,exports){
+},{"../Decorators":341,"../misc/Array2DHashSet":445,"../misc/ArrayEqualityComparator":446,"../misc/MurmurHash":456,"../misc/ObjectEqualityComparator":457,"../misc/Utils":460}],430:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73301,7 +79142,7 @@ SetTransition = __decorate([
 ], SetTransition);
 exports.SetTransition = SetTransition;
 
-},{"../Decorators":339,"../Token":364,"../misc/IntervalSet":452,"./Transition":434}],429:[function(require,module,exports){
+},{"../Decorators":341,"../Token":366,"../misc/IntervalSet":454,"./Transition":436}],431:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73337,7 +79178,7 @@ SimulatorState = __decorate([
 ], SimulatorState);
 exports.SimulatorState = SimulatorState;
 
-},{"../Decorators":339,"../ParserRuleContext":355}],430:[function(require,module,exports){
+},{"../Decorators":341,"../ParserRuleContext":357}],432:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73365,7 +79206,7 @@ __decorate([
 ], StarBlockStartState.prototype, "stateType", null);
 exports.StarBlockStartState = StarBlockStartState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./BlockStartState":387}],431:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./BlockStartState":389}],433:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73422,7 +79263,7 @@ __decorate([
 ], StarLoopEntryState.prototype, "stateType", null);
 exports.StarLoopEntryState = StarLoopEntryState;
 
-},{"../Decorators":339,"../misc/BitSet":446,"./ATNStateType":379,"./DecisionState":392}],432:[function(require,module,exports){
+},{"../Decorators":341,"../misc/BitSet":448,"./ATNStateType":381,"./DecisionState":394}],434:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73453,7 +79294,7 @@ __decorate([
 ], StarLoopbackState.prototype, "stateType", null);
 exports.StarLoopbackState = StarLoopbackState;
 
-},{"../Decorators":339,"./ATNState":378,"./ATNStateType":379}],433:[function(require,module,exports){
+},{"../Decorators":341,"./ATNState":380,"./ATNStateType":381}],435:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73482,7 +79323,7 @@ __decorate([
 ], TokensStartState.prototype, "stateType", null);
 exports.TokensStartState = TokensStartState;
 
-},{"../Decorators":339,"./ATNStateType":379,"./DecisionState":392}],434:[function(require,module,exports){
+},{"../Decorators":341,"./ATNStateType":381,"./DecisionState":394}],436:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73556,7 +79397,7 @@ Transition = __decorate([
 ], Transition);
 exports.Transition = Transition;
 
-},{"../Decorators":339}],435:[function(require,module,exports){
+},{"../Decorators":341}],437:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73604,7 +79445,7 @@ WildcardTransition = __decorate([
 ], WildcardTransition);
 exports.WildcardTransition = WildcardTransition;
 
-},{"../Decorators":339,"./Transition":434}],436:[function(require,module,exports){
+},{"../Decorators":341,"./Transition":436}],438:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73646,7 +79487,7 @@ class AcceptStateInfo {
 }
 exports.AcceptStateInfo = AcceptStateInfo;
 
-},{}],437:[function(require,module,exports){
+},{}],439:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73821,7 +79662,7 @@ DFA = __decorate([
 ], DFA);
 exports.DFA = DFA;
 
-},{"../Decorators":339,"../VocabularyImpl":370,"../atn/ATNConfigSet":374,"../atn/StarLoopEntryState":431,"../misc/Array2DHashSet":443,"../misc/ObjectEqualityComparator":455,"./DFASerializer":438,"./DFAState":439,"./LexerDFASerializer":440}],438:[function(require,module,exports){
+},{"../Decorators":341,"../VocabularyImpl":372,"../atn/ATNConfigSet":376,"../atn/StarLoopEntryState":433,"../misc/Array2DHashSet":445,"../misc/ObjectEqualityComparator":457,"./DFASerializer":440,"./DFAState":441,"./LexerDFASerializer":442}],440:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -73963,7 +79804,7 @@ __decorate([
 ], DFASerializer.prototype, "toString", null);
 exports.DFASerializer = DFASerializer;
 
-},{"../Decorators":339,"../Recognizer":359,"../VocabularyImpl":370,"../atn/ATNSimulator":377,"../atn/PredictionContext":419}],439:[function(require,module,exports){
+},{"../Decorators":341,"../Recognizer":361,"../VocabularyImpl":372,"../atn/ATNSimulator":379,"../atn/PredictionContext":421}],441:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74194,7 +80035,7 @@ exports.DFAState = DFAState;
     DFAState.PredPrediction = PredPrediction;
 })(DFAState = exports.DFAState || (exports.DFAState = {}));
 
-},{"../Decorators":339,"../atn/ATN":372,"../atn/PredictionContext":419,"../misc/BitSet":446,"../misc/MurmurHash":454,"assert":496}],440:[function(require,module,exports){
+},{"../Decorators":341,"../atn/ATN":374,"../atn/PredictionContext":421,"../misc/BitSet":448,"../misc/MurmurHash":456,"assert":498}],442:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74231,7 +80072,7 @@ LexerDFASerializer = __decorate([
 ], LexerDFASerializer);
 exports.LexerDFASerializer = LexerDFASerializer;
 
-},{"../Decorators":339,"../VocabularyImpl":370,"./DFASerializer":438}],441:[function(require,module,exports){
+},{"../Decorators":341,"../VocabularyImpl":372,"./DFASerializer":440}],443:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74297,7 +80138,7 @@ __exportStar(require("./Vocabulary"), exports);
 __exportStar(require("./VocabularyImpl"), exports);
 __exportStar(require("./WritableToken"), exports);
 
-},{"./ANTLRErrorListener":326,"./ANTLRErrorStrategy":327,"./ANTLRInputStream":328,"./BailErrorStrategy":329,"./BufferedTokenStream":330,"./CharStream":331,"./CharStreams":332,"./CodePointBuffer":333,"./CodePointCharStream":334,"./CommonToken":335,"./CommonTokenFactory":336,"./CommonTokenStream":337,"./ConsoleErrorListener":338,"./DefaultErrorStrategy":340,"./Dependents":341,"./DiagnosticErrorListener":342,"./FailedPredicateException":343,"./InputMismatchException":344,"./IntStream":345,"./InterpreterRuleContext":346,"./Lexer":347,"./LexerInterpreter":348,"./LexerNoViableAltException":349,"./ListTokenSource":350,"./NoViableAltException":351,"./Parser":352,"./ParserErrorListener":353,"./ParserInterpreter":354,"./ParserRuleContext":355,"./ProxyErrorListener":356,"./ProxyParserErrorListener":357,"./RecognitionException":358,"./Recognizer":359,"./RuleContext":360,"./RuleContextWithAltNum":361,"./RuleDependency":362,"./RuleVersion":363,"./Token":364,"./TokenFactory":365,"./TokenSource":366,"./TokenStream":367,"./TokenStreamRewriter":368,"./Vocabulary":369,"./VocabularyImpl":370,"./WritableToken":371}],442:[function(require,module,exports){
+},{"./ANTLRErrorListener":328,"./ANTLRErrorStrategy":329,"./ANTLRInputStream":330,"./BailErrorStrategy":331,"./BufferedTokenStream":332,"./CharStream":333,"./CharStreams":334,"./CodePointBuffer":335,"./CodePointCharStream":336,"./CommonToken":337,"./CommonTokenFactory":338,"./CommonTokenStream":339,"./ConsoleErrorListener":340,"./DefaultErrorStrategy":342,"./Dependents":343,"./DiagnosticErrorListener":344,"./FailedPredicateException":345,"./InputMismatchException":346,"./IntStream":347,"./InterpreterRuleContext":348,"./Lexer":349,"./LexerInterpreter":350,"./LexerNoViableAltException":351,"./ListTokenSource":352,"./NoViableAltException":353,"./Parser":354,"./ParserErrorListener":355,"./ParserInterpreter":356,"./ParserRuleContext":357,"./ProxyErrorListener":358,"./ProxyParserErrorListener":359,"./RecognitionException":360,"./Recognizer":361,"./RuleContext":362,"./RuleContextWithAltNum":363,"./RuleDependency":364,"./RuleVersion":365,"./Token":366,"./TokenFactory":367,"./TokenSource":368,"./TokenStream":369,"./TokenStreamRewriter":370,"./Vocabulary":371,"./VocabularyImpl":372,"./WritableToken":373}],444:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74380,7 +80221,7 @@ class Array2DHashMap {
 }
 exports.Array2DHashMap = Array2DHashMap;
 
-},{"./Array2DHashSet":443}],443:[function(require,module,exports){
+},{"./Array2DHashSet":445}],445:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74747,7 +80588,7 @@ __decorate([
 ], Array2DHashSet.prototype, "createBuckets", null);
 exports.Array2DHashSet = Array2DHashSet;
 
-},{"../Decorators":339,"./DefaultEqualityComparator":448,"./MurmurHash":454,"assert":496}],444:[function(require,module,exports){
+},{"../Decorators":341,"./DefaultEqualityComparator":450,"./MurmurHash":456,"assert":498}],446:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74819,7 +80660,7 @@ __decorate([
 ], ArrayEqualityComparator.prototype, "equals", null);
 exports.ArrayEqualityComparator = ArrayEqualityComparator;
 
-},{"../Decorators":339,"./MurmurHash":454,"./ObjectEqualityComparator":455}],445:[function(require,module,exports){
+},{"../Decorators":341,"./MurmurHash":456,"./ObjectEqualityComparator":457}],447:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -74889,7 +80730,7 @@ var Arrays;
     Arrays.toString = toString;
 })(Arrays = exports.Arrays || (exports.Arrays = {}));
 
-},{}],446:[function(require,module,exports){
+},{}],448:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -75561,7 +81402,7 @@ class BitSetIterator {
     [Symbol.iterator]() { return this; }
 }
 
-},{"./MurmurHash":454,"util":727}],447:[function(require,module,exports){
+},{"./MurmurHash":456,"util":729}],449:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -75582,7 +81423,7 @@ function isSupplementaryCodePoint(ch) {
 }
 exports.isSupplementaryCodePoint = isSupplementaryCodePoint;
 
-},{}],448:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -75653,7 +81494,7 @@ __decorate([
 ], DefaultEqualityComparator.prototype, "equals", null);
 exports.DefaultEqualityComparator = DefaultEqualityComparator;
 
-},{"../Decorators":339,"./MurmurHash":454,"./ObjectEqualityComparator":455}],449:[function(require,module,exports){
+},{"../Decorators":341,"./MurmurHash":456,"./ObjectEqualityComparator":457}],451:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -75947,7 +81788,7 @@ __decorate([
 ], IntegerList.prototype, "toString", null);
 exports.IntegerList = IntegerList;
 
-},{"../Decorators":339,"./Arrays":445}],450:[function(require,module,exports){
+},{"../Decorators":341,"./Arrays":447}],452:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -75977,7 +81818,7 @@ class IntegerStack extends IntegerList_1.IntegerList {
 }
 exports.IntegerStack = IntegerStack;
 
-},{"./IntegerList":449}],451:[function(require,module,exports){
+},{"./IntegerList":451}],453:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -76120,7 +81961,7 @@ __decorate([
 ], Interval.prototype, "toString", null);
 exports.Interval = Interval;
 
-},{"../Decorators":339}],452:[function(require,module,exports){
+},{"../Decorators":341}],454:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -76766,7 +82607,7 @@ __decorate([
 ], IntervalSet, "subtract", null);
 exports.IntervalSet = IntervalSet;
 
-},{"../Decorators":339,"../Lexer":347,"../Token":364,"./ArrayEqualityComparator":444,"./IntegerList":449,"./Interval":451,"./MurmurHash":454}],453:[function(require,module,exports){
+},{"../Decorators":341,"../Lexer":349,"../Token":366,"./ArrayEqualityComparator":446,"./IntegerList":451,"./Interval":453,"./MurmurHash":456}],455:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -76799,7 +82640,7 @@ class MultiMap extends Map {
 }
 exports.MultiMap = MultiMap;
 
-},{}],454:[function(require,module,exports){
+},{}],456:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -76914,7 +82755,7 @@ var MurmurHash;
     }
 })(MurmurHash = exports.MurmurHash || (exports.MurmurHash = {}));
 
-},{}],455:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -76973,7 +82814,7 @@ __decorate([
 ], ObjectEqualityComparator.prototype, "equals", null);
 exports.ObjectEqualityComparator = ObjectEqualityComparator;
 
-},{"../Decorators":339}],456:[function(require,module,exports){
+},{"../Decorators":341}],458:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77002,7 +82843,7 @@ class ParseCancellationException extends Error {
 }
 exports.ParseCancellationException = ParseCancellationException;
 
-},{}],457:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77056,7 +82897,7 @@ class UUID {
 }
 exports.UUID = UUID;
 
-},{"./MurmurHash":454}],458:[function(require,module,exports){
+},{"./MurmurHash":456}],460:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77231,7 +83072,7 @@ exports.toCharArray = toCharArray;
 // 	return s;
 // }
 
-},{}],459:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77376,7 +83217,7 @@ __decorate([
 ], AbstractParseTreeVisitor.prototype, "shouldVisitNextChild", null);
 exports.AbstractParseTreeVisitor = AbstractParseTreeVisitor;
 
-},{"../Decorators":339}],460:[function(require,module,exports){
+},{"../Decorators":341}],462:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77412,7 +83253,7 @@ __decorate([
 ], ErrorNode.prototype, "accept", null);
 exports.ErrorNode = ErrorNode;
 
-},{"../Decorators":339,"./TerminalNode":462}],461:[function(require,module,exports){
+},{"../Decorators":341,"./TerminalNode":464}],463:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77424,7 +83265,7 @@ class RuleNode {
 }
 exports.RuleNode = RuleNode;
 
-},{}],462:[function(require,module,exports){
+},{}],464:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77516,7 +83357,7 @@ __decorate([
 ], TerminalNode.prototype, "toString", null);
 exports.TerminalNode = TerminalNode;
 
-},{"../Decorators":339,"../Token":364,"../misc/Interval":451}],463:[function(require,module,exports){
+},{"../Decorators":341,"../Token":366,"../misc/Interval":453}],465:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77760,7 +83601,7 @@ __decorate([
 ], Trees, "getRootOfSubtreeEnclosingRegion", null);
 exports.Trees = Trees;
 
-},{"../CommonToken":335,"../Decorators":339,"../Parser":352,"../ParserRuleContext":355,"../Token":364,"../atn/ATN":372,"../misc/Utils":458,"./ErrorNode":460,"./RuleNode":461,"./TerminalNode":462}],464:[function(require,module,exports){
+},{"../CommonToken":337,"../Decorators":341,"../Parser":354,"../ParserRuleContext":357,"../Token":366,"../atn/ATN":374,"../misc/Utils":460,"./ErrorNode":462,"./RuleNode":463,"./TerminalNode":464}],466:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77784,7 +83625,7 @@ class Chunk {
 }
 exports.Chunk = Chunk;
 
-},{}],465:[function(require,module,exports){
+},{}],467:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -77964,7 +83805,7 @@ ParseTreeMatch = __decorate([
 ], ParseTreeMatch);
 exports.ParseTreeMatch = ParseTreeMatch;
 
-},{"../../Decorators":339}],466:[function(require,module,exports){
+},{"../../Decorators":341}],468:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -78122,7 +83963,7 @@ ParseTreePattern = __decorate([
 ], ParseTreePattern);
 exports.ParseTreePattern = ParseTreePattern;
 
-},{"../../Decorators":339,"../xpath/XPath":472}],467:[function(require,module,exports){
+},{"../../Decorators":341,"../xpath/XPath":474}],469:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -78600,7 +84441,7 @@ exports.ParseTreePatternMatcher = ParseTreePatternMatcher;
     ParseTreePatternMatcher.StartRuleDoesNotConsumeFullPattern = StartRuleDoesNotConsumeFullPattern;
 })(ParseTreePatternMatcher = exports.ParseTreePatternMatcher || (exports.ParseTreePatternMatcher = {}));
 
-},{"../../BailErrorStrategy":329,"../../CharStreams":332,"../../CommonTokenStream":337,"../../Decorators":339,"../../ListTokenSource":350,"../../ParserInterpreter":354,"../../ParserRuleContext":355,"../../RecognitionException":358,"../../Token":364,"../../misc/MultiMap":453,"../../misc/ParseCancellationException":456,"../RuleNode":461,"../TerminalNode":462,"./ParseTreeMatch":465,"./ParseTreePattern":466,"./RuleTagToken":468,"./TagChunk":469,"./TextChunk":470,"./TokenTagToken":471}],468:[function(require,module,exports){
+},{"../../BailErrorStrategy":331,"../../CharStreams":334,"../../CommonTokenStream":339,"../../Decorators":341,"../../ListTokenSource":352,"../../ParserInterpreter":356,"../../ParserRuleContext":357,"../../RecognitionException":360,"../../Token":366,"../../misc/MultiMap":455,"../../misc/ParseCancellationException":458,"../RuleNode":463,"../TerminalNode":464,"./ParseTreeMatch":467,"./ParseTreePattern":468,"./RuleTagToken":470,"./TagChunk":471,"./TextChunk":472,"./TokenTagToken":473}],470:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -78798,7 +84639,7 @@ RuleTagToken = __decorate([
 ], RuleTagToken);
 exports.RuleTagToken = RuleTagToken;
 
-},{"../../Decorators":339,"../../Token":364}],469:[function(require,module,exports){
+},{"../../Decorators":341,"../../Token":366}],471:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -78885,7 +84726,7 @@ __decorate([
 ], TagChunk.prototype, "toString", null);
 exports.TagChunk = TagChunk;
 
-},{"../../Decorators":339,"./Chunk":464}],470:[function(require,module,exports){
+},{"../../Decorators":341,"./Chunk":466}],472:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -78955,7 +84796,7 @@ TextChunk = __decorate([
 ], TextChunk);
 exports.TextChunk = TextChunk;
 
-},{"../../Decorators":339,"./Chunk":464}],471:[function(require,module,exports){
+},{"../../Decorators":341,"./Chunk":466}],473:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79050,7 +84891,7 @@ TokenTagToken = __decorate([
 ], TokenTagToken);
 exports.TokenTagToken = TokenTagToken;
 
-},{"../../CommonToken":335,"../../Decorators":339}],472:[function(require,module,exports){
+},{"../../CommonToken":337,"../../Decorators":341}],474:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79247,7 +85088,7 @@ exports.XPath = XPath;
 XPath.WILDCARD = "*"; // word not operator/separator
 XPath.NOT = "!"; // word for invert operator
 
-},{"../../CharStreams":332,"../../CommonTokenStream":337,"../../LexerNoViableAltException":349,"../../ParserRuleContext":355,"../../Token":364,"./XPathLexer":474,"./XPathLexerErrorListener":475,"./XPathRuleAnywhereElement":476,"./XPathRuleElement":477,"./XPathTokenAnywhereElement":478,"./XPathTokenElement":479,"./XPathWildcardAnywhereElement":480,"./XPathWildcardElement":481}],473:[function(require,module,exports){
+},{"../../CharStreams":334,"../../CommonTokenStream":339,"../../LexerNoViableAltException":351,"../../ParserRuleContext":357,"../../Token":366,"./XPathLexer":476,"./XPathLexerErrorListener":477,"./XPathRuleAnywhereElement":478,"./XPathRuleElement":479,"./XPathTokenAnywhereElement":480,"./XPathTokenElement":481,"./XPathWildcardAnywhereElement":482,"./XPathWildcardElement":483}],475:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79282,7 +85123,7 @@ __decorate([
 ], XPathElement.prototype, "toString", null);
 exports.XPathElement = XPathElement;
 
-},{"../../Decorators":339}],474:[function(require,module,exports){
+},{"../../Decorators":341}],476:[function(require,module,exports){
 "use strict";
 // Generated from XPathLexer.g4 by ANTLR 4.9.0-SNAPSHOT
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -79757,7 +85598,7 @@ XPathLexer._serializedATN = Utils.join([
     XPathLexer._serializedATNSegment1,
 ], "");
 
-},{"../../Lexer":347,"../../VocabularyImpl":370,"../../atn/ATNDeserializer":376,"../../atn/LexerATNSimulator":397,"../../misc/Utils":458}],475:[function(require,module,exports){
+},{"../../Lexer":349,"../../VocabularyImpl":372,"../../atn/ATNDeserializer":378,"../../atn/LexerATNSimulator":399,"../../misc/Utils":460}],477:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79782,7 +85623,7 @@ __decorate([
 ], XPathLexerErrorListener.prototype, "syntaxError", null);
 exports.XPathLexerErrorListener = XPathLexerErrorListener;
 
-},{"../../Decorators":339}],476:[function(require,module,exports){
+},{"../../Decorators":341}],478:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79816,7 +85657,7 @@ __decorate([
 ], XPathRuleAnywhereElement.prototype, "evaluate", null);
 exports.XPathRuleAnywhereElement = XPathRuleAnywhereElement;
 
-},{"../../Decorators":339,"../Trees":463,"./XPathElement":473}],477:[function(require,module,exports){
+},{"../../Decorators":341,"../Trees":465,"./XPathElement":475}],479:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79859,7 +85700,7 @@ __decorate([
 ], XPathRuleElement.prototype, "evaluate", null);
 exports.XPathRuleElement = XPathRuleElement;
 
-},{"../../Decorators":339,"../../ParserRuleContext":355,"../Trees":463,"./XPathElement":473}],478:[function(require,module,exports){
+},{"../../Decorators":341,"../../ParserRuleContext":357,"../Trees":465,"./XPathElement":475}],480:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79891,7 +85732,7 @@ __decorate([
 ], XPathTokenAnywhereElement.prototype, "evaluate", null);
 exports.XPathTokenAnywhereElement = XPathTokenAnywhereElement;
 
-},{"../../Decorators":339,"../Trees":463,"./XPathElement":473}],479:[function(require,module,exports){
+},{"../../Decorators":341,"../Trees":465,"./XPathElement":475}],481:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79934,7 +85775,7 @@ __decorate([
 ], XPathTokenElement.prototype, "evaluate", null);
 exports.XPathTokenElement = XPathTokenElement;
 
-},{"../../Decorators":339,"../TerminalNode":462,"../Trees":463,"./XPathElement":473}],480:[function(require,module,exports){
+},{"../../Decorators":341,"../TerminalNode":464,"../Trees":465,"./XPathElement":475}],482:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -79970,7 +85811,7 @@ __decorate([
 ], XPathWildcardAnywhereElement.prototype, "evaluate", null);
 exports.XPathWildcardAnywhereElement = XPathWildcardAnywhereElement;
 
-},{"../../Decorators":339,"../Trees":463,"./XPath":472,"./XPathElement":473}],481:[function(require,module,exports){
+},{"../../Decorators":341,"../Trees":465,"./XPath":474,"./XPathElement":475}],483:[function(require,module,exports){
 "use strict";
 /*!
  * Copyright 2016 The ANTLR Project. All rights reserved.
@@ -80010,7 +85851,7 @@ __decorate([
 ], XPathWildcardElement.prototype, "evaluate", null);
 exports.XPathWildcardElement = XPathWildcardElement;
 
-},{"../../Decorators":339,"../Trees":463,"./XPath":472,"./XPathElement":473}],482:[function(require,module,exports){
+},{"../../Decorators":341,"../Trees":465,"./XPath":474,"./XPathElement":475}],484:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -80021,7 +85862,7 @@ asn1.constants = require('./asn1/constants');
 asn1.decoders = require('./asn1/decoders');
 asn1.encoders = require('./asn1/encoders');
 
-},{"./asn1/api":483,"./asn1/base":485,"./asn1/constants":489,"./asn1/decoders":491,"./asn1/encoders":494,"bn.js":502}],483:[function(require,module,exports){
+},{"./asn1/api":485,"./asn1/base":487,"./asn1/constants":491,"./asn1/decoders":493,"./asn1/encoders":496,"bn.js":504}],485:[function(require,module,exports){
 var asn1 = require('../asn1');
 var inherits = require('inherits');
 
@@ -80084,7 +85925,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"../asn1":482,"inherits":634,"vm":728}],484:[function(require,module,exports){
+},{"../asn1":484,"inherits":636,"vm":730}],486:[function(require,module,exports){
 var inherits = require('inherits');
 var Reporter = require('../base').Reporter;
 var Buffer = require('buffer').Buffer;
@@ -80202,7 +86043,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base":485,"buffer":537,"inherits":634}],485:[function(require,module,exports){
+},{"../base":487,"buffer":539,"inherits":636}],487:[function(require,module,exports){
 var base = exports;
 
 base.Reporter = require('./reporter').Reporter;
@@ -80210,7 +86051,7 @@ base.DecoderBuffer = require('./buffer').DecoderBuffer;
 base.EncoderBuffer = require('./buffer').EncoderBuffer;
 base.Node = require('./node');
 
-},{"./buffer":484,"./node":486,"./reporter":487}],486:[function(require,module,exports){
+},{"./buffer":486,"./node":488,"./reporter":489}],488:[function(require,module,exports){
 var Reporter = require('../base').Reporter;
 var EncoderBuffer = require('../base').EncoderBuffer;
 var DecoderBuffer = require('../base').DecoderBuffer;
@@ -80846,7 +86687,7 @@ Node.prototype._isPrintstr = function isPrintstr(str) {
   return /^[A-Za-z0-9 '\(\)\+,\-\.\/:=\?]*$/.test(str);
 };
 
-},{"../base":485,"minimalistic-assert":651}],487:[function(require,module,exports){
+},{"../base":487,"minimalistic-assert":653}],489:[function(require,module,exports){
 var inherits = require('inherits');
 
 function Reporter(options) {
@@ -80969,7 +86810,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":634}],488:[function(require,module,exports){
+},{"inherits":636}],490:[function(require,module,exports){
 var constants = require('../constants');
 
 exports.tagClass = {
@@ -81013,7 +86854,7 @@ exports.tag = {
 };
 exports.tagByName = constants._reverse(exports.tag);
 
-},{"../constants":489}],489:[function(require,module,exports){
+},{"../constants":491}],491:[function(require,module,exports){
 var constants = exports;
 
 // Helper
@@ -81034,7 +86875,7 @@ constants._reverse = function reverse(map) {
 
 constants.der = require('./der');
 
-},{"./der":488}],490:[function(require,module,exports){
+},{"./der":490}],492:[function(require,module,exports){
 var inherits = require('inherits');
 
 var asn1 = require('../../asn1');
@@ -81360,13 +87201,13 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../../asn1":482,"inherits":634}],491:[function(require,module,exports){
+},{"../../asn1":484,"inherits":636}],493:[function(require,module,exports){
 var decoders = exports;
 
 decoders.der = require('./der');
 decoders.pem = require('./pem');
 
-},{"./der":490,"./pem":492}],492:[function(require,module,exports){
+},{"./der":492,"./pem":494}],494:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -81417,7 +87258,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"./der":490,"buffer":537,"inherits":634}],493:[function(require,module,exports){
+},{"./der":492,"buffer":539,"inherits":636}],495:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -81714,13 +87555,13 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../../asn1":482,"buffer":537,"inherits":634}],494:[function(require,module,exports){
+},{"../../asn1":484,"buffer":539,"inherits":636}],496:[function(require,module,exports){
 var encoders = exports;
 
 encoders.der = require('./der');
 encoders.pem = require('./pem');
 
-},{"./der":493,"./pem":495}],495:[function(require,module,exports){
+},{"./der":495,"./pem":497}],497:[function(require,module,exports){
 var inherits = require('inherits');
 
 var DEREncoder = require('./der');
@@ -81743,7 +87584,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"./der":493,"inherits":634}],496:[function(require,module,exports){
+},{"./der":495,"inherits":636}],498:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -82253,7 +88094,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object.assign/polyfill":657,"util/":499}],497:[function(require,module,exports){
+},{"object.assign/polyfill":659,"util/":501}],499:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -82278,14 +88119,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],498:[function(require,module,exports){
+},{}],500:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],499:[function(require,module,exports){
+},{}],501:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -82875,7 +88716,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":498,"_process":672,"inherits":497}],500:[function(require,module,exports){
+},{"./support/isBuffer":500,"_process":674,"inherits":499}],502:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -82896,7 +88737,7 @@ module.exports = function availableTypedArrays() {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"possible-typed-array-names":670}],501:[function(require,module,exports){
+},{"possible-typed-array-names":672}],503:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -83048,7 +88889,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],502:[function(require,module,exports){
+},{}],504:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -86497,7 +92338,7 @@ function fromByteArray (uint8) {
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":505}],503:[function(require,module,exports){
+},{"buffer":507}],505:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -86564,7 +92405,7 @@ if (typeof self === 'object') {
   }
 }
 
-},{"crypto":505}],504:[function(require,module,exports){
+},{"crypto":507}],506:[function(require,module,exports){
 (function (process,global){(function (){
 module.exports = process.hrtime || hrtime
 
@@ -86595,9 +92436,9 @@ function hrtime(previousTimestamp){
   return [seconds,nanoseconds]
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":672}],505:[function(require,module,exports){
+},{"_process":674}],507:[function(require,module,exports){
 
-},{}],506:[function(require,module,exports){
+},{}],508:[function(require,module,exports){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
 // which is in turn based on the one from crypto-js
@@ -86827,7 +92668,7 @@ AES.prototype.scrub = function () {
 
 module.exports.AES = AES
 
-},{"safe-buffer":693}],507:[function(require,module,exports){
+},{"safe-buffer":695}],509:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -86946,7 +92787,7 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 
 module.exports = StreamCipher
 
-},{"./aes":506,"./ghash":511,"./incr32":512,"buffer-xor":536,"cipher-base":546,"inherits":634,"safe-buffer":693}],508:[function(require,module,exports){
+},{"./aes":508,"./ghash":513,"./incr32":514,"buffer-xor":538,"cipher-base":548,"inherits":636,"safe-buffer":695}],510:[function(require,module,exports){
 var ciphers = require('./encrypter')
 var deciphers = require('./decrypter')
 var modes = require('./modes/list.json')
@@ -86961,7 +92802,7 @@ exports.createDecipher = exports.Decipher = deciphers.createDecipher
 exports.createDecipheriv = exports.Decipheriv = deciphers.createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":509,"./encrypter":510,"./modes/list.json":520}],509:[function(require,module,exports){
+},{"./decrypter":511,"./encrypter":512,"./modes/list.json":522}],511:[function(require,module,exports){
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
 var MODES = require('./modes')
@@ -87087,7 +92928,7 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"./aes":506,"./authCipher":507,"./modes":519,"./streamCipher":522,"cipher-base":546,"evp_bytestokey":602,"inherits":634,"safe-buffer":693}],510:[function(require,module,exports){
+},{"./aes":508,"./authCipher":509,"./modes":521,"./streamCipher":524,"cipher-base":548,"evp_bytestokey":604,"inherits":636,"safe-buffer":695}],512:[function(require,module,exports){
 var MODES = require('./modes')
 var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
@@ -87203,7 +93044,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"./aes":506,"./authCipher":507,"./modes":519,"./streamCipher":522,"cipher-base":546,"evp_bytestokey":602,"inherits":634,"safe-buffer":693}],511:[function(require,module,exports){
+},{"./aes":508,"./authCipher":509,"./modes":521,"./streamCipher":524,"cipher-base":548,"evp_bytestokey":604,"inherits":636,"safe-buffer":695}],513:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -87294,7 +93135,7 @@ GHASH.prototype.final = function (abl, bl) {
 
 module.exports = GHASH
 
-},{"safe-buffer":693}],512:[function(require,module,exports){
+},{"safe-buffer":695}],514:[function(require,module,exports){
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -87311,7 +93152,7 @@ function incr32 (iv) {
 }
 module.exports = incr32
 
-},{}],513:[function(require,module,exports){
+},{}],515:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -87330,7 +93171,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":536}],514:[function(require,module,exports){
+},{"buffer-xor":538}],516:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var xor = require('buffer-xor')
 
@@ -87365,7 +93206,7 @@ exports.encrypt = function (self, data, decrypt) {
   return out
 }
 
-},{"buffer-xor":536,"safe-buffer":693}],515:[function(require,module,exports){
+},{"buffer-xor":538,"safe-buffer":695}],517:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -87409,7 +93250,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":693}],516:[function(require,module,exports){
+},{"safe-buffer":695}],518:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 
 function encryptByte (self, byteParam, decrypt) {
@@ -87436,7 +93277,7 @@ exports.encrypt = function (self, chunk, decrypt) {
   return out
 }
 
-},{"safe-buffer":693}],517:[function(require,module,exports){
+},{"safe-buffer":695}],519:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
 var incr32 = require('../incr32')
@@ -87468,7 +93309,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"../incr32":512,"buffer-xor":536,"safe-buffer":693}],518:[function(require,module,exports){
+},{"../incr32":514,"buffer-xor":538,"safe-buffer":695}],520:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -87477,7 +93318,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],519:[function(require,module,exports){
+},{}],521:[function(require,module,exports){
 var modeModules = {
   ECB: require('./ecb'),
   CBC: require('./cbc'),
@@ -87497,7 +93338,7 @@ for (var key in modes) {
 
 module.exports = modes
 
-},{"./cbc":513,"./cfb":514,"./cfb1":515,"./cfb8":516,"./ctr":517,"./ecb":518,"./list.json":520,"./ofb":521}],520:[function(require,module,exports){
+},{"./cbc":515,"./cfb":516,"./cfb1":517,"./cfb8":518,"./ctr":519,"./ecb":520,"./list.json":522,"./ofb":523}],522:[function(require,module,exports){
 module.exports={
   "aes-128-ecb": {
     "cipher": "AES",
@@ -87690,7 +93531,7 @@ module.exports={
   }
 }
 
-},{}],521:[function(require,module,exports){
+},{}],523:[function(require,module,exports){
 (function (Buffer){(function (){
 var xor = require('buffer-xor')
 
@@ -87710,7 +93551,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":537,"buffer-xor":536}],522:[function(require,module,exports){
+},{"buffer":539,"buffer-xor":538}],524:[function(require,module,exports){
 var aes = require('./aes')
 var Buffer = require('safe-buffer').Buffer
 var Transform = require('cipher-base')
@@ -87739,7 +93580,7 @@ StreamCipher.prototype._final = function () {
 
 module.exports = StreamCipher
 
-},{"./aes":506,"cipher-base":546,"inherits":634,"safe-buffer":693}],523:[function(require,module,exports){
+},{"./aes":508,"cipher-base":548,"inherits":636,"safe-buffer":695}],525:[function(require,module,exports){
 var DES = require('browserify-des')
 var aes = require('browserify-aes/browser')
 var aesModes = require('browserify-aes/modes')
@@ -87808,7 +93649,7 @@ exports.createDecipher = exports.Decipher = createDecipher
 exports.createDecipheriv = exports.Decipheriv = createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/browser":508,"browserify-aes/modes":519,"browserify-des":524,"browserify-des/modes":525,"evp_bytestokey":602}],524:[function(require,module,exports){
+},{"browserify-aes/browser":510,"browserify-aes/modes":521,"browserify-des":526,"browserify-des/modes":527,"evp_bytestokey":604}],526:[function(require,module,exports){
 var CipherBase = require('cipher-base')
 var des = require('des.js')
 var inherits = require('inherits')
@@ -87860,7 +93701,7 @@ DES.prototype._final = function () {
   return Buffer.from(this._des.final())
 }
 
-},{"cipher-base":546,"des.js":565,"inherits":634,"safe-buffer":693}],525:[function(require,module,exports){
+},{"cipher-base":548,"des.js":567,"inherits":636,"safe-buffer":695}],527:[function(require,module,exports){
 exports['des-ecb'] = {
   key: 8,
   iv: 0
@@ -87886,7 +93727,7 @@ exports['des-ede'] = {
   iv: 0
 }
 
-},{}],526:[function(require,module,exports){
+},{}],528:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -87926,7 +93767,7 @@ crt.getr = getr;
 
 module.exports = crt;
 
-},{"bn.js":527,"randombytes":679,"safe-buffer":693}],527:[function(require,module,exports){
+},{"bn.js":529,"randombytes":681,"safe-buffer":695}],529:[function(require,module,exports){
 (function (module, exports) {
   'use strict';
 
@@ -91476,12 +97317,12 @@ module.exports = crt;
   };
 })(typeof module === 'undefined' || module, this);
 
-},{"buffer":505}],528:[function(require,module,exports){
+},{"buffer":507}],530:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./browser/algorithms.json');
 
-},{"./browser/algorithms.json":529}],529:[function(require,module,exports){
+},{"./browser/algorithms.json":531}],531:[function(require,module,exports){
 module.exports={
   "sha224WithRSAEncryption": {
     "sign": "rsa",
@@ -91635,7 +97476,7 @@ module.exports={
   }
 }
 
-},{}],530:[function(require,module,exports){
+},{}],532:[function(require,module,exports){
 module.exports={
   "1.3.132.0.10": "secp256k1",
   "1.3.132.0.33": "p224",
@@ -91645,7 +97486,7 @@ module.exports={
   "1.3.132.0.35": "p521"
 }
 
-},{}],531:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -91739,7 +97580,7 @@ module.exports = {
   createVerify: createVerify
 };
 
-},{"./algorithms.json":529,"./sign":532,"./verify":533,"create-hash":549,"inherits":634,"readable-stream":691,"safe-buffer":693}],532:[function(require,module,exports){
+},{"./algorithms.json":531,"./sign":534,"./verify":535,"create-hash":551,"inherits":636,"readable-stream":693,"safe-buffer":695}],534:[function(require,module,exports){
 'use strict';
 
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -91891,7 +97732,7 @@ module.exports = sign;
 module.exports.getKey = getKey;
 module.exports.makeKey = makeKey;
 
-},{"./curves.json":530,"bn.js":534,"browserify-rsa":526,"create-hmac":551,"elliptic":576,"parse-asn1":662,"safe-buffer":693}],533:[function(require,module,exports){
+},{"./curves.json":532,"bn.js":536,"browserify-rsa":528,"create-hmac":553,"elliptic":578,"parse-asn1":664,"safe-buffer":695}],535:[function(require,module,exports){
 'use strict';
 
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -91979,11 +97820,11 @@ function checkValue(b, q) {
 
 module.exports = verify;
 
-},{"./curves.json":530,"bn.js":534,"elliptic":576,"parse-asn1":662,"safe-buffer":693}],534:[function(require,module,exports){
-arguments[4][527][0].apply(exports,arguments)
-},{"buffer":505,"dup":527}],535:[function(require,module,exports){
-arguments[4][505][0].apply(exports,arguments)
-},{"dup":505}],536:[function(require,module,exports){
+},{"./curves.json":532,"bn.js":536,"elliptic":578,"parse-asn1":664,"safe-buffer":695}],536:[function(require,module,exports){
+arguments[4][529][0].apply(exports,arguments)
+},{"buffer":507,"dup":529}],537:[function(require,module,exports){
+arguments[4][507][0].apply(exports,arguments)
+},{"dup":507}],538:[function(require,module,exports){
 (function (Buffer){(function (){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
@@ -91997,7 +97838,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":537}],537:[function(require,module,exports){
+},{"buffer":539}],539:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -93778,7 +99619,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":501,"buffer":537,"ieee754":633}],538:[function(require,module,exports){
+},{"base64-js":503,"buffer":539,"ieee754":635}],540:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -93790,7 +99631,7 @@ var $reflectApply = require('./reflectApply');
 /** @type {import('./actualApply')} */
 module.exports = $reflectApply || bind.call($call, $apply);
 
-},{"./functionApply":540,"./functionCall":541,"./reflectApply":543,"function-bind":605}],539:[function(require,module,exports){
+},{"./functionApply":542,"./functionCall":543,"./reflectApply":545,"function-bind":607}],541:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -93802,19 +99643,19 @@ module.exports = function applyBind() {
 	return actualApply(bind, $apply, arguments);
 };
 
-},{"./actualApply":538,"./functionApply":540,"function-bind":605}],540:[function(require,module,exports){
+},{"./actualApply":540,"./functionApply":542,"function-bind":607}],542:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionApply')} */
 module.exports = Function.prototype.apply;
 
-},{}],541:[function(require,module,exports){
+},{}],543:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./functionCall')} */
 module.exports = Function.prototype.call;
 
-},{}],542:[function(require,module,exports){
+},{}],544:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -93831,13 +99672,13 @@ module.exports = function callBindBasic(args) {
 	return $actualApply(bind, $call, args);
 };
 
-},{"./actualApply":538,"./functionCall":541,"es-errors/type":598,"function-bind":605}],543:[function(require,module,exports){
+},{"./actualApply":540,"./functionCall":543,"es-errors/type":600,"function-bind":607}],545:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./reflectApply')} */
 module.exports = typeof Reflect !== 'undefined' && Reflect && Reflect.apply;
 
-},{}],544:[function(require,module,exports){
+},{}],546:[function(require,module,exports){
 'use strict';
 
 var setFunctionLength = require('set-function-length');
@@ -93863,7 +99704,7 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"call-bind-apply-helpers":542,"call-bind-apply-helpers/applyBind":539,"es-define-property":592,"set-function-length":695}],545:[function(require,module,exports){
+},{"call-bind-apply-helpers":544,"call-bind-apply-helpers/applyBind":541,"es-define-property":594,"set-function-length":697}],547:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -93884,7 +99725,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"call-bind-apply-helpers":542,"get-intrinsic":607}],546:[function(require,module,exports){
+},{"call-bind-apply-helpers":544,"get-intrinsic":609}],548:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -93989,7 +99830,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase;
 
-},{"inherits":634,"safe-buffer":693,"stream":704,"string_decoder":719,"to-buffer":721}],547:[function(require,module,exports){
+},{"inherits":636,"safe-buffer":695,"stream":706,"string_decoder":721,"to-buffer":723}],549:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -94098,7 +99939,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"buffer":537}],548:[function(require,module,exports){
+},{"buffer":539}],550:[function(require,module,exports){
 (function (Buffer){(function (){
 var elliptic = require('elliptic')
 var BN = require('bn.js')
@@ -94226,7 +100067,7 @@ function formatReturnValue (bn, enc, len) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"bn.js":502,"buffer":537,"elliptic":576}],549:[function(require,module,exports){
+},{"bn.js":504,"buffer":539,"elliptic":578}],551:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var MD5 = require('md5.js')
@@ -94258,14 +100099,14 @@ module.exports = function createHash (alg) {
   return new Hash(sha(alg))
 }
 
-},{"cipher-base":546,"inherits":634,"md5.js":649,"ripemd160":692,"sha.js":697}],550:[function(require,module,exports){
+},{"cipher-base":548,"inherits":636,"md5.js":651,"ripemd160":694,"sha.js":699}],552:[function(require,module,exports){
 var MD5 = require('md5.js')
 
 module.exports = function (buffer) {
   return new MD5().update(buffer).digest()
 }
 
-},{"md5.js":649}],551:[function(require,module,exports){
+},{"md5.js":651}],553:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Legacy = require('./legacy')
@@ -94329,7 +100170,7 @@ module.exports = function createHmac (alg, key) {
   return new Hmac(alg, key)
 }
 
-},{"./legacy":552,"cipher-base":546,"create-hash/md5":550,"inherits":634,"ripemd160":692,"safe-buffer":693,"sha.js":697}],552:[function(require,module,exports){
+},{"./legacy":554,"cipher-base":548,"create-hash/md5":552,"inherits":636,"ripemd160":694,"safe-buffer":695,"sha.js":699}],554:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var Buffer = require('safe-buffer').Buffer
@@ -94377,7 +100218,7 @@ Hmac.prototype._final = function () {
 }
 module.exports = Hmac
 
-},{"cipher-base":546,"inherits":634,"safe-buffer":693}],553:[function(require,module,exports){
+},{"cipher-base":548,"inherits":636,"safe-buffer":695}],555:[function(require,module,exports){
 'use strict';
 
 // eslint-disable-next-line no-multi-assign
@@ -94482,27 +100323,27 @@ exports.constants = {
 	POINT_CONVERSION_HYBRID: 6
 };
 
-},{"browserify-cipher":523,"browserify-sign":531,"browserify-sign/algos":528,"create-ecdh":548,"create-hash":549,"create-hmac":551,"diffie-hellman":571,"pbkdf2":664,"public-encrypt":673,"randombytes":679,"randomfill":680}],554:[function(require,module,exports){
+},{"browserify-cipher":525,"browserify-sign":533,"browserify-sign/algos":530,"create-ecdh":550,"create-hash":551,"create-hmac":553,"diffie-hellman":573,"pbkdf2":666,"public-encrypt":675,"randombytes":681,"randomfill":682}],556:[function(require,module,exports){
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs=e()}(this,(function(){"use strict";var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",c="month",f="quarter",h="year",d="date",l="Invalid Date",$=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_"),ordinal:function(t){var e=["th","st","nd","rd"],n=t%100;return"["+t+(e[(n-20)%10]||e[n]||e[0])+"]"}},m=function(t,e,n){var r=String(t);return!r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},v={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return(e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return-t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,c),s=n-i<0,u=e.clone().add(r+(s?-1:1),c);return+(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return{M:c,y:h,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:f}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},g="en",D={};D[g]=M;var p="$isDayjsObject",S=function(t){return t instanceof _||!(!t||!t[p])},w=function t(e,n,r){var i;if(!e)return g;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else{var a=e.name;D[a]=e,i=a}return!r&&i&&(g=i),i||!r&&g},O=function(t,e){if(S(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},b=v;b.l=w,b.i=S,b.w=function(t,e){return O(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=w(t.locale,null,!0),this.parse(t),this.$x=this.$x||t.x||{},this[p]=!0}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(b.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match($);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.init()},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds()},m.$utils=function(){return b},m.isValid=function(){return!(this.$d.toString()===l)},m.isSame=function(t,e){var n=O(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return O(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<O(t)},m.$g=function(t,e,n){return b.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!b.u(e)||e,f=b.p(t),l=function(t,e){var i=b.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},$=function(t,e){return b.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,v="set"+(this.$u?"UTC":"");switch(f){case h:return r?l(1,0):l(31,11);case c:return r?l(1,M):l(0,M+1);case o:var g=this.$locale().weekStart||0,D=(y<g?y+7:y)-g;return l(r?m-D:m+(6-D),M);case a:case d:return $(v+"Hours",0);case u:return $(v+"Minutes",1);case s:return $(v+"Seconds",2);case i:return $(v+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=b.p(t),f="set"+(this.$u?"UTC":""),l=(n={},n[a]=f+"Date",n[d]=f+"Date",n[c]=f+"Month",n[h]=f+"FullYear",n[u]=f+"Hours",n[s]=f+"Minutes",n[i]=f+"Seconds",n[r]=f+"Milliseconds",n)[o],$=o===a?this.$D+(e-this.$W):e;if(o===c||o===h){var y=this.clone().set(d,1);y.$d[l]($),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d}else l&&this.$d[l]($);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[b.p(t)]()},m.add=function(r,f){var d,l=this;r=Number(r);var $=b.p(f),y=function(t){var e=O(l);return b.w(e.date(e.date()+Math.round(t*r)),l)};if($===c)return this.set(c,this.$M+r);if($===h)return this.set(h,this.$y+r);if($===a)return y(1);if($===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[$]||1,m=this.$d.getTime()+r*M;return b.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||l;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=b.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,c=n.months,f=n.meridiem,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},d=function(t){return b.s(s%12||12,t,"0")},$=f||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r};return r.replace(y,(function(t,r){return r||function(t){switch(t){case"YY":return String(e.$y).slice(-2);case"YYYY":return b.s(e.$y,4,"0");case"M":return a+1;case"MM":return b.s(a+1,2,"0");case"MMM":return h(n.monthsShort,a,c,3);case"MMMM":return h(c,a);case"D":return e.$D;case"DD":return b.s(e.$D,2,"0");case"d":return String(e.$W);case"dd":return h(n.weekdaysMin,e.$W,o,2);case"ddd":return h(n.weekdaysShort,e.$W,o,3);case"dddd":return o[e.$W];case"H":return String(s);case"HH":return b.s(s,2,"0");case"h":return d(1);case"hh":return d(2);case"a":return $(s,u,!0);case"A":return $(s,u,!1);case"m":return String(u);case"mm":return b.s(u,2,"0");case"s":return String(e.$s);case"ss":return b.s(e.$s,2,"0");case"SSS":return b.s(e.$ms,3,"0");case"Z":return i}return null}(t)||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,l){var $,y=this,M=b.p(d),m=O(r),v=(m.utcOffset()-this.utcOffset())*e,g=this-m,D=function(){return b.m(y,m)};switch(M){case h:$=D()/12;break;case c:$=D();break;case f:$=D()/3;break;case o:$=(g-v)/6048e5;break;case a:$=(g-v)/864e5;break;case u:$=g/n;break;case s:$=g/e;break;case i:$=g/t;break;default:$=g}return l?$:b.a($)},m.daysInMonth=function(){return this.endOf(c).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=w(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return b.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),k=_.prototype;return O.prototype=k,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",c],["$y",h],["$D",d]].forEach((function(t){k[t[1]]=function(e){return this.$g(e,t[0],t[1])}})),O.extend=function(t,e){return t.$i||(t(e,_,O),t.$i=!0),O},O.locale=w,O.isDayjs=S,O.unix=function(t){return O(1e3*t)},O.en=D[g],O.Ls=D,O.p={},O}));
-},{}],555:[function(require,module,exports){
+},{}],557:[function(require,module,exports){
 !function(e,o){"object"==typeof exports&&"undefined"!=typeof module?module.exports=o(require("dayjs")):"function"==typeof define&&define.amd?define(["dayjs"],o):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_locale_pt_br=o(e.dayjs)}(this,(function(e){"use strict";function o(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var a=o(e),s={name:"pt-br",weekdays:"domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado".split("_"),weekdaysShort:"dom_seg_ter_qua_qui_sex_sáb".split("_"),weekdaysMin:"Do_2ª_3ª_4ª_5ª_6ª_Sá".split("_"),months:"janeiro_fevereiro_março_abril_maio_junho_julho_agosto_setembro_outubro_novembro_dezembro".split("_"),monthsShort:"jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez".split("_"),ordinal:function(e){return e+"º"},formats:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D [de] MMMM [de] YYYY",LLL:"D [de] MMMM [de] YYYY [às] HH:mm",LLLL:"dddd, D [de] MMMM [de] YYYY [às] HH:mm"},relativeTime:{future:"em %s",past:"há %s",s:"poucos segundos",m:"um minuto",mm:"%d minutos",h:"uma hora",hh:"%d horas",d:"um dia",dd:"%d dias",M:"um mês",MM:"%d meses",y:"um ano",yy:"%d anos"}};return a.default.locale(s,null,!0),s}));
-},{"dayjs":554}],556:[function(require,module,exports){
+},{"dayjs":556}],558:[function(require,module,exports){
 !function(e,a){"object"==typeof exports&&"undefined"!=typeof module?module.exports=a(require("dayjs")):"function"==typeof define&&define.amd?define(["dayjs"],a):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_locale_pt=a(e.dayjs)}(this,(function(e){"use strict";function a(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var o=a(e),t={name:"pt",weekdays:"domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado".split("_"),weekdaysShort:"dom_seg_ter_qua_qui_sex_sab".split("_"),weekdaysMin:"Do_2ª_3ª_4ª_5ª_6ª_Sa".split("_"),months:"janeiro_fevereiro_março_abril_maio_junho_julho_agosto_setembro_outubro_novembro_dezembro".split("_"),monthsShort:"jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez".split("_"),ordinal:function(e){return e+"º"},weekStart:1,yearStart:4,formats:{LT:"HH:mm",LTS:"HH:mm:ss",L:"DD/MM/YYYY",LL:"D [de] MMMM [de] YYYY",LLL:"D [de] MMMM [de] YYYY [às] HH:mm",LLLL:"dddd, D [de] MMMM [de] YYYY [às] HH:mm"},relativeTime:{future:"em %s",past:"há %s",s:"alguns segundos",m:"um minuto",mm:"%d minutos",h:"uma hora",hh:"%d horas",d:"um dia",dd:"%d dias",M:"um mês",MM:"%d meses",y:"um ano",yy:"%d anos"}};return o.default.locale(t,null,!0),t}));
-},{"dayjs":554}],557:[function(require,module,exports){
+},{"dayjs":556}],559:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_customParseFormat=t()}(this,(function(){"use strict";var e={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"},t=/(\[[^[]*\])|([-_:/.,()\s]+)|(A|a|Q|YYYY|YY?|ww?|MM?M?M?|Do|DD?|hh?|HH?|mm?|ss?|S{1,3}|z|ZZ?)/g,n=/\d/,r=/\d\d/,i=/\d\d?/,o=/\d*[^-_:/,()\s\d]+/,s={},a=function(e){return(e=+e)+(e>68?1900:2e3)};var f=function(e){return function(t){this[e]=+t}},h=[/[+-]\d\d:?(\d\d)?|Z/,function(e){(this.zone||(this.zone={})).offset=function(e){if(!e)return 0;if("Z"===e)return 0;var t=e.match(/([+-]|\d\d)/g),n=60*t[1]+(+t[2]||0);return 0===n?0:"+"===t[0]?-n:n}(e)}],u=function(e){var t=s[e];return t&&(t.indexOf?t:t.s.concat(t.f))},d=function(e,t){var n,r=s.meridiem;if(r){for(var i=1;i<=24;i+=1)if(e.indexOf(r(i,0,t))>-1){n=i>12;break}}else n=e===(t?"pm":"PM");return n},c={A:[o,function(e){this.afternoon=d(e,!1)}],a:[o,function(e){this.afternoon=d(e,!0)}],Q:[n,function(e){this.month=3*(e-1)+1}],S:[n,function(e){this.milliseconds=100*+e}],SS:[r,function(e){this.milliseconds=10*+e}],SSS:[/\d{3}/,function(e){this.milliseconds=+e}],s:[i,f("seconds")],ss:[i,f("seconds")],m:[i,f("minutes")],mm:[i,f("minutes")],H:[i,f("hours")],h:[i,f("hours")],HH:[i,f("hours")],hh:[i,f("hours")],D:[i,f("day")],DD:[r,f("day")],Do:[o,function(e){var t=s.ordinal,n=e.match(/\d+/);if(this.day=n[0],t)for(var r=1;r<=31;r+=1)t(r).replace(/\[|\]/g,"")===e&&(this.day=r)}],w:[i,f("week")],ww:[r,f("week")],M:[i,f("month")],MM:[r,f("month")],MMM:[o,function(e){var t=u("months"),n=(u("monthsShort")||t.map((function(e){return e.slice(0,3)}))).indexOf(e)+1;if(n<1)throw new Error;this.month=n%12||n}],MMMM:[o,function(e){var t=u("months").indexOf(e)+1;if(t<1)throw new Error;this.month=t%12||t}],Y:[/[+-]?\d+/,f("year")],YY:[r,function(e){this.year=a(e)}],YYYY:[/\d{4}/,f("year")],Z:h,ZZ:h};function l(n){var r,i;r=n,i=s&&s.formats;for(var o=(n=r.replace(/(\[[^\]]+])|(LTS?|l{1,4}|L{1,4})/g,(function(t,n,r){var o=r&&r.toUpperCase();return n||i[r]||e[r]||i[o].replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g,(function(e,t,n){return t||n.slice(1)}))}))).match(t),a=o.length,f=0;f<a;f+=1){var h=o[f],u=c[h],d=u&&u[0],l=u&&u[1];o[f]=l?{regex:d,parser:l}:h.replace(/^\[|\]$/g,"")}return function(e){for(var t={},n=0,r=0;n<a;n+=1){var i=o[n];if("string"==typeof i)r+=i.length;else{var s=i.regex,f=i.parser,h=e.slice(r),u=s.exec(h)[0];f.call(t,u),e=e.replace(u,"")}}return function(e){var t=e.afternoon;if(void 0!==t){var n=e.hours;t?n<12&&(e.hours+=12):12===n&&(e.hours=0),delete e.afternoon}}(t),t}}return function(e,t,n){n.p.customParseFormat=!0,e&&e.parseTwoDigitYear&&(a=e.parseTwoDigitYear);var r=t.prototype,i=r.parse;r.parse=function(e){var t=e.date,r=e.utc,o=e.args;this.$u=r;var a=o[1];if("string"==typeof a){var f=!0===o[2],h=!0===o[3],u=f||h,d=o[2];h&&(d=o[2]),s=this.$locale(),!f&&d&&(s=n.Ls[d]),this.$d=function(e,t,n,r){try{if(["x","X"].indexOf(t)>-1)return new Date(("X"===t?1e3:1)*e);var i=l(t)(e),o=i.year,s=i.month,a=i.day,f=i.hours,h=i.minutes,u=i.seconds,d=i.milliseconds,c=i.zone,m=i.week,M=new Date,Y=a||(o||s?1:M.getDate()),p=o||M.getFullYear(),v=0;o&&!s||(v=s>0?s-1:M.getMonth());var D,w=f||0,g=h||0,y=u||0,L=d||0;return c?new Date(Date.UTC(p,v,Y,w,g,y,L+60*c.offset*1e3)):n?new Date(Date.UTC(p,v,Y,w,g,y,L)):(D=new Date(p,v,Y,w,g,y,L),m&&(D=r(D).week(m).toDate()),D)}catch(e){return new Date("")}}(t,a,r,n),this.init(),d&&!0!==d&&(this.$L=this.locale(d).$L),u&&t!=this.format(a)&&(this.$d=new Date("")),s={}}else if(a instanceof Array)for(var c=a.length,m=1;m<=c;m+=1){o[1]=a[m-1];var M=n.apply(this,o);if(M.isValid()){this.$d=M.$d,this.$L=M.$L,this.init();break}m===c&&(this.$d=new Date(""))}else i.call(this,e)}}}));
-},{}],558:[function(require,module,exports){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_localizedFormat=t()}(this,(function(){"use strict";var e={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"};return function(t,o,n){var r=o.prototype,i=r.format;n.en.formats=e,r.format=function(t){void 0===t&&(t="YYYY-MM-DDTHH:mm:ssZ");var o=this.$locale().formats,n=function(t,o){return t.replace(/(\[[^\]]+])|(LTS?|l{1,4}|L{1,4})/g,(function(t,n,r){var i=r&&r.toUpperCase();return n||o[r]||e[r]||o[i].replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g,(function(e,t,o){return t||o.slice(1)}))}))}(t,void 0===o?{}:o);return i.call(this,n)}}}));
-},{}],559:[function(require,module,exports){
-!function(t,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_quarterOfYear=n()}(this,(function(){"use strict";var t="month",n="quarter";return function(e,i){var r=i.prototype;r.quarter=function(t){return this.$utils().u(t)?Math.ceil((this.month()+1)/3):this.month(this.month()%3+3*(t-1))};var s=r.add;r.add=function(e,i){return e=Number(e),this.$utils().p(i)===n?this.add(3*e,t):s.bind(this)(e,i)};var u=r.startOf;r.startOf=function(e,i){var r=this.$utils(),s=!!r.u(i)||i;if(r.p(e)===n){var o=this.quarter()-1;return s?this.month(3*o).startOf(t).startOf("day"):this.month(3*o+2).endOf(t).endOf("day")}return u.bind(this)(e,i)}}}));
 },{}],560:[function(require,module,exports){
-!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_timezone=e()}(this,(function(){"use strict";var t={year:0,month:1,day:2,hour:3,minute:4,second:5},e={};return function(n,i,o){var r,a=function(t,n,i){void 0===i&&(i={});var o=new Date(t),r=function(t,n){void 0===n&&(n={});var i=n.timeZoneName||"short",o=t+"|"+i,r=e[o];return r||(r=new Intl.DateTimeFormat("en-US",{hour12:!1,timeZone:t,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",timeZoneName:i}),e[o]=r),r}(n,i);return r.formatToParts(o)},u=function(e,n){for(var i=a(e,n),r=[],u=0;u<i.length;u+=1){var f=i[u],s=f.type,m=f.value,c=t[s];c>=0&&(r[c]=parseInt(m,10))}var d=r[3],l=24===d?0:d,h=r[0]+"-"+r[1]+"-"+r[2]+" "+l+":"+r[4]+":"+r[5]+":000",v=+e;return(o.utc(h).valueOf()-(v-=v%1e3))/6e4},f=i.prototype;f.tz=function(t,e){void 0===t&&(t=r);var n,i=this.utcOffset(),a=this.toDate(),u=a.toLocaleString("en-US",{timeZone:t}),f=Math.round((a-new Date(u))/1e3/60),s=15*-Math.round(a.getTimezoneOffset()/15)-f;if(!Number(s))n=this.utcOffset(0,e);else if(n=o(u,{locale:this.$L}).$set("millisecond",this.$ms).utcOffset(s,!0),e){var m=n.utcOffset();n=n.add(i-m,"minute")}return n.$x.$timezone=t,n},f.offsetName=function(t){var e=this.$x.$timezone||o.tz.guess(),n=a(this.valueOf(),e,{timeZoneName:t}).find((function(t){return"timezonename"===t.type.toLowerCase()}));return n&&n.value};var s=f.startOf;f.startOf=function(t,e){if(!this.$x||!this.$x.$timezone)return s.call(this,t,e);var n=o(this.format("YYYY-MM-DD HH:mm:ss:SSS"),{locale:this.$L});return s.call(n,t,e).tz(this.$x.$timezone,!0)},o.tz=function(t,e,n){var i=n&&e,a=n||e||r,f=u(+o(),a);if("string"!=typeof t)return o(t).tz(a);var s=function(t,e,n){var i=t-60*e*1e3,o=u(i,n);if(e===o)return[i,e];var r=u(i-=60*(o-e)*1e3,n);return o===r?[i,o]:[t-60*Math.min(o,r)*1e3,Math.max(o,r)]}(o.utc(t,i).valueOf(),f,a),m=s[0],c=s[1],d=o(m).utcOffset(c);return d.$x.$timezone=a,d},o.tz.guess=function(){return Intl.DateTimeFormat().resolvedOptions().timeZone},o.tz.setDefault=function(t){r=t}}}));
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_localizedFormat=t()}(this,(function(){"use strict";var e={LTS:"h:mm:ss A",LT:"h:mm A",L:"MM/DD/YYYY",LL:"MMMM D, YYYY",LLL:"MMMM D, YYYY h:mm A",LLLL:"dddd, MMMM D, YYYY h:mm A"};return function(t,o,n){var r=o.prototype,i=r.format;n.en.formats=e,r.format=function(t){void 0===t&&(t="YYYY-MM-DDTHH:mm:ssZ");var o=this.$locale().formats,n=function(t,o){return t.replace(/(\[[^\]]+])|(LTS?|l{1,4}|L{1,4})/g,(function(t,n,r){var i=r&&r.toUpperCase();return n||o[r]||e[r]||o[i].replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g,(function(e,t,o){return t||o.slice(1)}))}))}(t,void 0===o?{}:o);return i.call(this,n)}}}));
 },{}],561:[function(require,module,exports){
-!function(t,i){"object"==typeof exports&&"undefined"!=typeof module?module.exports=i():"function"==typeof define&&define.amd?define(i):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_utc=i()}(this,(function(){"use strict";var t="minute",i=/[+-]\d\d(?::?\d\d)?/g,e=/([+-]|\d\d)/g;return function(s,f,n){var u=f.prototype;n.utc=function(t){var i={date:t,utc:!0,args:arguments};return new f(i)},u.utc=function(i){var e=n(this.toDate(),{locale:this.$L,utc:!0});return i?e.add(this.utcOffset(),t):e},u.local=function(){return n(this.toDate(),{locale:this.$L,utc:!1})};var r=u.parse;u.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),r.call(this,t)};var o=u.init;u.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds()}else o.call(this)};var a=u.utcOffset;u.utcOffset=function(s,f){var n=this.$utils().u;if(n(s))return this.$u?0:n(this.$offset)?a.call(this):this.$offset;if("string"==typeof s&&(s=function(t){void 0===t&&(t="");var s=t.match(i);if(!s)return null;var f=(""+s[0]).match(e)||["-",0,0],n=f[0],u=60*+f[1]+ +f[2];return 0===u?0:"+"===n?u:-u}(s),null===s))return this;var u=Math.abs(s)<=16?60*s:s;if(0===u)return this.utc(f);var r=this.clone();if(f)return r.$offset=u,r.$u=!1,r;var o=this.$u?this.toDate().getTimezoneOffset():-1*this.utcOffset();return(r=this.local().add(u+o,t)).$offset=u,r.$x.$localOffset=o,r};var h=u.format;u.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return h.call(this,i)},u.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+(this.$x.$localOffset||this.$d.getTimezoneOffset());return this.$d.valueOf()-6e4*t},u.isUTC=function(){return!!this.$u},u.toISOString=function(){return this.toDate().toISOString()},u.toString=function(){return this.toDate().toUTCString()};var l=u.toDate;u.toDate=function(t){return"s"===t&&this.$offset?n(this.format("YYYY-MM-DD HH:mm:ss:SSS")).toDate():l.call(this)};var c=u.diff;u.diff=function(t,i,e){if(t&&this.$u===t.$u)return c.call(this,t,i,e);var s=this.local(),f=n(t).local();return c.call(s,f,i,e)}}}));
+!function(t,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_quarterOfYear=n()}(this,(function(){"use strict";var t="month",n="quarter";return function(e,i){var r=i.prototype;r.quarter=function(t){return this.$utils().u(t)?Math.ceil((this.month()+1)/3):this.month(this.month()%3+3*(t-1))};var s=r.add;r.add=function(e,i){return e=Number(e),this.$utils().p(i)===n?this.add(3*e,t):s.bind(this)(e,i)};var u=r.startOf;r.startOf=function(e,i){var r=this.$utils(),s=!!r.u(i)||i;if(r.p(e)===n){var o=this.quarter()-1;return s?this.month(3*o).startOf(t).startOf("day"):this.month(3*o+2).endOf(t).endOf("day")}return u.bind(this)(e,i)}}}));
 },{}],562:[function(require,module,exports){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekOfYear=t()}(this,(function(){"use strict";var e="week",t="year";return function(i,n,r){var f=n.prototype;f.week=function(i){if(void 0===i&&(i=null),null!==i)return this.add(7*(i-this.week()),"day");var n=this.$locale().yearStart||1;if(11===this.month()&&this.date()>25){var f=r(this).startOf(t).add(1,t).date(n),s=r(this).endOf(e);if(f.isBefore(s))return 1}var a=r(this).startOf(t).date(n).startOf(e).subtract(1,"millisecond"),o=this.diff(a,e,!0);return o<0?r(this).startOf("week").week():Math.ceil(o)},f.weeks=function(e){return void 0===e&&(e=null),this.week(e)}}}));
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_timezone=e()}(this,(function(){"use strict";var t={year:0,month:1,day:2,hour:3,minute:4,second:5},e={};return function(n,i,o){var r,a=function(t,n,i){void 0===i&&(i={});var o=new Date(t),r=function(t,n){void 0===n&&(n={});var i=n.timeZoneName||"short",o=t+"|"+i,r=e[o];return r||(r=new Intl.DateTimeFormat("en-US",{hour12:!1,timeZone:t,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",timeZoneName:i}),e[o]=r),r}(n,i);return r.formatToParts(o)},u=function(e,n){for(var i=a(e,n),r=[],u=0;u<i.length;u+=1){var f=i[u],s=f.type,m=f.value,c=t[s];c>=0&&(r[c]=parseInt(m,10))}var d=r[3],l=24===d?0:d,h=r[0]+"-"+r[1]+"-"+r[2]+" "+l+":"+r[4]+":"+r[5]+":000",v=+e;return(o.utc(h).valueOf()-(v-=v%1e3))/6e4},f=i.prototype;f.tz=function(t,e){void 0===t&&(t=r);var n,i=this.utcOffset(),a=this.toDate(),u=a.toLocaleString("en-US",{timeZone:t}),f=Math.round((a-new Date(u))/1e3/60),s=15*-Math.round(a.getTimezoneOffset()/15)-f;if(!Number(s))n=this.utcOffset(0,e);else if(n=o(u,{locale:this.$L}).$set("millisecond",this.$ms).utcOffset(s,!0),e){var m=n.utcOffset();n=n.add(i-m,"minute")}return n.$x.$timezone=t,n},f.offsetName=function(t){var e=this.$x.$timezone||o.tz.guess(),n=a(this.valueOf(),e,{timeZoneName:t}).find((function(t){return"timezonename"===t.type.toLowerCase()}));return n&&n.value};var s=f.startOf;f.startOf=function(t,e){if(!this.$x||!this.$x.$timezone)return s.call(this,t,e);var n=o(this.format("YYYY-MM-DD HH:mm:ss:SSS"),{locale:this.$L});return s.call(n,t,e).tz(this.$x.$timezone,!0)},o.tz=function(t,e,n){var i=n&&e,a=n||e||r,f=u(+o(),a);if("string"!=typeof t)return o(t).tz(a);var s=function(t,e,n){var i=t-60*e*1e3,o=u(i,n);if(e===o)return[i,e];var r=u(i-=60*(o-e)*1e3,n);return o===r?[i,o]:[t-60*Math.min(o,r)*1e3,Math.max(o,r)]}(o.utc(t,i).valueOf(),f,a),m=s[0],c=s[1],d=o(m).utcOffset(c);return d.$x.$timezone=a,d},o.tz.guess=function(){return Intl.DateTimeFormat().resolvedOptions().timeZone},o.tz.setDefault=function(t){r=t}}}));
 },{}],563:[function(require,module,exports){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekYear=t()}(this,(function(){"use strict";return function(e,t){t.prototype.weekYear=function(){var e=this.month(),t=this.week(),n=this.year();return 1===t&&11===e?n+1:0===e&&t>=52?n-1:n}}}));
+!function(t,i){"object"==typeof exports&&"undefined"!=typeof module?module.exports=i():"function"==typeof define&&define.amd?define(i):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_utc=i()}(this,(function(){"use strict";var t="minute",i=/[+-]\d\d(?::?\d\d)?/g,e=/([+-]|\d\d)/g;return function(s,f,n){var u=f.prototype;n.utc=function(t){var i={date:t,utc:!0,args:arguments};return new f(i)},u.utc=function(i){var e=n(this.toDate(),{locale:this.$L,utc:!0});return i?e.add(this.utcOffset(),t):e},u.local=function(){return n(this.toDate(),{locale:this.$L,utc:!1})};var r=u.parse;u.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),r.call(this,t)};var o=u.init;u.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds()}else o.call(this)};var a=u.utcOffset;u.utcOffset=function(s,f){var n=this.$utils().u;if(n(s))return this.$u?0:n(this.$offset)?a.call(this):this.$offset;if("string"==typeof s&&(s=function(t){void 0===t&&(t="");var s=t.match(i);if(!s)return null;var f=(""+s[0]).match(e)||["-",0,0],n=f[0],u=60*+f[1]+ +f[2];return 0===u?0:"+"===n?u:-u}(s),null===s))return this;var u=Math.abs(s)<=16?60*s:s;if(0===u)return this.utc(f);var r=this.clone();if(f)return r.$offset=u,r.$u=!1,r;var o=this.$u?this.toDate().getTimezoneOffset():-1*this.utcOffset();return(r=this.local().add(u+o,t)).$offset=u,r.$x.$localOffset=o,r};var h=u.format;u.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return h.call(this,i)},u.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+(this.$x.$localOffset||this.$d.getTimezoneOffset());return this.$d.valueOf()-6e4*t},u.isUTC=function(){return!!this.$u},u.toISOString=function(){return this.toDate().toISOString()},u.toString=function(){return this.toDate().toUTCString()};var l=u.toDate;u.toDate=function(t){return"s"===t&&this.$offset?n(this.format("YYYY-MM-DD HH:mm:ss:SSS")).toDate():l.call(this)};var c=u.diff;u.diff=function(t,i,e){if(t&&this.$u===t.$u)return c.call(this,t,i,e);var s=this.local(),f=n(t).local();return c.call(s,f,i,e)}}}));
 },{}],564:[function(require,module,exports){
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekOfYear=t()}(this,(function(){"use strict";var e="week",t="year";return function(i,n,r){var f=n.prototype;f.week=function(i){if(void 0===i&&(i=null),null!==i)return this.add(7*(i-this.week()),"day");var n=this.$locale().yearStart||1;if(11===this.month()&&this.date()>25){var f=r(this).startOf(t).add(1,t).date(n),s=r(this).endOf(e);if(f.isBefore(s))return 1}var a=r(this).startOf(t).date(n).startOf(e).subtract(1,"millisecond"),o=this.diff(a,e,!0);return o<0?r(this).startOf("week").week():Math.ceil(o)},f.weeks=function(e){return void 0===e&&(e=null),this.week(e)}}}));
+},{}],565:[function(require,module,exports){
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).dayjs_plugin_weekYear=t()}(this,(function(){"use strict";return function(e,t){t.prototype.weekYear=function(){var e=this.month(),t=this.week(),n=this.year();return 1===t&&11===e?n+1:0===e&&t>=52?n-1:n}}}));
+},{}],566:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -94560,7 +100401,7 @@ module.exports = function defineDataProperty(
 	}
 };
 
-},{"es-define-property":592,"es-errors/syntax":597,"es-errors/type":598,"gopd":612}],565:[function(require,module,exports){
+},{"es-define-property":594,"es-errors/syntax":599,"es-errors/type":600,"gopd":614}],567:[function(require,module,exports){
 'use strict';
 
 exports.utils = require('./des/utils');
@@ -94569,7 +100410,7 @@ exports.DES = require('./des/des');
 exports.CBC = require('./des/cbc');
 exports.EDE = require('./des/ede');
 
-},{"./des/cbc":566,"./des/cipher":567,"./des/des":568,"./des/ede":569,"./des/utils":570}],566:[function(require,module,exports){
+},{"./des/cbc":568,"./des/cipher":569,"./des/des":570,"./des/ede":571,"./des/utils":572}],568:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -94636,7 +100477,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
   }
 };
 
-},{"inherits":634,"minimalistic-assert":651}],567:[function(require,module,exports){
+},{"inherits":636,"minimalistic-assert":653}],569:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -94780,7 +100621,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
   return this._unpad(out);
 };
 
-},{"minimalistic-assert":651}],568:[function(require,module,exports){
+},{"minimalistic-assert":653}],570:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -94932,7 +100773,7 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"./cipher":567,"./utils":570,"inherits":634,"minimalistic-assert":651}],569:[function(require,module,exports){
+},{"./cipher":569,"./utils":572,"inherits":636,"minimalistic-assert":653}],571:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -94988,7 +100829,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"./cipher":567,"./des":568,"inherits":634,"minimalistic-assert":651}],570:[function(require,module,exports){
+},{"./cipher":569,"./des":570,"inherits":636,"minimalistic-assert":653}],572:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -95246,7 +101087,7 @@ exports.padSplit = function padSplit(num, size, group) {
   return out.join(' ');
 };
 
-},{}],571:[function(require,module,exports){
+},{}],573:[function(require,module,exports){
 (function (Buffer){(function (){
 var generatePrime = require('./lib/generatePrime')
 var primes = require('./lib/primes.json')
@@ -95292,7 +101133,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./lib/dh":572,"./lib/generatePrime":573,"./lib/primes.json":574,"buffer":537}],572:[function(require,module,exports){
+},{"./lib/dh":574,"./lib/generatePrime":575,"./lib/primes.json":576,"buffer":539}],574:[function(require,module,exports){
 (function (Buffer){(function (){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -95460,7 +101301,7 @@ function formatReturnValue(bn, enc) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./generatePrime":573,"bn.js":502,"buffer":537,"miller-rabin":650,"randombytes":679}],573:[function(require,module,exports){
+},{"./generatePrime":575,"bn.js":504,"buffer":539,"miller-rabin":652,"randombytes":681}],575:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -95567,7 +101408,7 @@ function findPrime(bits, gen) {
 
 }
 
-},{"bn.js":502,"miller-rabin":650,"randombytes":679}],574:[function(require,module,exports){
+},{"bn.js":504,"miller-rabin":652,"randombytes":681}],576:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -95602,7 +101443,7 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],575:[function(require,module,exports){
+},{}],577:[function(require,module,exports){
 'use strict';
 
 var callBind = require('call-bind-apply-helpers');
@@ -95634,7 +101475,7 @@ module.exports = desc && typeof desc.get === 'function'
 		}
 		: false;
 
-},{"call-bind-apply-helpers":542,"gopd":612}],576:[function(require,module,exports){
+},{"call-bind-apply-helpers":544,"gopd":614}],578:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -95649,7 +101490,7 @@ elliptic.curves = require('./elliptic/curves');
 elliptic.ec = require('./elliptic/ec');
 elliptic.eddsa = require('./elliptic/eddsa');
 
-},{"../package.json":591,"./elliptic/curve":579,"./elliptic/curves":582,"./elliptic/ec":583,"./elliptic/eddsa":586,"./elliptic/utils":590,"brorand":503}],577:[function(require,module,exports){
+},{"../package.json":593,"./elliptic/curve":581,"./elliptic/curves":584,"./elliptic/ec":585,"./elliptic/eddsa":588,"./elliptic/utils":592,"brorand":505}],579:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -96032,7 +101873,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../utils":590,"bn.js":502}],578:[function(require,module,exports){
+},{"../utils":592,"bn.js":504}],580:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -96469,7 +102310,7 @@ Point.prototype.eqXToP = function eqXToP(x) {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../utils":590,"./base":577,"bn.js":502,"inherits":634}],579:[function(require,module,exports){
+},{"../utils":592,"./base":579,"bn.js":504,"inherits":636}],581:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -96479,7 +102320,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":577,"./edwards":578,"./mont":580,"./short":581}],580:[function(require,module,exports){
+},{"./base":579,"./edwards":580,"./mont":582,"./short":583}],582:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -96659,7 +102500,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../utils":590,"./base":577,"bn.js":502,"inherits":634}],581:[function(require,module,exports){
+},{"../utils":592,"./base":579,"bn.js":504,"inherits":636}],583:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -97599,7 +103440,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../utils":590,"./base":577,"bn.js":502,"inherits":634}],582:[function(require,module,exports){
+},{"../utils":592,"./base":579,"bn.js":504,"inherits":636}],584:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -97807,7 +103648,7 @@ defineCurve('secp256k1', {
   ],
 });
 
-},{"./curve":579,"./precomputed/secp256k1":589,"./utils":590,"hash.js":619}],583:[function(require,module,exports){
+},{"./curve":581,"./precomputed/secp256k1":591,"./utils":592,"hash.js":621}],585:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -98087,7 +103928,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../curves":582,"../utils":590,"./key":584,"./signature":585,"bn.js":502,"brorand":503,"hmac-drbg":632}],584:[function(require,module,exports){
+},{"../curves":584,"../utils":592,"./key":586,"./signature":587,"bn.js":504,"brorand":505,"hmac-drbg":634}],586:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -98210,7 +104051,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../utils":590,"bn.js":502}],585:[function(require,module,exports){
+},{"../utils":592,"bn.js":504}],587:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -98388,7 +104229,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../utils":590,"bn.js":502}],586:[function(require,module,exports){
+},{"../utils":592,"bn.js":504}],588:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -98511,7 +104352,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
   return val instanceof this.pointClass;
 };
 
-},{"../curves":582,"../utils":590,"./key":587,"./signature":588,"hash.js":619}],587:[function(require,module,exports){
+},{"../curves":584,"../utils":592,"./key":589,"./signature":590,"hash.js":621}],589:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -98608,7 +104449,7 @@ KeyPair.prototype.getPublic = function getPublic(enc) {
 
 module.exports = KeyPair;
 
-},{"../utils":590}],588:[function(require,module,exports){
+},{"../utils":592}],590:[function(require,module,exports){
 'use strict';
 
 var BN = require('bn.js');
@@ -98676,7 +104517,7 @@ Signature.prototype.toHex = function toHex() {
 
 module.exports = Signature;
 
-},{"../utils":590,"bn.js":502}],589:[function(require,module,exports){
+},{"../utils":592,"bn.js":504}],591:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -99458,7 +105299,7 @@ module.exports = {
   },
 };
 
-},{}],590:[function(require,module,exports){
+},{}],592:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -99582,7 +105423,7 @@ function intFromLE(bytes) {
 utils.intFromLE = intFromLE;
 
 
-},{"bn.js":502,"minimalistic-assert":651,"minimalistic-crypto-utils":652}],591:[function(require,module,exports){
+},{"bn.js":504,"minimalistic-assert":653,"minimalistic-crypto-utils":654}],593:[function(require,module,exports){
 module.exports={
   "name": "elliptic",
   "version": "6.6.1",
@@ -99640,7 +105481,7 @@ module.exports={
   }
 }
 
-},{}],592:[function(require,module,exports){
+},{}],594:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -99656,55 +105497,55 @@ if ($defineProperty) {
 
 module.exports = $defineProperty;
 
-},{}],593:[function(require,module,exports){
+},{}],595:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./eval')} */
 module.exports = EvalError;
 
-},{}],594:[function(require,module,exports){
+},{}],596:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
 module.exports = Error;
 
-},{}],595:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./range')} */
 module.exports = RangeError;
 
-},{}],596:[function(require,module,exports){
+},{}],598:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./ref')} */
 module.exports = ReferenceError;
 
-},{}],597:[function(require,module,exports){
+},{}],599:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./syntax')} */
 module.exports = SyntaxError;
 
-},{}],598:[function(require,module,exports){
+},{}],600:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./type')} */
 module.exports = TypeError;
 
-},{}],599:[function(require,module,exports){
+},{}],601:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./uri')} */
 module.exports = URIError;
 
-},{}],600:[function(require,module,exports){
+},{}],602:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
 module.exports = Object;
 
-},{}],601:[function(require,module,exports){
+},{}],603:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -100203,7 +106044,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],602:[function(require,module,exports){
+},{}],604:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var MD5 = require('md5.js')
 
@@ -100250,7 +106091,7 @@ function EVP_BytesToKey (password, salt, keyBits, ivLen) {
 
 module.exports = EVP_BytesToKey
 
-},{"md5.js":649,"safe-buffer":693}],603:[function(require,module,exports){
+},{"md5.js":651,"safe-buffer":695}],605:[function(require,module,exports){
 'use strict';
 
 var isCallable = require('is-callable');
@@ -100321,7 +106162,7 @@ module.exports = function forEach(list, iterator, thisArg) {
     }
 };
 
-},{"is-callable":636}],604:[function(require,module,exports){
+},{"is-callable":638}],606:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -100407,14 +106248,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],605:[function(require,module,exports){
+},{}],607:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":604}],606:[function(require,module,exports){
+},{"./implementation":606}],608:[function(require,module,exports){
 'use strict';
 
 /** @type {GeneratorFunctionConstructor | false} */
@@ -100434,7 +106275,7 @@ module.exports = function getGeneratorFunction() {
 };
 
 
-},{}],607:[function(require,module,exports){
+},{}],609:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -100814,7 +106655,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"call-bind-apply-helpers/functionApply":540,"call-bind-apply-helpers/functionCall":541,"es-define-property":592,"es-errors":594,"es-errors/eval":593,"es-errors/range":595,"es-errors/ref":596,"es-errors/syntax":597,"es-errors/type":598,"es-errors/uri":599,"es-object-atoms":600,"function-bind":605,"get-proto":610,"get-proto/Object.getPrototypeOf":608,"get-proto/Reflect.getPrototypeOf":609,"gopd":612,"has-symbols":614,"hasown":631,"math-intrinsics/abs":641,"math-intrinsics/floor":642,"math-intrinsics/max":644,"math-intrinsics/min":645,"math-intrinsics/pow":646,"math-intrinsics/round":647,"math-intrinsics/sign":648}],608:[function(require,module,exports){
+},{"call-bind-apply-helpers/functionApply":542,"call-bind-apply-helpers/functionCall":543,"es-define-property":594,"es-errors":596,"es-errors/eval":595,"es-errors/range":597,"es-errors/ref":598,"es-errors/syntax":599,"es-errors/type":600,"es-errors/uri":601,"es-object-atoms":602,"function-bind":607,"get-proto":612,"get-proto/Object.getPrototypeOf":610,"get-proto/Reflect.getPrototypeOf":611,"gopd":614,"has-symbols":616,"hasown":633,"math-intrinsics/abs":643,"math-intrinsics/floor":644,"math-intrinsics/max":646,"math-intrinsics/min":647,"math-intrinsics/pow":648,"math-intrinsics/round":649,"math-intrinsics/sign":650}],610:[function(require,module,exports){
 'use strict';
 
 var $Object = require('es-object-atoms');
@@ -100822,13 +106663,13 @@ var $Object = require('es-object-atoms');
 /** @type {import('./Object.getPrototypeOf')} */
 module.exports = $Object.getPrototypeOf || null;
 
-},{"es-object-atoms":600}],609:[function(require,module,exports){
+},{"es-object-atoms":602}],611:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./Reflect.getPrototypeOf')} */
 module.exports = (typeof Reflect !== 'undefined' && Reflect.getPrototypeOf) || null;
 
-},{}],610:[function(require,module,exports){
+},{}],612:[function(require,module,exports){
 'use strict';
 
 var reflectGetProto = require('./Reflect.getPrototypeOf');
@@ -100857,13 +106698,13 @@ module.exports = reflectGetProto
 			}
 			: null;
 
-},{"./Object.getPrototypeOf":608,"./Reflect.getPrototypeOf":609,"dunder-proto/get":575}],611:[function(require,module,exports){
+},{"./Object.getPrototypeOf":610,"./Reflect.getPrototypeOf":611,"dunder-proto/get":577}],613:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./gOPD')} */
 module.exports = Object.getOwnPropertyDescriptor;
 
-},{}],612:[function(require,module,exports){
+},{}],614:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -100880,7 +106721,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"./gOPD":611}],613:[function(require,module,exports){
+},{"./gOPD":613}],615:[function(require,module,exports){
 'use strict';
 
 var $defineProperty = require('es-define-property');
@@ -100904,7 +106745,7 @@ hasPropertyDescriptors.hasArrayLengthDefineBug = function hasArrayLengthDefineBu
 
 module.exports = hasPropertyDescriptors;
 
-},{"es-define-property":592}],614:[function(require,module,exports){
+},{"es-define-property":594}],616:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -100920,7 +106761,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":615}],615:[function(require,module,exports){
+},{"./shams":617}],617:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./shams')} */
@@ -100967,7 +106808,7 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],616:[function(require,module,exports){
+},{}],618:[function(require,module,exports){
 'use strict';
 
 var hasSymbols = require('has-symbols/shams');
@@ -100977,7 +106818,7 @@ module.exports = function hasToStringTagShams() {
 	return hasSymbols() && !!Symbol.toStringTag;
 };
 
-},{"has-symbols/shams":615}],617:[function(require,module,exports){
+},{"has-symbols/shams":617}],619:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -101088,7 +106929,7 @@ HashBase.prototype._digest = function () {
 
 module.exports = HashBase;
 
-},{"./to-buffer":618,"inherits":634,"readable-stream":691,"safe-buffer":693}],618:[function(require,module,exports){
+},{"./to-buffer":620,"inherits":636,"readable-stream":693,"safe-buffer":695}],620:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -101110,7 +106951,7 @@ module.exports = function (thing, encoding) {
 	throw new TypeError('The "data" argument must be a string, a Buffer, a Uint8Array, or a DataView');
 };
 
-},{"safe-buffer":693,"to-buffer":721}],619:[function(require,module,exports){
+},{"safe-buffer":695,"to-buffer":723}],621:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -101127,7 +106968,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":620,"./hash/hmac":621,"./hash/ripemd":622,"./hash/sha":623,"./hash/utils":630}],620:[function(require,module,exports){
+},{"./hash/common":622,"./hash/hmac":623,"./hash/ripemd":624,"./hash/sha":625,"./hash/utils":632}],622:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -101221,7 +107062,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"./utils":630,"minimalistic-assert":651}],621:[function(require,module,exports){
+},{"./utils":632,"minimalistic-assert":653}],623:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -101270,7 +107111,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"./utils":630,"minimalistic-assert":651}],622:[function(require,module,exports){
+},{"./utils":632,"minimalistic-assert":653}],624:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -101418,7 +107259,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"./common":620,"./utils":630}],623:[function(require,module,exports){
+},{"./common":622,"./utils":632}],625:[function(require,module,exports){
 'use strict';
 
 exports.sha1 = require('./sha/1');
@@ -101427,7 +107268,7 @@ exports.sha256 = require('./sha/256');
 exports.sha384 = require('./sha/384');
 exports.sha512 = require('./sha/512');
 
-},{"./sha/1":624,"./sha/224":625,"./sha/256":626,"./sha/384":627,"./sha/512":628}],624:[function(require,module,exports){
+},{"./sha/1":626,"./sha/224":627,"./sha/256":628,"./sha/384":629,"./sha/512":630}],626:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -101503,7 +107344,7 @@ SHA1.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":620,"../utils":630,"./common":629}],625:[function(require,module,exports){
+},{"../common":622,"../utils":632,"./common":631}],627:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -101535,7 +107376,7 @@ SHA224.prototype._digest = function digest(enc) {
 };
 
 
-},{"../utils":630,"./256":626}],626:[function(require,module,exports){
+},{"../utils":632,"./256":628}],628:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -101642,7 +107483,7 @@ SHA256.prototype._digest = function digest(enc) {
     return utils.split32(this.h, 'big');
 };
 
-},{"../common":620,"../utils":630,"./common":629,"minimalistic-assert":651}],627:[function(require,module,exports){
+},{"../common":622,"../utils":632,"./common":631,"minimalistic-assert":653}],629:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -101679,7 +107520,7 @@ SHA384.prototype._digest = function digest(enc) {
     return utils.split32(this.h.slice(0, 12), 'big');
 };
 
-},{"../utils":630,"./512":628}],628:[function(require,module,exports){
+},{"../utils":632,"./512":630}],630:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -102011,7 +107852,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../common":620,"../utils":630,"minimalistic-assert":651}],629:[function(require,module,exports){
+},{"../common":622,"../utils":632,"minimalistic-assert":653}],631:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -102062,7 +107903,7 @@ function g1_256(x) {
 }
 exports.g1_256 = g1_256;
 
-},{"../utils":630}],630:[function(require,module,exports){
+},{"../utils":632}],632:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -102342,7 +108183,7 @@ function shr64_lo(ah, al, num) {
 }
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":634,"minimalistic-assert":651}],631:[function(require,module,exports){
+},{"inherits":636,"minimalistic-assert":653}],633:[function(require,module,exports){
 'use strict';
 
 var call = Function.prototype.call;
@@ -102352,7 +108193,7 @@ var bind = require('function-bind');
 /** @type {import('.')} */
 module.exports = bind.call(call, $hasOwn);
 
-},{"function-bind":605}],632:[function(require,module,exports){
+},{"function-bind":607}],634:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -102467,7 +108308,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"hash.js":619,"minimalistic-assert":651,"minimalistic-crypto-utils":652}],633:[function(require,module,exports){
+},{"hash.js":621,"minimalistic-assert":653,"minimalistic-crypto-utils":654}],635:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -102554,7 +108395,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],634:[function(require,module,exports){
+},{}],636:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -102583,7 +108424,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],635:[function(require,module,exports){
+},{}],637:[function(require,module,exports){
 'use strict';
 
 var hasToStringTag = require('has-tostringtag/shams')();
@@ -102629,7 +108470,7 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 /** @type {import('.')} */
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bound":545,"has-tostringtag/shams":616}],636:[function(require,module,exports){
+},{"call-bound":547,"has-tostringtag/shams":618}],638:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
@@ -102732,7 +108573,7 @@ module.exports = reflectApply
 		return tryFunctionObject(value);
 	};
 
-},{}],637:[function(require,module,exports){
+},{}],639:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -102765,7 +108606,7 @@ module.exports = function isGeneratorFunction(fn) {
 	return GeneratorFunction && getProto(fn) === GeneratorFunction.prototype;
 };
 
-},{"call-bound":545,"generator-function":606,"get-proto":610,"has-tostringtag/shams":616,"safe-regex-test":694}],638:[function(require,module,exports){
+},{"call-bound":547,"generator-function":608,"get-proto":612,"has-tostringtag/shams":618,"safe-regex-test":696}],640:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -102836,7 +108677,7 @@ if (hasToStringTag) {
 
 module.exports = fn;
 
-},{"call-bound":545,"gopd":612,"has-tostringtag/shams":616,"hasown":631}],639:[function(require,module,exports){
+},{"call-bound":547,"gopd":614,"has-tostringtag/shams":618,"hasown":633}],641:[function(require,module,exports){
 'use strict';
 
 var whichTypedArray = require('which-typed-array');
@@ -102846,26 +108687,26 @@ module.exports = function isTypedArray(value) {
 	return !!whichTypedArray(value);
 };
 
-},{"which-typed-array":729}],640:[function(require,module,exports){
+},{"which-typed-array":731}],642:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],641:[function(require,module,exports){
+},{}],643:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./abs')} */
 module.exports = Math.abs;
 
-},{}],642:[function(require,module,exports){
+},{}],644:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./floor')} */
 module.exports = Math.floor;
 
-},{}],643:[function(require,module,exports){
+},{}],645:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./isNaN')} */
@@ -102873,31 +108714,31 @@ module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
-},{}],644:[function(require,module,exports){
+},{}],646:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./max')} */
 module.exports = Math.max;
 
-},{}],645:[function(require,module,exports){
+},{}],647:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./min')} */
 module.exports = Math.min;
 
-},{}],646:[function(require,module,exports){
+},{}],648:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./pow')} */
 module.exports = Math.pow;
 
-},{}],647:[function(require,module,exports){
+},{}],649:[function(require,module,exports){
 'use strict';
 
 /** @type {import('./round')} */
 module.exports = Math.round;
 
-},{}],648:[function(require,module,exports){
+},{}],650:[function(require,module,exports){
 'use strict';
 
 var $isNaN = require('./isNaN');
@@ -102910,7 +108751,7 @@ module.exports = function sign(number) {
 	return number < 0 ? -1 : +1;
 };
 
-},{"./isNaN":643}],649:[function(require,module,exports){
+},{"./isNaN":645}],651:[function(require,module,exports){
 'use strict'
 var inherits = require('inherits')
 var HashBase = require('hash-base')
@@ -103058,7 +108899,7 @@ function fnI (a, b, c, d, m, k, s) {
 
 module.exports = MD5
 
-},{"hash-base":617,"inherits":634,"safe-buffer":693}],650:[function(require,module,exports){
+},{"hash-base":619,"inherits":636,"safe-buffer":695}],652:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -103175,7 +109016,7 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":502,"brorand":503}],651:[function(require,module,exports){
+},{"bn.js":504,"brorand":505}],653:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -103188,7 +109029,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],652:[function(require,module,exports){
+},{}],654:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -103248,7 +109089,7 @@ utils.encode = function encode(arr, enc) {
     return arr;
 };
 
-},{}],653:[function(require,module,exports){
+},{}],655:[function(require,module,exports){
 'use strict';
 
 var keysShim;
@@ -103372,7 +109213,7 @@ if (!Object.keys) {
 }
 module.exports = keysShim;
 
-},{"./isArguments":655}],654:[function(require,module,exports){
+},{"./isArguments":657}],656:[function(require,module,exports){
 'use strict';
 
 var slice = Array.prototype.slice;
@@ -103406,7 +109247,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./implementation":653,"./isArguments":655}],655:[function(require,module,exports){
+},{"./implementation":655,"./isArguments":657}],657:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -103425,7 +109266,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],656:[function(require,module,exports){
+},{}],658:[function(require,module,exports){
 'use strict';
 
 // modified from https://github.com/es-shims/es6-shim
@@ -103473,7 +109314,7 @@ module.exports = function assign(target, source1) {
 	return to; // step 4
 };
 
-},{"call-bound":545,"es-object-atoms":600,"has-symbols/shams":615,"object-keys":654}],657:[function(require,module,exports){
+},{"call-bound":547,"es-object-atoms":602,"has-symbols/shams":617,"object-keys":656}],659:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -103530,7 +109371,7 @@ module.exports = function getPolyfill() {
 	return Object.assign;
 };
 
-},{"./implementation":656}],658:[function(require,module,exports){
+},{"./implementation":658}],660:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -103544,7 +109385,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],659:[function(require,module,exports){
+},{}],661:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 
@@ -103669,7 +109510,7 @@ exports.signature = asn1.define('signature', function () {
 	);
 });
 
-},{"./certificate":660,"asn1.js":482}],660:[function(require,module,exports){
+},{"./certificate":662,"asn1.js":484}],662:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -103760,7 +109601,7 @@ var X509Certificate = asn.define('X509Certificate', function () {
 
 module.exports = X509Certificate;
 
-},{"asn1.js":482}],661:[function(require,module,exports){
+},{"asn1.js":484}],663:[function(require,module,exports){
 'use strict';
 
 // adapted from https://github.com/apatil/pemstrip
@@ -103795,7 +109636,7 @@ module.exports = function (okey, password) {
 	};
 };
 
-},{"browserify-aes":508,"evp_bytestokey":602,"safe-buffer":693}],662:[function(require,module,exports){
+},{"browserify-aes":510,"evp_bytestokey":604,"safe-buffer":695}],664:[function(require,module,exports){
 'use strict';
 
 var asn1 = require('./asn1');
@@ -103908,7 +109749,7 @@ parseKeys.signature = asn1.signature;
 
 module.exports = parseKeys;
 
-},{"./aesid.json":658,"./asn1":659,"./fixProc":661,"browserify-aes":508,"pbkdf2":664,"safe-buffer":693}],663:[function(require,module,exports){
+},{"./aesid.json":660,"./asn1":661,"./fixProc":663,"browserify-aes":510,"pbkdf2":666,"safe-buffer":695}],665:[function(require,module,exports){
 (function (process){(function (){
 // 'path' module extracted from Node.js v8.11.1 (only the posix part)
 // transplited with Babel
@@ -104441,13 +110282,13 @@ posix.posix = posix;
 module.exports = posix;
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":672}],664:[function(require,module,exports){
+},{"_process":674}],666:[function(require,module,exports){
 'use strict';
 
 exports.pbkdf2 = require('./lib/async');
 exports.pbkdf2Sync = require('./lib/sync');
 
-},{"./lib/async":665,"./lib/sync":668}],665:[function(require,module,exports){
+},{"./lib/async":667,"./lib/sync":670}],667:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -104573,7 +110414,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./default-encoding":666,"./precondition":667,"./sync":668,"./to-buffer":669,"safe-buffer":693}],666:[function(require,module,exports){
+},{"./default-encoding":668,"./precondition":669,"./sync":670,"./to-buffer":671,"safe-buffer":695}],668:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict';
 
@@ -104591,7 +110432,7 @@ if (global.process && global.process.browser) {
 module.exports = defaultEncoding;
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":672}],667:[function(require,module,exports){
+},{"_process":674}],669:[function(require,module,exports){
 'use strict';
 
 var $isFinite = isFinite;
@@ -104615,7 +110456,7 @@ module.exports = function (iterations, keylen) {
 	}
 };
 
-},{}],668:[function(require,module,exports){
+},{}],670:[function(require,module,exports){
 'use strict';
 
 var md5 = require('create-hash/md5');
@@ -104748,7 +110589,7 @@ function pbkdf2(password, salt, iterations, keylen, digest) {
 
 module.exports = pbkdf2;
 
-},{"./default-encoding":666,"./precondition":667,"./to-buffer":669,"create-hash/md5":550,"ripemd160":692,"safe-buffer":693,"sha.js":697}],669:[function(require,module,exports){
+},{"./default-encoding":668,"./precondition":669,"./to-buffer":671,"create-hash/md5":552,"ripemd160":694,"safe-buffer":695,"sha.js":699}],671:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -104770,7 +110611,7 @@ module.exports = function (thing, encoding, name) {
 	throw new TypeError(name + ' must be a string, a Buffer, a Uint8Array, or a DataView');
 };
 
-},{"safe-buffer":693,"to-buffer":721}],670:[function(require,module,exports){
+},{"safe-buffer":695,"to-buffer":723}],672:[function(require,module,exports){
 'use strict';
 
 /** @type {import('.')} */
@@ -104789,7 +110630,7 @@ module.exports = [
 	'BigUint64Array'
 ];
 
-},{}],671:[function(require,module,exports){
+},{}],673:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -104838,7 +110679,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":672}],672:[function(require,module,exports){
+},{"_process":674}],674:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -105024,7 +110865,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],673:[function(require,module,exports){
+},{}],675:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt')
 exports.privateDecrypt = require('./privateDecrypt')
 
@@ -105036,7 +110877,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
   return exports.privateDecrypt(key, buf, true)
 }
 
-},{"./privateDecrypt":675,"./publicEncrypt":676}],674:[function(require,module,exports){
+},{"./privateDecrypt":677,"./publicEncrypt":678}],676:[function(require,module,exports){
 var createHash = require('create-hash')
 var Buffer = require('safe-buffer').Buffer
 
@@ -105057,7 +110898,7 @@ function i2ops (c) {
   return out
 }
 
-},{"create-hash":549,"safe-buffer":693}],675:[function(require,module,exports){
+},{"create-hash":551,"safe-buffer":695}],677:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var mgf = require('./mgf')
 var xor = require('./xor')
@@ -105164,7 +111005,7 @@ function compare (a, b) {
   return dif
 }
 
-},{"./mgf":674,"./withPublic":677,"./xor":678,"bn.js":502,"browserify-rsa":526,"create-hash":549,"parse-asn1":662,"safe-buffer":693}],676:[function(require,module,exports){
+},{"./mgf":676,"./withPublic":679,"./xor":680,"bn.js":504,"browserify-rsa":528,"create-hash":551,"parse-asn1":664,"safe-buffer":695}],678:[function(require,module,exports){
 var parseKeys = require('parse-asn1')
 var randomBytes = require('randombytes')
 var createHash = require('create-hash')
@@ -105254,7 +111095,7 @@ function nonZero (len) {
   return out
 }
 
-},{"./mgf":674,"./withPublic":677,"./xor":678,"bn.js":502,"browserify-rsa":526,"create-hash":549,"parse-asn1":662,"randombytes":679,"safe-buffer":693}],677:[function(require,module,exports){
+},{"./mgf":676,"./withPublic":679,"./xor":680,"bn.js":504,"browserify-rsa":528,"create-hash":551,"parse-asn1":664,"randombytes":681,"safe-buffer":695}],679:[function(require,module,exports){
 var BN = require('bn.js')
 var Buffer = require('safe-buffer').Buffer
 
@@ -105268,7 +111109,7 @@ function withPublic (paddedMsg, key) {
 
 module.exports = withPublic
 
-},{"bn.js":502,"safe-buffer":693}],678:[function(require,module,exports){
+},{"bn.js":504,"safe-buffer":695}],680:[function(require,module,exports){
 module.exports = function xor (a, b) {
   var len = a.length
   var i = -1
@@ -105278,7 +111119,7 @@ module.exports = function xor (a, b) {
   return a
 }
 
-},{}],679:[function(require,module,exports){
+},{}],681:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -105332,7 +111173,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":672,"safe-buffer":693}],680:[function(require,module,exports){
+},{"_process":674,"safe-buffer":695}],682:[function(require,module,exports){
 (function (process,global){(function (){
 'use strict'
 
@@ -105444,7 +111285,7 @@ function randomFillSync (buf, offset, size) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":672,"randombytes":679,"safe-buffer":693}],681:[function(require,module,exports){
+},{"_process":674,"randombytes":681,"safe-buffer":695}],683:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -105576,7 +111417,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":683,"./_stream_writable":685,"core-util-is":547,"inherits":634,"process-nextick-args":671}],682:[function(require,module,exports){
+},{"./_stream_readable":685,"./_stream_writable":687,"core-util-is":549,"inherits":636,"process-nextick-args":673}],684:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -105624,7 +111465,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":684,"core-util-is":547,"inherits":634}],683:[function(require,module,exports){
+},{"./_stream_transform":686,"core-util-is":549,"inherits":636}],685:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -106646,7 +112487,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":681,"./internal/streams/BufferList":686,"./internal/streams/destroy":687,"./internal/streams/stream":688,"_process":672,"core-util-is":547,"events":601,"inherits":634,"isarray":640,"process-nextick-args":671,"safe-buffer":689,"string_decoder/":690,"util":505}],684:[function(require,module,exports){
+},{"./_stream_duplex":683,"./internal/streams/BufferList":688,"./internal/streams/destroy":689,"./internal/streams/stream":690,"_process":674,"core-util-is":549,"events":603,"inherits":636,"isarray":642,"process-nextick-args":673,"safe-buffer":691,"string_decoder/":692,"util":507}],686:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -106861,7 +112702,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":681,"core-util-is":547,"inherits":634}],685:[function(require,module,exports){
+},{"./_stream_duplex":683,"core-util-is":549,"inherits":636}],687:[function(require,module,exports){
 (function (process,global,setImmediate){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -107549,7 +113390,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":681,"./internal/streams/destroy":687,"./internal/streams/stream":688,"_process":672,"core-util-is":547,"inherits":634,"process-nextick-args":671,"safe-buffer":689,"timers":720,"util-deprecate":724}],686:[function(require,module,exports){
+},{"./_stream_duplex":683,"./internal/streams/destroy":689,"./internal/streams/stream":690,"_process":674,"core-util-is":549,"inherits":636,"process-nextick-args":673,"safe-buffer":691,"timers":722,"util-deprecate":726}],688:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -107628,7 +113469,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":689,"util":505}],687:[function(require,module,exports){
+},{"safe-buffer":691,"util":507}],689:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -107713,10 +113554,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":671}],688:[function(require,module,exports){
+},{"process-nextick-args":673}],690:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":601}],689:[function(require,module,exports){
+},{"events":603}],691:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -107780,7 +113621,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":537}],690:[function(require,module,exports){
+},{"buffer":539}],692:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -108077,7 +113918,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":689}],691:[function(require,module,exports){
+},{"safe-buffer":691}],693:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -108086,7 +113927,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":681,"./lib/_stream_passthrough.js":682,"./lib/_stream_readable.js":683,"./lib/_stream_transform.js":684,"./lib/_stream_writable.js":685}],692:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":683,"./lib/_stream_passthrough.js":684,"./lib/_stream_readable.js":685,"./lib/_stream_transform.js":686,"./lib/_stream_writable.js":687}],694:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('buffer').Buffer;
@@ -108255,7 +114096,7 @@ RIPEMD160.prototype._digest = function () {
 
 module.exports = RIPEMD160;
 
-},{"buffer":537,"hash-base":617,"inherits":634}],693:[function(require,module,exports){
+},{"buffer":539,"hash-base":619,"inherits":636}],695:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -108322,7 +114163,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":537}],694:[function(require,module,exports){
+},{"buffer":539}],696:[function(require,module,exports){
 'use strict';
 
 var callBound = require('call-bound');
@@ -108341,7 +114182,7 @@ module.exports = function regexTester(regex) {
 	};
 };
 
-},{"call-bound":545,"es-errors/type":598,"is-regex":638}],695:[function(require,module,exports){
+},{"call-bound":547,"es-errors/type":600,"is-regex":640}],697:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -108385,7 +114226,7 @@ module.exports = function setFunctionLength(fn, length) {
 	return fn;
 };
 
-},{"define-data-property":564,"es-errors/type":598,"get-intrinsic":607,"gopd":612,"has-property-descriptors":613}],696:[function(require,module,exports){
+},{"define-data-property":566,"es-errors/type":600,"get-intrinsic":609,"gopd":614,"has-property-descriptors":615}],698:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -108471,7 +114312,7 @@ Hash.prototype._update = function () {
 
 module.exports = Hash;
 
-},{"safe-buffer":693,"to-buffer":721}],697:[function(require,module,exports){
+},{"safe-buffer":695,"to-buffer":723}],699:[function(require,module,exports){
 'use strict';
 
 module.exports = function SHA(algorithm) {
@@ -108492,7 +114333,7 @@ module.exports.sha256 = require('./sha256');
 module.exports.sha384 = require('./sha384');
 module.exports.sha512 = require('./sha512');
 
-},{"./sha":698,"./sha1":699,"./sha224":700,"./sha256":701,"./sha384":702,"./sha512":703}],698:[function(require,module,exports){
+},{"./sha":700,"./sha1":701,"./sha224":702,"./sha256":703,"./sha384":704,"./sha512":705}],700:[function(require,module,exports){
 'use strict';
 
 /*
@@ -108598,7 +114439,7 @@ Sha.prototype._hash = function () {
 
 module.exports = Sha;
 
-},{"./hash":696,"inherits":634,"safe-buffer":693}],699:[function(require,module,exports){
+},{"./hash":698,"inherits":636,"safe-buffer":695}],701:[function(require,module,exports){
 'use strict';
 
 /*
@@ -108709,7 +114550,7 @@ Sha1.prototype._hash = function () {
 
 module.exports = Sha1;
 
-},{"./hash":696,"inherits":634,"safe-buffer":693}],700:[function(require,module,exports){
+},{"./hash":698,"inherits":636,"safe-buffer":695}],702:[function(require,module,exports){
 'use strict';
 
 /**
@@ -108766,7 +114607,7 @@ Sha224.prototype._hash = function () {
 
 module.exports = Sha224;
 
-},{"./hash":696,"./sha256":701,"inherits":634,"safe-buffer":693}],701:[function(require,module,exports){
+},{"./hash":698,"./sha256":703,"inherits":636,"safe-buffer":695}],703:[function(require,module,exports){
 'use strict';
 
 /**
@@ -108957,7 +114798,7 @@ Sha256.prototype._hash = function () {
 
 module.exports = Sha256;
 
-},{"./hash":696,"inherits":634,"safe-buffer":693}],702:[function(require,module,exports){
+},{"./hash":698,"inherits":636,"safe-buffer":695}],704:[function(require,module,exports){
 'use strict';
 
 var inherits = require('inherits');
@@ -109018,7 +114859,7 @@ Sha384.prototype._hash = function () {
 
 module.exports = Sha384;
 
-},{"./hash":696,"./sha512":703,"inherits":634,"safe-buffer":693}],703:[function(require,module,exports){
+},{"./hash":698,"./sha512":705,"inherits":636,"safe-buffer":695}],705:[function(require,module,exports){
 'use strict';
 
 var inherits = require('inherits');
@@ -109402,7 +115243,7 @@ Sha512.prototype._hash = function () {
 
 module.exports = Sha512;
 
-},{"./hash":696,"inherits":634,"safe-buffer":693}],704:[function(require,module,exports){
+},{"./hash":698,"inherits":636,"safe-buffer":695}],706:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -109533,7 +115374,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":601,"inherits":634,"readable-stream/lib/_stream_duplex.js":706,"readable-stream/lib/_stream_passthrough.js":707,"readable-stream/lib/_stream_readable.js":708,"readable-stream/lib/_stream_transform.js":709,"readable-stream/lib/_stream_writable.js":710,"readable-stream/lib/internal/streams/end-of-stream.js":714,"readable-stream/lib/internal/streams/pipeline.js":716}],705:[function(require,module,exports){
+},{"events":603,"inherits":636,"readable-stream/lib/_stream_duplex.js":708,"readable-stream/lib/_stream_passthrough.js":709,"readable-stream/lib/_stream_readable.js":710,"readable-stream/lib/_stream_transform.js":711,"readable-stream/lib/_stream_writable.js":712,"readable-stream/lib/internal/streams/end-of-stream.js":716,"readable-stream/lib/internal/streams/pipeline.js":718}],707:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -109662,7 +115503,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],706:[function(require,module,exports){
+},{}],708:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -109791,7 +115632,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":708,"./_stream_writable":710,"_process":672,"inherits":634}],707:[function(require,module,exports){
+},{"./_stream_readable":710,"./_stream_writable":712,"_process":674,"inherits":636}],709:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -109829,7 +115670,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":709,"inherits":634}],708:[function(require,module,exports){
+},{"./_stream_transform":711,"inherits":636}],710:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -110859,7 +116700,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":705,"./_stream_duplex":706,"./internal/streams/async_iterator":711,"./internal/streams/buffer_list":712,"./internal/streams/destroy":713,"./internal/streams/from":715,"./internal/streams/state":717,"./internal/streams/stream":718,"_process":672,"buffer":537,"events":601,"inherits":634,"string_decoder/":719,"util":505}],709:[function(require,module,exports){
+},{"../errors":707,"./_stream_duplex":708,"./internal/streams/async_iterator":713,"./internal/streams/buffer_list":714,"./internal/streams/destroy":715,"./internal/streams/from":717,"./internal/streams/state":719,"./internal/streams/stream":720,"_process":674,"buffer":539,"events":603,"inherits":636,"string_decoder/":721,"util":507}],711:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -111050,7 +116891,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":705,"./_stream_duplex":706,"inherits":634}],710:[function(require,module,exports){
+},{"../errors":707,"./_stream_duplex":708,"inherits":636}],712:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -111694,7 +117535,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":705,"./_stream_duplex":706,"./internal/streams/destroy":713,"./internal/streams/state":717,"./internal/streams/stream":718,"_process":672,"buffer":537,"inherits":634,"util-deprecate":724}],711:[function(require,module,exports){
+},{"../errors":707,"./_stream_duplex":708,"./internal/streams/destroy":715,"./internal/streams/state":719,"./internal/streams/stream":720,"_process":674,"buffer":539,"inherits":636,"util-deprecate":726}],713:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -111877,7 +117718,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 };
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":714,"_process":672}],712:[function(require,module,exports){
+},{"./end-of-stream":716,"_process":674}],714:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -112061,7 +117902,7 @@ module.exports = /*#__PURE__*/function () {
   }]);
   return BufferList;
 }();
-},{"buffer":537,"util":505}],713:[function(require,module,exports){
+},{"buffer":539,"util":507}],715:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -112160,7 +118001,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":672}],714:[function(require,module,exports){
+},{"_process":674}],716:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -112247,12 +118088,12 @@ function eos(stream, opts, callback) {
   };
 }
 module.exports = eos;
-},{"../../../errors":705}],715:[function(require,module,exports){
+},{"../../../errors":707}],717:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],716:[function(require,module,exports){
+},{}],718:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 
@@ -112339,7 +118180,7 @@ function pipeline() {
   return streams.reduce(pipe);
 }
 module.exports = pipeline;
-},{"../../../errors":705,"./end-of-stream":714}],717:[function(require,module,exports){
+},{"../../../errors":707,"./end-of-stream":716}],719:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -112362,11 +118203,11 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":705}],718:[function(require,module,exports){
-arguments[4][688][0].apply(exports,arguments)
-},{"dup":688,"events":601}],719:[function(require,module,exports){
+},{"../../../errors":707}],720:[function(require,module,exports){
 arguments[4][690][0].apply(exports,arguments)
-},{"dup":690,"safe-buffer":693}],720:[function(require,module,exports){
+},{"dup":690,"events":603}],721:[function(require,module,exports){
+arguments[4][692][0].apply(exports,arguments)
+},{"dup":692,"safe-buffer":695}],722:[function(require,module,exports){
 (function (setImmediate,clearImmediate){(function (){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -112445,7 +118286,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":672,"timers":720}],721:[function(require,module,exports){
+},{"process/browser.js":674,"timers":722}],723:[function(require,module,exports){
 'use strict';
 
 var Buffer = require('safe-buffer').Buffer;
@@ -112556,9 +118397,9 @@ module.exports = function toBuffer(data, encoding) {
 	throw new TypeError('The "data" argument must be a string, an Array, a Buffer, a Uint8Array, or a DataView.');
 };
 
-},{"isarray":722,"safe-buffer":693,"typed-array-buffer":723}],722:[function(require,module,exports){
-arguments[4][640][0].apply(exports,arguments)
-},{"dup":640}],723:[function(require,module,exports){
+},{"isarray":724,"safe-buffer":695,"typed-array-buffer":725}],724:[function(require,module,exports){
+arguments[4][642][0].apply(exports,arguments)
+},{"dup":642}],725:[function(require,module,exports){
 'use strict';
 
 var $TypeError = require('es-errors/type');
@@ -112579,7 +118420,7 @@ module.exports = $typedArrayBuffer || function typedArrayBuffer(x) {
 	return x.buffer;
 };
 
-},{"call-bound":545,"es-errors/type":598,"is-typed-array":639}],724:[function(require,module,exports){
+},{"call-bound":547,"es-errors/type":600,"is-typed-array":641}],726:[function(require,module,exports){
 (function (global){(function (){
 
 /**
@@ -112650,9 +118491,9 @@ function config (name) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],725:[function(require,module,exports){
-arguments[4][498][0].apply(exports,arguments)
-},{"dup":498}],726:[function(require,module,exports){
+},{}],727:[function(require,module,exports){
+arguments[4][500][0].apply(exports,arguments)
+},{"dup":500}],728:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -112988,7 +118829,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":635,"is-generator-function":637,"is-typed-array":639,"which-typed-array":729}],727:[function(require,module,exports){
+},{"is-arguments":637,"is-generator-function":639,"is-typed-array":641,"which-typed-array":731}],729:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -113707,7 +119548,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":725,"./support/types":726,"_process":672,"inherits":634}],728:[function(require,module,exports){
+},{"./support/isBuffer":727,"./support/types":728,"_process":674,"inherits":636}],730:[function(require,module,exports){
 var indexOf = function (xs, item) {
     if (xs.indexOf) return xs.indexOf(item);
     else for (var i = 0; i < xs.length; i++) {
@@ -113858,7 +119699,7 @@ exports.createContext = Script.createContext = function (context) {
     return copy;
 };
 
-},{}],729:[function(require,module,exports){
+},{}],731:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -113979,5 +119820,5 @@ module.exports = function whichTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":500,"call-bind":544,"call-bound":545,"for-each":603,"get-proto":610,"gopd":612,"has-tostringtag/shams":616}]},{},[3])(3)
+},{"available-typed-arrays":502,"call-bind":546,"call-bound":547,"for-each":605,"get-proto":612,"gopd":614,"has-tostringtag/shams":618}]},{},[3])(3)
 });

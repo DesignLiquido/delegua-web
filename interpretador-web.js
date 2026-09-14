@@ -19,6 +19,7 @@ class InterpretadorWeb extends delegua_1.Interpretador {
     logicaComumImportar(caminho, linha) {
         return __awaiter(this, void 0, void 0, function* () {
             switch (caminho.valor) {
+                case 'brasil':
                 case 'criptografia':
                 case 'estatistica':
                 case 'fisica':

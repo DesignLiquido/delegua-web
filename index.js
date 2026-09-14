@@ -51,8 +51,10 @@ const avaliador_sintatico_1 = require("@designliquido/delegua/avaliador-sintatic
 const estruturas_1 = require("@designliquido/delegua/interpretador/estruturas");
 const tradutores_1 = require("@designliquido/delegua/tradutores");
 const informacao_elemento_sintatico_1 = require("@designliquido/delegua/informacao-elemento-sintatico");
+const brasil = __importStar(require("@designliquido/delegua-brasil"));
+const delegua_modulo_1 = require("@designliquido/delegua-brasil/delegua-modulo");
 const criptografia = __importStar(require("@designliquido/delegua-criptografia"));
-const delegua_modulo_1 = require("@designliquido/delegua-criptografia/delegua-modulo");
+const delegua_modulo_2 = require("@designliquido/delegua-criptografia/delegua-modulo");
 const estatistica = __importStar(require("@designliquido/delegua-estatistica"));
 const fisica = __importStar(require("@designliquido/delegua-fisica"));
 const matematica = __importStar(require("@designliquido/delegua-matematica"));
@@ -194,8 +196,10 @@ class DeleguaWeb {
             }
         });
         this.documentacoesBibliotecas = {};
+        this.registrarModuloComPrimitivas("brasil", brasil);
+        this.documentacoesBibliotecas["brasil"] = delegua_modulo_1.DeleguaModuloBrasil;
         this.registrarModuloComPrimitivas("criptografia", criptografia);
-        this.documentacoesBibliotecas["criptografia"] = delegua_modulo_1.DeleguaModuloCriptografia;
+        this.documentacoesBibliotecas["criptografia"] = delegua_modulo_2.DeleguaModuloCriptografia;
         this.documentacoesBibliotecas["afirmar"] = documentacao_testes_1.DocumentacaoModuloAfirmar;
         this.documentacoesBibliotecas["teste"] = documentacao_testes_1.DocumentacaoModuloTeste;
         this.documentacoesBibliotecas["grupo"] = documentacao_testes_1.DocumentacaoModuloGrupo;
