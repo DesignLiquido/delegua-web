@@ -26,3 +26,4 @@ const primitivas = [
 
 // Registro global
 (globalThis as any).primitivas = primitivas;
+(globalThis as any).funcoesNativas = metodosBibliotecaGlobal;
