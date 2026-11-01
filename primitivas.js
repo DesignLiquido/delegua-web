@@ -26,6 +26,7 @@ const primitivas = [
 ].sort(ordenarPrimitivaPorNome);
 // Registro global
 globalThis.primitivas = primitivas;
+globalThis.funcoesNativas = metodos_biblioteca_global_1.metodosBibliotecaGlobal;
 
 },{"./metodos-biblioteca-global":2,"./primitivas-dicionario":3,"./primitivas-numero":4,"./primitivas-testes":5,"./primitivas-texto":6,"./primitivas-vetor":7}],2:[function(require,module,exports){
 "use strict";

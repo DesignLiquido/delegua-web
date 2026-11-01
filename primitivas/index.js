@@ -25,3 +25,4 @@ const primitivas = [
 ].sort(ordenarPrimitivaPorNome);
 // Registro global
 globalThis.primitivas = primitivas;
+globalThis.funcoesNativas = metodos_biblioteca_global_1.metodosBibliotecaGlobal;

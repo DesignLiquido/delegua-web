@@ -10156,7 +10156,35 @@ class AnalisadorSemantico extends analisador_semantico_base_1.AnalisadorSemantic
             }
         }
     }
+    declararVariaveisImportadas(declaracao) {
+        if (declaracao.simboloTudo) {
+            this.gerenciadorEscopos.declarar(declaracao.simboloTudo.lexema, {
+                nome: declaracao.simboloTudo.lexema,
+                tipo: 'módulo',
+                imutavel: true,
+                valor: undefined,
+                inicializada: true,
+                usada: false,
+                hashArquivo: declaracao.simboloTudo.hashArquivo,
+                linha: declaracao.simboloTudo.linha,
+            });
+            return;
+        }
+        for (const simboloImportado of declaracao.elementosImportacao || []) {
+            this.gerenciadorEscopos.declarar(simboloImportado.lexema, {
+                nome: simboloImportado.lexema,
+                tipo: 'qualquer',
+                imutavel: true,
+                valor: undefined,
+                inicializada: true,
+                usada: false,
+                hashArquivo: simboloImportado.hashArquivo,
+                linha: simboloImportado.linha,
+            });
+        }
+    }
     async visitarDeclaracaoImportar(declaracao) {
+        this.declararVariaveisImportadas(declaracao);
         this.registrarFuncoesImportadasDeTestes(declaracao);
         return Promise.resolve();
     }
@@ -16209,10 +16237,16 @@ const avaliador_sintatico_base_1 = require("../avaliador-sintatico-base");
 class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSintaticoBase {
     constructor(performance = false) {
         super();
+        // Precisa de inicializador aqui (e não apenas na `constructor`): um campo
+        // de classe sem inicializador roda como `= undefined` logo após `super()`
+        // (semântica `useDefineForClassFields`), o que quebraria
+        // `inicializarPilhaEscopos()` caso o valor fosse atribuído só depois.
+        this.tiposDeFerramentasExternas = {};
         this.atual = 0;
         this.blocos = 0;
         this.performance = performance;
         this.intuirTipoQualquerParaIdentificadores = false;
+        this.existeImportacaoCoringa = false;
         this.escopos = [];
         this.pilhaDecoradores = [];
         this.pilhaEscopos = new pilha_escopos_1.PilhaEscopos();
@@ -16254,6 +16288,12 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
             if (this.primitivasConhecidas[primitiva].hasOwnProperty(entidadeChamada.simbolo.lexema)) {
                 return this.primitivasConhecidas[primitiva][entidadeChamada.simbolo.lexema].tipo;
             }
+        }
+        // 'módulo' é um tipo opaco (usado por integrações externas, como o Liquido,
+        // para objetos cujo formato não é conhecido em tempo de análise estática).
+        // Não há como validar a existência do membro, então assumimos 'qualquer'.
+        if (entidadeChamada.objeto.tipo === 'módulo') {
+            return 'qualquer';
         }
         throw new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(entidadeChamada.simbolo, `Primitiva '${entidadeChamada.simbolo.lexema}' não existe.`);
     }
@@ -16810,7 +16850,12 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
                             .obterTipoVariavelPorNome(simboloIdentificador.lexema);
                     }
                     catch (erro) {
-                        throw this.erro(simboloIdentificador, erro.message);
+                        if (this.existeImportacaoCoringa) {
+                            tipoOperando = 'qualquer';
+                        }
+                        else {
+                            throw this.erro(simboloIdentificador, erro.message);
+                        }
                     }
                 }
                 return new construtos_1.Variavel(this.hashArquivo, simboloIdentificador, tipoOperando);
@@ -17438,20 +17483,51 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
         else {
             declaracao.simboloTudo = nomeModulo;
         }
+        await this.registrarAliasImportacao(declaracao);
         return Promise.resolve(declaracao);
     }
     async declaracaoImportarDe() {
         const nomeModulo = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado nome do módulo após 'de'.");
         const caminho = new construtos_1.Literal(nomeModulo.hashArquivo, Number(nomeModulo.linha), nomeModulo.lexema);
         this.consumir(pitugues_2.default.IMPORTAR, "Esperado 'importar' após nome do módulo em declaração 'de ... importar'.");
+        if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.MULTIPLICACAO)) {
+            const declaracao = new declaracoes_1.Importar(caminho);
+            declaracao.simboloTudo = this.simboloAnterior();
+            this.existeImportacaoCoringa = true;
+            return Promise.resolve(declaracao);
+        }
         const elementosImportacao = [];
+        const elementosImportacaoComo = [];
         do {
             const elemento = this.consumir(pitugues_2.default.IDENTIFICADOR, 'Esperado identificador de elemento a ser importado.');
             elementosImportacao.push(elemento);
+            if (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.COMO)) {
+                const alias = this.consumir(pitugues_2.default.IDENTIFICADOR, "Esperado identificador após 'como' em importação seletiva.");
+                elementosImportacaoComo.push({ elemento, alias });
+            }
         } while (this.verificarSeSimboloAtualEIgualA(pitugues_2.default.VIRGULA));
         const declaracao = new declaracoes_1.Importar(caminho);
         declaracao.elementosImportacao = elementosImportacao;
+        declaracao.elementosImportacaoComo = elementosImportacaoComo;
+        await this.registrarAliasImportacao(declaracao);
         return Promise.resolve(declaracao);
+    }
+    async registrarAliasImportacao(declaracao) {
+        if (declaracao.simboloTudo) {
+            this.pilhaEscopos.definirInformacoesVariavel(declaracao.simboloTudo.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(declaracao.simboloTudo.lexema, 'qualquer'));
+        }
+        if (declaracao.elementosImportacao) {
+            for (const elemento of declaracao.elementosImportacao) {
+                this.pilhaEscopos.definirInformacoesVariavel(elemento.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(elemento.lexema, 'qualquer'));
+            }
+            for (const { alias } of declaracao.elementosImportacaoComo) {
+                this.pilhaEscopos.definirInformacoesVariavel(alias.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(alias.lexema, 'qualquer'));
+            }
+        }
+        else {
+            const alias = this.avancarEDevolverAnterior();
+            this.pilhaEscopos.definirInformacoesVariavel(alias.lexema, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(alias.lexema, 'qualquer'));
+        }
     }
     async declaracaoTente() {
         const simboloTente = this.simboloAnterior();
@@ -18022,6 +18098,18 @@ class AvaliadorSintaticoPitugues extends avaliador_sintatico_base_1.AvaliadorSin
         this.pilhaEscopos.definirInformacoesVariavel('vetor', new informacao_elemento_sintatico_1.InformacaoElementoSintatico('vetor', 'vetor', true, [
             new informacao_elemento_sintatico_1.InformacaoElementoSintatico('iteravel', 'qualquer'),
         ]));
+        for (const tipos of Object.values(this.tiposDeFerramentasExternas)) {
+            for (const [nomeTipo, tipo] of Object.entries(tipos)) {
+                if (!nomeTipo || !tipo) {
+                    continue;
+                }
+                if (nomeTipo in this.tiposDefinidosEmCodigo) {
+                    this.erros.push(new erro_avaliador_sintatico_1.ErroAvaliadorSintatico(new lexador_1.Simbolo(pitugues_2.default.IDENTIFICADOR, nomeTipo, nomeTipo, 0, 0), `Tipo '${nomeTipo}' de ferramenta externa conflita com tipo já definido em código.`));
+                    continue;
+                }
+                this.pilhaEscopos.definirInformacoesVariavel(nomeTipo, new informacao_elemento_sintatico_1.InformacaoElementoSintatico(nomeTipo, tipo));
+            }
+        }
     }
     async analisar(retornoLexador, hashArquivo) {
         const inicioAnalise = (0, browser_process_hrtime_1.default)();
@@ -26242,6 +26330,7 @@ class Importar extends declaracao_1.Declaracao {
         super(caminho.linha, caminho.hashArquivo);
         this.simboloTudo = null;
         this.elementosImportacao = [];
+        this.elementosImportacaoComo = [];
         this.caminho = caminho;
     }
     async aceitar(visitante) {
@@ -29907,67 +29996,75 @@ async function visitarExpressaoAcessoIntervaloVariavel(interpretador, expressao)
     return resultadoFatiado;
 }
 function carregarBibliotecasGlobais(pilhaEscoposExecucao) {
-    pilhaEscoposExecucao.definirVariavel('aleatorio', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
-    pilhaEscoposExecucao.definirVariavel('aleatório', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
-    pilhaEscoposExecucao.definirVariavel('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre));
-    pilhaEscoposExecucao.definirVariavel('aleatórioEntre', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre));
-    pilhaEscoposExecucao.definirVariavel('algum', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.algum));
-    pilhaEscoposExecucao.definirVariavel('arredondar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.arredondar));
-    pilhaEscoposExecucao.definirVariavel('clonar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.clonar));
-    pilhaEscoposExecucao.definirVariavel('encontrar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrar));
-    pilhaEscoposExecucao.definirVariavel('encontrarIndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice));
-    pilhaEscoposExecucao.definirVariavel('encontrarÍndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice));
-    pilhaEscoposExecucao.definirVariavel('encontrarUltimo', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo));
-    pilhaEscoposExecucao.definirVariavel('encontrarÚltimo', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo));
-    pilhaEscoposExecucao.definirVariavel('encontrarUltimoIndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice));
-    pilhaEscoposExecucao.definirVariavel('encontrarÚltimoÍndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice));
-    pilhaEscoposExecucao.definirVariavel('filtrarPor', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.filtrarPor));
-    pilhaEscoposExecucao.definirVariavel('incluido', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.incluido));
-    pilhaEscoposExecucao.definirVariavel('incluído', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.incluido));
+    // Registra a variável e, para funções padrão, guarda o nome com que foram
+    // registradas, usado para representá-las como texto (ex.: `escreva(real)`).
+    const definir = (nome, valor) => {
+        if (valor instanceof funcao_padrao_1.FuncaoPadrao && !valor.nome) {
+            valor.nome = nome;
+        }
+        pilhaEscoposExecucao.definirVariavel(nome, valor);
+    };
+    definir('aleatorio', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
+    definir('aleatório', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.aleatorio));
+    definir('aleatorioEntre', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre));
+    definir('aleatórioEntre', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.aleatorioEntre));
+    definir('algum', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.algum));
+    definir('arredondar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.arredondar));
+    definir('clonar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.clonar));
+    definir('encontrar', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrar));
+    definir('encontrarIndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice));
+    definir('encontrarÍndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarIndice));
+    definir('encontrarUltimo', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo));
+    definir('encontrarÚltimo', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimo));
+    definir('encontrarUltimoIndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice));
+    definir('encontrarÚltimoÍndice', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.encontrarUltimoIndice));
+    definir('filtrarPor', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.filtrarPor));
+    definir('incluido', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.incluido));
+    definir('incluído', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.incluido));
     const funcaoInteiro = new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.inteiro);
     funcaoInteiro.MAXIMO = 2147483647;
     funcaoInteiro.MÁXIMO = 2147483647;
     funcaoInteiro.MINIMO = -2147483648;
     funcaoInteiro.MÍNIMO = -2147483648;
-    pilhaEscoposExecucao.definirVariavel('inteiro', funcaoInteiro);
+    definir('inteiro', funcaoInteiro);
     const funcaoLongo = new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.longo);
     funcaoLongo.MAXIMO = globalThis.BigInt('9223372036854775807');
     funcaoLongo.MÁXIMO = globalThis.BigInt('9223372036854775807');
     funcaoLongo.MINIMO = globalThis.BigInt('-9223372036854775808');
     funcaoLongo.MÍNIMO = globalThis.BigInt('-9223372036854775808');
-    pilhaEscoposExecucao.definirVariavel('longo', funcaoLongo);
-    pilhaEscoposExecucao.definirVariavel('intervalo', new funcao_padrao_1.FuncaoPadrao(3, bibliotecaGlobal.intervalo));
-    pilhaEscoposExecucao.definirVariavel('mapear', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.mapear));
-    pilhaEscoposExecucao.definirVariavel('maximo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.maximo));
-    pilhaEscoposExecucao.definirVariavel('máximo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.maximo));
-    pilhaEscoposExecucao.definirVariavel('minimo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.minimo));
-    pilhaEscoposExecucao.definirVariavel('mínimo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    definir('longo', funcaoLongo);
+    definir('intervalo', new funcao_padrao_1.FuncaoPadrao(3, bibliotecaGlobal.intervalo));
+    definir('mapear', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.mapear));
+    definir('maximo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    definir('máximo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.maximo));
+    definir('minimo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.minimo));
+    definir('mínimo', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.minimo));
     const funcaoNumero = new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.numero);
     funcaoNumero.MAXIMO = Number.MAX_VALUE;
     funcaoNumero.MÁXIMO = Number.MAX_VALUE;
     funcaoNumero.MINIMO = -Number.MAX_VALUE;
     funcaoNumero.MÍNIMO = -Number.MAX_VALUE;
-    pilhaEscoposExecucao.definirVariavel('numero', funcaoNumero);
-    pilhaEscoposExecucao.definirVariavel('número', funcaoNumero);
-    pilhaEscoposExecucao.definirVariavel('ordenar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.ordenar));
-    pilhaEscoposExecucao.definirVariavel('paraCada', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.paraCada));
-    pilhaEscoposExecucao.definirVariavel('primeiroEmCondicao', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao));
-    pilhaEscoposExecucao.definirVariavel('primeiroEmCondição', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao));
+    definir('numero', funcaoNumero);
+    definir('número', funcaoNumero);
+    definir('ordenar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.ordenar));
+    definir('paraCada', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.paraCada));
+    definir('primeiroEmCondicao', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao));
+    definir('primeiroEmCondição', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.primeiroEmCondicao));
     const funcaoReal = new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.real);
     funcaoReal.MAXIMO = Number.MAX_VALUE;
     funcaoReal.MÁXIMO = Number.MAX_VALUE;
     funcaoReal.MINIMO = -Number.MAX_VALUE;
     funcaoReal.MÍNIMO = -Number.MAX_VALUE;
-    pilhaEscoposExecucao.definirVariavel('real', funcaoReal);
-    pilhaEscoposExecucao.definirVariavel('reduzir', new funcao_padrao_1.FuncaoPadrao(3, bibliotecaGlobal.reduzir));
-    pilhaEscoposExecucao.definirVariavel('somar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.somar));
-    pilhaEscoposExecucao.definirVariavel('tamanho', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.tamanho));
-    pilhaEscoposExecucao.definirVariavel('texto', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.texto));
-    pilhaEscoposExecucao.definirVariavel('todos', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.todos));
-    pilhaEscoposExecucao.definirVariavel('todosEmCondicao', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao));
-    pilhaEscoposExecucao.definirVariavel('todosEmCondição', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao));
-    pilhaEscoposExecucao.definirVariavel('tupla', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.tupla));
-    pilhaEscoposExecucao.definirVariavel('vetor', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.vetor));
+    definir('real', funcaoReal);
+    definir('reduzir', new funcao_padrao_1.FuncaoPadrao(3, bibliotecaGlobal.reduzir));
+    definir('somar', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.somar));
+    definir('tamanho', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.tamanho));
+    definir('texto', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.texto));
+    definir('todos', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.todos));
+    definir('todosEmCondicao', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao));
+    definir('todosEmCondição', new funcao_padrao_1.FuncaoPadrao(2, bibliotecaGlobal.todosEmCondicao));
+    definir('tupla', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.tupla));
+    definir('vetor', new funcao_padrao_1.FuncaoPadrao(1, bibliotecaGlobal.vetor));
 }
 function pontoEntradaAjuda(funcao, topico) {
     if (!funcao) {
@@ -31354,7 +31451,7 @@ class FuncaoPadrao extends chamavel_1.Chamavel {
      * @returns {string} A representação da função como texto.
      */
     paraTexto() {
-        return `<função-padrão nome=${this.simbolo?.lexema || '(função anônima)'} />`;
+        return `<função-padrão nome=${this.nome || this.simbolo?.lexema || '(função anônima)'} />`;
     }
     /**
      * Método utilizado pelo VSCode para representar esta função quando impressa.
@@ -34240,7 +34337,8 @@ class InterpretadorBase {
             return this.paraTexto(objeto.valor);
         if (objeto instanceof estruturas_1.ObjetoDeleguaClasse ||
             objeto instanceof estruturas_1.DeleguaFuncao ||
-            objeto instanceof estruturas_1.DescritorTipoClasse)
+            objeto instanceof estruturas_1.DescritorTipoClasse ||
+            objeto instanceof estruturas_1.FuncaoPadrao)
             return objeto.paraTexto();
         if (objeto instanceof quebras_1.RetornoQuebra) {
             if (typeof objeto.valor === 'boolean')
@@ -34596,7 +34694,7 @@ class Interpretador extends interpretador_base_1.InterpretadorBase {
             if (typeof objeto.valor === 'boolean')
                 return objeto.valor ? 'verdadeiro' : 'falso';
         }
-        if (objeto instanceof estruturas_1.MetodoPrimitiva) {
+        if (objeto instanceof estruturas_1.MetodoPrimitiva || objeto instanceof estruturas_1.FuncaoPadrao) {
             return objeto.paraTexto();
         }
         if (objeto instanceof Date) {
@@ -37663,6 +37761,17 @@ class LexadorPitugues {
                 break;
             case '*':
                 this.inicioSimbolo = this.atual;
+                const terminaLinha = this.atual + 1 >= this.codigo[this.linha].length;
+                if (terminaLinha) {
+                    this.atual += 1;
+                    this.adicionarSimbolo(pitugues_2.default.MULTIPLICACAO);
+                    if (!this.eUltimaLinha()) {
+                        this.linha += 1;
+                        this.atual = 0;
+                        this.analisarIndentacao();
+                    }
+                    break;
+                }
                 this.avancar();
                 if (this.simboloAtual() === '*') {
                     this.avancar();

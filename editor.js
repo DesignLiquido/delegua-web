@@ -556,6 +556,42 @@ function analisarDocumentario(conteudo) {
     }
     return resultado;
 }
+const PADRAO_IDENTIFICADOR = '[A-Za-zÀ-ÿ_][A-Za-z0-9À-ÿ_]*';
+function escaparRegex(texto) {
+    return texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+/**
+ * Procura, até a linha informada, a última atribuição do tipo `var nome = outroNome`
+ * (sem chamada) e retorna `outroNome`. Usado para descobrir se uma variável guarda
+ * uma referência a outra entidade, como uma função nativa (ex.: `var valor = real`).
+ */
+function obterIdentificadorAtribuido(codigo, nome, ateLinha) {
+    const linhas = codigo.split('\n').slice(0, ateLinha);
+    const regex = new RegExp(`(?:^|[;{}\\s])(?:(?:var|variavel|variável|const|constante|fixo)\\s+)?` +
+        `${escaparRegex(nome)}\\s*(?::\\s*${PADRAO_IDENTIFICADOR}\\s*)?=\\s*(${PADRAO_IDENTIFICADOR})\\s*(?:;|$)`);
+    for (let i = linhas.length - 1; i >= 0; i--) {
+        const correspondencia = linhas[i].match(regex);
+        if (correspondencia)
+            return correspondencia[1];
+    }
+    return null;
+}
+/**
+ * Resolve uma cadeia de atribuições (`var a = real; var b = a`) até chegar
+ * a uma função nativa. Retorna a função nativa encontrada, ou `undefined`.
+ */
+function resolverReferenciaFuncaoNativa(codigo, nome, ateLinha, funcoesNativas) {
+    const visitados = new Set([nome]);
+    let atual = obterIdentificadorAtribuido(codigo, nome, ateLinha);
+    while (atual && !visitados.has(atual)) {
+        const nativa = funcoesNativas.find(f => f.nome === atual);
+        if (nativa)
+            return nativa;
+        visitados.add(atual);
+        atual = obterIdentificadorAtribuido(codigo, atual, ateLinha);
+    }
+    return undefined;
+}
 function extrairFuncoesDocumentadas(codigo) {
     const mapa = new Map();
     const REGEX_FUNCAO_DOC = /\/\*\*([\s\S]*?)\*\/\s*(?:funcao|função)\s+([a-zA-ZÀ-úÇçãâáêéíóôõú_]\w*)\s*\(([^)]*)\)/g;
@@ -1115,10 +1151,11 @@ const informacoesModulos = {
     }
 };
 const configurarLinguagemDelegua = function () {
-    var _a;
+    var _a, _b;
     const primitivas = globalThis.primitivas;
+    const funcoesNativas = (_a = globalThis.funcoesNativas) !== null && _a !== void 0 ? _a : [];
     const documentacoesBibliotecas = deleguaWeb.documentacoesBibliotecas;
-    (_a = Monaco.languages) === null || _a === void 0 ? void 0 : _a.register({
+    (_b = Monaco.languages) === null || _b === void 0 ? void 0 : _b.register({
         id: 'delegua',
         extensions: ['.delegua'],
         aliases: ['delegua', 'language-generation'],
@@ -1622,8 +1659,19 @@ const configurarLinguagemDelegua = function () {
                 }
                 return { contents: conteudos };
             }
-            // Verificar funções e classes documentadas pelo usuário
             const codigoAtual = model.getValue();
+            // Verificar variáveis que guardam referência a uma função nativa (ex.: `var valor = real`)
+            const funcaoNativa = resolverReferenciaFuncaoNativa(codigoAtual, palavra.word, position.lineNumber, funcoesNativas);
+            if (funcaoNativa) {
+                return {
+                    contents: [
+                        { value: `**${palavra.word}** _(variável)_` },
+                        { value: `Referência à função nativa \`${funcaoNativa.nome}()\`.` },
+                        { value: funcaoNativa.documentacao },
+                    ]
+                };
+            }
+            // Verificar funções e classes documentadas pelo usuário
             const funcoesDocumentadas = extrairFuncoesDocumentadas(codigoAtual);
             const docFuncao = funcoesDocumentadas.get(palavra.word);
             if (docFuncao) {
