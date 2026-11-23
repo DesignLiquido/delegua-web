@@ -627,6 +627,29 @@ exports.default = {
             '## Formas de uso\n',
         exemploCodigo: 'dicionário.itens()',
     },
+    obter: {
+        tipoRetorno: 'qualquer',
+        argumentos: [
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('chave', 'qualquer', true, [], 'A chave a ser buscada no dicionário.'),
+            new informacao_elemento_sintatico_1.InformacaoElementoSintatico('valorPadrao', 'qualquer', false, [], 'O valor devolvido quando a chave não existe. Se omitido, é `nulo`.'),
+        ],
+        implementacao: (interpretador, valor, chave, valorPadrao) => Promise.resolve(Object.prototype.hasOwnProperty.call(valor, chave)
+            ? valor[chave]
+            : valorPadrao === undefined
+                ? null
+                : valorPadrao),
+        assinaturaFormato: 'dicionário.obter(chave: qualquer, valorPadrao?: qualquer)',
+        documentacao: '# `dicionário.obter(chave, valorPadrao)`\n\n' +
+            'Devolve o valor associado à chave. Se a chave não existe, devolve `valorPadrao`, ou `nulo` se ele for omitido.\n' +
+            '\n\n ## Exemplo de Código\n' +
+            '\n\n```delegua\n' +
+            'var d = {"a": 1}\n' +
+            'escreva(d.obter("a", 0)) // 1\n' +
+            'escreva(d.obter("b", 0)) // 0\n' +
+            'escreva(d.obter("b")) // nulo\n```' +
+            '\n\n## Formas de uso\n',
+        exemploCodigo: 'dicionário.obter("minhaChave", valorPadrao)',
+    },
     remover: {
         tipoRetorno: 'lógico',
         argumentos: [new informacao_elemento_sintatico_1.InformacaoElementoSintatico('chave', 'texto')],
@@ -765,7 +788,7 @@ const implementacaoParticao = (interpretador, texto, separador, ...args) => {
     return Promise.resolve(tupla);
 };
 exports.implementacaoParticao = implementacaoParticao;
-exports.default = {
+const primitivas = {
     aparar: {
         tipoRetorno: 'texto',
         argumentos: [],
@@ -1125,6 +1148,20 @@ exports.default = {
         exemploCodigo: 'texto.tudoMinúsculo()',
     },
 };
+/**
+ * `contem` (e `contém`) é sinônimo de `inclui`.
+ */
+const sinonimoInclui = (nome) => ({
+    ...primitivas.inclui,
+    assinaturaFormato: 'texto.' + nome + '(elemento: texto)',
+    documentacao: '# `texto.' + nome + '(elemento)`\n\n' +
+        'Sinônimo de `texto.inclui(elemento)`. ' +
+        'Devolve `verdadeiro` se o elemento está contido, e `falso` em caso contrário.',
+    exemploCodigo: 'texto.' + nome + '(elemento)',
+});
+primitivas.contem = sinonimoInclui('contem');
+primitivas.contém = sinonimoInclui('contém');
+exports.default = primitivas;
 
 },{"../construtos":41,"../excecoes":73,"../informacao-elemento-sintatico":77}],11:[function(require,module,exports){
 "use strict";
@@ -1144,7 +1181,7 @@ const mapaConstrutoresTupla = {
     9: construtos_1.Noneto,
     10: construtos_1.Deceto,
 };
-exports.default = {
+const primitivas = {
     adicionar: {
         tipoRetorno: 'qualquer[]',
         argumentos: [
@@ -1537,6 +1574,20 @@ exports.default = {
         exemploCodigo: 'vetor.tamanho()',
     },
 };
+/**
+ * `contem` (e `contém`) é sinônimo de `inclui`.
+ */
+const sinonimoInclui = (nome) => ({
+    ...primitivas.inclui,
+    assinaturaFormato: 'vetor.' + nome + '(elemento: qualquer)',
+    documentacao: '# `vetor.' + nome + '(elemento)`\n\n' +
+        'Sinônimo de `vetor.inclui(elemento)`. ' +
+        'Devolve `verdadeiro` se o elemento está contido, e `falso` em caso contrário.',
+    exemploCodigo: 'vetor.' + nome + '(elemento)',
+});
+primitivas.contem = sinonimoInclui('contem');
+primitivas.contém = sinonimoInclui('contém');
+exports.default = primitivas;
 
 },{"../construtos":41,"../excecoes":73,"../inferenciador":76,"../informacao-elemento-sintatico":77}],12:[function(require,module,exports){
 "use strict";
@@ -2273,6 +2324,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpressaoRegular = void 0;
 class ExpressaoRegular {
     constructor(hashArquivo, simbolo, valor) {
+        this.tipo = 'qualquer';
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
         this.valor = valor;
@@ -2423,6 +2475,7 @@ exports.ImportarComoConstruto = void 0;
  */
 class ImportarComoConstruto {
     constructor(caminho) {
+        this.tipo = 'qualquer';
         this.hashArquivo = caminho.hashArquivo;
         this.linha = caminho.linha;
         this.caminho = caminho;
@@ -2617,16 +2670,46 @@ exports.Literal = Literal;
 
 },{}],46:[function(require,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logico = void 0;
+const delegua_1 = __importDefault(require("../tipos-de-simbolos/delegua"));
 class Logico {
     constructor(hashArquivo, esquerda, operador, direita) {
         this.negado = false;
+        this.tipo = 'qualquer';
         this.linha = esquerda.linha;
         this.hashArquivo = hashArquivo;
         this.esquerda = esquerda;
         this.operador = operador;
         this.direita = direita;
+        this.tipo = this.deduzirTipo();
+    }
+    /**
+     * Dedução de tipos para expressões lógicas.
+     * - `em` e `contém` resultam em `lógico`.
+     * - `e` e `ou` entre dois lógicos resultam em `lógico`. Entre dois números são operações
+     *   bit a bit e resultam em número. Nos demais casos, o resultado é um dos operandos,
+     *   então o tipo é `qualquer`.
+     * @returns O tipo deduzido.
+     */
+    deduzirTipo() {
+        if ([delegua_1.default.EM, delegua_1.default.CONTEM].includes(this.operador.tipo)) {
+            return 'lógico';
+        }
+        const tipoEsquerda = this.esquerda?.tipo;
+        const tipoDireita = this.direita?.tipo;
+        const logicos = ['logico', 'lógico'];
+        if (logicos.includes(tipoEsquerda) && logicos.includes(tipoDireita)) {
+            return 'lógico';
+        }
+        const numericos = ['número', 'numero', 'inteiro', 'real', 'longo'];
+        if (numericos.includes(tipoEsquerda) && numericos.includes(tipoDireita)) {
+            return tipoEsquerda === tipoDireita ? tipoEsquerda : 'número';
+        }
+        return 'qualquer';
     }
     aceitar(visitante) {
         return visitante.visitarExpressaoLogica(this);
@@ -2642,7 +2725,7 @@ class Logico {
 }
 exports.Logico = Logico;
 
-},{}],47:[function(require,module,exports){
+},{"../tipos-de-simbolos/delegua":80}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Morsa = void 0;
@@ -2849,6 +2932,8 @@ exports.TipoDe = void 0;
  */
 class TipoDe {
     constructor(hashArquivo, simbolo, valor) {
+        // `tipo de x` resulta no nome do tipo, um texto.
+        this.tipo = 'texto';
         this.linha = Number(simbolo.linha);
         this.hashArquivo = hashArquivo;
         this.valor = valor;
